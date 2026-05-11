@@ -868,6 +868,66 @@
     }
     .bp-prev-empty strong { display: block; color: #15191F; font-size: 15px; margin-bottom: 6px; }
 
+    /* Hint quando preview switch troca de template e o form não tem dados */
+    .bp-prev-tpl-hint {
+      margin: 22px 0 0;
+      padding: 16px 18px;
+      border: 1.5px dashed #E4E8EF;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #FFF9F7, #FFF5F1);
+    }
+    .bp-prev-tpl-hint .hint-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #EC4815;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .bp-prev-tpl-hint .hint-head svg { width: 14px; height: 14px; }
+    .bp-prev-tpl-hint > p {
+      font-size: 13px;
+      color: #687080;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .bp-prev-tpl-hint > p strong { color: #15191F; }
+
+    .bp-prev-gallery .ph .ph-img,
+    .bp-prev-step.ph .ph-img {
+      background: linear-gradient(135deg, #F4F5F8, #E5E8EF);
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 6px;
+      position: relative;
+    }
+    .bp-prev-gallery .ph .ph-img::after,
+    .bp-prev-step.ph .ph-img::after {
+      content: '🖼';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      opacity: 0.35;
+    }
+    .bp-prev-gallery .ph figcaption {
+      color: #B0B8C6;
+      font-style: italic;
+    }
+    .bp-prev-step.ph {
+      opacity: 0.7;
+    }
+    .bp-prev-step.ph p { color: #B0B8C6; font-style: italic; }
+    .bp-prev-step.ph .ph-img {
+      margin: 6px 0;
+      aspect-ratio: 16 / 7;
+    }
+
     /* Status bar at bottom of editor */
     .bp-editor-status {
       grid-column: 1 / -1;
@@ -1923,22 +1983,32 @@
 
     /* Gallery */
     if (tpl === 'gallery') {
-      var items = window.ChampionBlogTemplates ? window.ChampionBlogTemplates.collectGallery() : [];
+      var items = (window.ChampionBlogTemplates ? window.ChampionBlogTemplates.collectGallery() : []).filter(function (g) { return g.image; });
       if (items.length) {
         html += '<div class="bp-prev-gallery">';
         items.forEach(function (g) {
-          if (!g.image) return;
           html += '<figure><img src="' + esc(g.image) + '" alt="" />';
           if (g.caption) html += '<figcaption>' + esc(g.caption) + '</figcaption>';
           html += '</figure>';
         });
         html += '</div>';
+      } else {
+        /* Placeholder: mostra como uma galeria ficará renderizada */
+        html += '<div class="bp-prev-tpl-hint" data-tpl="gallery">'
+          + '<div class="hint-head"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><strong>Modelo Galeria</strong></div>'
+          + '<p>Aqui aparecerá uma <strong>grade 2×N de fotos com legendas</strong>. Adicione fotos na seção "Galeria de fotos" para vê-las aqui.</p>'
+          + '<div class="bp-prev-gallery">'
+          +   '<figure class="ph"><div class="ph-img"></div><figcaption>Legenda da foto 1</figcaption></figure>'
+          +   '<figure class="ph"><div class="ph-img"></div><figcaption>Legenda da foto 2</figcaption></figure>'
+          +   '<figure class="ph"><div class="ph-img"></div><figcaption>Legenda da foto 3</figcaption></figure>'
+          +   '<figure class="ph"><div class="ph-img"></div><figcaption>Legenda da foto 4</figcaption></figure>'
+          + '</div></div>';
       }
     }
 
     /* Tutorial */
     if (tpl === 'tutorial') {
-      var steps = window.ChampionBlogTemplates ? window.ChampionBlogTemplates.collectSteps() : [];
+      var steps = (window.ChampionBlogTemplates ? window.ChampionBlogTemplates.collectSteps() : []).filter(function (s) { return s.title || s.image || s.description; });
       if (steps.length) {
         html += '<ol class="bp-prev-steps">';
         steps.forEach(function (s, i) {
@@ -1951,7 +2021,25 @@
           html += '</div></li>';
         });
         html += '</ol>';
+      } else {
+        /* Placeholder: mostra como um tutorial ficará renderizado */
+        html += '<div class="bp-prev-tpl-hint" data-tpl="tutorial">'
+          + '<div class="hint-head"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><strong>Modelo Tutorial</strong></div>'
+          + '<p>Aqui aparecerão <strong>passos numerados</strong>, cada um com título, foto e descrição. Adicione passos na seção "Passos do tutorial" para vê-los aqui.</p>'
+          + '<ol class="bp-prev-steps">'
+          +   '<li class="bp-prev-step ph"><div class="bp-prev-step-num">1</div><div><h4>Passo 1 — Preparação</h4><div class="ph-img"></div><p>Descrição do primeiro passo aparecerá aqui.</p></div></li>'
+          +   '<li class="bp-prev-step ph"><div class="bp-prev-step-num">2</div><div><h4>Passo 2 — Execução</h4><p>Descrição do segundo passo.</p></div></li>'
+          +   '<li class="bp-prev-step ph"><div class="bp-prev-step-num">3</div><div><h4>Passo 3 — Resultado</h4><p>Descrição do terceiro passo.</p></div></li>'
+          + '</ol></div>';
       }
+    }
+
+    /* Standard: mostra dica quando não há conteúdo */
+    if (tpl === 'standard' && !content && (excerpt || hero || title)) {
+      html += '<div class="bp-prev-tpl-hint" data-tpl="standard">'
+        + '<div class="hint-head"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg><strong>Modelo Padrão</strong></div>'
+        + '<p>Esse modelo exibe a capa + resumo + <strong>texto corrido</strong>. Adicione o conteúdo do artigo na seção "Texto do artigo".</p>'
+        + '</div>';
     }
 
     html += '</div></div>';

@@ -114,7 +114,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       category: String(post.category || 'Champion').trim(),
       author: String(post.author || 'Equipe Champion').trim(),
       date: post.date || new Date().toISOString().slice(0, 10),
-      image: String(post.image || defaultConfig.heroImage).trim(),
+      image: String(post.image || '').trim(),
       status: post.status === 'draft' ? 'draft' : 'published',
       excerpt: String(post.excerpt || '').trim(),
       content: String(post.content || '').trim(),
@@ -426,7 +426,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     if (!post || !target) return;
     target.innerHTML = `
       <div class="blog-featured-media">
-        <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />
+        ${post.image ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />` : ''}
       </div>
       <div class="blog-featured-body">
         <span class="blog-kicker">${escapeHtml(post.category)}</span>
@@ -445,7 +445,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     return `
       <article class="blog-card">
         <a class="blog-card-media" href="${postUrl(post)}" aria-label="${escapeHtml(post.title)}">
-          <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />
+          ${post.image ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />` : ''}
         </a>
         <div class="blog-card-body">
           <span class="blog-tag">${escapeHtml(post.category)}</span>
@@ -605,9 +605,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         <h1>${escapeHtml(post.title)}</h1>
         <p>${escapeHtml(post.excerpt)}</p>
       </div>
-      <div class="blog-article-hero">
-        <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />
-      </div>
+      ${post.image ? `<div class="blog-article-hero"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
       <div class="blog-article-content blog-template-${escapeHtml(post.template || 'standard')}">
         ${renderTemplate(post)}
       </div>
@@ -789,7 +787,9 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     form.elements.date.value = new Date().toISOString().slice(0, 10);
     form.elements.author.value = 'Equipe Champion';
     form.elements.status.value = 'published';
-    form.elements.image.value = 'assets/img/about/pecuarista.jpg';
+    if (form.elements.image) form.elements.image.value = '';
+    if (form.elements.secondaryImage) form.elements.secondaryImage.value = '';
+    if (form.elements.secondaryCaption) form.elements.secondaryCaption.value = '';
     applyTemplate('standard');
     renderGalleryRows([]);
     renderStepsRows([]);
