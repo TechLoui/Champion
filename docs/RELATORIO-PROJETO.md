@@ -237,47 +237,34 @@ Single-page com sidebar e tabs. Tudo unificado sem recarregar página.
 
 ### 4.1. 💳 Gateway de pagamento
 
-**Estado atual:** O checkout funciona ponta a ponta, **mas o pedido é marcado como "pago" assim que o cliente confirma**, sem cobrança real. Existem 3 opções de pagamento na UI (Pix, Cartão, Boleto), porém nenhuma se conecta a um adquirente.
+**Estado atual:** O checkout funciona ponta a ponta, **mas o pedido é marcado como "pago" assim que o cliente confirma**, sem cobrança real. Existem 3 opções de pagamento na UI (Pix, Cartão, Boleto), porém nenhuma se conecta a um adquirente real.
 
 **O que precisa ser feito:**
 
-#### Opção recomendada · Mercado Pago
+A escolha do gateway será definida pelo cliente conforme a relação bancária e os termos comerciais já existentes. A arquitetura está preparada para receber qualquer adquirente do mercado brasileiro (Pix, boleto, cartão de crédito/débito) com mudança mínima.
 
-| Aspecto | Detalhe |
-|---|---|
-| **Por quê** | Líder no Brasil, taxas competitivas, suporta Pix nativo, integração mais simples |
-| **Modalidades suportadas** | Pix (com QR Code), Boleto, Cartão de crédito (até 12x), Cartão de débito |
-| **Taxa Pix** | 0,99% (ou 0% para empresas qualificadas) |
-| **Taxa Cartão** | 4,99% à vista, 4,49% + parcelamento |
-| **Tempo de implementação** | 8–12 horas de desenvolvimento + 1 dia de testes em sandbox |
+#### Escopo da integração (independente do provedor)
 
-#### Alternativas
+1. **Backend**: novos endpoints
+   - `POST /api/orders/checkout` — cria a preferência de pagamento no adquirente escolhido
+   - `POST /api/payments/webhook` — recebe a notificação do adquirente quando o pagamento é aprovado/rejeitado
+   - Atualiza o status do pedido no Firestore: `pending → paid → separating`
+2. **Frontend**: substituir o "confirmar pedido" por redirect para a página de pagamento do adquirente (checkout hospedado) ou integração transparente inline
+3. **Variáveis de ambiente** no backend: chaves de API + segredo do webhook + URL de retorno
+4. **Notificações**: e-mail automático ao cliente quando o pagamento é aprovado
+5. **Conciliação**: relatório no painel admin com transações + status por método de pagamento
 
-| Gateway | Quando usar |
-|---|---|
-| **Stripe** | Se houver venda internacional planejada |
-| **PagSeguro / UOL PagBank** | Se já houver conta empresarial PagBank |
-| **Asaas / Iugu** | Foco em recorrência e cobrança via boleto |
-| **EFI (antigo Gerencianet)** | Bom para Pix com taxa zero até R$ 30k/mês |
-
-#### Escopo da integração
-
-1. **Backend**: novos endpoints `POST /api/orders/checkout` e `POST /api/payments/webhook`
-   - Cria preferência de pagamento no MP
-   - Recebe webhook quando pagamento é aprovado
-   - Atualiza status do pedido no Firestore: `pending → paid → separating`
-2. **Frontend**: substituir o "confirmar pedido" por redirect para a página de pagamento do MP (Checkout Pro) ou integrar o Brick (Checkout Transparente) inline
-3. **Variáveis de ambiente** no Railway:
-   - `MP_ACCESS_TOKEN` (token de produção)
-   - `MP_WEBHOOK_SECRET`
-   - `PAYMENT_RETURN_URL`
-4. **Notificações**: e-mail automático ao cliente quando pagamento aprovado
-5. **Conciliação**: relatório no painel admin com transações + status por método
+**Modalidades cobertas pela arquitetura:**
+- Pix (com QR Code dinâmico)
+- Boleto bancário (registrado)
+- Cartão de crédito (à vista e parcelado)
+- Cartão de débito
+- Pagamento faturado (B2B, opcional)
 
 **Custo estimado:**
-- Desenvolvimento: 10–14 horas
-- Operacional: taxas conforme volume (3–5% sobre receita)
-- Não há custo fixo mensal
+- Desenvolvimento: 10–14 horas após o adquirente ser definido
+- Operacional: variável conforme o contrato comercial fechado pelo cliente
+- Sem custo fixo do gateway no nosso lado (pay-as-you-go)
 
 ---
 
@@ -368,28 +355,22 @@ Single-page com sidebar e tabs. Tudo unificado sem recarregar página.
 
 ### 4.3. 🤖 Integração de IA ao site
 
-A IA pode adicionar valor em 4 frentes distintas. Recomendamos implementação faseada.
+A IA pode adicionar valor em 4 frentes distintas. Recomendamos implementação faseada. O modelo/provedor de IA será definido em conjunto com o cliente conforme orçamento, requisitos de privacidade e volume esperado — a arquitetura suporta qualquer provedor de LLM moderno.
 
 #### A · Chatbot técnico (atendimento 24/7)
 
 **O que faz:** Bot que responde dúvidas sobre produtos, doses, aplicação, vermifugação, etc.
 
 **Como funciona:**
-- Modelo: GPT-4o-mini ou Claude Haiku 4.5 (custo baixíssimo, qualidade alta)
-- Conhecimento: alimentado com as fichas técnicas, bulas, e conteúdo do blog
+- Conhecimento alimentado com as fichas técnicas, bulas e conteúdo do blog
 - Frontend: widget flutuante no canto inferior direito do site
 - Persistência: histórico de conversa no localStorage do navegador
+- Handoff humano: se a IA não souber responder, oferece atendimento via WhatsApp
 
 **Escopo:**
-1. Backend: novo endpoint `POST /api/chat` que recebe mensagem + contexto, chama OpenAI/Anthropic API, retorna resposta
+1. Backend: novo endpoint `POST /api/chat` que recebe mensagem + contexto, processa via LLM, retorna resposta
 2. Frontend: componente de chat com input, histórico, indicador de "digitando"
 3. RAG (Retrieval Augmented Generation): vetorizar os PDFs de fichas técnicas para o bot consultar antes de responder
-4. Handoff humano: se a IA não souber responder, oferece WhatsApp
-
-**Custo operacional:**
-- API LLM: ~R$ 0,01 por conversa de 10 mensagens
-- Estimativa para 1.000 conversas/mês: R$ 10–30
-- Vector DB (Pinecone ou Supabase pgvector): R$ 0–50/mês
 
 **Tempo de implementação:** 12–18 horas
 
@@ -437,25 +418,21 @@ A IA pode adicionar valor em 4 frentes distintas. Recomendamos implementação f
 
 **Como funciona:**
 - Botão no editor chama `POST /api/ai/blog-assist` com modo (`title`, `draft`, `meta`, `alt`)
-- Backend monta prompt específico e chama OpenAI/Anthropic
+- Backend monta prompt específico e chama o LLM configurado
 - Retorna sugestões; usuário aceita, edita ou descarta
 
 **Tempo de implementação:** 6–10 horas
 
-#### Custo operacional total da IA
+#### Observações sobre custo operacional
 
-| Cenário | Custo mensal |
-|---|---|
-| Apenas chatbot · 500 conversas/mês | R$ 15–30 |
-| Chatbot + busca · 1.500 interações | R$ 40–80 |
-| Tudo · 5.000 interações/mês | R$ 150–300 |
+O custo da IA escala com o volume de uso e depende do provedor escolhido. A arquitetura permite trocar de provedor sem reescrever código de aplicação, então a decisão pode ser revisada conforme a operação cresce.
 
 ---
 
 ## 5. Roadmap sugerido
 
 ### Sprint 1 · Pagamento (2 semanas)
-- Integração Mercado Pago Checkout Pro
+- Integração do gateway de pagamento definido pelo cliente
 - Webhook de confirmação
 - E-mail automático ao cliente quando pago
 - Relatório de transações no painel
@@ -502,8 +479,8 @@ A IA pode adicionar valor em 4 frentes distintas. Recomendamos implementação f
 | Firebase (Auth + Firestore + Storage) | Spark (free tier) | R$ 0 inicial, ~R$ 50 com >1.000 usuários ativos/dia |
 | Railway (backend) | Hobby | ~R$ 25 (US$ 5) |
 | Resend | Free (3k e-mails/mês) | R$ 0 até 3.000 envios/mês |
-| Mercado Pago | Pay-as-you-go | Variável: ~5% sobre receita |
-| OpenAI / Anthropic API (se IA) | Pay-as-you-go | R$ 30–300 conforme volume |
+| Gateway de pagamento | A definir | Variável conforme adquirente escolhido |
+| Provedor de IA (quando aplicável) | A definir | Variável conforme volume e provedor |
 | Domínio (.com.br) | Anual | R$ 40/ano |
 | Google Workspace (opcional, e-mails @champion.ind.br) | Business Starter | R$ 30/usuário/mês |
 
@@ -511,34 +488,15 @@ A IA pode adicionar valor em 4 frentes distintas. Recomendamos implementação f
 
 ---
 
-## 7. Próximos passos imediatos
+## 7. Próximos entregáveis
 
-### Para colocar no ar hoje (já está pronto):
+Após a aprovação e pagamento da primeira parcela, os três blocos pendentes serão implementados:
 
-1. ✅ **Acessar o site público**: <https://ecommerce-champion.netlify.app>
-2. ✅ **Acessar o painel admin**: <https://ecommerce-champion.netlify.app/login-admin.html>
-   - Login: `admin@champion.com.br` / `Champion@2026`
-3. ✅ **Testar o fluxo completo**: cadastro de cliente → adicionar produto ao carrinho → checkout → ver pedido aparecer no painel admin
+1. **Integração do gateway de pagamento** desejado pelo cliente (Pix, boleto, cartão), com webhooks, e-mails transacionais e conciliação no painel
+2. **Estratégia SEO completa** — otimização técnica do site, estrutura de indexação (sitemap, robots, schema.org, meta tags dinâmicas) e plano de conteúdo para rankeamento orgânico
+3. **Integração de IA ao site** — chatbot técnico, busca semântica do catálogo e/ou recomendação personalizada conforme escopo definido
 
-### Para liberar venda real (sprint 1):
-
-1. ☐ Criar conta empresarial no Mercado Pago
-2. ☐ Aprovar contratação do plano Hobby do Railway
-3. ☐ Definir e-mail oficial para receber leads
-4. ☐ Definir endereço/CNPJ para emissão de boleto/NF-e
-
-### Para acelerar tráfego (sprint 2 + 4):
-
-1. ☐ Cadastrar empresa no Google Business Profile
-2. ☐ Aprovar verba para SEO técnico
-3. ☐ Definir frequência editorial do blog (recomendado: 2 posts/semana)
-4. ☐ Contratar redator especializado em agro (ou treinar equipe interna)
-
-### Para diferenciar com IA (sprint 3 + 5):
-
-1. ☐ Criar conta na OpenAI ou Anthropic
-2. ☐ Aprovar verba operacional (~R$ 50/mês inicial)
-3. ☐ Coletar fichas técnicas em PDF para alimentar o RAG do chatbot
+O sistema atual já está pronto para receber esses três módulos sem necessidade de refatoração estrutural.
 
 ---
 
