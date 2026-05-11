@@ -115,6 +115,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       author: String(post.author || 'Equipe Champion').trim(),
       date: post.date || new Date().toISOString().slice(0, 10),
       image: String(post.image || '').trim(),
+      bannerAspect: normalizeAspect(post.bannerAspect),
       status: post.status === 'draft' ? 'draft' : 'published',
       excerpt: String(post.excerpt || '').trim(),
       content: String(post.content || '').trim(),
@@ -124,6 +125,12 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       gallery,
       steps
     };
+  }
+
+  function normalizeAspect(value) {
+    const valid = ['16/9', '21/9', '4/3', '3/2', '1/1', 'auto'];
+    const v = String(value || '').trim();
+    return valid.includes(v) ? v : '16/9';
   }
 
   function sortPosts(posts) {
@@ -605,11 +612,17 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         <h1>${escapeHtml(post.title)}</h1>
         <p>${escapeHtml(post.excerpt)}</p>
       </div>
-      ${post.image ? `<div class="blog-article-hero"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
+      ${post.image ? `<div class="blog-article-hero" style="${heroStyleFor(post)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
       <div class="blog-article-content blog-template-${escapeHtml(post.template || 'standard')}">
         ${renderTemplate(post)}
       </div>
     `;
+  }
+
+  function heroStyleFor(post) {
+    const aspect = String(post.bannerAspect || '16/9');
+    if (aspect === 'auto') return 'aspect-ratio: auto; max-height: min(72vh, 720px);';
+    return '--hero-aspect: ' + aspect + ';';
   }
 
   function renderSecondary(post) {
@@ -1014,6 +1027,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
           author: data.author,
           date: data.date,
           image: data.image,
+          bannerAspect: data.bannerAspect,
           secondaryImage: data.secondaryImage,
           secondaryCaption: data.secondaryCaption,
           status: data.status,

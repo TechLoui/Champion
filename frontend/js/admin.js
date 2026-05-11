@@ -299,62 +299,143 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     if (refs.statsBanners) refs.statsBanners.textContent = String(bannersCache.filter((b) => b.status === 'published').length);
   }
 
+  const PAGE_LABELS = {
+    home: 'Página Inicial', produtos: 'Produtos', blog: 'Blog',
+    sobre: 'Quem Somos', 'calculo-dose': 'Cálculo de Dose'
+  };
+
+  function openBannerDrawer(title, subtitle) {
+    const drawer = document.getElementById('bannerDrawer');
+    const t = document.getElementById('bannerDrawerTitle');
+    const s = document.getElementById('bannerDrawerSub');
+    if (t && title) t.textContent = title;
+    if (s && subtitle) s.textContent = subtitle;
+    if (drawer) { drawer.classList.add('is-open'); document.body.style.overflow = 'hidden'; }
+  }
+  function closeBannerDrawer() {
+    const drawer = document.getElementById('bannerDrawer');
+    if (drawer) { drawer.classList.remove('is-open'); document.body.style.overflow = ''; }
+  }
+
+  /* In-memory slide state for the open banner */
+  let _bannerSlides = [];
+  function renderBannerSlides() {
+    const wrap = document.getElementById('adminBannerSlides');
+    const counter = document.getElementById('slidesCount');
+    if (!wrap) return;
+    if (counter) counter.textContent = _bannerSlides.length + '/5';
+    if (!_bannerSlides.length) {
+      wrap.innerHTML = '<div style="padding:24px 16px;text-align:center;color:#9EA6B4;font-size:13px;border:1.5px dashed #E4E8EF;border-radius:10px"><strong style="color:#15191F;display:block;margin-bottom:6px">Nenhuma foto ainda</strong>Clique em "+ Foto" para adicionar o primeiro slide do carrossel.</div>';
+      return;
+    }
+    wrap.innerHTML = _bannerSlides.map((s, i) => `
+      <div class="bp-row" data-slide-row="${i}" style="background:white;border:1px solid #E5E8EF;border-radius:10px;padding:14px">
+        <div class="bp-row-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <strong style="font-size:13px;color:#15191F">Slide ${i + 1}</strong>
+          <button type="button" data-remove-slide="${i}" style="background:none;border:none;color:#C13808;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:5px">Remover</button>
+        </div>
+        <div style="display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start">
+          <div>
+            <div style="aspect-ratio:16/9;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}">
+              ${s.image ? `<img src="${escapeHtml(s.image)}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Clique<br>p/ upload</div>'}
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input type="text" data-slide-field="eyebrow" data-slide-idx="${i}" value="${escapeHtml(s.eyebrow || '')}" placeholder="Eyebrow (ex: Página Inicial)" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none" />
+            <input type="text" data-slide-field="title" data-slide-idx="${i}" value="${escapeHtml(s.title || '')}" placeholder="Título principal" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none;font-weight:600" />
+            <input type="text" data-slide-field="subtitle" data-slide-idx="${i}" value="${escapeHtml(s.subtitle || '')}" placeholder="Descrição/subtítulo" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <input type="text" data-slide-field="link" data-slide-idx="${i}" value="${escapeHtml(s.link || '')}" placeholder="Link (opcional)" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none" />
+              <input type="text" data-slide-field="cta" data-slide-idx="${i}" value="${escapeHtml(s.cta || '')}" placeholder="Texto do botão" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none" />
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
   function resetBannerForm() {
     const form = refs.bannerForm;
     if (!form) return;
     form.reset();
     form.elements.id.value = '';
     form.elements.order.value = String(bannersCache.length + 1);
-    if (refs.bannerImageUrl) refs.bannerImageUrl.value = '';
-    if (refs.bannerPreview) { refs.bannerPreview.hidden = true; refs.bannerPreview.src = ''; }
-    if (refs.bannerPlaceholder) refs.bannerPlaceholder.hidden = false;
-    _pendingBannerFile = null;
+    if (form.elements.page) form.elements.page.value = 'home';
+    if (form.elements.aspect) form.elements.aspect.value = '16/9';
+    if (form.elements.transitionMs) form.elements.transitionMs.value = '6';
+    _bannerSlides = [{ image: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' }];
+    renderBannerSlides();
     $('#adminBannerSubmitLabel').textContent = 'Salvar banner';
     setFeedback(refs.bannerFeedback, '');
+  }
+
+  function openNewBannerDrawer() {
+    resetBannerForm();
+    openBannerDrawer('Novo banner', 'Configure página, proporção, slides e texto sobreposto.');
   }
 
   function fillBannerForm(banner) {
     const form = refs.bannerForm;
     if (!form || !banner) return;
     form.elements.id.value = banner.id || '';
-    form.elements.label.value = banner.label || '';
+    if (form.elements.page) form.elements.page.value = banner.page || 'home';
+    if (form.elements.aspect) form.elements.aspect.value = banner.aspect || '16/9';
+    if (form.elements.transitionMs) form.elements.transitionMs.value = String(Math.round((banner.transitionMs || 6000) / 1000));
     form.elements.alt.value = banner.alt || '';
-    form.elements.link.value = banner.link || '';
     form.elements.status.value = banner.status || 'published';
     form.elements.order.value = String(banner.order || 1);
-    if (refs.bannerImageUrl) refs.bannerImageUrl.value = banner.image || '';
-    if (banner.image && refs.bannerPreview) {
-      refs.bannerPreview.src = banner.image;
-      refs.bannerPreview.hidden = false;
-      if (refs.bannerPlaceholder) refs.bannerPlaceholder.hidden = true;
-    }
-    _pendingBannerFile = null;
+    _bannerSlides = (banner.slides && banner.slides.length)
+      ? banner.slides.map((s) => Object.assign({ image: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' }, s))
+      : [{ image: banner.image || '', eyebrow: banner.label || '', title: '', subtitle: '', link: banner.link || '', cta: '' }];
+    renderBannerSlides();
     $('#adminBannerSubmitLabel').textContent = 'Salvar alterações';
     setFeedback(refs.bannerFeedback, '');
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    openBannerDrawer('Editar banner', `Página: ${PAGE_LABELS[banner.page] || 'Página Inicial'}`);
   }
 
   function renderBanners() {
     const list = refs.bannerList;
     if (!list) return;
+    const pageFilter = String(document.getElementById('bannerPageFilter')?.value || '');
+    const items = bannersCache.filter((b) => !pageFilter || b.page === pageFilter);
+
     if (!bannersCache.length) {
-      list.innerHTML = '<div class="admin-empty">Nenhum banner cadastrado.</div>';
+      list.innerHTML = '<div class="prod-empty-state" style="grid-column:1/-1"><h3>Nenhum banner cadastrado</h3><p>Crie banners por página com carrossel de até 5 fotos e texto sobreposto.</p></div>';
       return;
     }
-    list.innerHTML = bannersCache.map((b) => `
-      <article class="admin-row admin-row-banner">
-        <img src="${escapeHtml(b.image || 'assets/img/brand/icon.png')}" alt="" loading="lazy" />
-        <div class="admin-row-main">
-          <div class="admin-row-banner-label">${escapeHtml(b.label)}</div>
-          <div class="admin-row-banner-link">${escapeHtml(b.link)}</div>
-          <span class="blog-admin-status${b.status === 'draft' ? ' is-draft' : ''}">${b.status === 'draft' ? 'Rascunho' : 'Publicado'}</span>
-        </div>
-        <div class="admin-row-actions">
-          <button class="blog-admin-mini" type="button" data-edit-banner="${escapeHtml(b.id)}">Editar</button>
-          <button class="blog-admin-mini is-danger" type="button" data-delete-banner="${escapeHtml(b.id)}">Excluir</button>
-        </div>
-      </article>
-    `).join('');
+    if (!items.length) {
+      list.innerHTML = '<div class="prod-empty-state" style="grid-column:1/-1"><h3>Sem banners nessa página</h3><p>Clique em "+ Novo banner" para criar.</p></div>';
+      return;
+    }
+
+    list.innerHTML = items.map((b) => {
+      const firstSlide = (b.slides && b.slides[0]) || {};
+      const imgSrc = firstSlide.image || b.image || '';
+      const slideCount = (b.slides && b.slides.length) || (imgSrc ? 1 : 0);
+      return `
+        <article class="prod-card">
+          <div class="prod-card-img" style="aspect-ratio:${b.aspect || '16/9'}">
+            ${imgSrc ? `<img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(b.alt || '')}" loading="lazy" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:12px">Sem imagem</div>'}
+            <span class="status-pill${b.status === 'draft' ? ' is-draft' : ''}">${b.status === 'draft' ? 'Rascunho' : 'Publicado'}</span>
+            <span class="tag-pill">${escapeHtml(PAGE_LABELS[b.page] || b.page || 'Home')}</span>
+          </div>
+          <div class="prod-card-body">
+            <h4>${escapeHtml(firstSlide.title || firstSlide.eyebrow || b.label || 'Banner sem título')}</h4>
+            <div class="cat">${slideCount} ${slideCount === 1 ? 'foto' : 'fotos'} · ${b.aspect || '16/9'} · ${Math.round((b.transitionMs || 6000) / 1000)}s</div>
+          </div>
+          <div class="prod-card-actions">
+            <button class="icon-btn primary" type="button" data-edit-banner="${escapeHtml(b.id)}" title="Editar banner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar
+            </button>
+            <button class="icon-btn danger" type="button" data-delete-banner="${escapeHtml(b.id)}" title="Excluir">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+              Excluir
+            </button>
+          </div>
+        </article>
+      `;
+    }).join('');
   }
 
   async function loadSettings() {
@@ -451,12 +532,22 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     $('#adminProductSpeciesFilter')?.addEventListener('change', renderProducts);
     $('#adminProductStatusFilter')?.addEventListener('change', renderProducts);
 
-    /* Botões de fechar drawer */
-    document.querySelectorAll('[data-close-drawer]').forEach((b) => {
-      b.addEventListener('click', closeProductDrawer);
+    /* Botões de fechar drawer (genérico — fecha o .prod-drawer mais próximo) */
+    document.addEventListener('click', (e) => {
+      const closeBtn = e.target.closest('[data-close-drawer]');
+      if (!closeBtn) return;
+      const drawer = closeBtn.closest('.prod-drawer');
+      if (drawer) {
+        drawer.classList.remove('is-open');
+        document.body.style.overflow = '';
+      }
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeProductDrawer();
+      if (e.key !== 'Escape') return;
+      document.querySelectorAll('.prod-drawer.is-open').forEach((d) => {
+        d.classList.remove('is-open');
+      });
+      document.body.style.overflow = '';
     });
 
     /* Botão de seed na empty state */
@@ -576,34 +667,88 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
       if (refs.bannerPlaceholder) refs.bannerPlaceholder.hidden = true;
     });
 
-    /* ── Banner form submit ── */
-    $('#adminNewBanner')?.addEventListener('click', resetBannerForm);
+    /* ── Banner form submit + slide management ── */
+    $('#adminNewBanner')?.addEventListener('click', openNewBannerDrawer);
+    $('#bannerPageFilter')?.addEventListener('change', renderBanners);
+
+    /* Add slide */
+    $('#adminBannerAddSlide')?.addEventListener('click', () => {
+      if (_bannerSlides.length >= 5) {
+        setFeedback(refs.bannerFeedback, 'Máximo de 5 fotos por banner.');
+        return;
+      }
+      _bannerSlides.push({ image: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' });
+      renderBannerSlides();
+    });
+
+    /* Slide events (delegation) */
+    $('#adminBannerSlides')?.addEventListener('click', (e) => {
+      const removeBtn = e.target.closest('[data-remove-slide]');
+      if (removeBtn) {
+        const idx = parseInt(removeBtn.getAttribute('data-remove-slide'), 10);
+        _bannerSlides.splice(idx, 1);
+        renderBannerSlides();
+        return;
+      }
+      const upload = e.target.closest('[data-slide-upload]');
+      if (upload) {
+        const idx = parseInt(upload.getAttribute('data-slide-upload'), 10);
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/jpeg,image/png,image/webp';
+        input.addEventListener('change', async () => {
+          const file = input.files && input.files[0];
+          if (!file) return;
+          if (file.size > 4 * 1024 * 1024) { alert('Imagem muito grande. Máximo 4 MB.'); return; }
+          try {
+            const reader = new FileReader();
+            reader.onload = async () => {
+              _bannerSlides[idx].image = reader.result;
+              renderBannerSlides();
+              try {
+                const url = await store.uploadImage(file, 'banners');
+                _bannerSlides[idx].image = url;
+                renderBannerSlides();
+              } catch (err) {
+                /* Fallback: mantém base64 (funciona localmente) */
+                console.warn('Upload do banner falhou, usando preview local:', err.message);
+              }
+            };
+            reader.readAsDataURL(file);
+          } catch (err) {
+            setFeedback(refs.bannerFeedback, 'Erro no upload: ' + err.message);
+          }
+        });
+        input.click();
+      }
+    });
+    $('#adminBannerSlides')?.addEventListener('input', (e) => {
+      const field = e.target.closest('[data-slide-field]');
+      if (!field) return;
+      const idx = parseInt(field.getAttribute('data-slide-idx'), 10);
+      const key = field.getAttribute('data-slide-field');
+      if (_bannerSlides[idx]) _bannerSlides[idx][key] = field.value;
+    });
 
     refs.bannerForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!refs.bannerForm.reportValidity()) return;
+      const validSlides = _bannerSlides.filter((s) => s.image);
+      if (!validSlides.length) {
+        setFeedback(refs.bannerFeedback, 'Adicione ao menos uma foto ao carrossel.');
+        return;
+      }
       setBusy(refs.bannerForm, true);
       try {
-        let imageUrl = refs.bannerImageUrl?.value || '';
-        if (_pendingBannerFile) {
-          setFeedback(refs.bannerFeedback, 'Enviando imagem...', 'success');
-          imageUrl = await store.uploadImage(_pendingBannerFile, 'banners');
-        }
-        if (!imageUrl) {
-          setFeedback(refs.bannerFeedback, 'Selecione uma imagem para o banner.');
-          setBusy(refs.bannerForm, false);
-          return;
-        }
         const data = Object.fromEntries(new FormData(refs.bannerForm).entries());
-        data.image = imageUrl;
+        /* Converte segundos do form em ms */
+        data.transitionMs = Math.max(2, Number(data.transitionMs || 6)) * 1000;
+        data.slides = validSlides;
         const saved = await store.saveBanner(data);
         bannersCache = await store.getBanners();
         renderBanners();
-        renderStats(await store.getBlogStats().catch(() => ({ posts: 0 })));
-        setFeedback(refs.bannerFeedback, 'Banner salvo com sucesso.', 'success');
-        fillBannerForm(saved);
-        _pendingBannerFile = null;
         window.ChampionToast?.('Banner salvo.');
+        closeBannerDrawer();
       } catch (error) {
         setFeedback(refs.bannerFeedback, friendlyAdminError(error));
       } finally {

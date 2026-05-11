@@ -3,19 +3,65 @@ import { DEFAULT_PRODUCTS, normalizeProduct, sortProducts } from './product-data
 
 const LOCAL_BANNERS_KEY = 'champion-admin-banners';
 
+/* Páginas que podem ter banners gerenciáveis */
+const VALID_BANNER_PAGES = ['home', 'produtos', 'blog', 'sobre', 'calculo-dose'];
+const VALID_BANNER_ASPECTS = ['21/9', '16/9', '16/7', '4/3', '3/2'];
+
 const DEFAULT_BANNERS = [
-  { id: 'banner-1', image: 'assets/img/hero/hero-1.png', link: 'produtos.html', alt: 'Difly Champion — Proteção completa para o gado', label: 'Linha Difly', status: 'published', order: 1 },
-  { id: 'banner-2', image: 'assets/img/hero/hero-2.png', link: 'produtos.html', alt: 'Núcleo Champion — Mais lucratividade na sua propriedade', label: 'Linha Núcleo', status: 'published', order: 2 },
-  { id: 'banner-3', image: 'assets/img/hero/hero-3.png', link: 'produto.html?p=ver-mi-sal', alt: 'VER-MI-SAL Champion — Concentrado de microminerais', label: 'VER-MI-SAL', status: 'published', order: 3 }
+  {
+    id: 'banner-home-1', page: 'home', aspect: '21/9', transitionMs: 6000,
+    slides: [
+      { image: 'assets/img/hero/hero-1.png', eyebrow: 'Linha Difly', title: 'Proteção completa para o gado', subtitle: 'Controle da mosca-dos-chifres direto na origem.', link: 'produtos.html', cta: 'Ver produtos' },
+      { image: 'assets/img/hero/hero-2.png', eyebrow: 'Linha Núcleo', title: 'Mais lucratividade na sua propriedade', subtitle: 'Nutrição mineral completa para bovinos.', link: 'produtos.html', cta: 'Ver linha' },
+      { image: 'assets/img/hero/hero-3.png', eyebrow: 'VER-MI-SAL', title: 'Concentrado de microminerais', subtitle: 'Vermifugação contínua + mineralização no cocho.', link: 'produto.html?p=ver-mi-sal', cta: 'Conhecer' }
+    ],
+    status: 'published', order: 1
+  }
 ];
 
+function normalizeSlide(slide = {}) {
+  return {
+    image: String(slide.image || '').trim(),
+    eyebrow: String(slide.eyebrow || '').trim(),
+    title: String(slide.title || '').trim(),
+    subtitle: String(slide.subtitle || '').trim(),
+    link: String(slide.link || '').trim(),
+    cta: String(slide.cta || '').trim()
+  };
+}
+
 function normalizeBanner(banner = {}, index = 0) {
+  /* Compatibilidade: banner legado (sem slides[]) vira slides[0] */
+  let slides = Array.isArray(banner.slides) ? banner.slides : null;
+  if (!slides) {
+    slides = [{
+      image: banner.image || '',
+      eyebrow: banner.label || '',
+      title: '',
+      subtitle: '',
+      link: banner.link || '',
+      cta: ''
+    }];
+  }
+  /* Limita a 5 slides */
+  slides = slides.slice(0, 5).map(normalizeSlide);
+
+  const page = VALID_BANNER_PAGES.includes(banner.page) ? banner.page : 'home';
+  const aspect = VALID_BANNER_ASPECTS.includes(banner.aspect) ? banner.aspect : '16/9';
+  let transitionMs = Number(banner.transitionMs);
+  if (!Number.isFinite(transitionMs) || transitionMs < 2000) transitionMs = 6000;
+
   return {
     id: String(banner.id || `banner-${Date.now()}-${index}`),
-    image: String(banner.image || '').trim(),
-    link: String(banner.link || 'produtos.html').trim(),
-    alt: String(banner.alt || '').trim(),
-    label: String(banner.label || `Banner ${index + 1}`).trim(),
+    page,
+    aspect,
+    transitionMs,
+    slides,
+    /* Campos legados mantidos para retrocompatibilidade no front público */
+    image: slides[0] ? slides[0].image : '',
+    link: slides[0] ? slides[0].link : '',
+    alt: String(banner.alt || (slides[0] && slides[0].title) || '').trim(),
+    label: String(banner.label || (slides[0] && slides[0].eyebrow) || `Banner ${index + 1}`).trim(),
     status: banner.status === 'draft' ? 'draft' : 'published',
     order: Number.isFinite(Number(banner.order)) ? Number(banner.order) : index + 1
   };

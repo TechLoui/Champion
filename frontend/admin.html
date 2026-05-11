@@ -2583,7 +2583,7 @@
         <div class="ap-section-head">
           <div>
             <h2>Banners do site</h2>
-            <p>Slides do carrossel da página inicial. Apenas os publicados são exibidos, na ordem definida.</p>
+            <p>Gerencie banners de cada página. Cada banner pode ter até 5 fotos em carrossel automático, com texto sobreposto e link opcional.</p>
           </div>
           <div class="ap-section-head-actions">
             <button class="ap-btn ap-btn-primary" type="button" id="adminNewBanner">
@@ -2593,75 +2593,109 @@
           </div>
         </div>
 
-        <div class="ap-products-layout">
-
-          <!-- Form -->
-          <div class="ap-card">
-            <div class="ap-card-head">
-              <h3>Dados do banner</h3>
-            </div>
-            <div class="ap-card-body">
-              <form id="adminBannerForm">
-                <input type="hidden" name="id" />
-                <input type="hidden" name="image" id="adminBannerImageUrl" />
-
-                <div class="ap-form-field" style="margin-bottom:16px;">
-                  <label>Imagem</label>
-                  <div class="banner-upload-area" id="bannerUploadArea">
-                    <img id="adminBannerPreview" src="" alt="" hidden />
-                    <div class="banner-upload-placeholder" id="bannerUploadPlaceholder">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#9EA6B4;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      <span>Clique para escolher uma imagem</span>
-                      <small>Recomendado: 1400 × 600 px · JPG, PNG ou WebP</small>
-                    </div>
-                    <input type="file" id="adminBannerFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
-                  </div>
-                </div>
-
-                <div class="ap-form-grid">
-                  <div class="ap-form-field full">
-                    <label for="bannerLabel">Rótulo / título</label>
-                    <input id="bannerLabel" name="label" placeholder="Ex: Linha Difly" required />
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="bannerAlt">Texto alternativo (acessibilidade)</label>
-                    <input id="bannerAlt" name="alt" placeholder="Difly Champion — Proteção completa para o gado" />
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="bannerLink">Link ao clicar</label>
-                    <input id="bannerLink" name="link" placeholder="produtos.html" required />
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="bannerStatus">Status</label>
-                    <select id="bannerStatus" name="status">
-                      <option value="published">Publicado</option>
-                      <option value="draft">Rascunho</option>
-                    </select>
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="bannerOrder">Ordem</label>
-                    <input id="bannerOrder" name="order" type="number" min="1" value="1" />
-                  </div>
-                </div>
-
-                <div class="ap-feedback blog-admin-feedback" id="adminBannerFeedback" aria-live="polite"></div>
-                <div class="ap-form-actions blog-admin-actions">
-                  <button class="ap-btn ap-btn-primary" type="submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <span id="adminBannerSubmitLabel">Salvar banner</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <!-- List -->
-          <div class="ap-list-panel">
-            <div class="admin-list" id="adminBannerList"></div>
-          </div>
-
+        <!-- Filtro por página -->
+        <div class="ap-data-toolbar">
+          <select class="filter-select" id="bannerPageFilter">
+            <option value="">Todas as páginas</option>
+            <option value="home">Página Inicial</option>
+            <option value="produtos">Produtos / Catálogo</option>
+            <option value="blog">Blog</option>
+            <option value="sobre">Quem somos</option>
+            <option value="calculo-dose">Cálculo de dose</option>
+          </select>
         </div>
+
+        <!-- Lista (grid de cards de banners) -->
+        <div class="prod-grid" id="adminBannerList"></div>
+
       </section>
+
+      <!-- Drawer: criar / editar banner -->
+      <div class="prod-drawer" id="bannerDrawer">
+        <div class="prod-drawer-overlay" data-close-drawer></div>
+        <aside class="prod-drawer-panel" style="width:min(720px, 100%)">
+          <header class="prod-drawer-head">
+            <div>
+              <h3 id="bannerDrawerTitle">Novo banner</h3>
+              <p id="bannerDrawerSub">Configure página, proporção, slides e texto sobreposto.</p>
+            </div>
+            <button class="prod-drawer-close" type="button" data-close-drawer aria-label="Fechar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </header>
+          <div class="prod-drawer-body">
+            <form id="adminBannerForm">
+              <input type="hidden" name="id" />
+
+              <!-- Config geral -->
+              <div class="ap-form-grid">
+                <div class="ap-form-field">
+                  <label for="bannerPage">Página onde aparece</label>
+                  <select id="bannerPage" name="page">
+                    <option value="home">Página Inicial</option>
+                    <option value="produtos">Produtos / Catálogo</option>
+                    <option value="blog">Blog</option>
+                    <option value="sobre">Quem somos</option>
+                    <option value="calculo-dose">Cálculo de dose</option>
+                  </select>
+                </div>
+                <div class="ap-form-field">
+                  <label for="bannerAspect">Proporção (resolução)</label>
+                  <select id="bannerAspect" name="aspect">
+                    <option value="21/9">21:9 · Ultra-wide cinematográfico</option>
+                    <option value="16/9" selected>16:9 · Panorâmico (recomendado)</option>
+                    <option value="16/7">16:7 · Banner amplo</option>
+                    <option value="4/3">4:3 · Clássico</option>
+                    <option value="3/2">3:2 · Foto tradicional</option>
+                  </select>
+                </div>
+                <div class="ap-form-field">
+                  <label for="bannerTransition">Transição entre fotos (segundos)</label>
+                  <input id="bannerTransition" name="transitionMs" type="number" min="2" max="30" step="1" value="6" />
+                </div>
+                <div class="ap-form-field">
+                  <label for="bannerStatus">Status</label>
+                  <select id="bannerStatus" name="status">
+                    <option value="published">Publicado</option>
+                    <option value="draft">Rascunho</option>
+                  </select>
+                </div>
+                <div class="ap-form-field">
+                  <label for="bannerOrder">Ordem</label>
+                  <input id="bannerOrder" name="order" type="number" min="1" value="1" />
+                </div>
+                <div class="ap-form-field">
+                  <label for="bannerAlt">Descrição (acessibilidade)</label>
+                  <input id="bannerAlt" name="alt" placeholder="Banner principal da home" />
+                </div>
+              </div>
+
+              <!-- Slides do carrossel -->
+              <div class="bp-section" style="margin-top:16px;border:1px solid #E5E8EF;border-radius:12px">
+                <div class="bp-section-head" style="padding:14px 18px">
+                  <h4 style="font-family:'Sora',sans-serif;font-size:13.5px;font-weight:700;color:#15191F;display:flex;align-items:center;gap:8px">
+                    <span class="bp-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+                    Slides do carrossel <span id="slidesCount" style="font-size:11.5px;color:#9EA6B4;font-weight:500;margin-left:6px">0/5</span>
+                  </h4>
+                  <button type="button" class="ap-btn ap-btn-primary ap-btn-sm" id="adminBannerAddSlide">+ Foto</button>
+                </div>
+                <div style="padding:0 18px 18px">
+                  <div id="adminBannerSlides" style="display:flex;flex-direction:column;gap:14px"></div>
+                </div>
+              </div>
+
+              <div class="ap-feedback blog-admin-feedback" id="adminBannerFeedback" aria-live="polite"></div>
+            </form>
+          </div>
+          <div class="prod-drawer-foot">
+            <button class="ap-btn ap-btn-ghost" type="button" data-close-drawer>Cancelar</button>
+            <button class="ap-btn ap-btn-primary" type="submit" form="adminBannerForm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span id="adminBannerSubmitLabel">Salvar banner</span>
+            </button>
+          </div>
+        </aside>
+      </div>
 
       <!-- ─── Contatos ─── -->
       <section data-admin-panel="leads" hidden>
