@@ -20,18 +20,9 @@ Champion/
 │   ├── admin/                 # Sub-páginas do painel administrativo
 │   │   ├── _panel.css         # CSS compartilhado por todas as sub-páginas
 │   │   ├── _panel.js          # Login guard + sidebar + logout (script comum)
-│   │   ├── produtos-cadastro.html
-│   │   ├── produtos-midia.html
-│   │   ├── pedidos.html
-│   │   ├── lojas.html
-│   │   ├── clientes.html
-│   │   ├── conteudo-faq.html
-│   │   ├── conteudo-paginas.html
-│   │   ├── controle.html
-│   │   ├── relatorios-vendas.html
-│   │   ├── relatorios-clientes.html
-│   │   ├── relatorios-trafego.html
-│   │   └── relatorios-pagamentos.html
+│   │   ├── produtos-cadastro.html  # Catálogo & preços
+│   │   ├── pedidos.html            # Pedidos & frete (kanban + lista)
+│   │   └── clientes.html           # Base de clientes
 │   ├── assets/                # Imagens e vídeos
 │   ├── css/                   # CSS do site público
 │   └── js/                    # Scripts do site (módulos ES + Firebase client)
@@ -65,29 +56,16 @@ Champion/
 ### Visão geral das telas
 
 **Núcleo** (em `admin.html`, com tabs internas):
-- Visão geral · métricas resumo
-- Produtos · catálogo
+- Visão geral · dashboard com gráficos (KPIs, linha, donut, barras, pizza)
+- Produtos · catálogo (grid de cards + drawer lateral de edição)
 - Banners · home
 - Contatos · leads
 - Configurações · gerais
 
-**Produtos & Operação** (em `admin/`):
+**Operação** (sub-páginas em `admin/`):
 - Catálogo & preços — produtos, categorias, tabelas de preço
-- Mídias & materiais — imagens, banners regionais, estoque, fichas técnicas
-- Pedidos & frete — kanban + lista + integrações de transporte
-- Lojas & filiais — matrizes, filiais, revendas
-
-**Conteúdo & Cadastros** (em `admin/`):
-- Clientes — cadastro, histórico de compras, segmentação
-- FAQ, depoimentos & vagas — gestão de conteúdo de relacionamento
-- Páginas institucionais — textos de Home, Sobre, Privacidade, etc.
-- Painel central — atalhos, atividade recente, status de integrações
-
-**Relatórios & Performance** (em `admin/`):
-- Vendas & financeiro — receita, ticket médio, vendas por canal/categoria
-- Ticket & recorrência — top produtos, coortes, top clientes
-- Tráfego & comportamento — sessões, abandono de carrinho, funil de conversão
-- Pagamentos — distribuição Pix/Cartão/Boleto, aprovação, comportamento por canal
+- Pedidos & frete — kanban + lista + status (Pago → Separação → Trânsito → Entregue)
+- Clientes — base com histórico de compras, segmentação, bloqueio/reativação
 
 ### Acesso
 
