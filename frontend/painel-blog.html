@@ -622,32 +622,6 @@
 <body data-blog-admin-page>
 
 <!-- ═══════════════════════════════════════════════
-     LOGIN FALLBACK
-════════════════════════════════════════════════ -->
-<div data-blog-admin-login class="bp-login-wrap">
-  <div class="bp-login-card">
-    <img src="assets/img/brand/logo.png" alt="Champion Saúde Animal" />
-    <div class="bp-login-eyebrow">Administração do Blog</div>
-    <h1>Painel do blog</h1>
-
-    <form id="blogAdminLoginForm" novalidate>
-      <div class="bp-field">
-        <label for="blogLoginEmail">E-mail</label>
-        <input id="blogLoginEmail" name="email" type="email" autocomplete="username" placeholder="admin@champion.com.br" required />
-      </div>
-      <div class="bp-field">
-        <label for="blogLoginPassword">Senha</label>
-        <input id="blogLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
-      </div>
-      <div class="blog-admin-feedback" id="blogLoginFeedback" aria-live="polite"></div>
-      <button class="bp-login-btn" type="submit">Entrar no painel</button>
-    </form>
-
-    <p class="blog-admin-note">Acesso restrito · admin@champion.com.br</p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════
      APP SHELL
 ════════════════════════════════════════════════ -->
 <div data-blog-admin-app class="bp-shell" hidden>
@@ -903,80 +877,28 @@
 <script>
 (function () {
   var SESSION_KEY = 'champion-blog-admin-session';
-  var ADMIN_EMAIL = 'admin@champion.com.br';
-  var ADMIN_PASSWORD = 'Champion@2026';
+  var appEl = document.querySelector('[data-blog-admin-app]');
 
-  var loginEl = document.querySelector('[data-blog-admin-login]');
-  var appEl   = document.querySelector('[data-blog-admin-app]');
-
-  function showApp(email) {
-    if (loginEl) loginEl.hidden = true;
-    if (appEl)   appEl.removeAttribute('hidden');
-    var userEl   = document.getElementById('blogAdminUser');
-    var avatarEl = document.getElementById('blogAdminAvatar');
-    var resolvedEmail = email || ADMIN_EMAIL;
-    if (userEl)   userEl.textContent   = resolvedEmail;
-    if (avatarEl) avatarEl.textContent = resolvedEmail[0].toUpperCase();
+  /* Auth guard: sem sessão, manda pra tela de login dedicada */
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) {}
+  if (!session || !session.loggedAt) {
+    window.location.replace('login-blog.html');
+    return;
   }
 
-  function showLogin() {
-    if (loginEl) loginEl.removeAttribute('hidden');
-    if (appEl)   appEl.hidden = true;
-  }
+  /* Mostra o app */
+  if (appEl) appEl.removeAttribute('hidden');
+  var userEl   = document.getElementById('blogAdminUser');
+  var avatarEl = document.getElementById('blogAdminAvatar');
+  var resolvedEmail = session.user || 'admin@champion.com.br';
+  if (userEl)   userEl.textContent   = resolvedEmail;
+  if (avatarEl) avatarEl.textContent = resolvedEmail[0].toUpperCase();
 
-  function getSession() {
-    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
-  }
-
-  function setSession(email) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ user: email, loggedAt: new Date().toISOString() }));
-  }
-
-  function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
-  }
-
-  function doLogout() {
-    clearSession(); /* blog.js handles Firebase signOut + redirect */
-  }
-
-  /* Check existing session on load */
-  var session = getSession();
-  if (session && session.loggedAt) {
-    showApp(session.user);
-  }
-
-  /* Handle embedded login form */
-  var loginForm     = document.getElementById('blogAdminLoginForm');
-  var loginFeedback = document.getElementById('blogLoginFeedback');
-
-  if (loginForm) {
-    loginForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var email    = ((loginForm.querySelector('[name="email"]')    || {}).value || '').trim().toLowerCase();
-      var password = (((loginForm.querySelector('[name="password"]') || {}).value) || '').trim();
-      var submitBtn = loginForm.querySelector('button[type="submit"]');
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Entrando...'; }
-      try {
-        if (!window.ChampionAdminAuth) throw new Error('Módulo de autenticação não carregou.');
-        var session = await window.ChampionAdminAuth.login(email, password);
-        if (loginFeedback) { loginFeedback.textContent = ''; loginFeedback.style.display = 'none'; }
-        showApp(session.user || email);
-      } catch (err) {
-        if (loginFeedback) {
-          loginFeedback.textContent = err.message || 'E-mail ou senha incorretos.';
-          loginFeedback.style.display = 'block';
-        }
-      } finally {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Entrar no painel'; }
-      }
-    });
-  }
-
-  /* Logout (sidebar + topbar) — sai do Firebase também */
+  /* Logout (sidebar + topbar) */
   async function doFullLogout() {
     if (window.ChampionAdminAuth) await window.ChampionAdminAuth.logout();
-    else clearSession();
+    else try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
     window.location.replace('login-blog.html');
   }
   var logoutBtn = document.getElementById('blogAdminLogout');

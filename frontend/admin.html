@@ -791,33 +791,6 @@
 <body>
 
 <!-- ═══════════════════════════════════════════════
-     LOGIN FALLBACK (hidden after auth)
-════════════════════════════════════════════════ -->
-<div class="ap-login-wrap" data-admin-login>
-  <div class="ap-login-card">
-    <img src="assets/img/brand/logo.png" alt="Champion Saúde Animal" />
-    <div class="ap-login-eyebrow">Área restrita</div>
-    <h1>Painel administrativo</h1>
-    <p>Gerencie catálogo, contatos e dados principais do site Champion.</p>
-
-    <form id="adminLoginForm" novalidate>
-      <div class="ap-field">
-        <label for="adminLoginEmail">E-mail</label>
-        <input id="adminLoginEmail" name="email" type="email" autocomplete="username" placeholder="admin@champion.com.br" required />
-      </div>
-      <div class="ap-field">
-        <label for="adminLoginPassword">Senha</label>
-        <input id="adminLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
-      </div>
-      <div class="ap-login-feedback blog-admin-feedback" id="adminLoginFeedback" aria-live="polite"></div>
-      <button class="ap-login-btn" type="submit">Entrar no painel</button>
-    </form>
-
-    <p class="ap-login-note">Acesso restrito · admin@champion.com.br</p>
-  </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════
      APP SHELL
 ════════════════════════════════════════════════ -->
 <div class="ap-shell" data-admin-app hidden>
@@ -1323,79 +1296,32 @@
 <script>
 (function () {
   var SESSION_KEY = 'champion-admin-session';
-  var ADMIN_EMAIL = 'admin@champion.com.br';
-  var ADMIN_PASSWORD = 'Champion@2026';
 
-  var loginEl = document.querySelector('[data-admin-login]');
-  var appEl   = document.querySelector('[data-admin-app]');
+  var appEl = document.querySelector('[data-admin-app]');
 
-  function showApp(email) {
-    if (loginEl) loginEl.hidden = true;
-    if (appEl)   appEl.removeAttribute('hidden');
-    var userEl = document.getElementById('adminUser');
-    var modeEl = document.getElementById('adminMode');
-    if (userEl) userEl.textContent = email || ADMIN_EMAIL;
-    if (modeEl) modeEl.textContent = 'Local';
-    /* Update avatar initial */
-    var avatar = document.querySelector('.ap-avatar');
-    if (avatar) avatar.textContent = (email || 'A')[0].toUpperCase();
+  /* Auth guard: sem sessão, manda pra tela de login dedicada */
+  var session = null;
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) {}
+  if (!session || !session.loggedAt) {
+    window.location.replace('login-admin.html');
+    return;
   }
 
-  function showLogin() {
-    if (loginEl) loginEl.removeAttribute('hidden');
-    if (appEl)   appEl.hidden = true;
-  }
+  /* Mostra o app */
+  if (appEl) appEl.removeAttribute('hidden');
+  var userEl = document.getElementById('adminUser');
+  var modeEl = document.getElementById('adminMode');
+  if (userEl) userEl.textContent = session.user || 'admin@champion.com.br';
+  if (modeEl) modeEl.textContent = session.mode === 'firebase' ? 'Firebase' : 'Local';
+  var avatar = document.querySelector('.ap-avatar');
+  if (avatar) avatar.textContent = (session.user || 'A')[0].toUpperCase();
 
-  function getSession() {
-    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
-  }
-
-  function setSession(email) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ user: email, loggedAt: new Date().toISOString() }));
-  }
-
-  function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
-  }
-
-  var session = getSession();
-  if (session && session.loggedAt) {
-    showApp(session.user);
-  }
-
-  var loginForm = document.getElementById('adminLoginForm');
-  var loginFeedback = document.getElementById('adminLoginFeedback');
-
-  if (loginForm) {
-    loginForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      var emailInput    = document.getElementById('adminLoginEmail');
-      var passwordInput = document.getElementById('adminLoginPassword');
-      var email    = emailInput    ? emailInput.value.trim().toLowerCase()    : '';
-      var password = passwordInput ? passwordInput.value.trim() : '';
-      var submitBtn = loginForm.querySelector('button[type="submit"]');
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Entrando...'; }
-      try {
-        if (!window.ChampionAdminAuth) throw new Error('Módulo de autenticação não carregou.');
-        var session = await window.ChampionAdminAuth.login(email, password);
-        if (loginFeedback) { loginFeedback.textContent = ''; loginFeedback.style.display = 'none'; }
-        showApp(session.user || email);
-      } catch (err) {
-        if (loginFeedback) {
-          loginFeedback.textContent = err.message || 'Não foi possível entrar.';
-          loginFeedback.style.display = 'block';
-        }
-      } finally {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Entrar no painel'; }
-      }
-    });
-  }
-
+  /* Logout */
   var logoutBtn = document.getElementById('adminLogout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async function () {
       if (window.ChampionAdminAuth) await window.ChampionAdminAuth.logout();
-      else clearSession();
+      else try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
       window.location.replace('login-admin.html');
     });
   }
