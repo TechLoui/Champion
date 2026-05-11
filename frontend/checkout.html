@@ -342,7 +342,7 @@
 <script src="js/customer-store.js"></script>
 <script src="js/order-store.js"></script>
 <script>
-(function () {
+(async function () {
   var CART_KEY = 'champion-cart';
   var cart = [];
   try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { cart = []; }
@@ -351,6 +351,17 @@
   if (!cart.length) {
     document.getElementById('checkoutWrap').innerHTML = '<div class="card" style="margin:auto;max-width:520px;text-align:center"><h2>Carrinho vazio</h2><p style="margin:12px 0 18px;color:#687080">Adicione produtos antes de finalizar a compra.</p><a class="btn btn-primary" href="produtos.html">Ver produtos</a></div>';
     return;
+  }
+
+  /* Auth gate: em modo Firebase, as rules exigem customerId == auth.uid.
+     Sem login, a criação do pedido vai falhar. Então redirecionamos.
+     Em modo local (sem Firebase configurado), guest checkout segue ok. */
+  if (window.ChampionCustomers) {
+    try { await window.ChampionCustomers.ready; } catch (e) {}
+    if (window.ChampionCustomers.mode() === 'firebase' && !window.ChampionCustomers.isLogged()) {
+      window.location.replace('cliente-conta.html?redirect=checkout.html');
+      return;
+    }
   }
 
   function fmt(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); }
