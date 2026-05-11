@@ -1,0 +1,41 @@
+# Netlify deploy config — Champion Saúde Animal frontend
+# Site público: https://ecommerce-champion.netlify.app
+
+[build]
+  publish = "frontend"
+  # Site é HTML/CSS/JS estático, sem build step
+  command = "echo 'Static site — no build step needed.'"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Cache forte para JS/CSS (mas Netlify já invalida via deploy hash quando arquivos mudam)
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# Headers de segurança básicos
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Garante 404 limpo em rotas inexistentes
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+  force = false
