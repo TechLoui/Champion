@@ -128,6 +128,37 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct } from './product-data.js'
     return article;
   }
 
+  function updateFilters(taxonomy) {
+    /* Re-render dos filter blocks com base na taxonomia salva pelo admin. */
+    const blocks = $$('.shop-side .filter-block');
+    if (!blocks.length || !taxonomy) return;
+
+    const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    const renderItems = (items, attr) => items.map((it) => `
+      <li><label class="filter-check"><input type="checkbox" data-${attr}="${escapeHtml(it.slug)}" /><span class="box">${checkSvg}</span>${escapeHtml(it.name)}<span class="count">0</span></label></li>
+    `).join('');
+
+    blocks.forEach((block) => {
+      const h5 = block.querySelector('h5');
+      if (!h5) return;
+      const label = h5.textContent.trim().toLowerCase();
+      const ul = block.querySelector('ul');
+      if (!ul) return;
+      if (label.startsWith('categoria') && taxonomy.groups) {
+        ul.innerHTML = renderItems(taxonomy.groups, 'cat');
+      } else if (label.startsWith('esp') && taxonomy.species) {
+        ul.innerHTML = renderItems(taxonomy.species, 'esp');
+      } else if ((label.includes('uso') || label.includes('forma')) && taxonomy.uses) {
+        ul.innerHTML = renderItems(taxonomy.uses, 'use');
+      }
+    });
+
+    /* Notifica o catálogo (produtos.html) pra recomputar contadores */
+    if (typeof window.ChampionCatalog?.refreshFilters === 'function') {
+      window.ChampionCatalog.refreshFilters();
+    }
+  }
+
   function updateCatalog(products) {
     const list = $('.product-list');
     if (!list || !products.length) return;
@@ -249,6 +280,17 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct } from './product-data.js'
 
   try {
     const store = await getAdminStore();
+
+    /* Carrega taxonomia primeiro para re-renderizar os filtros antes do catálogo */
+    if (typeof store.getTaxonomy === 'function') {
+      try {
+        const taxonomy = await store.getTaxonomy();
+        updateFilters(taxonomy);
+      } catch (e) {
+        console.warn('Taxonomia indisponível, usando filtros padrão.', e);
+      }
+    }
+
     const products = (await store.getProducts({ includeDrafts: false })).map(normalizeProduct);
     if (!products.length) return;
     updateCatalog(products);

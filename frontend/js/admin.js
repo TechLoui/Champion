@@ -836,6 +836,220 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     await loadAdminData();
   }
 
+  /* ── Taxonomia (Categorias) ─────────────────────────────────── */
+  let taxonomyCache = { groups: [], species: [], uses: [] };
+
+  function taxonomySlugify(str) {
+    return String(str || '').normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  function renderTaxonomyList(type) {
+    const wrap = document.getElementById('taxonomy' + type.charAt(0).toUpperCase() + type.slice(1));
+    if (!wrap) return;
+    const items = taxonomyCache[type] || [];
+    if (!items.length) {
+      wrap.innerHTML = '<div style="padding:18px;text-align:center;color:#9EA6B4;font-size:12.5px;border:1.5px dashed #E4E8EF;border-radius:8px">Nenhum item. Clique em "+ Adicionar" para criar.</div>';
+      return;
+    }
+    wrap.innerHTML = items.map((it, i) => `
+      <div class="bp-row" data-tax-row="${type}-${i}" style="background:#FAFBFC;border:1px solid #E5E8EF;border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:6px">
+        <input data-tax-field="name" data-tax-type="${type}" data-tax-idx="${i}" type="text" value="${escapeHtml(it.name)}" placeholder="Nome exibido" style="padding:7px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;background:white;outline:none" />
+        <input data-tax-field="slug" data-tax-type="${type}" data-tax-idx="${i}" type="text" value="${escapeHtml(it.slug)}" placeholder="slug" style="padding:7px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;background:white;outline:none;font-family:monospace" />
+        <button type="button" data-tax-remove="${type}-${i}" style="background:none;border:none;color:#C13808;font-size:18px;cursor:pointer;padding:0 8px;line-height:1">×</button>
+      </div>
+    `).join('');
+  }
+
+  async function loadTaxonomy() {
+    try {
+      taxonomyCache = await store.getTaxonomy();
+    } catch (err) {
+      console.warn('[admin] taxonomy load:', err.message);
+    }
+    renderTaxonomyList('groups');
+    renderTaxonomyList('species');
+    renderTaxonomyList('uses');
+  }
+
+  /* Wire taxonomy events */
+  document.addEventListener('click', async (e) => {
+    const addBtn = e.target.closest('[data-tax-add]');
+    if (addBtn) {
+      const type = addBtn.getAttribute('data-tax-add');
+      if (!taxonomyCache[type]) taxonomyCache[type] = [];
+      taxonomyCache[type].push({ slug: '', name: '', order: taxonomyCache[type].length + 1 });
+      renderTaxonomyList(type);
+      return;
+    }
+    const removeBtn = e.target.closest('[data-tax-remove]');
+    if (removeBtn) {
+      const [type, idxStr] = removeBtn.getAttribute('data-tax-remove').split('-');
+      const idx = parseInt(idxStr, 10);
+      if (taxonomyCache[type]) {
+        taxonomyCache[type].splice(idx, 1);
+        renderTaxonomyList(type);
+      }
+      return;
+    }
+    if (e.target.id === 'adminSaveTaxonomy') {
+      const feedback = document.getElementById('taxonomyFeedback');
+      try {
+        /* auto-generate slug se vazio */
+        ['groups', 'species', 'uses'].forEach((type) => {
+          taxonomyCache[type].forEach((it) => {
+            if (it.name && !it.slug) it.slug = taxonomySlugify(it.name);
+          });
+        });
+        await store.saveTaxonomy(taxonomyCache);
+        taxonomyCache = await store.getTaxonomy();
+        renderTaxonomyList('groups');
+        renderTaxonomyList('species');
+        renderTaxonomyList('uses');
+        setFeedback(feedback, 'Categorias salvas. Os filtros do catálogo já refletem as mudanças.', 'success');
+        window.ChampionToast?.('Categorias salvas.');
+      } catch (err) {
+        setFeedback(feedback, friendlyAdminError(err));
+      }
+    }
+  });
+  document.addEventListener('input', (e) => {
+    const field = e.target.closest('[data-tax-field]');
+    if (!field) return;
+    const type = field.getAttribute('data-tax-type');
+    const idx = parseInt(field.getAttribute('data-tax-idx'), 10);
+    const key = field.getAttribute('data-tax-field');
+    if (taxonomyCache[type] && taxonomyCache[type][idx]) {
+      taxonomyCache[type][idx][key] = field.value;
+    }
+  });
+
+  /* ── Cálculo de Dose ─────────────────────────────────────────── */
+  let doseConfigCache = { products: {} };
+  const DOSE_KEY = 'champion-admin-dose-config';
+
+  function readDoseConfig() {
+    try {
+      if (store.isFirebase) return null; /* loaded from settings doc later */
+      const raw = localStorage.getItem(DOSE_KEY);
+      return raw ? JSON.parse(raw) : { products: {} };
+    } catch (e) { return { products: {} }; }
+  }
+  function writeDoseConfig(cfg) {
+    try { localStorage.setItem(DOSE_KEY, JSON.stringify(cfg)); } catch (e) {}
+  }
+
+  async function loadDoseConfig() {
+    /* In Firebase mode, store config inside siteSettings/main as 'doseConfig' field */
+    if (store.isFirebase) {
+      try {
+        const settings = await store.getSettings();
+        doseConfigCache = settings.doseConfig || { products: {} };
+      } catch (err) {
+        doseConfigCache = { products: {} };
+      }
+    } else {
+      doseConfigCache = readDoseConfig() || { products: {} };
+    }
+    renderDoseList();
+  }
+
+  function renderDoseList() {
+    const wrap = document.getElementById('doseProductList');
+    if (!wrap) return;
+    if (!productsCache.length) {
+      wrap.innerHTML = '<div style="padding:24px;text-align:center;color:#9EA6B4;font-size:13px;border:1.5px dashed #E4E8EF;border-radius:10px">Nenhum produto cadastrado. Cadastre produtos na aba Catálogo primeiro.</div>';
+      return;
+    }
+    wrap.innerHTML = productsCache.map((p) => {
+      const cfg = doseConfigCache.products[p.id] || { enabled: false, formula: '', unit: 'g', description: '' };
+      const checked = cfg.enabled ? 'checked' : '';
+      return `
+        <div data-dose-row="${escapeHtml(p.id)}" style="background:white;border:1px solid #E5E8EF;border-radius:10px;padding:14px 16px;${cfg.enabled ? '' : 'opacity:0.7'}">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:${cfg.enabled ? '12px' : '0'}">
+            <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;flex:1">
+              <input type="checkbox" data-dose-enabled="${escapeHtml(p.id)}" ${checked} style="width:18px;height:18px;accent-color:#EC4815" />
+              <img src="${escapeHtml(p.image || 'assets/img/brand/icon.png')}" alt="" style="width:42px;height:42px;border-radius:6px;object-fit:contain;background:#F4F5F8;border:1px solid #EEF0F4;padding:3px" />
+              <div style="flex:1">
+                <div style="font-weight:600;font-size:13.5px;color:#15191F">${escapeHtml(p.name)}</div>
+                <div style="font-size:11.5px;color:#9EA6B4">${escapeHtml(p.category)}</div>
+              </div>
+            </label>
+          </div>
+          <div data-dose-config="${escapeHtml(p.id)}" style="${cfg.enabled ? 'display:grid' : 'display:none'};grid-template-columns:2fr 100px;gap:10px;margin-top:8px">
+            <div>
+              <label style="font-size:11.5px;font-weight:600;color:#687080;display:block;margin-bottom:4px">Fórmula (JavaScript)</label>
+              <input type="text" data-dose-formula="${escapeHtml(p.id)}" value="${escapeHtml(cfg.formula)}" placeholder="0.06 * cabecas * dias" style="width:100%;padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;font-family:monospace;background:#F9FAFB;outline:none" />
+            </div>
+            <div>
+              <label style="font-size:11.5px;font-weight:600;color:#687080;display:block;margin-bottom:4px">Unidade</label>
+              <select data-dose-unit="${escapeHtml(p.id)}" style="width:100%;padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;background:white;outline:none">
+                <option value="g" ${cfg.unit === 'g' ? 'selected' : ''}>g</option>
+                <option value="kg" ${cfg.unit === 'kg' ? 'selected' : ''}>kg</option>
+                <option value="ml" ${cfg.unit === 'ml' ? 'selected' : ''}>ml</option>
+                <option value="L" ${cfg.unit === 'L' ? 'selected' : ''}>L</option>
+                <option value="cap" ${cfg.unit === 'cap' ? 'selected' : ''}>cápsulas</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1">
+              <label style="font-size:11.5px;font-weight:600;color:#687080;display:block;margin-bottom:4px">Observação exibida ao usuário</label>
+              <input type="text" data-dose-description="${escapeHtml(p.id)}" value="${escapeHtml(cfg.description)}" placeholder="Misturar no sal ou ração. Não usar em fêmeas em lactação." style="width:100%;padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;background:#F9FAFB;outline:none" />
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  /* Wire dose events */
+  document.addEventListener('change', (e) => {
+    const en = e.target.closest('[data-dose-enabled]');
+    if (en) {
+      const id = en.getAttribute('data-dose-enabled');
+      if (!doseConfigCache.products[id]) doseConfigCache.products[id] = { enabled: false, formula: '', unit: 'g', description: '' };
+      doseConfigCache.products[id].enabled = en.checked;
+      renderDoseList();
+      return;
+    }
+    const unit = e.target.closest('[data-dose-unit]');
+    if (unit) {
+      const id = unit.getAttribute('data-dose-unit');
+      if (!doseConfigCache.products[id]) doseConfigCache.products[id] = { enabled: true, formula: '', unit: 'g', description: '' };
+      doseConfigCache.products[id].unit = unit.value;
+    }
+  });
+  document.addEventListener('input', (e) => {
+    const formula = e.target.closest('[data-dose-formula]');
+    if (formula) {
+      const id = formula.getAttribute('data-dose-formula');
+      if (!doseConfigCache.products[id]) doseConfigCache.products[id] = { enabled: true, formula: '', unit: 'g', description: '' };
+      doseConfigCache.products[id].formula = formula.value;
+      return;
+    }
+    const desc = e.target.closest('[data-dose-description]');
+    if (desc) {
+      const id = desc.getAttribute('data-dose-description');
+      if (!doseConfigCache.products[id]) doseConfigCache.products[id] = { enabled: true, formula: '', unit: 'g', description: '' };
+      doseConfigCache.products[id].description = desc.value;
+    }
+  });
+  document.addEventListener('click', async (e) => {
+    if (e.target.id !== 'adminSaveDose') return;
+    const feedback = document.getElementById('doseFeedback');
+    try {
+      if (store.isFirebase) {
+        const settings = await store.getSettings();
+        await store.saveSettings(Object.assign({}, settings, { doseConfig: doseConfigCache }));
+      } else {
+        writeDoseConfig(doseConfigCache);
+      }
+      setFeedback(feedback, 'Configuração salva. A página /calculo-dose já reflete os produtos selecionados.', 'success');
+      window.ChampionToast?.('Cálculo de dose salvo.');
+    } catch (err) {
+      setFeedback(feedback, friendlyAdminError(err));
+    }
+  });
+
   setupEvents();
   if (store.isFirebase) {
     store.onAuthChanged((logged, user) => {
@@ -844,6 +1058,12 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
   } else {
     await syncAuth(store.isAdminLogged());
   }
+
+  /* Carrega taxonomia e dose após primeiro login */
+  setTimeout(() => {
+    loadTaxonomy().catch(() => {});
+    loadDoseConfig().catch(() => {});
+  }, 300);
 
   if (refs.mode) refs.mode.textContent = store.isFirebase ? 'Firebase' : 'Local';
 })();

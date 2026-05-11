@@ -73,6 +73,57 @@ const LOCAL_SESSION_KEY = 'champion-admin-session';
 const LOCAL_PRODUCTS_KEY = 'champion-admin-products';
 const LOCAL_SETTINGS_KEY = 'champion-admin-settings';
 const LOCAL_LEADS_KEY = 'champion-admin-leads';
+const LOCAL_TAXONOMY_KEY = 'champion-admin-taxonomy';
+
+const DEFAULT_TAXONOMY = {
+  groups: [
+    { slug: 'larvicida',     name: 'Larvicida',      order: 1 },
+    { slug: 'inseticida',    name: 'Inseticida',     order: 2 },
+    { slug: 'vermifugo',     name: 'Vermífugo',      order: 3 },
+    { slug: 'mineralizacao', name: 'Mineralização',  order: 4 },
+    { slug: 'nutricao',      name: 'Nutrição',       order: 5 },
+    { slug: 'reproducao',    name: 'Reprodução',     order: 6 },
+    { slug: 'parasitario',   name: 'Antiparasitário',order: 7 },
+    { slug: 'suplemento',    name: 'Suplemento',     order: 8 }
+  ],
+  species: [
+    { slug: 'bovinos',     name: 'Bovinos',         order: 1 },
+    { slug: 'equinos',     name: 'Equinos',         order: 2 },
+    { slug: 'suinos',      name: 'Suínos',          order: 3 },
+    { slug: 'aves',        name: 'Aves',            order: 4 },
+    { slug: 'ambientes',   name: 'Ambientes',       order: 5 },
+    { slug: 'veterinario', name: 'Uso veterinário', order: 6 },
+    { slug: 'minerais',    name: 'Minerais',        order: 7 }
+  ],
+  uses: [
+    { slug: 'sal-racao',     name: 'Mistura no sal/ração', order: 1 },
+    { slug: 'dieta-premix',  name: 'Pré-mix / formulação', order: 2 },
+    { slug: 'pulverizacao',  name: 'Pulverização',         order: 3 },
+    { slug: 'po-topico',     name: 'Aplicação em pó',      order: 4 },
+    { slug: 'agua-parada',   name: 'Água parada',          order: 5 }
+  ]
+};
+
+function normalizeTaxonomy(tax) {
+  const t = tax && typeof tax === 'object' ? tax : {};
+  const normalizeList = (list, fallback) => {
+    if (!Array.isArray(list)) return fallback;
+    const cleaned = list
+      .map((item, i) => ({
+        slug: String(item.slug || '').trim().toLowerCase().replace(/[^a-z0-9-]+/g, '-'),
+        name: String(item.name || '').trim(),
+        order: Number.isFinite(Number(item.order)) ? Number(item.order) : i + 1
+      }))
+      .filter((it) => it.slug && it.name)
+      .sort((a, b) => a.order - b.order);
+    return cleaned.length ? cleaned : fallback;
+  };
+  return {
+    groups: normalizeList(t.groups, DEFAULT_TAXONOMY.groups),
+    species: normalizeList(t.species, DEFAULT_TAXONOMY.species),
+    uses: normalizeList(t.uses, DEFAULT_TAXONOMY.uses)
+  };
+}
 const LOCAL_BLOG_POSTS_KEY = 'champion-blog-posts';
 const LOCAL_BLOG_CONFIG_KEY = 'champion-blog-config';
 
@@ -235,6 +286,16 @@ class LocalAdminStore {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+  }
+
+  async getTaxonomy() {
+    return normalizeTaxonomy(readJson(LOCAL_TAXONOMY_KEY, DEFAULT_TAXONOMY));
+  }
+
+  async saveTaxonomy(tax) {
+    const normalized = normalizeTaxonomy(tax);
+    writeJson(LOCAL_TAXONOMY_KEY, normalized);
+    return normalized;
   }
 
   async getBlogStats() {
@@ -431,6 +492,28 @@ class FirebaseAdminStore {
       published: posts.docs.filter((post) => post.data()?.status !== 'draft').length,
       title: config.exists() ? (config.data().title || 'Blog Champion') : 'Blog Champion'
     };
+  }
+
+  taxonomyRef() {
+    return this.api.doc(this.db, 'siteSettings', 'productTaxonomy');
+  }
+
+  async getTaxonomy() {
+    try {
+      const snap = await this.api.getDoc(this.taxonomyRef());
+      return normalizeTaxonomy(snap.exists() ? snap.data() : DEFAULT_TAXONOMY);
+    } catch (err) {
+      console.warn('[admin-store] getTaxonomy:', err.message);
+      return DEFAULT_TAXONOMY;
+    }
+  }
+
+  async saveTaxonomy(tax) {
+    const normalized = normalizeTaxonomy(tax);
+    await this.api.setDoc(this.taxonomyRef(), Object.assign({}, normalized, {
+      updatedAt: this.api.serverTimestamp()
+    }), { merge: false });
+    return normalized;
   }
 }
 

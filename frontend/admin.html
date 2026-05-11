@@ -1898,6 +1898,16 @@
         Banners Site
       </button>
 
+      <button type="button" data-admin-tab="categories" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Categorias
+      </button>
+
+      <button type="button" data-admin-tab="dose" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
+        Cálculo de Dose
+      </button>
+
       <!-- Dropdown Relatórios -->
       <div class="ap-nav-group" id="reportsGroup">
         <button class="ap-nav-toggle" type="button" id="reportsToggle">
@@ -2696,6 +2706,103 @@
           </div>
         </aside>
       </div>
+
+      <!-- ─── Categorias (taxonomia) ─── -->
+      <section data-admin-panel="categories" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Categorias dos produtos</h2>
+            <p>Gerencie os <strong>filtros</strong> que o cliente vê na página de catálogo. Adicione, edite ou remova categorias de cada tipo.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <button class="ap-btn ap-btn-primary" type="button" id="adminSaveTaxonomy">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+              Salvar alterações
+            </button>
+          </div>
+        </div>
+
+        <div class="ap-feedback blog-admin-feedback" id="taxonomyFeedback" aria-live="polite"></div>
+
+        <div class="dash-grid three" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">
+          <div class="dash-card">
+            <div class="dash-card-head">
+              <div>
+                <h3>Categorias (grupo)</h3>
+                <p>Tipo de produto: Larvicida, Vermífugo, etc.</p>
+              </div>
+              <button class="ap-btn ap-btn-ghost ap-btn-sm" type="button" data-tax-add="groups">+ Adicionar</button>
+            </div>
+            <div class="bp-rows" id="taxonomyGroups"></div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-card-head">
+              <div>
+                <h3>Espécies / público</h3>
+                <p>Bovinos, Equinos, Aves, etc.</p>
+              </div>
+              <button class="ap-btn ap-btn-ghost ap-btn-sm" type="button" data-tax-add="species">+ Adicionar</button>
+            </div>
+            <div class="bp-rows" id="taxonomySpecies"></div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-card-head">
+              <div>
+                <h3>Forma de uso</h3>
+                <p>Sal/ração, Pulverização, etc.</p>
+              </div>
+              <button class="ap-btn ap-btn-ghost ap-btn-sm" type="button" data-tax-add="uses">+ Adicionar</button>
+            </div>
+            <div class="bp-rows" id="taxonomyUses"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;padding:14px 16px;background:#FFF8EB;border:1px solid #F5DEB3;border-radius:10px;font-size:12.5px;color:#92400E">
+          <strong>Dica:</strong> O <em>slug</em> é o identificador técnico (não muda quando você renomeia). Use o mesmo slug que está nos produtos cadastrados pra não quebrar os filtros. Lembre-se de clicar em <strong>Salvar alterações</strong> ao terminar.
+        </div>
+      </section>
+
+      <!-- ─── Cálculo de Dose ─── -->
+      <section data-admin-panel="dose" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Cálculo de Dose</h2>
+            <p>Defina quais produtos do catálogo aparecem na ferramenta e a fórmula de cálculo de cada um.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <button class="ap-btn ap-btn-primary" type="button" id="adminSaveDose">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+              Salvar configuração
+            </button>
+          </div>
+        </div>
+
+        <div class="ap-feedback blog-admin-feedback" id="doseFeedback" aria-live="polite"></div>
+
+        <div class="dash-card">
+          <div class="dash-card-head">
+            <div>
+              <h3>Produtos disponíveis na ferramenta</h3>
+              <p>Marque os produtos cadastrados que devem aparecer no <a href="calculo-dose.html" target="_blank" style="color:#EC4815;font-weight:600">/calculo-dose</a> e configure a fórmula de cada um.</p>
+            </div>
+          </div>
+          <div id="doseProductList" style="display:flex;flex-direction:column;gap:12px"></div>
+        </div>
+
+        <div style="margin-top:18px;padding:16px;background:#EBF3FE;border:1px solid #BFDBFE;border-radius:10px;font-size:13px;color:#1E40AF">
+          <strong style="display:block;margin-bottom:8px">Como funciona a fórmula:</strong>
+          <p style="margin:0 0 6px 0">A fórmula é avaliada com as variáveis disponíveis. Use variáveis simples e operadores matemáticos:</p>
+          <ul style="margin:6px 0 0 18px;font-size:12.5px">
+            <li><code style="background:#fff;padding:2px 6px;border-radius:4px">peso</code> · peso médio do animal em kg</li>
+            <li><code style="background:#fff;padding:2px 6px;border-radius:4px">cabecas</code> · número de cabeças do rebanho</li>
+            <li><code style="background:#fff;padding:2px 6px;border-radius:4px">dias</code> · duração do tratamento em dias</li>
+            <li>Exemplo: <code style="background:#fff;padding:2px 6px;border-radius:4px">0.06 * cabecas * dias</code> (Difly: 60 mg por cabeça/dia)</li>
+            <li>Exemplo: <code style="background:#fff;padding:2px 6px;border-radius:4px">(275 / 25000) * (cabecas * 50)</code> (Vermi-Sal: 275 g por 25 kg de sal, 50 g/cab/dia)</li>
+          </ul>
+        </div>
+      </section>
 
       <!-- ─── Contatos ─── -->
       <section data-admin-panel="leads" hidden>
