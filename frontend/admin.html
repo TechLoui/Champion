@@ -788,6 +788,269 @@
     }
 
     /* ════════════════════════════════════════════════════════════
+       PRODUTOS · Grid + Drawer
+       ════════════════════════════════════════════════════════════ */
+
+    .prod-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .prod-toolbar .ap-search-wrap { flex: 1; min-width: 240px; max-width: 360px; }
+    .prod-toolbar-stats {
+      font-size: 12.5px;
+      color: #687080;
+      margin-left: auto;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+    .prod-toolbar-stats strong { color: #15191F; font-weight: 700; }
+
+    .prod-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .prod-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+      position: relative;
+    }
+    .prod-card:hover {
+      border-color: #EC4815;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+    }
+
+    .prod-card-img {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: linear-gradient(135deg, #F9FAFB, #F0F2F6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .prod-card-img img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+      transition: transform .25s;
+    }
+    .prod-card:hover .prod-card-img img { transform: scale(1.06); }
+    .prod-card-img .status-pill {
+      position: absolute;
+      top: 10px; left: 10px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(6px);
+      color: #1A7A48;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .prod-card-img .status-pill.is-draft { color: #B45309; }
+    .prod-card-img .tag-pill {
+      position: absolute;
+      top: 10px; right: 10px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: #15191F;
+      color: white;
+    }
+
+    .prod-card-body {
+      padding: 14px 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .prod-card-body h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #15191F;
+      line-height: 1.3;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .prod-card-body .cat {
+      font-size: 11.5px;
+      color: #9EA6B4;
+      font-weight: 500;
+    }
+    .prod-card-body .price {
+      margin-top: 6px;
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      color: #EC4815;
+    }
+    .prod-card-body .price.empty {
+      color: #B0B8C6;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .prod-card-actions {
+      padding: 10px 12px;
+      border-top: 1px solid #F0F2F6;
+      display: flex;
+      gap: 6px;
+      background: #FAFBFC;
+    }
+    .icon-btn {
+      flex: 1;
+      padding: 8px 6px;
+      background: white;
+      border: 1px solid #E4E8EF;
+      border-radius: 7px;
+      color: #687080;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .icon-btn svg { width: 14px; height: 14px; }
+    .icon-btn:hover { background: #F4F5F8; border-color: #D4D8E2; color: #15191F; }
+    .icon-btn.primary { color: #EC4815; border-color: #FAD0C6; background: #FFF5F1; }
+    .icon-btn.primary:hover { background: #FFEAE0; }
+    .icon-btn.danger { color: #C13808; border-color: #FAD0C6; background: #FFF5F3; }
+    .icon-btn.danger:hover { background: #FCDDD8; border-color: #F5B8AE; }
+
+    /* Drawer */
+    .prod-drawer {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .prod-drawer.is-open { pointer-events: auto; }
+    .prod-drawer-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(13,17,23,0.55);
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .prod-drawer.is-open .prod-drawer-overlay { opacity: 1; }
+    .prod-drawer-panel {
+      position: absolute;
+      top: 0; right: 0;
+      bottom: 0;
+      width: min(560px, 100%);
+      background: white;
+      box-shadow: -20px 0 60px rgba(0,0,0,0.25);
+      transform: translateX(100%);
+      transition: transform .3s var(--ease, cubic-bezier(0.22, 1, 0.36, 1));
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .prod-drawer.is-open .prod-drawer-panel { transform: translateX(0); }
+    .prod-drawer-head {
+      padding: 18px 24px;
+      border-bottom: 1px solid #E5E8EF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: white;
+      flex-shrink: 0;
+    }
+    .prod-drawer-head h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: #15191F;
+    }
+    .prod-drawer-head p {
+      font-size: 12.5px;
+      color: #687080;
+      margin-top: 2px;
+    }
+    .prod-drawer-close {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid #E4E8EF;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #687080;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+    .prod-drawer-close svg { width: 16px; height: 16px; }
+    .prod-drawer-close:hover { background: #F4F5F8; color: #C13808; border-color: #FAD0C6; }
+    .prod-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 24px 30px;
+    }
+    .prod-drawer-foot {
+      padding: 16px 24px;
+      border-top: 1px solid #E5E8EF;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      background: #FAFBFC;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 600px) {
+      .prod-toolbar { flex-direction: column; align-items: stretch; }
+      .prod-toolbar .ap-search-wrap { max-width: none; }
+      .prod-toolbar-stats { margin-left: 0; }
+      .prod-drawer-panel { width: 100%; }
+    }
+
+    /* Auto-seed empty state */
+    .prod-empty-state {
+      grid-column: 1 / -1;
+      background: white;
+      border: 1.5px dashed #E4E8EF;
+      border-radius: 14px;
+      padding: 48px 24px;
+      text-align: center;
+      color: #687080;
+    }
+    .prod-empty-state h3 {
+      font-family: 'Sora',sans-serif;
+      font-size: 17px;
+      color: #15191F;
+      margin-bottom: 6px;
+    }
+    .prod-empty-state p { font-size: 13.5px; margin-bottom: 18px; }
+
+    /* ════════════════════════════════════════════════════════════
        DASHBOARD · Visão geral
        ════════════════════════════════════════════════════════════ */
 
@@ -1464,7 +1727,7 @@
         <div class="ap-section-head">
           <div>
             <h2>Produtos</h2>
-            <p>Cadastre produtos, publique ou mantenha como rascunho. O catálogo público exibe apenas os publicados.</p>
+            <p>Gerencie todo o catálogo. Clique no <strong>lápis</strong> para editar ou em <strong>+ Novo produto</strong> para cadastrar.</p>
           </div>
           <div class="ap-section-head-actions">
             <button class="ap-btn ap-btn-ghost" type="button" id="adminSeedProducts">
@@ -1478,134 +1741,158 @@
           </div>
         </div>
 
-        <div class="ap-products-layout">
-
-          <!-- Form -->
-          <div class="ap-card">
-            <div class="ap-card-head">
-              <h3>Dados do produto</h3>
-            </div>
-            <div class="ap-card-body">
-              <form class="admin-product-form" id="adminProductForm">
-                <input type="hidden" name="order" />
-                <div class="ap-form-grid">
-                  <div class="ap-form-field full">
-                    <label for="productName">Nome</label>
-                    <input id="productName" name="name" placeholder="Ex: Difly Pour-On" required />
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productId">URL / ID</label>
-                    <input id="productId" name="id" placeholder="difly-pour-on" required />
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productStatus">Status</label>
-                    <select id="productStatus" name="status">
-                      <option value="published">Publicado</option>
-                      <option value="draft">Rascunho</option>
-                    </select>
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productCategory">Categoria</label>
-                    <input id="productCategory" name="category" placeholder="Bovinos · Nutrição" required />
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productTag">Selo</label>
-                    <input id="productTag" name="tag" placeholder="Mais vendido" />
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productSpecies">Espécie</label>
-                    <select id="productSpecies" name="species">
-                      <option value="bovinos">Bovinos</option>
-                      <option value="equinos">Equinos</option>
-                      <option value="ovinos">Ovinos</option>
-                      <option value="suinos">Suínos</option>
-                      <option value="aves">Aves</option>
-                      <option value="minerais">Minerais</option>
-                      <option value="ambientes">Ambientes</option>
-                      <option value="veterinario">Veterinário</option>
-                    </select>
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productGroup">Grupo</label>
-                    <select id="productGroup" name="group">
-                      <option value="larvicida">Larvicida</option>
-                      <option value="inseticida">Inseticida</option>
-                      <option value="vermifugo">Vermífugo</option>
-                      <option value="mineralizacao">Mineralização</option>
-                      <option value="nutricao">Nutrição</option>
-                      <option value="reproducao">Reprodução</option>
-                      <option value="parasitario">Antiparasitário</option>
-                      <option value="suplemento">Suplemento</option>
-                    </select>
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productUse">Uso</label>
-                    <input id="productUse" name="use" placeholder="sal-racao" />
-                  </div>
-                  <div class="ap-form-field">
-                    <label for="productPrice">Preço (R$)</label>
-                    <input id="productPrice" name="price" type="number" step="0.01" min="0" placeholder="129.90" />
-                  </div>
-                  <div class="ap-form-field full">
-                    <label>Imagem do produto</label>
-                    <div class="image-input-group">
-                      <input id="productImage" name="image" placeholder="assets/img/products/difly.png" />
-                      <button type="button" class="ap-btn ap-btn-ghost ap-btn-sm" id="adminProductPickFile">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Upload
-                      </button>
-                      <input type="file" id="adminProductFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
-                    </div>
-                    <img id="adminProductPreview" src="" alt="" hidden />
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="productExcerpt">Resumo</label>
-                    <textarea id="productExcerpt" name="excerpt" placeholder="Descrição curta exibida no catálogo" required></textarea>
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="productHeadline">Chamada da página do produto</label>
-                    <input id="productHeadline" name="headline" placeholder="Frase de destaque para a página do produto" />
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="productContent">Descrição completa</label>
-                    <textarea id="productContent" name="content" placeholder="Texto completo sobre o produto" style="min-height:100px;"></textarea>
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="productBenefits">Benefícios (um por linha)</label>
-                    <textarea id="productBenefits" name="benefits" placeholder="Cada linha será um item da lista"></textarea>
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="productUsage">Modo de uso</label>
-                    <textarea id="productUsage" name="usage" placeholder="Instruções de aplicação"></textarea>
-                  </div>
-                  <div class="ap-form-field full">
-                    <label for="productPresentations">Apresentações</label>
-                    <input id="productPresentations" name="presentations" placeholder="Consultar embalagem" />
-                  </div>
-                </div>
-
-                <div class="ap-feedback blog-admin-feedback" id="adminProductFeedback" aria-live="polite"></div>
-                <div class="ap-form-actions blog-admin-actions">
-                  <button class="ap-btn ap-btn-primary" type="submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <span id="adminProductSubmitLabel">Salvar produto</span>
-                  </button>
-                </div>
-              </form>
-            </div>
+        <!-- Toolbar: search + filters + stats -->
+        <div class="prod-toolbar">
+          <div class="ap-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="adminProductSearch" type="search" placeholder="Buscar por nome, categoria ou ID..." autocomplete="off" />
           </div>
-
-          <!-- List -->
-          <div class="ap-list-panel">
-            <div class="ap-search-wrap blog-search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              <input id="adminProductSearch" type="search" placeholder="Buscar produto..." autocomplete="off" />
-            </div>
-            <div class="admin-list" id="adminProductList"></div>
-          </div>
-
+          <select class="ap-filter" id="adminProductSpeciesFilter">
+            <option value="">Todas espécies</option>
+            <option value="bovinos">Bovinos</option>
+            <option value="equinos">Equinos</option>
+            <option value="suinos">Suínos</option>
+            <option value="aves">Aves</option>
+            <option value="minerais">Minerais</option>
+            <option value="ambientes">Ambientes</option>
+            <option value="veterinario">Veterinário</option>
+          </select>
+          <select class="ap-filter" id="adminProductStatusFilter">
+            <option value="">Todos status</option>
+            <option value="published">Publicados</option>
+            <option value="draft">Rascunhos</option>
+          </select>
+          <div class="prod-toolbar-stats" id="adminProductStats">—</div>
         </div>
+
+        <!-- Grid de cards -->
+        <div class="prod-grid" id="adminProductList"></div>
+
       </section>
+
+      <!-- Drawer: criar / editar produto -->
+      <div class="prod-drawer" id="productDrawer">
+        <div class="prod-drawer-overlay" data-close-drawer></div>
+        <aside class="prod-drawer-panel">
+          <header class="prod-drawer-head">
+            <div>
+              <h3 id="productDrawerTitle">Novo produto</h3>
+              <p id="productDrawerSub">Preencha as informações do produto abaixo.</p>
+            </div>
+            <button class="prod-drawer-close" type="button" data-close-drawer aria-label="Fechar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </header>
+          <div class="prod-drawer-body">
+            <form class="admin-product-form" id="adminProductForm">
+              <input type="hidden" name="order" />
+              <div class="ap-form-grid">
+                <div class="ap-form-field full">
+                  <label for="productName">Nome do produto</label>
+                  <input id="productName" name="name" placeholder="Ex: Difly Pour-On" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="productId">URL / ID</label>
+                  <input id="productId" name="id" placeholder="difly-pour-on" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="productStatus">Status</label>
+                  <select id="productStatus" name="status">
+                    <option value="published">Publicado</option>
+                    <option value="draft">Rascunho</option>
+                  </select>
+                </div>
+                <div class="ap-form-field">
+                  <label for="productCategory">Categoria</label>
+                  <input id="productCategory" name="category" placeholder="Bovinos · Nutrição" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="productTag">Selo (opcional)</label>
+                  <input id="productTag" name="tag" placeholder="Mais vendido" />
+                </div>
+                <div class="ap-form-field">
+                  <label for="productSpecies">Espécie</label>
+                  <select id="productSpecies" name="species">
+                    <option value="bovinos">Bovinos</option>
+                    <option value="equinos">Equinos</option>
+                    <option value="ovinos">Ovinos</option>
+                    <option value="suinos">Suínos</option>
+                    <option value="aves">Aves</option>
+                    <option value="minerais">Minerais</option>
+                    <option value="ambientes">Ambientes</option>
+                    <option value="veterinario">Veterinário</option>
+                  </select>
+                </div>
+                <div class="ap-form-field">
+                  <label for="productGroup">Grupo</label>
+                  <select id="productGroup" name="group">
+                    <option value="larvicida">Larvicida</option>
+                    <option value="inseticida">Inseticida</option>
+                    <option value="vermifugo">Vermífugo</option>
+                    <option value="mineralizacao">Mineralização</option>
+                    <option value="nutricao">Nutrição</option>
+                    <option value="reproducao">Reprodução</option>
+                    <option value="parasitario">Antiparasitário</option>
+                    <option value="suplemento">Suplemento</option>
+                  </select>
+                </div>
+                <div class="ap-form-field">
+                  <label for="productUse">Tipo de uso</label>
+                  <input id="productUse" name="use" placeholder="sal-racao" />
+                </div>
+                <div class="ap-form-field">
+                  <label for="productPrice">Preço (R$)</label>
+                  <input id="productPrice" name="price" type="number" step="0.01" min="0" placeholder="129.90" />
+                </div>
+                <div class="ap-form-field full">
+                  <label>Imagem do produto</label>
+                  <div class="image-input-group">
+                    <input id="productImage" name="image" placeholder="assets/img/products/difly.png" />
+                    <button type="button" class="ap-btn ap-btn-ghost ap-btn-sm" id="adminProductPickFile">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      Upload
+                    </button>
+                    <input type="file" id="adminProductFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                  </div>
+                  <img id="adminProductPreview" src="" alt="" hidden />
+                </div>
+                <div class="ap-form-field full">
+                  <label for="productExcerpt">Resumo</label>
+                  <textarea id="productExcerpt" name="excerpt" placeholder="Descrição curta exibida no catálogo" required></textarea>
+                </div>
+                <div class="ap-form-field full">
+                  <label for="productHeadline">Chamada da página do produto</label>
+                  <input id="productHeadline" name="headline" placeholder="Frase de destaque para a página do produto" />
+                </div>
+                <div class="ap-form-field full">
+                  <label for="productContent">Descrição completa</label>
+                  <textarea id="productContent" name="content" placeholder="Texto completo sobre o produto" style="min-height:100px;"></textarea>
+                </div>
+                <div class="ap-form-field full">
+                  <label for="productBenefits">Benefícios (um por linha)</label>
+                  <textarea id="productBenefits" name="benefits" placeholder="Cada linha será um item da lista"></textarea>
+                </div>
+                <div class="ap-form-field full">
+                  <label for="productUsage">Modo de uso</label>
+                  <textarea id="productUsage" name="usage" placeholder="Instruções de aplicação"></textarea>
+                </div>
+                <div class="ap-form-field full">
+                  <label for="productPresentations">Apresentações</label>
+                  <input id="productPresentations" name="presentations" placeholder="Consultar embalagem" />
+                </div>
+              </div>
+              <div class="ap-feedback blog-admin-feedback" id="adminProductFeedback" aria-live="polite"></div>
+            </form>
+          </div>
+          <div class="prod-drawer-foot">
+            <button class="ap-btn ap-btn-ghost" type="button" data-close-drawer>Cancelar</button>
+            <button class="ap-btn ap-btn-primary" type="submit" form="adminProductForm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span id="adminProductSubmitLabel">Salvar produto</span>
+            </button>
+          </div>
+        </aside>
+      </div>
 
       <!-- ─── Banners ─── -->
       <section data-admin-panel="banners" hidden>

@@ -77,6 +77,26 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     return String(value || '').split('\n').map((item) => item.trim()).filter(Boolean);
   }
 
+  /* ── Drawer (criar/editar) ─────────────────────────────── */
+  function openProductDrawer(title, subtitle) {
+    const drawer = document.getElementById('productDrawer');
+    const t = document.getElementById('productDrawerTitle');
+    const s = document.getElementById('productDrawerSub');
+    if (t && title) t.textContent = title;
+    if (s && subtitle) s.textContent = subtitle;
+    if (drawer) {
+      drawer.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  function closeProductDrawer() {
+    const drawer = document.getElementById('productDrawer');
+    if (drawer) {
+      drawer.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+  }
+
   function resetProductForm() {
     const form = refs.productForm;
     if (!form) return;
@@ -90,6 +110,11 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     _pendingProductFile = null;
     $('#adminProductSubmitLabel').textContent = 'Salvar produto';
     setFeedback(refs.productFeedback, '');
+  }
+
+  function openNewProductDrawer() {
+    resetProductForm();
+    openProductDrawer('Novo produto', 'Preencha as informações do produto abaixo.');
   }
 
   function fillProductForm(product) {
@@ -107,7 +132,8 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
       refs.productPreview.hidden = false;
     }
     $('#adminProductSubmitLabel').textContent = 'Salvar alterações';
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setFeedback(refs.productFeedback, '');
+    openProductDrawer('Editar produto', `Editando: ${product.name}`);
   }
 
   function productStatusLabel(product) {
@@ -118,28 +144,69 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     const list = refs.productList;
     if (!list) return;
     const term = String(refs.productSearch?.value || '').trim().toLowerCase();
+    const speciesFilter = String(document.getElementById('adminProductSpeciesFilter')?.value || '');
+    const statusFilter = String(document.getElementById('adminProductStatusFilter')?.value || '');
+
     const products = productsCache.filter((product) => {
       const haystack = `${product.name} ${product.category} ${product.excerpt} ${product.id}`.toLowerCase();
-      return !term || haystack.includes(term);
+      if (term && !haystack.includes(term)) return false;
+      if (speciesFilter && product.species !== speciesFilter) return false;
+      if (statusFilter && product.status !== statusFilter) return false;
+      return true;
     });
 
+    /* Stats no toolbar */
+    const stats = document.getElementById('adminProductStats');
+    if (stats) {
+      const total = productsCache.length;
+      const pub = productsCache.filter((p) => p.status === 'published').length;
+      const draft = total - pub;
+      stats.innerHTML = `<strong>${total}</strong> produtos · ${pub} publicados · ${draft} rascunhos`;
+    }
+
+    if (!productsCache.length) {
+      list.innerHTML = `
+        <div class="prod-empty-state">
+          <h3>Nenhum produto cadastrado ainda</h3>
+          <p>Cadastre o primeiro produto ou clique em "Restaurar padrão" para popular o catálogo com a linha Champion.</p>
+          <button class="ap-btn ap-btn-primary" type="button" data-seed-from-empty>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+            Restaurar produtos padrão
+          </button>
+        </div>`;
+      return;
+    }
+
     if (!products.length) {
-      list.innerHTML = '<div class="admin-empty">Nenhum produto encontrado.</div>';
+      list.innerHTML = '<div class="prod-empty-state"><h3>Nenhum produto bate com os filtros</h3><p>Tente outra busca ou limpe os filtros.</p></div>';
       return;
     }
 
     list.innerHTML = products.map((product) => `
-      <article class="admin-row">
-        <img src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="" loading="lazy" />
-        <div class="admin-row-main">
-          <h3>${escapeHtml(product.name)}</h3>
-          <p>${escapeHtml(product.category)} · ${formatBRL(product.price)}</p>
-          <span class="blog-admin-status${product.status === 'draft' ? ' is-draft' : ''}">${productStatusLabel(product)}</span>
+      <article class="prod-card">
+        <div class="prod-card-img">
+          <img src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" />
+          <span class="status-pill${product.status === 'draft' ? ' is-draft' : ''}">${productStatusLabel(product)}</span>
+          ${product.tag ? `<span class="tag-pill">${escapeHtml(product.tag)}</span>` : ''}
         </div>
-        <div class="admin-row-actions">
-          <a class="blog-admin-mini" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener">Ver</a>
-          <button class="blog-admin-mini" type="button" data-edit-product="${escapeHtml(product.id)}">Editar</button>
-          <button class="blog-admin-mini is-danger" type="button" data-delete-product="${escapeHtml(product.id)}">Excluir</button>
+        <div class="prod-card-body">
+          <h4>${escapeHtml(product.name)}</h4>
+          <div class="cat">${escapeHtml(product.category)}</div>
+          <div class="${product.price ? 'price' : 'price empty'}">${formatBRL(product.price)}</div>
+        </div>
+        <div class="prod-card-actions">
+          <a class="icon-btn" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            Ver
+          </a>
+          <button class="icon-btn primary" type="button" data-edit-product="${escapeHtml(product.id)}" title="Editar produto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+          <button class="icon-btn danger" type="button" data-delete-product="${escapeHtml(product.id)}" title="Excluir produto">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Excluir
+          </button>
         </div>
       </article>
     `).join('');
@@ -305,6 +372,20 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
       store.getLeads(),
       store.getBanners()
     ]);
+
+    /* Auto-seed: se o catálogo está vazio, popula com os produtos do código.
+       Útil no primeiro login pra já trazer a linha Champion pra dentro do BD. */
+    if (productsCache.length === 0) {
+      try {
+        console.info('[admin] catálogo vazio, fazendo seed dos produtos padrão...');
+        await store.seedProducts();
+        productsCache = await store.getProducts();
+        window.ChampionToast?.('Catálogo populado com a linha Champion.');
+      } catch (err) {
+        console.warn('[admin] seed automático falhou:', err.message);
+      }
+    }
+
     const blogStats = await store.getBlogStats().catch(() => ({ posts: 0, published: 0 }));
     renderProducts();
     renderLeads();
@@ -349,23 +430,39 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
       await syncAuth(false);
     });
 
-    $('#adminSeedProducts')?.addEventListener('click', async () => {
-      if (!window.confirm('Restaurar o catálogo padrão de produtos?')) return;
+    async function doSeedProducts(confirmed) {
+      if (!confirmed && !window.confirm('Restaurar o catálogo padrão de produtos?')) return;
       try {
         await store.seedProducts();
         productsCache = await store.getProducts();
         renderProducts();
         renderStats(await store.getBlogStats().catch(() => ({ posts: 0 })));
-        resetProductForm();
         window.ChampionToast?.('Produtos restaurados.');
       } catch (error) {
         setFeedback(refs.productFeedback, friendlyAdminError(error));
+        window.ChampionToast?.(friendlyAdminError(error));
       }
-    });
+    }
 
-    $('#adminNewProduct')?.addEventListener('click', resetProductForm);
+    $('#adminSeedProducts')?.addEventListener('click', () => doSeedProducts(false));
+    $('#adminNewProduct')?.addEventListener('click', openNewProductDrawer);
 
     refs.productSearch?.addEventListener('input', renderProducts);
+    $('#adminProductSpeciesFilter')?.addEventListener('change', renderProducts);
+    $('#adminProductStatusFilter')?.addEventListener('change', renderProducts);
+
+    /* Botões de fechar drawer */
+    document.querySelectorAll('[data-close-drawer]').forEach((b) => {
+      b.addEventListener('click', closeProductDrawer);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeProductDrawer();
+    });
+
+    /* Botão de seed na empty state */
+    refs.productList?.addEventListener('click', (e) => {
+      if (e.target.closest('[data-seed-from-empty]')) doSeedProducts(true);
+    });
 
     refs.productForm?.elements.name?.addEventListener('input', () => {
       if (!refs.productForm.elements.id.value && refs.productForm.dataset.slugEdited !== 'true') {
@@ -393,14 +490,14 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
         productsCache = await store.getProducts();
         renderProducts();
         renderStats(await store.getBlogStats().catch(() => ({ posts: 0 })));
-        setFeedback(refs.productFeedback, 'Produto salvo com sucesso.', 'success');
         window.ChampionToast?.('Produto salvo.');
+        closeProductDrawer();
+        resetProductForm();
       } catch (error) {
         setFeedback(refs.productFeedback, friendlyAdminError(error));
       } finally {
         setBusy(refs.productForm, false);
       }
-      if (savedProduct) fillProductForm(savedProduct);
     });
 
     refs.productList?.addEventListener('click', async (event) => {
@@ -411,16 +508,15 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
       }
       if (del) {
         const product = productsCache.find((item) => item.id === del.dataset.deleteProduct);
-        if (!product || !window.confirm(`Excluir "${product.name}"?`)) return;
+        if (!product || !window.confirm(`Excluir "${product.name}"?\n\nEssa ação não pode ser desfeita.`)) return;
         try {
           await store.deleteProduct(product.id);
           productsCache = await store.getProducts();
           renderProducts();
           renderStats(await store.getBlogStats().catch(() => ({ posts: 0 })));
-          resetProductForm();
           window.ChampionToast?.('Produto excluído.');
         } catch (error) {
-          setFeedback(refs.productFeedback, friendlyAdminError(error));
+          window.ChampionToast?.(friendlyAdminError(error));
         }
       }
     });
