@@ -1,0 +1,91 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /* ────────── Helpers ────────── */
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isBlogAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/blogAdmins/$(request.auth.uid))
+        && get(/databases/$(database)/documents/blogAdmins/$(request.auth.uid)).data.active == true;
+    }
+
+    function ownsCustomerDoc(customerId) {
+      return signedIn() && request.auth.uid == customerId;
+    }
+
+    function isOwnerOfOrder() {
+      return signedIn() && resource.data.customerId == request.auth.uid;
+    }
+
+    /* ────────── Blog ────────── */
+    match /blogConfig/{docId} {
+      allow read: if true;
+      allow write: if isBlogAdmin();
+    }
+
+    match /blogPosts/{postId} {
+      allow get, list: if resource.data.status == 'published' || isBlogAdmin();
+      allow create, update, delete: if isBlogAdmin();
+    }
+
+    match /blogAdmins/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if isBlogAdmin();
+    }
+
+    /* ────────── Catálogo (público leitura, admin escrita) ────────── */
+    match /products/{productId} {
+      allow get, list: if resource.data.status == 'published' || isBlogAdmin();
+      allow create, update, delete: if isBlogAdmin();
+    }
+
+    match /siteSettings/{docId} {
+      allow read: if true;
+      allow write: if isBlogAdmin();
+    }
+
+    match /banners/{bannerId} {
+      allow get, list: if resource.data.status == 'published' || isBlogAdmin();
+      allow create, update, delete: if isBlogAdmin();
+    }
+
+    /* ────────── Leads (formulário público de contato) ────────── */
+    match /adminLeads/{leadId} {
+      allow create: if request.resource.data.keys().hasOnly([
+        'name', 'email', 'phone', 'message', 'source', 'status', 'createdAt'
+      ]);
+      allow read, update, delete: if isBlogAdmin();
+    }
+
+    /* ────────── Clientes (cadastro próprio + visão admin) ────────── */
+    match /customers/{customerId} {
+      /* Cliente pode ler/escrever seu próprio cadastro; admin pode tudo */
+      allow read:   if ownsCustomerDoc(customerId) || isBlogAdmin();
+      allow create: if signedIn() && request.auth.uid == customerId;
+      allow update: if ownsCustomerDoc(customerId) || isBlogAdmin();
+      allow delete: if isBlogAdmin();
+    }
+
+    /* ────────── Pedidos ────────── */
+    match /orders/{orderId} {
+      /* Listagem: cliente vê os próprios pedidos; admin vê todos.
+         Importante: list/queries precisam filtrar por customerId == uid
+         no client (regra valida por documento). */
+      allow get:    if signedIn() && (resource.data.customerId == request.auth.uid || isBlogAdmin());
+      allow list:   if signedIn();
+      allow create: if signedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update: if isBlogAdmin();
+      allow delete: if isBlogAdmin();
+    }
+
+    /* ────────── Fallback (nega tudo) ────────── */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Finalizar compra · Champion Saúde Animal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <style>
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #FAFAF7;
+      color: #15191F;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+
+    .topbar {
+      background: white;
+      border-bottom: 1px solid #E5E8EF;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar img { width: 110px; }
+    .topbar .back { font-size: 13px; color: #687080; text-decoration: none; }
+    .topbar .back:hover { color: #15191F; }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 880px) { .wrap { grid-template-columns: 1fr; } }
+
+    h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .lead { color: #687080; margin-bottom: 24px; font-size: 14px; }
+
+    .steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .step {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: white;
+      border: 1.5px solid #E5E8EF;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #687080;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step .num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #F0F2F6; color: #687080;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .step.is-active { border-color: #EC4815; color: #EC4815; background: #FFF9F7; }
+    .step.is-active .num { background: #EC4815; color: white; }
+    .step.is-done { color: #1A7A48; border-color: #A8E6C6; background: #EDFAF3; }
+    .step.is-done .num { background: #1A9B5F; color: white; }
+
+    .card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 11px 13px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 8px;
+      background: #F9FAFB;
+      font-family: inherit; font-size: 14px;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: #EC4815; background: white;
+      box-shadow: 0 0 0 3px rgba(236,72,21,.09);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .row, .row3 { grid-template-columns: 1fr; } }
+
+    .pay-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 600px) { .pay-options { grid-template-columns: 1fr; } }
+    .pay-options label {
+      border: 1.5px solid #E4E8EF;
+      border-radius: 10px;
+      padding: 14px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color .18s, background .18s;
+      font-weight: 600; font-size: 13.5px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .pay-options label:hover { border-color: #EC4815; }
+    .pay-options input { display: none; }
+    .pay-options input:checked + span { color: #EC4815; }
+    .pay-options label:has(input:checked) { border-color: #EC4815; background: #FFF9F7; }
+
+    .btn {
+      padding: 12px 22px; border-radius: 9px;
+      font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700;
+      border: none; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: transform .18s, box-shadow .18s, background .18s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg,#FF6A33,#EC4815 60%,#C13808);
+      color: white;
+      box-shadow: 0 6px 20px -4px rgba(236,72,21,.5);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -4px rgba(236,72,21,.55); }
+    .btn-ghost {
+      background: transparent; color: #687080;
+      border: 1.5px solid #E4E8EF;
+    }
+    .btn-ghost:hover { background: #F4F5F8; color: #15191F; }
+    .actions { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+    /* Summary */
+    .summary {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      padding: 22px;
+      position: sticky;
+      top: 16px;
+    }
+    .summary h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .summary-list { list-style: none; }
+    .summary-item {
+      display: flex; gap: 10px; padding: 10px 0;
+      border-bottom: 1px solid #F0F2F6;
+    }
+    .summary-item img {
+      width: 44px; height: 44px;
+      border-radius: 7px;
+      background: #F4F5F8;
+      object-fit: contain;
+      padding: 4px;
+      border: 1px solid #EEF0F4;
+    }
+    .summary-item-info { flex: 1; min-width: 0; }
+    .summary-item-info h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .summary-item-info p { font-size: 12px; color: #9EA6B4; }
+    .summary-item-price { font-size: 13px; font-weight: 600; }
+    .totals { padding-top: 12px; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #687080; }
+    .totals-row.total { font-size: 17px; font-weight: 800; color: #15191F; margin-top: 8px; padding-top: 10px; border-top: 1px solid #F0F2F6; font-family: 'Sora',sans-serif; }
+    .empty {
+      text-align: center; padding: 28px 12px;
+      color: #9EA6B4; font-size: 13.5px;
+    }
+
+    .feedback {
+      font-size: 13px; font-weight: 600; min-height: 20px; margin: 10px 0;
+    }
+    .feedback.error {
+      padding: 10px 12px; border-radius: 8px;
+      background: #FFF1EF; border: 1px solid #FAD0C6; color: #C13808;
+    }
+
+    /* Success view */
+    .success-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 16px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 560px;
+      margin: 60px auto;
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#1A9B5F,#0F7C46);
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .success-icon svg { width: 32px; height: 32px; }
+    .success-card h1 { margin-bottom: 8px; }
+    .success-card p { color: #687080; margin-bottom: 22px; }
+    .success-meta {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: #F4F5F8; padding: 10px 16px; border-radius: 10px;
+      margin-bottom: 22px; font-size: 13.5px;
+    }
+    .success-meta strong { font-family: 'Sora',sans-serif; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
+  <a class="back" href="index.html">← Continuar comprando</a>
+</div>
+
+<!-- ─── Checkout (steps 1-3) ─── -->
+<div class="wrap" id="checkoutWrap">
+  <div>
+    <h1>Finalizar compra</h1>
+    <p class="lead">Revise seus dados e confirme o pedido. Sem gateway de pagamento — o pedido é registrado como <strong>pago</strong> assim que você confirma.</p>
+
+    <div class="steps">
+      <div class="step is-active" data-step-pill="1"><span class="num">1</span>Identificação</div>
+      <div class="step" data-step-pill="2"><span class="num">2</span>Endereço</div>
+      <div class="step" data-step-pill="3"><span class="num">3</span>Pagamento</div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <!-- STEP 1: Identification -->
+    <div class="card" data-step="1">
+      <h2>1 · Quem está comprando?</h2>
+      <div id="loggedAsBox" hidden style="background:#EDFAF3;border:1px solid #A8E6C6;color:#1A7A48;padding:10px 12px;border-radius:8px;margin-bottom:14px;font-size:13px"></div>
+      <div id="guestPrompt" style="background:#FFF8EB;border:1px solid #F5DEB3;padding:12px 14px;border-radius:8px;margin-bottom:14px;font-size:13px;color:#92400E">
+        💡 Já tem conta? <a href="cliente-conta.html?redirect=checkout.html" style="color:#C13808;font-weight:600">Entrar</a> para preencher mais rápido.
+      </div>
+      <div class="row">
+        <div class="field"><label>Nome completo</label><input id="fName" type="text" required /></div>
+        <div class="field"><label>Telefone / WhatsApp</label><input id="fPhone" type="tel" required placeholder="(00) 00000-0000" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>E-mail</label><input id="fEmail" type="email" required /></div>
+        <div class="field"><label>CPF / CNPJ</label><input id="fDoc" type="text" /></div>
+      </div>
+      <div class="actions">
+        <span></span>
+        <button class="btn btn-primary" type="button" data-next="2">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Address -->
+    <div class="card" data-step="2" hidden>
+      <h2>2 · Endereço de entrega</h2>
+      <div class="row3">
+        <div class="field"><label>CEP</label><input id="fCep" type="text" placeholder="00000-000" /></div>
+        <div class="field"><label>Estado (UF)</label><input id="fUf" type="text" maxlength="2" placeholder="GO" /></div>
+        <div class="field"><label>Cidade</label><input id="fCity" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Endereço</label><input id="fStreet" type="text" placeholder="Rua, avenida…" /></div>
+        <div class="field"><label>Número</label><input id="fNumber" type="text" /></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Complemento</label><input id="fCompl" type="text" placeholder="Opcional" /></div>
+        <div class="field"><label>Bairro</label><input id="fNeigh" type="text" /></div>
+      </div>
+      <div class="field"><label>Observações para entrega</label><textarea id="fNotes" rows="2" placeholder="Opcional"></textarea></div>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button" data-prev="1">← Voltar</button>
+        <button class="btn btn-primary" type="button" data-next="3">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Payment -->
+    <div class="card" data-step="3" hidden>
+      <h2>3 · Forma de pagamento</h2>
+      <p style="color:#687080;font-size:13px;margin-bottom:14px">No ambiente de demonstração não há gateway. O pedido será marcado como <strong>pago</strong> assim que você confirmar.</p>
+      <div class="pay-options" style="margin-bottom:16px">
+        <label><input type="radio" name="payment" value="pix" checked /><span>📱 Pix</span></label>
+        <label><input type="radio" name="payment" value="cartao" /><span>💳 Cartão</span></label>
+        <label><input type="radio" name="payment" value="boleto" /><span>📄 Boleto</span></label>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button" data-prev="2">← Voltar</button>
+        <button class="btn btn-primary" type="button" id="confirmOrder">Confirmar e finalizar pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order summary (sticky) -->
+  <aside class="summary">
+    <h2>Resumo do pedido</h2>
+    <ul class="summary-list" id="summaryItems"></ul>
+    <div class="totals" id="totals"></div>
+  </aside>
+</div>
+
+<!-- ─── Success view ─── -->
+<div id="successWrap" hidden>
+  <div class="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h1>Pedido confirmado!</h1>
+    <p>Recebemos seu pedido. Em breve você receberá o código de rastreio por e-mail.</p>
+    <div class="success-meta">
+      Número do pedido: <strong id="successNumber">#10401</strong>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-primary" href="minha-conta.html">Ver meus pedidos</a>
+      <a class="btn btn-ghost" href="produtos.html">Continuar comprando</a>
+    </div>
+  </div>
+</div>
+
+<script src="js/customer-store.js"></script>
+<script src="js/order-store.js"></script>
+<script>
+(function () {
+  var CART_KEY = 'champion-cart';
+  var cart = [];
+  try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { cart = []; }
+
+  /* If cart empty, send back to index */
+  if (!cart.length) {
+    document.getElementById('checkoutWrap').innerHTML = '<div class="card" style="margin:auto;max-width:520px;text-align:center"><h2>Carrinho vazio</h2><p style="margin:12px 0 18px;color:#687080">Adicione produtos antes de finalizar a compra.</p><a class="btn btn-primary" href="produtos.html">Ver produtos</a></div>';
+    return;
+  }
+
+  function fmt(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); }
+
+  /* Pre-fill from logged customer */
+  var current = window.ChampionCustomers && window.ChampionCustomers.currentSession();
+  if (current) {
+    document.getElementById('loggedAsBox').hidden = false;
+    document.getElementById('loggedAsBox').textContent = '✓ Conectado como ' + current.email;
+    document.getElementById('guestPrompt').hidden = true;
+    document.getElementById('fName').value = current.name || '';
+    document.getElementById('fEmail').value = current.email || '';
+    document.getElementById('fPhone').value = current.phone || '';
+    document.getElementById('fDoc').value = current.cpfCnpj || '';
+    if (current.address) {
+      document.getElementById('fCep').value = current.address.cep || '';
+      document.getElementById('fUf').value = current.address.uf || '';
+      document.getElementById('fCity').value = current.address.city || '';
+      document.getElementById('fStreet').value = current.address.street || '';
+      document.getElementById('fNumber').value = current.address.number || '';
+      document.getElementById('fCompl').value = current.address.compl || '';
+      document.getElementById('fNeigh').value = current.address.neigh || '';
+    }
+  }
+
+  /* Render summary */
+  var subtotal = cart.reduce(function (s, i) { return s + (Number(i.price) || 0) * (Number(i.qty) || 1); }, 0);
+  var shipping = subtotal >= 500 ? 0 : 38;
+  var total = subtotal + shipping;
+
+  document.getElementById('summaryItems').innerHTML = cart.map(function (i) {
+    return '<li class="summary-item">'
+      + (i.image ? '<img src="' + i.image + '" alt="" />' : '<div class="summary-item-img" style="width:44px;height:44px;background:#F4F5F8;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#9EA6B4">' + (i.name || '?').charAt(0) + '</div>')
+      + '<div class="summary-item-info"><h4>' + (i.name || 'Produto') + '</h4><p>' + (i.qty || 1) + '× · ' + fmt(i.price) + '</p></div>'
+      + '<div class="summary-item-price">' + fmt((i.price || 0) * (i.qty || 1)) + '</div>'
+      + '</li>';
+  }).join('');
+  document.getElementById('totals').innerHTML =
+    '<div class="totals-row"><span>Subtotal</span><span>' + fmt(subtotal) + '</span></div>'
+    + '<div class="totals-row"><span>Frete</span><span>' + (shipping === 0 ? '<span style="color:#1A9B5F;font-weight:700">Grátis</span>' : fmt(shipping)) + '</span></div>'
+    + '<div class="totals-row total"><span>Total</span><span>' + fmt(total) + '</span></div>';
+
+  /* Step navigation */
+  var feedback = document.getElementById('feedback');
+  function showError(msg) { feedback.className = 'feedback error'; feedback.textContent = msg; }
+  function clearError() { feedback.className = 'feedback'; feedback.textContent = ''; }
+  function goStep(n) {
+    document.querySelectorAll('[data-step]').forEach(function (s) { s.hidden = String(s.getAttribute('data-step')) !== String(n); });
+    document.querySelectorAll('[data-step-pill]').forEach(function (p) {
+      var num = parseInt(p.getAttribute('data-step-pill'), 10);
+      p.classList.toggle('is-active', num === n);
+      p.classList.toggle('is-done', num < n);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    clearError();
+  }
+  function validateStep1() {
+    var name = document.getElementById('fName').value.trim();
+    var email = document.getElementById('fEmail').value.trim();
+    var phone = document.getElementById('fPhone').value.trim();
+    if (!name || !email || !phone) { showError('Preencha nome, e-mail e telefone.'); return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('E-mail inválido.'); return false; }
+    return true;
+  }
+  function validateStep2() {
+    var cep = document.getElementById('fCep').value.trim();
+    var city = document.getElementById('fCity').value.trim();
+    var uf = document.getElementById('fUf').value.trim();
+    var street = document.getElementById('fStreet').value.trim();
+    if (!cep || !city || !uf || !street) { showError('Preencha CEP, cidade, UF e endereço.'); return false; }
+    return true;
+  }
+
+  document.querySelectorAll('[data-next]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var next = parseInt(b.getAttribute('data-next'), 10);
+      if (next === 2 && !validateStep1()) return;
+      if (next === 3 && !validateStep2()) return;
+      goStep(next);
+    });
+  });
+  document.querySelectorAll('[data-prev]').forEach(function (b) {
+    b.addEventListener('click', function () { goStep(parseInt(b.getAttribute('data-prev'), 10)); });
+  });
+
+  /* Confirm order */
+  document.getElementById('confirmOrder').addEventListener('click', async function () {
+    if (!validateStep1() || !validateStep2()) return;
+    clearError();
+    var btn = document.getElementById('confirmOrder');
+    btn.disabled = true;
+    btn.textContent = 'Processando…';
+
+    try {
+      var paymentMethod = (document.querySelector('input[name="payment"]:checked') || {}).value || 'pix';
+
+      var customerData = {
+        name: document.getElementById('fName').value.trim(),
+        email: document.getElementById('fEmail').value.trim().toLowerCase(),
+        phone: document.getElementById('fPhone').value.trim(),
+        cpfCnpj: document.getElementById('fDoc').value.trim()
+      };
+      var address = {
+        cep: document.getElementById('fCep').value.trim(),
+        uf: document.getElementById('fUf').value.trim().toUpperCase(),
+        city: document.getElementById('fCity').value.trim(),
+        street: document.getElementById('fStreet').value.trim(),
+        number: document.getElementById('fNumber').value.trim(),
+        compl: document.getElementById('fCompl').value.trim(),
+        neigh: document.getElementById('fNeigh').value.trim(),
+        notes: document.getElementById('fNotes').value.trim()
+      };
+
+      /* Persist address on logged customer for next time */
+      if (current && window.ChampionCustomers) {
+        await window.ChampionCustomers.updateProfile(current.id, {
+          name: customerData.name,
+          phone: customerData.phone,
+          cpfCnpj: customerData.cpfCnpj,
+          address: address
+        });
+      }
+
+      var order = await window.ChampionOrders.create({
+        customerId: current ? current.id : null,
+        customer: customerData,
+        address: address,
+        items: cart.map(function (i) {
+          return { id: i.id, name: i.name, price: Number(i.price) || 0, qty: Number(i.qty) || 1, image: i.image || '' };
+        }),
+        subtotal: subtotal,
+        shipping: shipping,
+        total: total,
+        paymentMethod: paymentMethod,
+        status: 'paid' /* sem gateway: já considera pago ao confirmar */
+      });
+
+      /* Clear cart */
+      try { localStorage.removeItem(CART_KEY); } catch (e) {}
+
+      /* Show success */
+      document.getElementById('checkoutWrap').hidden = true;
+      document.getElementById('successWrap').hidden = false;
+      document.getElementById('successNumber').textContent = '#' + order.number;
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Confirmar e finalizar pedido';
+      showError(err.message || 'Não foi possível registrar o pedido.');
+    }
+  });
+})();
+</script>
+</body>
+</html>

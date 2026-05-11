@@ -1,0 +1,614 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cálculo de dose · Champion Saúde Animal</title>
+  <meta name="description" content="Calcule a dose ideal e a quantidade de produto Champion para o seu rebanho. Rápido, prático e gratuito." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+  <script data-champion-lang-init>(function(){try{var l=localStorage.getItem("champion-language")||"pt";document.documentElement.dataset.lang=l;if(l!=="pt")document.documentElement.lang=l;}catch(e){}})();</script>
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <link rel="apple-touch-icon" href="assets/img/brand/icon.png" />
+  <style>
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .calc-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      box-shadow: var(--shadow-sm);
+    }
+    .calc-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 8px;
+    }
+    .calc-card > p { font-size: 14px; color: var(--muted); margin-bottom: 26px; }
+    .calc-field { margin-bottom: 20px; }
+    .calc-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .calc-field label small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+    .calc-input, .calc-select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      background: white;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      color: var(--ink);
+      font-family: var(--f-body);
+    }
+    .calc-input:focus, .calc-select:focus {
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(236,72,21,0.12);
+    }
+    .calc-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2315191F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 42px;
+    }
+    .calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .calc-input-group {
+      position: relative;
+    }
+    .calc-input-group .suffix {
+      position: absolute;
+      right: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      pointer-events: none;
+    }
+    .calc-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 28px;
+    }
+    .calc-actions .btn { flex: 1; }
+
+    /* Result panel */
+    .calc-result {
+      background:
+        radial-gradient(600px circle at 100% 0%, rgba(236,72,21,0.18), transparent 60%),
+        linear-gradient(155deg, #161b22, #0a0a0a);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      min-height: 480px;
+      display: flex;
+      flex-direction: column;
+    }
+    .calc-result h3 {
+      font-family: var(--f-display);
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+      color: white;
+      margin-bottom: 6px;
+    }
+    .calc-result > p { color: rgba(255,255,255,0.65); font-size: 14px; margin-bottom: 28px; }
+    .result-empty {
+      flex: 1;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      color: rgba(255,255,255,0.55);
+    }
+    .result-empty svg { width: 80px; height: 80px; opacity: 0.25; margin-bottom: 20px; }
+    .result-empty h4 { color: white; font-size: 18px; margin-bottom: 6px; font-weight: 600; }
+    .result-empty p { font-size: 14px; max-width: 280px; line-height: 1.5; }
+
+    .result-data { flex: 1; display: none; }
+    .result-data.is-show { display: block; }
+    .result-headline {
+      font-family: var(--f-display);
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: white;
+      line-height: 1.05;
+      margin-bottom: 4px;
+    }
+    .result-headline span { color: var(--orange-soft); }
+    .result-sub { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 24px; }
+    .result-list {
+      display: grid;
+      gap: 12px;
+      padding: 20px 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .result-list div {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 14px;
+    }
+    .result-list div span:first-child { color: rgba(255,255,255,0.6); }
+    .result-list div strong { color: white; font-weight: 700; font-size: 15px; }
+    .result-foot {
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .result-foot .btn { background: white; color: var(--ink); }
+    .result-foot .btn:hover { background: var(--orange); color: white; }
+
+    .calc-disclaimer {
+      margin-top: 28px;
+      padding: 18px 22px;
+      background: rgba(236,72,21,0.06);
+      border: 1px solid rgba(236,72,21,0.18);
+      border-left: 3px solid var(--orange);
+      border-radius: 8px;
+      display: flex; gap: 14px;
+      align-items: flex-start;
+    }
+    .calc-disclaimer svg { width: 22px; height: 22px; color: var(--orange); flex-shrink: 0; margin-top: 1px; }
+    .calc-disclaimer p { font-size: 13px; color: var(--steel); line-height: 1.55; }
+    .calc-disclaimer p strong { color: var(--ink); }
+
+    @media (max-width: 1024px) {
+      .calc-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .calc-card, .calc-result { padding: 28px; }
+      .calc-row { grid-template-columns: 1fr; }
+    }
+
+    /* Quick guide */
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+    .guide-card {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 28px 26px;
+      transition: transform 0.3s, border-color 0.2s, box-shadow 0.3s;
+    }
+    .guide-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(236,72,21,0.3);
+      box-shadow: var(--shadow-md);
+    }
+    .guide-num {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+      color: white;
+      font-family: var(--f-display);
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    .guide-card h4 { font-size: 17px; font-weight: 700; letter-spacing: 0; margin-bottom: 8px; }
+    .guide-card p { font-size: 14px; color: var(--steel); line-height: 1.6; }
+    @media (max-width: 1024px) { .guide-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="site-intro-active">
+<div class="site-intro" id="siteIntro" role="status" aria-label="Carregando o site Champion">
+  <img src="assets/img/misc/intro.gif" alt="" />
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-info">
+      <span class="pill">FRETE GRÁTIS para pedidos acima de R$ 500</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>0800 723 1616</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>contato@champion.ind.br</span>
+    </div>
+    <div class="topbar-social">
+      <a href="https://www.instagram.com/championsaudeanimal/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+      <a href="https://www.facebook.com/championsaudeanimal" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5C10.5 7 12 5.7 14.2 5.7c1 0 2.1.2 2.1.2V8h-1.2c-1.2 0-1.6.7-1.6 1.5V12h2.7l-.4 3h-2.3v7A10 10 0 0 0 22 12z"/></svg></a>
+      <a href="https://www.youtube.com/amigopecuaristaoficial" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.1-1C16.9 3.5 12 3.5 12 3.5s-4.9 0-8 .2c-.4 0-1.3 0-2.1 1C1.2 5.4 1 7 1 7s-.2 1.9-.2 3.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.2 7.7.2s4.9 0 8-.2c.4 0 1.3 0 2.1-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.7v-1.7C23.2 8.9 23 7 23 7zM9.7 14.6V8.4l6.4 3.1-6.4 3.1z"/></svg></a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="nav" id="primaryNav">
+      <a href="index.html">Página Inicial</a>
+      <a href="produtos.html">Produtos</a>
+      <a href="sobre.html">Sobre a Champion</a>
+      <a href="blog.html">Blog</a>
+      <a href="https://champion.pertinhodemim.com/" target="_blank" rel="noopener">Revenda</a>
+      <a href="calculo-dose.html" class="active">Cálculo de dose</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      <button class="icon-btn" aria-label="Conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <button class="icon-btn cart-btn" id="cartBtn" aria-label="Carrinho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="badge" id="cartBadge">0</span></button>
+      <button class="icon-btn menu-toggle" id="menuToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<!-- PAGE HERO -->
+<section class="page-hero" style="height:280px">
+  <img src="assets/img/hero/banner-dose.png" alt="Cálculo de dose Champion" />
+  <div class="page-hero-inner">
+    <div class="crumb">
+      <a href="index.html">Página Inicial</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      <span>Cálculo de dose</span>
+    </div>
+    <h1>Cálculo de dose</h1>
+    <p>Descubra rapidamente quanto produto seu rebanho precisa.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="calc-grid">
+      <div class="calc-card">
+        <h3>Calcular dose ideal</h3>
+        <p>Selecione o produto, informe o peso médio e o número de animais. A calculadora retorna a dose individual e o consumo total estimado.</p>
+
+        <div class="calc-field">
+          <label for="calcProduct">Produto Champion</label>
+          <select id="calcProduct" class="calc-select"></select>
+        </div>
+
+        <div class="calc-row">
+          <div class="calc-field">
+            <label for="calcWeight">Peso médio do animal <small>(kg)</small></label>
+            <div class="calc-input-group">
+              <input type="number" id="calcWeight" class="calc-input" placeholder="Ex: 350" min="1" step="1" />
+              <span class="suffix">kg</span>
+            </div>
+          </div>
+          <div class="calc-field">
+            <label for="calcAnimals">Quantidade de animais</label>
+            <div class="calc-input-group">
+              <input type="number" id="calcAnimals" class="calc-input" placeholder="Ex: 100" min="1" step="1" value="1" />
+              <span class="suffix">cab.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-field">
+          <label for="calcDays">Período de tratamento <small>(dias)</small></label>
+          <div class="calc-input-group">
+            <input type="number" id="calcDays" class="calc-input" placeholder="Ex: 30" min="1" step="1" value="30" />
+            <span class="suffix">dias</span>
+          </div>
+        </div>
+
+        <div class="calc-actions">
+          <button class="btn btn-primary" id="calcBtn" style="flex:1">
+            Calcular dose
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <button class="btn btn-outline" id="calcReset" type="button" aria-label="Limpar">Limpar</button>
+        </div>
+
+        <div class="calc-disclaimer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p><strong>Importante:</strong> os valores são estimativas baseadas na bula do produto. A dose final deve sempre ser confirmada por um médico veterinário, considerando estado clínico, idade e categoria do animal.</p>
+        </div>
+      </div>
+
+      <div class="calc-result">
+        <h3>Resultado</h3>
+        <p>Sua estimativa aparece aqui</p>
+
+        <div class="result-empty" id="resultEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="8" y1="18" x2="14" y2="18"/></svg>
+          <h4>Aguardando dados</h4>
+          <p>Preencha o formulário ao lado para ver a quantidade exata de produto e o consumo total estimado.</p>
+        </div>
+
+        <div class="result-data" id="resultData">
+          <div class="result-headline" id="resultHeadline"><span>0g</span></div>
+          <p class="result-sub" id="resultSub">por animal / dia</p>
+
+          <div class="result-list" id="resultList"></div>
+
+          <div class="result-foot">
+            <div style="font-size: 13px; color: rgba(255,255,255,0.6)">Quer comprar agora?</div>
+            <a href="#" class="btn" id="resultCta">Ver produto na loja</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GUIDE -->
+<section class="section section-tight" style="background: var(--bone)">
+  <div class="container">
+    <div class="section-head">
+      <div class="reveal">
+        <span class="section-eyebrow">Como usar</span>
+        <h2 class="section-title">Três passos para a <em>dose certa</em>.</h2>
+        <p class="section-sub">A calculadora considera os parâmetros indicados pela bula de cada produto Champion. Resultado em segundos.</p>
+      </div>
+    </div>
+    <div class="guide-grid">
+      <div class="guide-card reveal">
+        <span class="guide-num">1</span>
+        <h4>Escolha o produto</h4>
+        <p>Selecione o produto Champion que você está utilizando — Difly, Difly S3, VER-MI-SAL ou outro item da nossa linha.</p>
+      </div>
+      <div class="guide-card reveal reveal-delay-1">
+        <span class="guide-num">2</span>
+        <h4>Informe o rebanho</h4>
+        <p>Peso médio dos animais e a quantidade total de cabeças. Para mineralização, considere também o período de fornecimento.</p>
+      </div>
+      <div class="guide-card reveal reveal-delay-2">
+        <span class="guide-num">3</span>
+        <h4>Receba a dose</h4>
+        <p>Veja a quantidade individual, o consumo total estimado e adicione direto ao carrinho com a quantidade certa de embalagens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/img/brand/logo.png" alt="Champion" />
+        <p>Empresa genuinamente brasileira que há mais de 60 anos entrega resultados reais para a maior pecuária comercial do mundo.</p>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/championsaudeanimal/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="https://www.facebook.com/championsaudeanimal" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5C10.5 7 12 5.7 14.2 5.7c1 0 2.1.2 2.1.2V8h-1.2c-1.2 0-1.6.7-1.6 1.5V12h2.7l-.4 3h-2.3v7A10 10 0 0 0 22 12z"/></svg></a>
+          <a href="https://www.youtube.com/amigopecuaristaoficial" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.1-1C16.9 3.5 12 3.5 12 3.5s-4.9 0-8 .2c-.4 0-1.3 0-2.1 1C1.2 5.4 1 7 1 7s-.2 1.9-.2 3.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.2 7.7.2s4.9 0 8-.2c.4 0 1.3 0 2.1-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.7v-1.7C23.2 8.9 23 7 23 7zM9.7 14.6V8.4l6.4 3.1-6.4 3.1z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Navegação</h5>
+        <ul>
+          <li><a href="index.html">Página Inicial</a></li>
+          <li><a href="produtos.html">Produtos</a></li>
+          <li><a href="sobre.html">Sobre a Champion</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="https://champion.pertinhodemim.com/" target="_blank" rel="noopener">Revenda</a></li>
+          <li><a href="calculo-dose.html">Cálculo de dose</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Produtos</h5>
+        <ul>
+          <li><a href="produto.html?p=difly">Difly</a></li>
+          <li><a href="produto.html?p=difly-s3">Difly S3</a></li>
+          <li><a href="produto.html?p=ver-mi-sal">VER-MI-SAL</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contato</h5>
+        <div class="footer-contact">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Av. Diomício de Freitas, L.12<br>DAIA · Anápolis-GO</span></div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>0800 723 1616</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Champion Farmoquímico Ltda. Todos os direitos reservados.</span>
+    </div>
+  </div>
+</footer>
+
+<button type="button" class="cart-float" id="cartFloat" aria-label="Abrir carrinho" data-has-items="false" style="position:fixed;bottom:96px;right:24px;width:60px;height:60px;border-radius:999px;background:linear-gradient(135deg,#FF6A33,#EC4815,#C13808);color:white;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 14px 30px -8px rgba(236,72,21,0.55), inset 0 1px 0 rgba(255,255,255,0.18);z-index:9999;border:0;cursor:pointer;visibility:visible;opacity:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="badge" data-cart-badge>0</span><span class="cart-float-label" aria-hidden="true">Carrinho</span></button>
+
+<a href="https://api.whatsapp.com/send/?phone=556240150742&type=phone_number&app_absent=0" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3.6 17l-1.5 5.5 5.7-1.5a11 11 0 0 0 5.2 1.3 11 11 0 0 0 7.5-19zM12 20.5a9 9 0 0 1-4.6-1.3l-.3-.2-3.4.9.9-3.3-.2-.3a9 9 0 1 1 7.6 4.2zm5-6.7c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5 0-.2 0-.4-.1-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3 4.7 4.2 1.7.7 2.3.8 3.1.6.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.1.2-1.3-.2-.1-.4-.2-.7-.3z"/></svg>
+</a>
+
+<aside class="cart-overlay" id="cartOverlay"></aside>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>Seu carrinho</h3>
+    <button class="icon-btn" id="cartClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <p>Seu carrinho está vazio.</p>
+    </div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total"><span>Total</span><strong id="cartTotal">R$ 0,00</strong></div>
+    <button class="btn btn-primary" id="cartCheckout">Finalizar pedido</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Calculado</span>
+</div>
+
+<script src="js/customer-store.js"></script>
+<script src="js/order-store.js"></script>
+<script src="js/main.js"></script>
+<script>
+  // Dose database — values approximate based on label/bula.
+  // unit: g (per dose) | dosePerKg: optional (per kg of weight) | basis: 'animal' or 'kg' or 'mineral'
+  const doseProducts = {
+    'difly': {
+      label: 'Difly Champion (300g · 6kg)',
+      basis: 'mineral',           // mistura no sal mineral, base 30g/cab/dia
+      doseDaily: 30,              // g de sal mineral consumido / cabeça / dia (referência)
+      mixRatio: 1,                // 1 g de Difly por kg de sal mineral
+      packs: [{ size: 300, label: '300g' }, { size: 6000, label: '6kg' }],
+      url: 'produto.html?p=difly',
+      note: 'Misturar à razão de 1g/kg ao sal mineral. Consumo médio 30g/cab/dia.'
+    },
+    'difly-s3': {
+      label: 'Difly S3 Champion',
+      basis: 'mineral',
+      doseDaily: 30,
+      mixRatio: 1,                // 1 g por kg de sal mineral
+      packs: [{ size: 1000, label: '1kg' }, { size: 2000, label: '2kg' }, { size: 5000, label: '5kg' }],
+      url: 'produto.html?p=difly-s3',
+      note: 'Misturar à razão de 1g/kg ao sal mineral. Tripla ação contra mosca, mosca-dos-estábulos e carrapato.'
+    },
+    'ver-mi-sal': {
+      label: 'VER-MI-SAL Champion (20kg)',
+      basis: 'mineral',
+      doseDaily: 100,             // 100 g por cab/dia (consumo do sal pronto)
+      mixRatio: 0,                // já vem pronto
+      packs: [{ size: 20000, label: '20kg' }, { size: 40000, label: '40kg' }],
+      url: 'produto.html?p=ver-mi-sal',
+      note: 'Sal mineralizado pronto para uso. Consumo médio 100g/cab/dia.'
+    },
+    'champion-vermifugo': {
+      label: 'Champion Vermífugo',
+      basis: 'kg',                // dose por kg de peso vivo
+      mlPerKg: 0.5,               // 0,5 mL por kg
+      packs: [{ size: 500, label: '500ml' }, { size: 1000, label: '1L' }, { size: 5000, label: '5L' }],
+      url: 'produto.html?p=champion-vermifugo',
+      note: 'Aplicar 0,5 mL por kg de peso vivo (dose única). Confirme com veterinário.'
+    },
+    'champion-cipermetrina': {
+      label: 'Champion Cipermetrina',
+      basis: 'animal',            // banho ou aspersão — volume fixo por animal
+      mlPerAnimal: 4,             // 4 mL diluído / animal (aspersão)
+      packs: [{ size: 1000, label: '1L' }, { size: 5000, label: '5L' }, { size: 20000, label: '20L' }],
+      url: 'produto.html?p=champion-cipermetrina',
+      note: 'Aspersão: 4 mL do produto diluído por animal. Diluição 1:400 a 1:800 conforme bula.'
+    },
+    'nucleo': {
+      label: 'Núcleo Champion (mineral)',
+      basis: 'mineral',
+      doseDaily: 80,
+      mixRatio: 0,
+      packs: [{ size: 20000, label: '20kg' }, { size: 30000, label: '30kg' }],
+      url: 'produto.html?p=nucleo',
+      note: 'Núcleo mineral pronto. Consumo médio 80g/cab/dia.'
+    }
+  };
+
+  const sel = document.getElementById('calcProduct');
+  Object.entries(doseProducts).forEach(([id, p]) => {
+    const o = document.createElement('option');
+    o.value = id; o.textContent = p.label;
+    sel.appendChild(o);
+  });
+
+  const fmt = (n, dec = 0) => Number(n).toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+
+  function calculate() {
+    const id = sel.value;
+    const p = doseProducts[id];
+    const weight = +document.getElementById('calcWeight').value || 0;
+    const animals = Math.max(1, +document.getElementById('calcAnimals').value || 1);
+    const days = Math.max(1, +document.getElementById('calcDays').value || 1);
+
+    if (p.basis !== 'animal' && p.basis !== 'mineral' && weight <= 0) {
+      window.ChampionToast && window.ChampionToast('Informe o peso médio do animal.');
+      return;
+    }
+
+    let unit = '', perAnimalDay = 0, totalGrams = 0, headline = '', sub = '';
+
+    if (p.basis === 'kg') {
+      // mL/dia por animal = mlPerKg * peso (dose única — dias = 1)
+      perAnimalDay = (p.mlPerKg * weight);
+      totalGrams = perAnimalDay * animals; // g ≈ ml para soluções aquosas
+      unit = 'mL';
+      headline = `<span>${fmt(perAnimalDay, 1)} ${unit}</span>`;
+      sub = 'por animal · dose única';
+    } else if (p.basis === 'animal') {
+      perAnimalDay = p.mlPerAnimal;
+      totalGrams = perAnimalDay * animals;
+      unit = 'mL';
+      headline = `<span>${fmt(perAnimalDay, 1)} ${unit}</span>`;
+      sub = 'por animal · por aplicação';
+    } else if (p.basis === 'mineral') {
+      // Para Difly/Difly S3: mistura ao sal — calcula gramas de PRODUTO por dia/animal
+      // Para VER-MI-SAL/Núcleo: o próprio produto é consumido (mixRatio = 0)
+      if (p.mixRatio > 0) {
+        // produto em gramas = consumo de sal (g) × mixRatio (g/kg) ÷ 1000
+        perAnimalDay = (p.doseDaily * p.mixRatio) / 1000; // g de produto por cab/dia
+      } else {
+        perAnimalDay = p.doseDaily; // gramas do próprio produto
+      }
+      totalGrams = perAnimalDay * animals * days;
+      unit = 'g';
+      headline = `<span>${fmt(perAnimalDay, 2)} ${unit}</span>`;
+      sub = 'do produto · por animal / dia';
+    }
+
+    // Calcular embalagens necessárias (escolhe a maior que faça sentido)
+    const totalForPackCalc = totalGrams; // g ou mL
+    let bestPack = p.packs[p.packs.length - 1];
+    let packQty = Math.ceil(totalForPackCalc / bestPack.size);
+
+    // Show
+    document.getElementById('resultEmpty').style.display = 'none';
+    document.getElementById('resultData').classList.add('is-show');
+    document.getElementById('resultHeadline').innerHTML = headline;
+    document.getElementById('resultSub').textContent = sub;
+
+    const list = document.getElementById('resultList');
+    const totalLabel = unit === 'g'
+      ? (totalGrams >= 1000 ? `${fmt(totalGrams/1000, 2)} kg` : `${fmt(totalGrams, 0)} g`)
+      : (totalGrams >= 1000 ? `${fmt(totalGrams/1000, 2)} L` : `${fmt(totalGrams, 0)} mL`);
+
+    list.innerHTML = `
+      <div><span>Animais</span><strong>${fmt(animals, 0)} cabeças</strong></div>
+      <div><span>Peso médio</span><strong>${weight > 0 ? fmt(weight, 0) + ' kg' : '—'}</strong></div>
+      ${p.basis === 'mineral' ? `<div><span>Período de tratamento</span><strong>${fmt(days, 0)} dias</strong></div>` : ''}
+      <div><span>Consumo total estimado</span><strong>${totalLabel}</strong></div>
+      <div><span>Embalagens sugeridas</span><strong>${packQty}× ${bestPack.label}</strong></div>
+    `;
+
+    const cta = document.getElementById('resultCta');
+    cta.href = p.url;
+    cta.textContent = `Comprar ${p.label.split(' ')[0]} →`;
+  }
+
+  document.getElementById('calcBtn').addEventListener('click', calculate);
+  document.getElementById('calcReset').addEventListener('click', () => {
+    document.getElementById('calcWeight').value = '';
+    document.getElementById('calcAnimals').value = 1;
+    document.getElementById('calcDays').value = 30;
+    document.getElementById('resultData').classList.remove('is-show');
+    document.getElementById('resultEmpty').style.display = '';
+  });
+
+  // Pre-fill from URL ?p=
+  const pre = new URLSearchParams(location.search).get('p');
+  if (pre && doseProducts[pre]) sel.value = pre;
+</script>
+<script type="module" src="js/site-settings.js"></script>
+</body>
+</html>

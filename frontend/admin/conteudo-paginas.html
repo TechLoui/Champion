@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Páginas institucionais · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="conteudo-paginas">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Conteúdo &amp; Cadastros</span>
+        <span class="ap-topbar-title">Páginas institucionais</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>Páginas institucionais &amp; comunicação da marca</h2>
+          <p>Atualize textos das páginas estáticas, blocos da home e mensagens corporativas — sem mexer no código.</p>
+        </div>
+      </div>
+
+      <div class="ap-split">
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Páginas do site</h3></div>
+          <div class="ap-card-body">
+            <div class="ap-list">
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Home</h4><p>index.html · 4 blocos editáveis</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Publicado</span><a class="ap-mini-btn" href="../index.html" target="_blank" rel="noopener">Ver</a><button class="ap-mini-btn">Editar</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Sobre a Champion</h4><p>sobre.html · última edição 14/04/2026</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Publicado</span><a class="ap-mini-btn" href="../sobre.html" target="_blank" rel="noopener">Ver</a><button class="ap-mini-btn">Editar</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Linha de produtos</h4><p>produtos.html · listagem completa</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Publicado</span><a class="ap-mini-btn" href="../produtos.html" target="_blank" rel="noopener">Ver</a><button class="ap-mini-btn">Editar</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Blog</h4><p>blog.html · 22 posts publicados</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Publicado</span><a class="ap-mini-btn" href="../blog.html" target="_blank" rel="noopener">Ver</a><a class="ap-mini-btn" href="../painel-blog.html">Gerenciar</a></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Cálculo de dose</h4><p>calculo-dose.html · ferramenta interativa</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Publicado</span><a class="ap-mini-btn" href="../calculo-dose.html" target="_blank" rel="noopener">Ver</a><button class="ap-mini-btn">Editar</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Política de privacidade</h4><p>Página estática · texto longo</p></div><div class="ap-list-row-actions"><span class="ap-pill amber">Rascunho</span><button class="ap-mini-btn">Editar</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Termos de uso</h4><p>Página estática · texto longo</p></div><div class="ap-list-row-actions"><span class="ap-pill amber">Rascunho</span><button class="ap-mini-btn">Editar</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Trabalhe conosco</h4><p>Página integrada com cadastro de vagas</p></div><div class="ap-list-row-actions"><span class="ap-pill gray">Não publicada</span><button class="ap-mini-btn">Criar</button></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Bloco em destaque</h3></div>
+          <div class="ap-card-body">
+            <div class="ap-form-grid" style="grid-template-columns:1fr">
+              <div class="ap-form-field"><label>Página</label><select><option>Home — bloco "Por que a Champion"</option><option>Sobre — chamada principal</option><option>Produtos — banner topo</option></select></div>
+              <div class="ap-form-field"><label>Título</label><input type="text" value="Tradição que protege seu rebanho desde 1978" /></div>
+              <div class="ap-form-field"><label>Subtítulo</label><textarea rows="3">Linha completa de proteção, nutrição mineral e suplementação para bovinos de corte e leite. Tecnologia validada em campo.</textarea></div>
+              <div class="ap-form-field"><label>CTA · texto</label><input type="text" value="Conheça os produtos" /></div>
+              <div class="ap-form-field"><label>CTA · link</label><input type="text" value="produtos.html" /></div>
+            </div>
+            <div class="ap-form-actions"><button class="ap-btn ap-btn-primary">Publicar alterações</button><button class="ap-btn ap-btn-ghost">Pré-visualizar</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ap-divider"></div>
+
+      <div class="ap-card">
+        <div class="ap-card-head"><h3>Comunicação da marca</h3><p>Mensagens curtas que aparecem no topo do site, banners e e-mails transacionais.</p></div>
+        <div class="ap-card-body">
+          <div class="ap-form-grid">
+            <div class="ap-form-field full"><label>Aviso topo do site (banner promocional)</label><input type="text" value="FRETE GRÁTIS para pedidos acima de R$ 500" /></div>
+            <div class="ap-form-field"><label>Tagline · rodapé</label><input type="text" value="Champion Saúde Animal — Tradição que protege" /></div>
+            <div class="ap-form-field"><label>Assinatura de e-mail</label><input type="text" value="Equipe Champion · contato@champion.ind.br" /></div>
+            <div class="ap-form-field full"><label>Mensagem de pós-venda</label><textarea rows="3">Obrigado pela compra! Seu pedido já está em separação e você receberá o código de rastreio em até 24 horas úteis.</textarea></div>
+          </div>
+          <div class="ap-form-actions"><button class="ap-btn ap-btn-primary">Salvar comunicação</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="_panel.js"></script>
+</body>
+</html>

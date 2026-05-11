@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minha conta · Champion Saúde Animal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <style>
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0D1117 0%, #1A2030 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: #15191F;
+    }
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+    .logo { width: 130px; display: block; margin: 0 auto 28px; }
+    .eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #EC4815; text-align: center; margin-bottom: 6px;
+    }
+    h1 {
+      font-family: 'Sora', sans-serif; font-size: 24px; font-weight: 800;
+      text-align: center; margin-bottom: 6px;
+    }
+    .sub { font-size: 14px; color: #687080; text-align: center; margin-bottom: 26px; }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #F4F5F8;
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+    .tabs button {
+      flex: 1; border: none; background: transparent;
+      padding: 9px 12px; font-family: inherit; font-size: 13.5px; font-weight: 600;
+      color: #687080; border-radius: 7px; cursor: pointer;
+      transition: all .15s;
+    }
+    .tabs button.is-active { background: #15191F; color: white; }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: #15191F; margin-bottom: 6px;
+    }
+    .field input, .field select {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid #E4E8EF; border-radius: 9px;
+      font-family: inherit; font-size: 14px;
+      background: #F9FAFB; color: #15191F; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .field input:focus, .field select:focus {
+      border-color: #EC4815; background: white;
+      box-shadow: 0 0 0 3px rgba(236,72,21,.1);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .feedback {
+      font-size: 13px; font-weight: 600; min-height: 20px; margin-bottom: 12px;
+    }
+    .feedback.error {
+      padding: 10px 12px; border-radius: 8px;
+      background: #FFF1EF; border: 1px solid #FAD0C6; color: #C13808;
+    }
+    .feedback.success {
+      padding: 10px 12px; border-radius: 8px;
+      background: #EDFAF3; border: 1px solid #A8E6C6; color: #1A7A48;
+    }
+
+    .btn {
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg,#FF6A33,#EC4815 55%,#C13808);
+      color: white; font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 6px 20px -4px rgba(236,72,21,.5);
+      transition: transform .18s, box-shadow .18s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -4px rgba(236,72,21,.55); }
+
+    .panel { display: none; }
+    .panel.is-active { display: block; }
+
+    .foot {
+      margin-top: 22px; font-size: 12px; color: #A0A8B4; text-align: center;
+    }
+    .foot a { color: #687080; text-decoration: none; }
+    .foot a:hover { color: #15191F; }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <img class="logo" src="assets/img/brand/logo.png" alt="Champion Saúde Animal" />
+  <div class="eyebrow">Área do cliente</div>
+  <h1 id="title">Acessar minha conta</h1>
+  <p class="sub" id="subtitle">Acompanhe pedidos, dados de entrega e histórico de compras.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="is-active" data-tab="login" type="button">Já tenho conta</button>
+    <button data-tab="signup" type="button">Criar conta</button>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+
+  <!-- LOGIN -->
+  <div class="panel is-active" data-panel="login">
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="loginEmail">E-mail</label>
+        <input id="loginEmail" name="email" type="email" autocomplete="username" required placeholder="seu@email.com" />
+      </div>
+      <div class="field">
+        <label for="loginPassword">Senha</label>
+        <input id="loginPassword" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+      </div>
+      <button class="btn" type="submit">Entrar</button>
+    </form>
+  </div>
+
+  <!-- SIGNUP -->
+  <div class="panel" data-panel="signup">
+    <form id="signupForm" novalidate>
+      <div class="field">
+        <label for="suName">Nome completo</label>
+        <input id="suName" name="name" type="text" autocomplete="name" required placeholder="Como devemos te chamar" />
+      </div>
+      <div class="field">
+        <label for="suEmail">E-mail</label>
+        <input id="suEmail" name="email" type="email" autocomplete="email" required placeholder="seu@email.com" />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="suPhone">Telefone / WhatsApp</label>
+          <input id="suPhone" name="phone" type="tel" autocomplete="tel" placeholder="(00) 00000-0000" />
+        </div>
+        <div class="field">
+          <label for="suProfile">Perfil</label>
+          <select id="suProfile" name="profile">
+            <option value="pessoa-fisica">Pessoa física</option>
+            <option value="pecuarista">Pecuarista / fazenda</option>
+            <option value="revenda">Revenda</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="suDoc">CPF / CNPJ</label>
+        <input id="suDoc" name="cpfCnpj" type="text" placeholder="000.000.000-00" />
+      </div>
+      <div class="field">
+        <label for="suPassword">Senha (mín. 6 caracteres)</label>
+        <input id="suPassword" name="password" type="password" autocomplete="new-password" required minlength="6" placeholder="••••••••" />
+      </div>
+      <button class="btn" type="submit">Criar conta</button>
+    </form>
+  </div>
+
+  <div class="foot">
+    <a href="index.html">← Voltar ao site</a>
+  </div>
+</div>
+
+<script src="js/customer-store.js"></script>
+<script>
+(function () {
+  var feedback = document.getElementById('feedback');
+
+  function showError(msg) {
+    feedback.className = 'feedback error';
+    feedback.textContent = msg;
+  }
+  function showSuccess(msg) {
+    feedback.className = 'feedback success';
+    feedback.textContent = msg;
+  }
+  function clearFeedback() {
+    feedback.className = 'feedback';
+    feedback.textContent = '';
+  }
+
+  /* If already logged in, redirect to minha-conta */
+  if (window.ChampionCustomers && window.ChampionCustomers.isLogged()) {
+    var redirect = new URLSearchParams(location.search).get('redirect') || 'minha-conta.html';
+    location.replace(redirect);
+    return;
+  }
+
+  /* Tab switching */
+  var tabs = document.querySelectorAll('.tabs button');
+  var panels = document.querySelectorAll('[data-panel]');
+  tabs.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var tab = b.getAttribute('data-tab');
+      tabs.forEach(function (x) { x.classList.toggle('is-active', x === b); });
+      panels.forEach(function (p) { p.classList.toggle('is-active', p.getAttribute('data-panel') === tab); });
+      clearFeedback();
+      document.getElementById('title').textContent = tab === 'signup' ? 'Criar minha conta' : 'Acessar minha conta';
+      document.getElementById('subtitle').textContent = tab === 'signup'
+        ? 'Crie sua conta para finalizar pedidos e acompanhar entregas.'
+        : 'Acompanhe pedidos, dados de entrega e histórico de compras.';
+    });
+  });
+
+  /* Login */
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearFeedback();
+    var email = document.getElementById('loginEmail').value;
+    var password = document.getElementById('loginPassword').value;
+    try {
+      await window.ChampionCustomers.login(email, password);
+      var redirect = new URLSearchParams(location.search).get('redirect') || 'minha-conta.html';
+      showSuccess('Bem-vindo de volta! Redirecionando…');
+      setTimeout(function () { location.replace(redirect); }, 600);
+    } catch (err) {
+      showError(err.message || 'Não foi possível entrar.');
+    }
+  });
+
+  /* Signup */
+  document.getElementById('signupForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearFeedback();
+    var input = {
+      name: document.getElementById('suName').value,
+      email: document.getElementById('suEmail').value,
+      phone: document.getElementById('suPhone').value,
+      profile: document.getElementById('suProfile').value,
+      cpfCnpj: document.getElementById('suDoc').value,
+      password: document.getElementById('suPassword').value
+    };
+    try {
+      await window.ChampionCustomers.register(input);
+      var redirect = new URLSearchParams(location.search).get('redirect') || 'minha-conta.html';
+      showSuccess('Conta criada! Redirecionando…');
+      setTimeout(function () { location.replace(redirect); }, 600);
+    } catch (err) {
+      showError(err.message || 'Não foi possível criar a conta.');
+    }
+  });
+})();
+</script>
+</body>
+</html>

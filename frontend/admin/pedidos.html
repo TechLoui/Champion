@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pedidos & frete · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="pedidos">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Produtos &amp; Operação</span>
+        <span class="ap-topbar-title">Pedidos &amp; frete</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>Gestão de pedidos &amp; logística</h2>
+          <p>Acompanhe pedidos do recebimento à entrega, gerencie status, frete e códigos de rastreio.</p>
+        </div>
+        <div class="ap-section-head-actions">
+          <button class="ap-btn ap-btn-outline">Exportar CSV</button>
+          <button class="ap-btn ap-btn-primary">+ Pedido manual</button>
+        </div>
+      </div>
+
+      <div class="ap-metrics">
+        <div class="ap-metric-card"><div class="ap-metric-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div><div><div class="ap-metric-label">Pedidos do mês</div><div class="ap-metric-value">218</div><span class="ap-metric-trend up">▲ 14% vs mês anterior</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="ap-metric-label">Aguardando separação</div><div class="ap-metric-value">12</div><span class="ap-metric-trend flat">SLA 24h</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div><div class="ap-metric-label">Em trânsito</div><div class="ap-metric-value">38</div><span class="ap-metric-trend up">3 com atraso</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="ap-metric-label">Entregues (mês)</div><div class="ap-metric-value">163</div><span class="ap-metric-trend up">96% no prazo</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="ap-metric-label">Receita do mês</div><div class="ap-metric-value">R$ 84,2k</div><span class="ap-metric-trend up">▲ 9,1%</span></div></div>
+      </div>
+
+      <div class="ap-tabs">
+        <button class="is-active" data-tab="kanban">Kanban</button>
+        <button data-tab="lista">Lista completa</button>
+        <button data-tab="frete">Frete</button>
+      </div>
+
+      <!-- Kanban -->
+      <section data-panel="kanban">
+        <div class="ap-kanban">
+          <div class="ap-kanban-col">
+            <div class="ap-kanban-head"><h4>Aguardando pagamento</h4><span class="ap-kanban-count">4</span></div>
+            <div class="ap-kanban-card"><h5>#10428 · José Pereira</h5><p>2 itens · R$ 612,00</p><div class="ap-kanban-card-foot"><span class="ap-pill amber">Pix pendente</span></div></div>
+            <div class="ap-kanban-card"><h5>#10427 · Maria L.</h5><p>5 itens · R$ 1.840,00</p><div class="ap-kanban-card-foot"><span class="ap-pill amber">Boleto</span></div></div>
+            <div class="ap-kanban-card"><h5>#10426 · Carlos B.</h5><p>1 item · R$ 248,00</p><div class="ap-kanban-card-foot"><span class="ap-pill amber">Pix pendente</span></div></div>
+            <div class="ap-kanban-card"><h5>#10422 · Fazenda Boi Forte</h5><p>12 itens · R$ 4.620,00</p><div class="ap-kanban-card-foot"><span class="ap-pill amber">Boleto</span></div></div>
+          </div>
+
+          <div class="ap-kanban-col">
+            <div class="ap-kanban-head"><h4>Em separação</h4><span class="ap-kanban-count">12</span></div>
+            <div class="ap-kanban-card"><h5>#10425 · Pedro M.</h5><p>3 itens · R$ 740,00</p><div class="ap-kanban-card-foot"><span class="ap-pill blue">Aguardando NF</span></div></div>
+            <div class="ap-kanban-card"><h5>#10424 · Agropecuária Sol</h5><p>8 itens · R$ 2.310,00</p><div class="ap-kanban-card-foot"><span class="ap-pill blue">Em separação</span></div></div>
+            <div class="ap-kanban-card"><h5>#10423 · Lucas R.</h5><p>2 itens · R$ 488,00</p><div class="ap-kanban-card-foot"><span class="ap-pill blue">Em separação</span></div></div>
+          </div>
+
+          <div class="ap-kanban-col">
+            <div class="ap-kanban-head"><h4>Em trânsito</h4><span class="ap-kanban-count">38</span></div>
+            <div class="ap-kanban-card"><h5>#10418 · Fazenda Aurora</h5><p>15 itens · Correios · BR983412</p><div class="ap-kanban-card-foot"><span class="ap-pill purple">Saiu p/ entrega</span></div></div>
+            <div class="ap-kanban-card"><h5>#10417 · Daniel A.</h5><p>3 itens · Jadlog · JAD9920</p><div class="ap-kanban-card-foot"><span class="ap-pill purple">Em trânsito</span></div></div>
+            <div class="ap-kanban-card"><h5>#10415 · Rancho Bom Pasto</h5><p>22 itens · Frete próprio</p><div class="ap-kanban-card-foot"><span class="ap-pill red">Atraso 1d</span></div></div>
+          </div>
+
+          <div class="ap-kanban-col">
+            <div class="ap-kanban-head"><h4>Entregue</h4><span class="ap-kanban-count">163</span></div>
+            <div class="ap-kanban-card" style="opacity:.65"><h5>#10410 · Júlia S.</h5><p>1 item · entregue 18/04</p><div class="ap-kanban-card-foot"><span class="ap-pill green">Entregue</span></div></div>
+            <div class="ap-kanban-card" style="opacity:.65"><h5>#10408 · Edgar T.</h5><p>4 itens · entregue 17/04</p><div class="ap-kanban-card-foot"><span class="ap-pill green">Entregue</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lista completa -->
+      <section data-panel="lista" hidden>
+        <div class="ap-toolbar">
+          <div class="ap-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" placeholder="Buscar por número, cliente ou rastreio…" />
+          </div>
+          <select class="ap-filter"><option>Todos status</option><option>Pagamento pendente</option><option>Em separação</option><option>Em trânsito</option><option>Entregue</option></select>
+          <select class="ap-filter"><option>Últimos 30 dias</option><option>Últimos 7 dias</option><option>Este mês</option><option>Mês passado</option></select>
+        </div>
+
+        <div class="ap-table-wrap">
+          <div class="ap-table-scroll">
+            <table class="ap-table">
+              <thead><tr><th>Pedido</th><th>Cliente</th><th>Data</th><th class="num">Itens</th><th class="num">Total</th><th>Pagamento</th><th>Status</th><th>Rastreio</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="strong">#10428</td><td>José Pereira</td><td class="muted">10/05/2026</td><td class="num">2</td><td class="num">R$ 612,00</td><td><span class="ap-tag">Pix</span></td><td><span class="ap-pill amber">Aguardando pgto</span></td><td class="muted">—</td><td><div class="ap-table-actions"><button class="ap-mini-btn">Abrir</button></div></td></tr>
+                <tr><td class="strong">#10425</td><td>Pedro Marques</td><td class="muted">09/05/2026</td><td class="num">3</td><td class="num">R$ 740,00</td><td><span class="ap-tag">Cartão</span></td><td><span class="ap-pill blue">Em separação</span></td><td class="muted">—</td><td><div class="ap-table-actions"><button class="ap-mini-btn">Abrir</button></div></td></tr>
+                <tr><td class="strong">#10418</td><td>Fazenda Aurora</td><td class="muted">07/05/2026</td><td class="num">15</td><td class="num">R$ 5.840,00</td><td><span class="ap-tag">Boleto</span></td><td><span class="ap-pill purple">Em trânsito</span></td><td><span class="ap-tag">BR983412</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Abrir</button></div></td></tr>
+                <tr><td class="strong">#10410</td><td>Júlia Santos</td><td class="muted">02/05/2026</td><td class="num">1</td><td class="num">R$ 248,00</td><td><span class="ap-tag">Pix</span></td><td><span class="ap-pill green">Entregue</span></td><td><span class="ap-tag">JAD8821</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Abrir</button></div></td></tr>
+                <tr><td class="strong">#10405</td><td>Rancho Bom Pasto</td><td class="muted">29/04/2026</td><td class="num">22</td><td class="num">R$ 9.180,00</td><td><span class="ap-tag">Boleto</span></td><td><span class="ap-pill red">Atrasado</span></td><td><span class="ap-tag">FP-12</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Abrir</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Frete -->
+      <section data-panel="frete" hidden>
+        <div class="ap-split">
+          <div class="ap-card">
+            <div class="ap-card-head"><h3>Transportadoras ativas</h3></div>
+            <div class="ap-card-body">
+              <div class="ap-list">
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Correios · PAC e Sedex</h4><p>API conectada · prazo médio 6 dias</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Ativa</span><button class="ap-mini-btn">Configurar</button></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Jadlog</h4><p>Token configurado · prazo médio 4 dias</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Ativa</span><button class="ap-mini-btn">Configurar</button></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Frete próprio</h4><p>Atende raio de 200km da fábrica</p></div><div class="ap-list-row-actions"><span class="ap-pill green">Ativa</span><button class="ap-mini-btn">Configurar</button></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Total Express</h4><p>Token ausente</p></div><div class="ap-list-row-actions"><span class="ap-pill gray">Inativa</span><button class="ap-mini-btn">Conectar</button></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="ap-card">
+            <div class="ap-card-head"><h3>Política de frete grátis</h3></div>
+            <div class="ap-card-body">
+              <div class="ap-form-grid" style="grid-template-columns:1fr">
+                <div class="ap-form-field"><label>Valor mínimo do pedido</label><input type="text" value="R$ 500,00" /></div>
+                <div class="ap-form-field"><label>Regiões aplicáveis</label><select><option>Todo o Brasil</option><option>Apenas Sudeste</option><option>Sudeste e Sul</option></select></div>
+                <div class="ap-form-field"><label>Vigência</label><input type="text" value="Permanente" /></div>
+              </div>
+              <div class="ap-form-actions"><button class="ap-btn ap-btn-primary">Salvar política</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="../js/customer-store.js"></script>
+<script src="../js/order-store.js"></script>
+<script src="_panel.js"></script>
+<script>
+  document.querySelectorAll('.ap-tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var tab = b.getAttribute('data-tab');
+      document.querySelectorAll('.ap-tabs button').forEach(function (x) { x.classList.toggle('is-active', x === b); });
+      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== tab; });
+    });
+  });
+
+  /* ── Real orders from ChampionOrders (replaces mock data when present) ── */
+  (async function () {
+    if (!window.ChampionOrders) return;
+    var orders = await window.ChampionOrders.list().catch(function () { return []; });
+    if (!orders.length) return; /* Keep mock content as illustrative placeholder */
+
+    function fmt(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); }
+    function fmtDate(iso) { var d = new Date(iso); return d.toLocaleDateString('pt-BR'); }
+
+    var statusMap = {
+      paid: { pill: 'blue', label: 'Pago' },
+      separating: { pill: 'amber', label: 'Em separação' },
+      shipped: { pill: 'purple', label: 'Em trânsito' },
+      delivered: { pill: 'green', label: 'Entregue' },
+      cancelled: { pill: 'gray', label: 'Cancelado' }
+    };
+
+    /* Update metric cards */
+    var summary = await window.ChampionOrders.summary();
+    var metrics = document.querySelectorAll('.ap-metric-value');
+    if (metrics[0]) metrics[0].textContent = summary.total;
+    if (metrics[1]) metrics[1].textContent = summary.paid;
+    if (metrics[2]) metrics[2].textContent = summary.shipped;
+    if (metrics[3]) metrics[3].textContent = summary.delivered;
+    if (metrics[4]) metrics[4].textContent = fmt(summary.revenue);
+
+    /* Replace lista (table) tbody */
+    var listPanel = document.querySelector('[data-panel="lista"]');
+    if (listPanel) {
+      var tbody = listPanel.querySelector('tbody');
+      if (tbody) {
+        tbody.innerHTML = orders.map(function (o) {
+          var s = statusMap[o.status] || { pill: 'gray', label: o.status };
+          var c = o.customer || {};
+          return '<tr>'
+            + '<td class="strong">#' + o.number + '</td>'
+            + '<td>' + (c.name || '—') + '</td>'
+            + '<td class="muted">' + fmtDate(o.createdAt) + '</td>'
+            + '<td class="num">' + (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0) + '</td>'
+            + '<td class="num">' + fmt(o.total) + '</td>'
+            + '<td><span class="ap-tag">' + (o.paymentMethod || 'pix').toUpperCase() + '</span></td>'
+            + '<td><span class="ap-pill ' + s.pill + '">' + s.label + '</span></td>'
+            + '<td class="muted">—</td>'
+            + '<td><div class="ap-table-actions">'
+            + '<button class="ap-mini-btn" data-advance="' + o.id + '">Avançar</button>'
+            + '</div></td>'
+            + '</tr>';
+        }).join('');
+
+        /* Status advance button */
+        var flow = ['paid', 'separating', 'shipped', 'delivered'];
+        tbody.addEventListener('click', async function (e) {
+          var btn = e.target.closest('[data-advance]');
+          if (!btn) return;
+          var id = btn.getAttribute('data-advance');
+          var o = await window.ChampionOrders.findById(id);
+          if (!o) return;
+          var i = flow.indexOf(o.status);
+          var next = flow[i + 1];
+          if (!next) { alert('Pedido já foi entregue.'); return; }
+          await window.ChampionOrders.updateStatus(id, next);
+          location.reload();
+        });
+      }
+    }
+
+    /* Replace kanban columns */
+    var kanban = document.querySelector('[data-panel="kanban"] .ap-kanban');
+    if (kanban) {
+      var cols = {
+        paid: { title: 'Pago · aguardando separação', orders: [] },
+        separating: { title: 'Em separação', orders: [] },
+        shipped: { title: 'Em trânsito', orders: [] },
+        delivered: { title: 'Entregue', orders: [] }
+      };
+      orders.forEach(function (o) { if (cols[o.status]) cols[o.status].orders.push(o); });
+      kanban.innerHTML = Object.keys(cols).map(function (k) {
+        var c = cols[k];
+        var s = statusMap[k];
+        return '<div class="ap-kanban-col">'
+          + '<div class="ap-kanban-head"><h4>' + c.title + '</h4><span class="ap-kanban-count">' + c.orders.length + '</span></div>'
+          + (c.orders.length === 0 ? '<div style="font-size:12px;color:#9EA6B4;text-align:center;padding:14px 8px">Nenhum pedido aqui</div>' : c.orders.map(function (o) {
+              var cust = (o.customer && o.customer.name) || 'Cliente';
+              var totalQty = (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0);
+              return '<div class="ap-kanban-card">'
+                + '<h5>#' + o.number + ' · ' + cust + '</h5>'
+                + '<p>' + totalQty + ' itens · ' + fmt(o.total) + '</p>'
+                + '<div class="ap-kanban-card-foot"><span class="ap-pill ' + s.pill + '">' + s.label + '</span></div>'
+                + '</div>';
+            }).join(''))
+          + '</div>';
+      }).join('');
+    }
+  })();
+</script>
+</body>
+</html>

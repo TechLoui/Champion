@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vendas & financeiro · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="relatorios-vendas">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Relatórios &amp; Performance</span>
+        <span class="ap-topbar-title">Vendas &amp; financeiro</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>Relatórios financeiros &amp; vendas por período</h2>
+          <p>Receita, ticket médio, evolução por canal e comparativos. Exporte para a contabilidade ou planilha.</p>
+        </div>
+        <div class="ap-section-head-actions">
+          <select class="ap-filter"><option>Últimos 30 dias</option><option>Este mês</option><option>Mês passado</option><option>Trimestre</option><option>Ano</option></select>
+          <button class="ap-btn ap-btn-outline">Exportar</button>
+        </div>
+      </div>
+
+      <div class="ap-metrics">
+        <div class="ap-metric-card"><div class="ap-metric-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="ap-metric-label">Receita do período</div><div class="ap-metric-value">R$ 84,2k</div><span class="ap-metric-trend up">▲ 12,4% vs anterior</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg></div><div><div class="ap-metric-label">Pedidos pagos</div><div class="ap-metric-value">218</div><span class="ap-metric-trend up">▲ 14%</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="ap-metric-label">Ticket médio</div><div class="ap-metric-value">R$ 386</div><span class="ap-metric-trend up">▲ 4,1%</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="ap-metric-label">Aguardando pgto</div><div class="ap-metric-value">R$ 4,9k</div><span class="ap-metric-trend flat">12 pedidos</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><polyline points="7 14 11 10 14 13 21 6"/></svg></div><div><div class="ap-metric-label">Margem média</div><div class="ap-metric-value">38,2%</div><span class="ap-metric-trend up">▲ 1,6pp</span></div></div>
+      </div>
+
+      <div class="ap-card">
+        <div class="ap-card-head"><h3>Receita diária — últimos 30 dias</h3><span class="ap-tag">R$ mil</span></div>
+        <div class="ap-card-body">
+          <div class="ap-chart">
+            <div class="ap-chart-bar" style="height:38%"></div><div class="ap-chart-bar" style="height:42%"></div><div class="ap-chart-bar" style="height:30%"></div><div class="ap-chart-bar" style="height:55%"></div><div class="ap-chart-bar" style="height:48%"></div><div class="ap-chart-bar" style="height:62%"></div><div class="ap-chart-bar" style="height:58%"></div><div class="ap-chart-bar" style="height:35%"></div><div class="ap-chart-bar" style="height:50%"></div><div class="ap-chart-bar" style="height:68%"></div><div class="ap-chart-bar" style="height:72%"></div><div class="ap-chart-bar" style="height:60%"></div><div class="ap-chart-bar" style="height:78%"></div><div class="ap-chart-bar" style="height:65%"></div><div class="ap-chart-bar" style="height:82%"></div><div class="ap-chart-bar" style="height:74%"></div><div class="ap-chart-bar" style="height:55%"></div><div class="ap-chart-bar" style="height:88%"></div><div class="ap-chart-bar" style="height:92%"></div><div class="ap-chart-bar" style="height:80%"></div><div class="ap-chart-bar" style="height:78%"></div><div class="ap-chart-bar" style="height:65%"></div><div class="ap-chart-bar" style="height:90%"></div><div class="ap-chart-bar" style="height:84%"></div><div class="ap-chart-bar" style="height:96%"></div><div class="ap-chart-bar" style="height:88%"></div><div class="ap-chart-bar" style="height:74%"></div><div class="ap-chart-bar" style="height:82%"></div><div class="ap-chart-bar" style="height:92%"></div><div class="ap-chart-bar" style="height:100%"></div>
+          </div>
+          <div class="ap-chart-labels"><span>11/04</span><span>18/04</span><span>25/04</span><span>02/05</span><span>10/05</span></div>
+        </div>
+      </div>
+
+      <div class="ap-divider"></div>
+
+      <div class="ap-split equal">
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Vendas por categoria</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Categoria</th><th class="num">Pedidos</th><th class="num">Receita</th><th class="num">% total</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Difly</td><td class="num">86</td><td class="num">R$ 32,4k</td><td class="num">38,5%</td></tr>
+                <tr><td class="strong">Núcleo</td><td class="num">52</td><td class="num">R$ 19,8k</td><td class="num">23,5%</td></tr>
+                <tr><td class="strong">VER-MI-SAL</td><td class="num">48</td><td class="num">R$ 14,6k</td><td class="num">17,4%</td></tr>
+                <tr><td class="strong">Suplementos</td><td class="num">32</td><td class="num">R$ 17,4k</td><td class="num">20,6%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Vendas por canal</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Canal</th><th class="num">Pedidos</th><th class="num">Receita</th><th class="num">Ticket médio</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Site (B2C)</td><td class="num">142</td><td class="num">R$ 38,2k</td><td class="num">R$ 269</td></tr>
+                <tr><td class="strong">Atacado (B2B)</td><td class="num">38</td><td class="num">R$ 32,8k</td><td class="num">R$ 863</td></tr>
+                <tr><td class="strong">Revenda</td><td class="num">22</td><td class="num">R$ 9,1k</td><td class="num">R$ 414</td></tr>
+                <tr><td class="strong">Manual / interno</td><td class="num">16</td><td class="num">R$ 4,1k</td><td class="num">R$ 256</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="_panel.js"></script>
+</body>
+</html>

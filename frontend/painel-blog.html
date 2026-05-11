@@ -1,0 +1,1126 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel do Blog · Champion Saúde Animal</title>
+  <meta name="description" content="Painel administrativo do blog Champion." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <link rel="apple-touch-icon" href="assets/img/brand/icon.png" />
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    [hidden] { display: none !important; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #15191F;
+      background: #F2F4F8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Login fallback ─── */
+    .bp-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0D1117 0%, #1A2030 100%);
+      padding: 24px;
+    }
+    .bp-login-card {
+      background: white;
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+    .bp-login-card img { width: 130px; display: block; margin-bottom: 32px; }
+    .bp-login-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #EC4815;
+      margin-bottom: 8px;
+    }
+    .bp-login-card h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #15191F;
+      margin-bottom: 20px;
+    }
+    .bp-field { margin-bottom: 16px; }
+    .bp-field label { display: block; font-size: 12px; font-weight: 600; color: #15191F; margin-bottom: 6px; letter-spacing: 0.01em; }
+    .bp-field input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #E4E8EF; border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; color: #15191F; background: #F9FAFB; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .bp-field input:focus { border-color: #EC4815; background: white; box-shadow: 0 0 0 3px rgba(236,72,21,.1); }
+    .bp-login-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg,#FF6A33,#EC4815 55%,#C13808);
+      color: white; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 6px 20px -4px rgba(236,72,21,.5); transition: transform .18s, box-shadow .18s;
+      margin-top: 4px;
+    }
+    .bp-login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -4px rgba(236,72,21,.55); }
+
+    /* ─── App shell ─── */
+    .bp-shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ─── */
+    .bp-sidebar {
+      width: 248px;
+      flex-shrink: 0;
+      background: #0D1117;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 10;
+    }
+    .bp-sidebar-brand {
+      display: flex;
+      align-items: center;
+      padding: 28px 24px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      text-decoration: none;
+    }
+    .bp-sidebar-brand img { width: 118px; display: block; }
+
+    /* Nav */
+    .bp-nav {
+      padding: 16px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+    .bp-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      padding: 10px 12px 6px;
+      margin-top: 8px;
+    }
+    .bp-nav button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      background: none;
+      border: none;
+      border-radius: 9px;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s, color .15s;
+    }
+    .bp-nav button:hover {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+    }
+    .bp-nav button.is-active {
+      background: rgba(236,72,21,0.16);
+      color: #FF8055;
+      font-weight: 600;
+    }
+    .bp-nav button.is-active .bp-nav-ico { color: #EC4815; }
+    .bp-nav-ico {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      color: rgba(255,255,255,0.3);
+      transition: color .15s;
+    }
+    .bp-nav button:hover .bp-nav-ico { color: rgba(255,255,255,0.7); }
+
+    /* Sidebar footer */
+    .bp-sidebar-foot {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .bp-sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+      margin-bottom: 10px;
+    }
+    .bp-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EC4815, #C13808);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .bp-user-info { flex: 1; min-width: 0; }
+    .bp-user-email {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bp-user-mode {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.32);
+    }
+    .bp-logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 12px;
+      background: rgba(236,72,21,0.1);
+      border: 1px solid rgba(236,72,21,0.2);
+      border-radius: 8px;
+      color: #FF8055;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .bp-logout-btn:hover { background: rgba(236,72,21,0.18); border-color: rgba(236,72,21,0.35); }
+    .bp-logout-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* ─── Main content ─── */
+    .bp-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Topbar */
+    .bp-topbar {
+      background: white;
+      border-bottom: 1px solid #E5E8EF;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+    .bp-topbar-left { display: flex; align-items: center; gap: 10px; }
+    .bp-topbar-crumb {
+      font-size: 13px;
+      color: #9EA6B4;
+      font-weight: 500;
+    }
+    .bp-topbar-crumb::after { content: '/'; margin: 0 8px; }
+    .bp-topbar-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #15191F;
+    }
+    .bp-topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+    /* ─── Buttons ─── */
+    .bp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all .18s;
+      text-decoration: none;
+    }
+    .bp-btn svg { width: 15px; height: 15px; }
+    .bp-btn-ghost {
+      background: transparent;
+      color: #687080;
+      border: 1.5px solid #E4E8EF;
+    }
+    .bp-btn-ghost:hover { background: #F4F5F8; color: #15191F; border-color: #D4D8E2; }
+    .bp-btn-danger {
+      background: #FFF1EF;
+      color: #C13808;
+      border: 1.5px solid #FAD0C6;
+    }
+    .bp-btn-danger:hover { background: #FCDDD8; }
+    .bp-btn-primary {
+      background: linear-gradient(135deg, #FF6A33, #EC4815 60%, #C13808);
+      color: white;
+      box-shadow: 0 4px 14px -3px rgba(236,72,21,.45);
+    }
+    .bp-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -3px rgba(236,72,21,.5); }
+    .bp-btn-outline {
+      background: transparent;
+      color: #687080;
+      border: 1.5px solid #E4E8EF;
+    }
+    .bp-btn-outline:hover { background: #F4F5F8; color: #15191F; }
+
+    /* Scrollable content */
+    .bp-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+    }
+
+    /* ─── Panels ─── */
+    [data-blog-panel] { display: block; }
+    [data-blog-panel][hidden] { display: none; }
+
+    /* ─── Section head ─── */
+    .bp-section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .bp-section-head h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #15191F;
+      margin-bottom: 4px;
+    }
+    .bp-section-head p { font-size: 13.5px; color: #687080; }
+    .bp-section-head-actions { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+
+    /* ─── Two-col layout (posts panel) ─── */
+    .bp-posts-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ─── Card wrapper ─── */
+    .bp-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .bp-card-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid #F0F2F6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bp-card-head h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #15191F;
+    }
+    .bp-card-body { padding: 22px; }
+
+    /* ─── Form fields ─── */
+    .bp-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 16px;
+    }
+    .bp-form-field { display: flex; flex-direction: column; gap: 6px; }
+    .bp-form-field.full { grid-column: 1 / -1; }
+    .bp-form-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #15191F;
+      letter-spacing: 0.01em;
+    }
+    .bp-form-field input,
+    .bp-form-field select,
+    .bp-form-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      color: #15191F;
+      background: #F9FAFB;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+      appearance: none;
+    }
+    .bp-form-field textarea { resize: vertical; min-height: 80px; }
+    .bp-form-field textarea.tall { min-height: 140px; }
+    .bp-form-field input:focus,
+    .bp-form-field select:focus,
+    .bp-form-field textarea:focus {
+      border-color: #EC4815;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(236,72,21,.09);
+    }
+    .bp-form-field input::placeholder,
+    .bp-form-field textarea::placeholder { color: #BEC6D0; }
+    .bp-form-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* ─── Template chooser ─── */
+    .bp-templates {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    @media (max-width: 720px) { .bp-templates { grid-template-columns: 1fr; } }
+    .bp-template {
+      border: 1.5px solid #E4E8EF;
+      border-radius: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      background: white;
+      transition: border-color .15s, background .15s, transform .15s;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .bp-template:hover { border-color: #EC4815; transform: translateY(-1px); }
+    .bp-template.is-active { border-color: #EC4815; background: #FFF9F7; }
+    .bp-template-icon {
+      width: 38px; height: 38px;
+      border-radius: 9px;
+      background: #F4F5F8;
+      color: #687080;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+    .bp-template.is-active .bp-template-icon {
+      background: #FFF0EB; color: #EC4815;
+    }
+    .bp-template h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .bp-template p {
+      font-size: 11.5px;
+      color: #687080;
+      line-height: 1.4;
+    }
+
+    /* ─── Dynamic field rows (gallery/tutorial) ─── */
+    .bp-rows { display: flex; flex-direction: column; gap: 10px; }
+    .bp-row {
+      background: #F9FAFB;
+      border: 1px solid #E4E8EF;
+      border-radius: 10px;
+      padding: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .bp-row-head {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: 600; color: #687080;
+    }
+    .bp-row-head button {
+      background: none; border: none; cursor: pointer;
+      color: #C13808; font-size: 12px; font-weight: 600;
+      padding: 2px 6px; border-radius: 5px;
+    }
+    .bp-row-head button:hover { background: #FCDDD8; }
+    .bp-row .bp-form-field { gap: 4px; }
+    .bp-row .bp-form-field label { font-size: 11px; }
+    .bp-add-btn {
+      align-self: flex-start;
+      padding: 8px 14px;
+      background: white;
+      border: 1.5px dashed #E4E8EF;
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #687080;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+    }
+    .bp-add-btn:hover { border-color: #EC4815; color: #EC4815; background: #FFF9F7; }
+
+    /* ─── Feedback ─── */
+    .blog-admin-feedback {
+      font-size: 13px;
+      font-weight: 600;
+      min-height: 20px;
+      margin-top: 10px;
+    }
+    .blog-admin-feedback:not(:empty) {
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #FFF1EF;
+      border: 1px solid #FAD0C6;
+      color: #C13808;
+    }
+    .blog-admin-feedback.is-success:not(:empty) {
+      background: #EDFAF3;
+      border-color: #A8E6C6;
+      color: #1A7A48;
+    }
+
+    /* ─── Post list ─── */
+    #blogAdminPostList { display: flex; flex-direction: column; gap: 0; }
+
+    .blog-admin-post {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .blog-admin-post:hover { border-color: #D4D8E2; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+    .blog-admin-post img {
+      width: 48px; height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #F4F5F8;
+      flex-shrink: 0;
+      border: 1px solid #EEF0F4;
+    }
+    .blog-admin-post-info { flex: 1; min-width: 0; }
+    .blog-admin-post-info h3 { font-size: 13.5px; font-weight: 600; color: #15191F; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .blog-admin-post-info p { font-size: 12px; color: #9EA6B4; }
+
+    /* Status badges */
+    .blog-admin-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #EDFAF3;
+      color: #1A7A48;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .blog-admin-status::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      display: inline-block;
+    }
+    .blog-admin-status.is-draft {
+      background: #FFF8EB;
+      color: #B45309;
+    }
+
+    /* Post action buttons */
+    .blog-admin-post-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+    /* Mini buttons */
+    .blog-admin-mini {
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid #E4E8EF;
+      background: white;
+      color: #687080;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+    }
+    .blog-admin-mini:hover { background: #F4F5F8; border-color: #D4D8E2; color: #15191F; }
+    .blog-admin-mini.is-danger {
+      border-color: #FAD0C6;
+      color: #C13808;
+      background: #FFF5F3;
+    }
+    .blog-admin-mini.is-danger:hover { background: #FCDDD8; border-color: #F5B8AE; }
+
+    /* ─── Note text ─── */
+    .blog-admin-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #A0A8B4;
+      text-align: center;
+    }
+
+    /* ─── Empty state ─── */
+    .bp-empty {
+      padding: 40px 24px;
+      text-align: center;
+      color: #9EA6B4;
+      font-size: 14px;
+      background: white;
+      border: 1.5px dashed #E4E8EF;
+      border-radius: 12px;
+    }
+
+    /* ─── Config card ─── */
+    .bp-config-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+      max-width: 680px;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1100px) {
+      .bp-posts-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .bp-sidebar { width: 200px; }
+      .bp-content { padding: 20px; }
+      .bp-topbar { padding: 0 20px; }
+    }
+    @media (max-width: 680px) {
+      .bp-shell { flex-direction: column; }
+      .bp-sidebar { width: 100%; height: auto; }
+      .bp-nav { flex-direction: row; overflow-x: auto; padding: 8px; flex-wrap: wrap; }
+      .bp-nav button { white-space: nowrap; }
+      .bp-login-card { padding: 36px 28px; }
+    }
+  </style>
+</head>
+<body data-blog-admin-page>
+
+<!-- ═══════════════════════════════════════════════
+     LOGIN FALLBACK
+════════════════════════════════════════════════ -->
+<div data-blog-admin-login class="bp-login-wrap">
+  <div class="bp-login-card">
+    <img src="assets/img/brand/logo.png" alt="Champion Saúde Animal" />
+    <div class="bp-login-eyebrow">Administração do Blog</div>
+    <h1>Painel do blog</h1>
+
+    <form id="blogAdminLoginForm" novalidate>
+      <div class="bp-field">
+        <label for="blogLoginEmail">E-mail</label>
+        <input id="blogLoginEmail" name="email" type="email" autocomplete="username" placeholder="admin@champion.com.br" required />
+      </div>
+      <div class="bp-field">
+        <label for="blogLoginPassword">Senha</label>
+        <input id="blogLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+      </div>
+      <div class="blog-admin-feedback" id="blogLoginFeedback" aria-live="polite"></div>
+      <button class="bp-login-btn" type="submit">Entrar no painel</button>
+    </form>
+
+    <p class="blog-admin-note">Acesso restrito · admin@champion.com.br</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════ -->
+<div data-blog-admin-app class="bp-shell" hidden>
+
+  <!-- ── Sidebar ── -->
+  <aside class="bp-sidebar">
+    <a href="blog.html" class="bp-sidebar-brand" aria-label="Champion — ir para o blog">
+      <img src="assets/img/brand/logo.png" alt="Champion" />
+    </a>
+
+    <nav class="bp-nav" aria-label="Blog">
+      <span class="bp-nav-label">Navegação</span>
+
+      <button class="is-active" type="button" data-blog-tab="posts" aria-selected="true">
+        <svg class="bp-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Posts
+      </button>
+
+      <button type="button" data-blog-tab="config" aria-selected="false">
+        <svg class="bp-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configurações
+      </button>
+    </nav>
+
+    <div class="bp-sidebar-foot">
+      <div class="bp-sidebar-user">
+        <div class="bp-avatar" id="blogAdminAvatar">A</div>
+        <div class="bp-user-info">
+          <div class="bp-user-email" id="blogAdminUser">admin@champion.com.br</div>
+          <div class="bp-user-mode">Local</div>
+        </div>
+      </div>
+      <button class="bp-logout-btn" type="button" id="blogAdminLogout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair da conta
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="bp-main">
+
+    <!-- Topbar -->
+    <header class="bp-topbar">
+      <div class="bp-topbar-left">
+        <span class="bp-topbar-crumb">Blog Champion</span>
+        <span class="bp-topbar-title">Painel do blog</span>
+      </div>
+      <div class="bp-topbar-actions">
+        <a class="bp-btn bp-btn-ghost" href="blog.html" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Ver blog
+        </a>
+        <button class="bp-btn bp-btn-danger" type="button" id="blogAdminLogout2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <div class="bp-content">
+
+      <!-- ─── Posts panel ─── -->
+      <section data-blog-panel="posts" class="is-active">
+
+        <div class="bp-section-head">
+          <div>
+            <h2>Posts</h2>
+            <p>Crie novos artigos, mantenha rascunhos e publique conteúdos no blog.</p>
+          </div>
+          <div class="bp-section-head-actions">
+            <button class="bp-btn bp-btn-ghost" type="button" id="blogSeedDefaults">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+              Restaurar padrão
+            </button>
+            <button class="bp-btn bp-btn-primary" type="button" id="blogNewPost">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo post
+            </button>
+          </div>
+        </div>
+
+        <div class="bp-posts-layout">
+
+          <!-- Form card -->
+          <div class="bp-card">
+            <div class="bp-card-head">
+              <h3>Dados do post</h3>
+            </div>
+            <div class="bp-card-body">
+              <form id="blogPostForm">
+                <input type="hidden" name="id" />
+                <input type="hidden" name="template" id="blogPostTemplate" value="standard" />
+
+                <!-- Template chooser -->
+                <label style="font-size:12px;font-weight:600;color:#15191F;display:block;margin-bottom:8px">Modelo do artigo</label>
+                <div class="bp-templates" role="radiogroup" aria-label="Modelo do artigo">
+                  <div class="bp-template is-active" data-template="standard" tabindex="0" role="radio" aria-checked="true">
+                    <div class="bp-template-icon">📄</div>
+                    <div>
+                      <h4>Padrão</h4>
+                      <p>Artigo informativo simples — capa + texto corrido.</p>
+                    </div>
+                  </div>
+                  <div class="bp-template" data-template="gallery" tabindex="0" role="radio" aria-checked="false">
+                    <div class="bp-template-icon">🖼️</div>
+                    <div>
+                      <h4>Galeria</h4>
+                      <p>Capa + grade de fotos com legendas + texto.</p>
+                    </div>
+                  </div>
+                  <div class="bp-template" data-template="tutorial" tabindex="0" role="radio" aria-checked="false">
+                    <div class="bp-template-icon">📋</div>
+                    <div>
+                      <h4>Tutorial</h4>
+                      <p>Capa + passos numerados, cada um com foto e descrição.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bp-form-grid">
+                  <div class="bp-form-field full">
+                    <label for="blogPostTitle">Título</label>
+                    <input id="blogPostTitle" name="title" placeholder="Título do artigo" required />
+                  </div>
+                  <div class="bp-form-field">
+                    <label for="blogPostSlug">URL amigável</label>
+                    <input id="blogPostSlug" name="slug" placeholder="url-do-artigo" required />
+                  </div>
+                  <div class="bp-form-field">
+                    <label for="blogPostCategory">Categoria</label>
+                    <input id="blogPostCategory" name="category" placeholder="Manejo, Nutrição..." required />
+                  </div>
+                  <div class="bp-form-field">
+                    <label for="blogPostAuthor">Autor</label>
+                    <input id="blogPostAuthor" name="author" required />
+                  </div>
+                  <div class="bp-form-field">
+                    <label for="blogPostDate">Data</label>
+                    <input id="blogPostDate" name="date" type="date" required />
+                  </div>
+                  <div class="bp-form-field full">
+                    <label for="blogPostImage">Imagem de capa</label>
+                    <input id="blogPostImage" name="image" placeholder="assets/img/about/pecuarista.jpg ou URL" required />
+                  </div>
+                  <div class="bp-form-field">
+                    <label for="blogPostStatus">Status</label>
+                    <select id="blogPostStatus" name="status">
+                      <option value="published">Publicado</option>
+                      <option value="draft">Rascunho</option>
+                    </select>
+                  </div>
+                  <div class="bp-form-field full">
+                    <label for="blogPostExcerpt">Resumo</label>
+                    <textarea id="blogPostExcerpt" name="excerpt" required></textarea>
+                  </div>
+
+                  <!-- Standard / Gallery: content textarea -->
+                  <div class="bp-form-field full" data-show-for="standard,gallery">
+                    <label for="blogPostContent">Conteúdo (texto principal)</label>
+                    <textarea id="blogPostContent" name="content" class="tall" placeholder="Texto do artigo. Você pode separar parágrafos com linhas em branco."></textarea>
+                  </div>
+
+                  <!-- Gallery: image rows -->
+                  <div class="bp-form-field full" data-show-for="gallery" hidden>
+                    <label>Galeria de fotos</label>
+                    <div class="bp-rows" id="blogGalleryRows"></div>
+                    <button type="button" class="bp-add-btn" id="blogGalleryAdd" style="margin-top:8px">+ Adicionar foto</button>
+                  </div>
+
+                  <!-- Tutorial: steps rows -->
+                  <div class="bp-form-field full" data-show-for="tutorial" hidden>
+                    <label>Passos do tutorial</label>
+                    <div class="bp-rows" id="blogStepsRows"></div>
+                    <button type="button" class="bp-add-btn" id="blogStepsAdd" style="margin-top:8px">+ Adicionar passo</button>
+                  </div>
+                </div>
+                <div class="blog-admin-feedback" id="blogPostFeedback" aria-live="polite"></div>
+                <div class="bp-form-actions">
+                  <button class="bp-btn bp-btn-primary" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span id="blogPostSubmitLabel">Publicar post</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- List panel -->
+          <div>
+            <div id="blogAdminPostList"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── Config panel ─── -->
+      <section data-blog-panel="config" hidden>
+
+        <div class="bp-section-head">
+          <div>
+            <h2>Configurações</h2>
+            <p>Esses dados alimentam o topo do blog e o artigo em destaque.</p>
+          </div>
+        </div>
+
+        <div class="bp-config-card bp-card">
+          <div class="bp-card-head">
+            <h3>Dados do blog</h3>
+          </div>
+          <div class="bp-card-body">
+            <form id="blogConfigForm">
+              <div class="bp-form-grid">
+                <div class="bp-form-field full">
+                  <label for="blogConfigTitle">Título do blog</label>
+                  <input id="blogConfigTitle" name="title" required />
+                </div>
+                <div class="bp-form-field full">
+                  <label for="blogConfigSubtitle">Descrição</label>
+                  <textarea id="blogConfigSubtitle" name="subtitle" required></textarea>
+                </div>
+                <div class="bp-form-field full">
+                  <label for="blogConfigImage">Imagem do topo</label>
+                  <input id="blogConfigImage" name="heroImage" required />
+                </div>
+                <div class="bp-form-field full">
+                  <label for="blogFeaturedSelect">Post em destaque</label>
+                  <select id="blogFeaturedSelect" name="featuredSlug"></select>
+                </div>
+              </div>
+              <div class="blog-admin-feedback" id="blogConfigFeedback" aria-live="polite"></div>
+              <div class="bp-form-actions">
+                <button class="bp-btn bp-btn-primary" type="submit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Salvar configurações
+                </button>
+                <button class="bp-btn bp-btn-outline" type="button" id="blogSeedDefaults2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                  Restaurar padrão
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </section>
+
+    </div><!-- /bp-content -->
+  </div><!-- /bp-main -->
+</div><!-- /bp-shell -->
+
+<script>
+(function () {
+  var SESSION_KEY = 'champion-blog-admin-session';
+  var ADMIN_EMAIL = 'admin@champion.com.br';
+  var ADMIN_PASSWORD = 'Champion@2026';
+
+  var loginEl = document.querySelector('[data-blog-admin-login]');
+  var appEl   = document.querySelector('[data-blog-admin-app]');
+
+  function showApp(email) {
+    if (loginEl) loginEl.hidden = true;
+    if (appEl)   appEl.removeAttribute('hidden');
+    var userEl   = document.getElementById('blogAdminUser');
+    var avatarEl = document.getElementById('blogAdminAvatar');
+    var resolvedEmail = email || ADMIN_EMAIL;
+    if (userEl)   userEl.textContent   = resolvedEmail;
+    if (avatarEl) avatarEl.textContent = resolvedEmail[0].toUpperCase();
+  }
+
+  function showLogin() {
+    if (loginEl) loginEl.removeAttribute('hidden');
+    if (appEl)   appEl.hidden = true;
+  }
+
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
+  }
+
+  function setSession(email) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ user: email, loggedAt: new Date().toISOString() }));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  function doLogout() {
+    clearSession(); /* blog.js handles Firebase signOut + redirect */
+  }
+
+  /* Check existing session on load */
+  var session = getSession();
+  if (session && session.loggedAt) {
+    showApp(session.user);
+  }
+
+  /* Handle embedded login form */
+  var loginForm     = document.getElementById('blogAdminLoginForm');
+  var loginFeedback = document.getElementById('blogLoginFeedback');
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email    = ((loginForm.querySelector('[name="email"]')    || {}).value || '').trim().toLowerCase();
+      var password = (((loginForm.querySelector('[name="password"]') || {}).value) || '').trim();
+      if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+        if (loginFeedback) loginFeedback.textContent = 'E-mail ou senha incorretos.';
+        return;
+      }
+      if (loginFeedback) loginFeedback.textContent = '';
+      setSession(email);
+      showApp(email);
+    });
+  }
+
+  /* Logout — sidebar button */
+  var logoutBtn = document.getElementById('blogAdminLogout');
+  if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
+
+  /* Logout — topbar button */
+  var logoutBtn2 = document.getElementById('blogAdminLogout2');
+  if (logoutBtn2) logoutBtn2.addEventListener('click', doLogout);
+
+  /* Mirror #blogSeedDefaults2 clicks to #blogSeedDefaults so blog.js gets a single target */
+  var seedBtn2 = document.getElementById('blogSeedDefaults2');
+  var seedBtn1 = document.getElementById('blogSeedDefaults');
+  if (seedBtn2 && seedBtn1) {
+    seedBtn2.addEventListener('click', function () { seedBtn1.click(); });
+  }
+
+  /* Tab switching */
+  document.querySelectorAll('[data-blog-tab]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var tab = btn.getAttribute('data-blog-tab');
+
+      /* Update nav active state */
+      document.querySelectorAll('[data-blog-tab]').forEach(function (b) {
+        b.classList.toggle('is-active', b.getAttribute('data-blog-tab') === tab);
+      });
+
+      /* Show/hide panels */
+      document.querySelectorAll('[data-blog-panel]').forEach(function (panel) {
+        var matches = panel.getAttribute('data-blog-panel') === tab;
+        if (matches) {
+          panel.removeAttribute('hidden');
+        } else {
+          panel.hidden = true;
+        }
+      });
+    });
+  });
+
+  /* ── Template chooser + dynamic gallery/steps rows ────────────── */
+  function applyTemplateUI(t) {
+    var valid = ['standard', 'gallery', 'tutorial'];
+    if (valid.indexOf(t) < 0) t = 'standard';
+    var hidden = document.getElementById('blogPostTemplate');
+    if (hidden) hidden.value = t;
+    document.querySelectorAll('.bp-template').forEach(function (card) {
+      var on = card.getAttribute('data-template') === t;
+      card.classList.toggle('is-active', on);
+      card.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-show-for]').forEach(function (field) {
+      var allow = String(field.getAttribute('data-show-for') || '').split(',').map(function (s) { return s.trim(); });
+      field.hidden = allow.indexOf(t) < 0;
+    });
+  }
+  document.querySelectorAll('.bp-template').forEach(function (card) {
+    card.addEventListener('click', function () {
+      applyTemplateUI(card.getAttribute('data-template'));
+    });
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+    });
+  });
+
+  function escAttr(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function addGalleryRow(g) {
+    g = g || {};
+    var wrap = document.getElementById('blogGalleryRows');
+    if (!wrap) return;
+    var i = wrap.querySelectorAll('[data-gallery-row]').length + 1;
+    var row = document.createElement('div');
+    row.className = 'bp-row';
+    row.setAttribute('data-gallery-row', '');
+    row.innerHTML = ''
+      + '<div class="bp-row-head"><span>Foto ' + i + '</span><button type="button" data-remove-gallery>Remover</button></div>'
+      + '<div class="bp-form-field"><label>URL ou caminho da imagem</label><input data-g-image type="text" value="' + escAttr(g.image) + '" placeholder="assets/img/posts/foto.jpg" /></div>'
+      + '<div class="bp-form-field"><label>Legenda (opcional)</label><input data-g-caption type="text" value="' + escAttr(g.caption) + '" /></div>';
+    wrap.appendChild(row);
+  }
+
+  function addStepRow(s) {
+    s = s || {};
+    var wrap = document.getElementById('blogStepsRows');
+    if (!wrap) return;
+    var i = wrap.querySelectorAll('[data-step-row]').length + 1;
+    var row = document.createElement('div');
+    row.className = 'bp-row';
+    row.setAttribute('data-step-row', '');
+    row.innerHTML = ''
+      + '<div class="bp-row-head"><span>Passo ' + i + '</span><button type="button" data-remove-step>Remover</button></div>'
+      + '<div class="bp-form-field"><label>Título do passo</label><input data-s-title type="text" value="' + escAttr(s.title) + '" placeholder="Ex.: Preparação do cocho" /></div>'
+      + '<div class="bp-form-field"><label>Imagem (opcional)</label><input data-s-image type="text" value="' + escAttr(s.image) + '" placeholder="assets/img/posts/passo.jpg" /></div>'
+      + '<div class="bp-form-field"><label>Descrição</label><textarea data-s-description rows="2">' + escAttr(s.description) + '</textarea></div>';
+    wrap.appendChild(row);
+  }
+
+  function renumberRows(selector, label) {
+    document.querySelectorAll(selector).forEach(function (row, i) {
+      var span = row.querySelector('.bp-row-head span');
+      if (span) span.textContent = label + ' ' + (i + 1);
+    });
+  }
+
+  document.getElementById('blogGalleryAdd')?.addEventListener('click', function () { addGalleryRow(); });
+  document.getElementById('blogStepsAdd')?.addEventListener('click', function () { addStepRow(); });
+
+  /* Delegated remove + start with one empty row when the section appears */
+  document.getElementById('blogGalleryRows')?.addEventListener('click', function (e) {
+    if (e.target && e.target.matches('[data-remove-gallery]')) {
+      e.target.closest('[data-gallery-row]').remove();
+      renumberRows('[data-gallery-row]', 'Foto');
+    }
+  });
+  document.getElementById('blogStepsRows')?.addEventListener('click', function (e) {
+    if (e.target && e.target.matches('[data-remove-step]')) {
+      e.target.closest('[data-step-row]').remove();
+      renumberRows('[data-step-row]', 'Passo');
+    }
+  });
+
+  /* Expose helpers for blog.js (module) to read current rows + write template UI. */
+  window.ChampionBlogTemplates = {
+    apply: applyTemplateUI,
+    addGalleryRow: addGalleryRow,
+    addStepRow: addStepRow,
+    collectGallery: function () {
+      return Array.from(document.querySelectorAll('[data-gallery-row]')).map(function (row) {
+        return {
+          image: row.querySelector('[data-g-image]')?.value || '',
+          caption: row.querySelector('[data-g-caption]')?.value || ''
+        };
+      });
+    },
+    collectSteps: function () {
+      return Array.from(document.querySelectorAll('[data-step-row]')).map(function (row) {
+        return {
+          title: row.querySelector('[data-s-title]')?.value || '',
+          image: row.querySelector('[data-s-image]')?.value || '',
+          description: row.querySelector('[data-s-description]')?.value || ''
+        };
+      });
+    },
+    renderGallery: function (items) {
+      var wrap = document.getElementById('blogGalleryRows');
+      if (wrap) wrap.innerHTML = '';
+      (items || []).forEach(addGalleryRow);
+    },
+    renderSteps: function (items) {
+      var wrap = document.getElementById('blogStepsRows');
+      if (wrap) wrap.innerHTML = '';
+      (items || []).forEach(addStepRow);
+    }
+  };
+})();
+</script>
+<script type="module" src="js/blog.js"></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Minha conta · Champion Saúde Animal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <style>
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    [hidden] { display: none !important; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #FAFAF7;
+      color: #15191F;
+      min-height: 100vh;
+    }
+    a { color: inherit; }
+    .topbar {
+      background: white;
+      border-bottom: 1px solid #E5E8EF;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .topbar img { width: 110px; }
+    .topbar .nav { display: flex; gap: 14px; align-items: center; font-size: 13.5px; }
+    .topbar .nav a { text-decoration: none; color: #687080; font-weight: 500; }
+    .topbar .nav a:hover { color: #15191F; }
+    .btn {
+      padding: 9px 16px; border-radius: 8px; border: 1.5px solid #E4E8EF;
+      background: white; color: #687080; font-weight: 600; font-size: 13px;
+      cursor: pointer; font-family: inherit;
+    }
+    .btn:hover { color: #15191F; background: #F4F5F8; }
+    .btn-primary { background: linear-gradient(135deg,#FF6A33,#EC4815 60%,#C13808); color: white; border: none; }
+    .btn-primary:hover { color: white; box-shadow: 0 6px 20px -4px rgba(236,72,21,.45); }
+    .btn-danger { color: #C13808; border-color: #FAD0C6; background: #FFF5F3; }
+    .btn-danger:hover { background: #FCDDD8; }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    .header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+    }
+    .avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: linear-gradient(135deg, #EC4815, #C13808);
+      color: white; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 22px;
+    }
+    .header h1 { font-family: 'Sora',sans-serif; font-size: 22px; font-weight: 800; }
+    .header p { color: #687080; font-size: 13.5px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 880px) { .grid { grid-template-columns: 1fr; } }
+
+    .nav-card {
+      background: white; border: 1px solid #E5E8EF; border-radius: 14px; padding: 8px;
+    }
+    .nav-card button {
+      width: 100%;
+      padding: 11px 14px;
+      background: none; border: none;
+      border-radius: 9px;
+      text-align: left;
+      font-family: inherit; font-size: 13.5px; font-weight: 600;
+      color: #687080;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-card button:hover { background: #F4F5F8; color: #15191F; }
+    .nav-card button.is-active { background: #FFF0EB; color: #EC4815; }
+
+    .card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+    .field input, .field select {
+      width: 100%; padding: 11px 13px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 8px;
+      background: #F9FAFB;
+      font-family: inherit; font-size: 14px;
+      outline: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: #EC4815; background: white;
+      box-shadow: 0 0 0 3px rgba(236,72,21,.09);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Orders */
+    .order {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+    }
+    .order-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .order-head h3 { font-family: 'Sora',sans-serif; font-size: 15px; font-weight: 700; }
+    .order-head .meta { color: #9EA6B4; font-size: 12.5px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 99px;
+      font-size: 11.5px; font-weight: 700;
+      background: #F0F2F6; color: #687080;
+    }
+    .pill::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .pill.green { background: #EDFAF3; color: #1A7A48; }
+    .pill.amber { background: #FFF8EB; color: #B45309; }
+    .pill.blue { background: #EBF3FE; color: #1E40AF; }
+    .pill.purple { background: #F3F0FD; color: #6D28D9; }
+
+    .order-items {
+      display: flex; flex-direction: column; gap: 6px;
+      padding-top: 10px; border-top: 1px solid #F0F2F6;
+    }
+    .order-item {
+      display: flex; gap: 10px; align-items: center;
+      font-size: 13px;
+    }
+    .order-item img { width: 36px; height: 36px; border-radius: 6px; background: #F4F5F8; padding: 3px; border: 1px solid #EEF0F4; object-fit: contain; }
+    .order-item-info { flex: 1; min-width: 0; }
+    .order-item-info p { color: #9EA6B4; font-size: 11.5px; }
+    .order-item-price { font-weight: 600; }
+
+    .order-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 12px; margin-top: 12px; border-top: 1px solid #F0F2F6;
+      font-size: 14px;
+    }
+    .order-foot strong { font-family: 'Sora',sans-serif; font-size: 16px; }
+
+    .empty {
+      text-align: center; padding: 50px 24px;
+      background: white; border: 1.5px dashed #E4E8EF; border-radius: 12px;
+      color: #9EA6B4;
+    }
+    .empty strong { display: block; color: #15191F; margin-bottom: 8px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
+  <div class="nav">
+    <a href="produtos.html">Produtos</a>
+    <a href="blog.html">Blog</a>
+    <button class="btn btn-danger" id="logoutBtn">Sair</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="header">
+    <div class="avatar" id="avatar">A</div>
+    <div>
+      <h1 id="userName">Olá!</h1>
+      <p id="userEmail">—</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <nav class="nav-card">
+      <button class="is-active" data-tab="orders" type="button">📦 Meus pedidos</button>
+      <button data-tab="profile" type="button">👤 Dados pessoais</button>
+      <button data-tab="address" type="button">📍 Endereço</button>
+      <button data-tab="security" type="button">🔒 Segurança</button>
+    </nav>
+
+    <div>
+      <!-- Orders -->
+      <section data-panel="orders">
+        <div id="ordersList"></div>
+      </section>
+
+      <!-- Profile -->
+      <section data-panel="profile" hidden>
+        <div class="card">
+          <h2>Dados pessoais</h2>
+          <div class="row">
+            <div class="field"><label>Nome completo</label><input id="pName" type="text" /></div>
+            <div class="field"><label>Telefone / WhatsApp</label><input id="pPhone" type="tel" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>E-mail</label><input id="pEmail" type="email" disabled /></div>
+            <div class="field"><label>CPF / CNPJ</label><input id="pDoc" type="text" /></div>
+          </div>
+          <div class="field" style="max-width:300px"><label>Perfil</label><select id="pProfile">
+            <option value="pessoa-fisica">Pessoa física</option>
+            <option value="pecuarista">Pecuarista / fazenda</option>
+            <option value="revenda">Revenda</option>
+          </select></div>
+          <div style="margin-top:8px"><button class="btn btn-primary" id="saveProfile">Salvar alterações</button></div>
+        </div>
+      </section>
+
+      <!-- Address -->
+      <section data-panel="address" hidden>
+        <div class="card">
+          <h2>Endereço de entrega padrão</h2>
+          <div class="row">
+            <div class="field"><label>CEP</label><input id="aCep" type="text" /></div>
+            <div class="field"><label>UF</label><input id="aUf" type="text" maxlength="2" /></div>
+          </div>
+          <div class="field"><label>Cidade</label><input id="aCity" type="text" /></div>
+          <div class="row">
+            <div class="field"><label>Endereço</label><input id="aStreet" type="text" /></div>
+            <div class="field"><label>Número</label><input id="aNumber" type="text" /></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>Complemento</label><input id="aCompl" type="text" /></div>
+            <div class="field"><label>Bairro</label><input id="aNeigh" type="text" /></div>
+          </div>
+          <div style="margin-top:8px"><button class="btn btn-primary" id="saveAddress">Salvar endereço</button></div>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section data-panel="security" hidden>
+        <div class="card">
+          <h2>Segurança</h2>
+          <p style="font-size:13px;color:#687080;margin-bottom:14px">Para alterar sua senha, entre em contato com a Champion. Em produção esse fluxo será automático via Firebase Auth.</p>
+          <div style="background:#F4F5F8;padding:12px 14px;border-radius:8px;font-size:13px;color:#687080"><strong>Última sessão:</strong> <span id="lastLogin">—</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="js/customer-store.js"></script>
+<script src="js/order-store.js"></script>
+<script>
+(async function () {
+  /* Auth guard */
+  if (!window.ChampionCustomers || !window.ChampionCustomers.isLogged()) {
+    location.replace('cliente-conta.html?redirect=minha-conta.html');
+    return;
+  }
+
+  var customer = window.ChampionCustomers.currentSession();
+
+  /* Header */
+  document.getElementById('avatar').textContent = (customer.name || customer.email || 'A')[0].toUpperCase();
+  document.getElementById('userName').textContent = 'Olá, ' + (customer.name || customer.email).split(' ')[0] + '!';
+  document.getElementById('userEmail').textContent = customer.email + (customer.profile ? ' · ' + customer.profile : '');
+
+  /* Logout */
+  document.getElementById('logoutBtn').addEventListener('click', async function () {
+    await window.ChampionCustomers.logout();
+    location.replace('index.html');
+  });
+
+  /* Tab switching */
+  document.querySelectorAll('.nav-card button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var tab = b.getAttribute('data-tab');
+      document.querySelectorAll('.nav-card button').forEach(function (x) { x.classList.toggle('is-active', x === b); });
+      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== tab; });
+    });
+  });
+
+  /* ── Orders ── */
+  function fmt(v) { return 'R$ ' + Number(v || 0).toFixed(2).replace('.', ','); }
+  function statusPill(s) {
+    var map = {
+      paid: ['blue', 'Pago'],
+      separating: ['amber', 'Em separação'],
+      shipped: ['purple', 'Em trânsito'],
+      delivered: ['green', 'Entregue'],
+      cancelled: ['', 'Cancelado']
+    };
+    var v = map[s] || ['', s];
+    return '<span class="pill ' + v[0] + '">' + v[1] + '</span>';
+  }
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    var d = new Date(iso);
+    return d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  /* Refresh full profile from store (Firebase or local) — session cache may be stale */
+  (async function () {
+    try {
+      var full = await window.ChampionCustomers.findById(customer.id);
+      if (full) {
+        customer = full;
+        /* Re-fill profile/address forms with up-to-date data */
+        document.getElementById('pName').value = full.name || '';
+        document.getElementById('pPhone').value = full.phone || '';
+        document.getElementById('pDoc').value = full.cpfCnpj || '';
+        document.getElementById('pProfile').value = full.profile || 'pessoa-fisica';
+        var a = full.address || {};
+        document.getElementById('aCep').value = a.cep || '';
+        document.getElementById('aUf').value = a.uf || '';
+        document.getElementById('aCity').value = a.city || '';
+        document.getElementById('aStreet').value = a.street || '';
+        document.getElementById('aNumber').value = a.number || '';
+        document.getElementById('aCompl').value = a.compl || '';
+        document.getElementById('aNeigh').value = a.neigh || '';
+      }
+    } catch (e) {}
+  })();
+
+  var orders = await window.ChampionOrders.listByCustomer(customer.id);
+  var ordersHtml = '';
+  if (orders.length === 0) {
+    ordersHtml = '<div class="empty"><strong>Nenhum pedido por aqui ainda</strong>Que tal começar pelos nossos produtos?<div style="margin-top:16px"><a class="btn btn-primary" href="produtos.html">Ver produtos</a></div></div>';
+  } else {
+    ordersHtml = orders.map(function (o) {
+      return '<div class="order">'
+        + '<div class="order-head">'
+        + '<div><h3>Pedido #' + o.number + '</h3><div class="meta">Realizado em ' + fmtDate(o.createdAt) + '</div></div>'
+        + statusPill(o.status)
+        + '</div>'
+        + '<div class="order-items">'
+        + o.items.map(function (i) {
+            return '<div class="order-item">'
+              + (i.image ? '<img src="' + i.image + '" alt="" />' : '')
+              + '<div class="order-item-info"><div>' + i.name + '</div><p>' + i.qty + '× · ' + fmt(i.price) + '</p></div>'
+              + '<div class="order-item-price">' + fmt(i.price * i.qty) + '</div>'
+              + '</div>';
+          }).join('')
+        + '</div>'
+        + '<div class="order-foot">'
+        + '<span style="color:#9EA6B4">' + (o.paymentMethod || 'pix').toUpperCase() + ' · entrega para ' + (o.address && o.address.city ? o.address.city + '/' + o.address.uf : 'endereço cadastrado') + '</span>'
+        + '<strong>' + fmt(o.total) + '</strong>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+  }
+  document.getElementById('ordersList').innerHTML = ordersHtml;
+
+  /* ── Profile ── */
+  document.getElementById('pName').value = customer.name || '';
+  document.getElementById('pPhone').value = customer.phone || '';
+  document.getElementById('pEmail').value = customer.email || '';
+  document.getElementById('pDoc').value = customer.cpfCnpj || '';
+  document.getElementById('pProfile').value = customer.profile || 'pessoa-fisica';
+  document.getElementById('saveProfile').addEventListener('click', async function () {
+    try {
+      await window.ChampionCustomers.updateProfile(customer.id, {
+        name: document.getElementById('pName').value.trim(),
+        phone: document.getElementById('pPhone').value.trim(),
+        cpfCnpj: document.getElementById('pDoc').value.trim(),
+        profile: document.getElementById('pProfile').value
+      });
+      alert('Dados salvos!');
+    } catch (err) { alert('Erro: ' + err.message); }
+  });
+
+  /* ── Address ── */
+  var addr = customer.address || {};
+  document.getElementById('aCep').value = addr.cep || '';
+  document.getElementById('aUf').value = addr.uf || '';
+  document.getElementById('aCity').value = addr.city || '';
+  document.getElementById('aStreet').value = addr.street || '';
+  document.getElementById('aNumber').value = addr.number || '';
+  document.getElementById('aCompl').value = addr.compl || '';
+  document.getElementById('aNeigh').value = addr.neigh || '';
+  document.getElementById('saveAddress').addEventListener('click', async function () {
+    try {
+      await window.ChampionCustomers.updateProfile(customer.id, {
+        address: {
+          cep: document.getElementById('aCep').value.trim(),
+          uf: document.getElementById('aUf').value.trim().toUpperCase(),
+          city: document.getElementById('aCity').value.trim(),
+          street: document.getElementById('aStreet').value.trim(),
+          number: document.getElementById('aNumber').value.trim(),
+          compl: document.getElementById('aCompl').value.trim(),
+          neigh: document.getElementById('aNeigh').value.trim()
+        }
+      });
+      alert('Endereço salvo!');
+    } catch (err) { alert('Erro: ' + err.message); }
+  });
+
+  /* ── Security ── */
+  document.getElementById('lastLogin').textContent = fmtDate(customer.lastLoginAt || customer.createdAt);
+})();
+</script>
+</body>
+</html>

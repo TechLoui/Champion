@@ -1,0 +1,700 @@
+﻿<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Produtos · Champion Saúde Animal</title>
+  <meta name="description" content="Catálogo completo Champion: Difly, Difly S3, VER-MI-SAL e demais soluções para a pecuária." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+  <script data-champion-lang-init>(function(){try{var l=localStorage.getItem("champion-language")||"pt";document.documentElement.dataset.lang=l;if(l!=="pt")document.documentElement.lang=l;}catch(e){}})();</script>
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <link rel="apple-touch-icon" href="assets/img/brand/icon.png" />
+  <style>
+    /* Shop layout */
+    .shop-catalog { padding-top: 28px; }
+    .shop-brand-head {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .shop-brand-logo {
+      height: 38px;
+      width: auto;
+      flex: 0 0 auto;
+    }
+    .shop-brand-head > div {
+      max-width: 720px;
+    }
+    .shop-brand-head .section-eyebrow { margin-bottom: 8px; }
+    .shop-brand-head .section-title { font-size: 34px; }
+    .shop-brand-head .section-sub { margin-top: 8px; }
+    .shop-search {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 8px 8px 8px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 32px;
+    }
+    .shop-search svg.s-ico {
+      width: 20px; height: 20px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .shop-search input {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 0;
+      outline: none;
+      color: var(--ink);
+      font-family: var(--f-body);
+    }
+    .shop-search input::placeholder { color: var(--muted); font-weight: 400; }
+    .shop-search .btn { padding: 12px 22px; font-size: 14px; }
+
+    .shop-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* Sidebar */
+    .shop-side {
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 26px 24px;
+      position: sticky;
+      top: 100px;
+    }
+    .filter-block { padding: 18px 0; border-bottom: 1px solid var(--line); }
+    .filter-block:first-of-type { padding-top: 0; }
+    .filter-block:last-of-type { border-bottom: 0; padding-bottom: 0; }
+    .filter-block h5 {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+    .filter-block ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    .filter-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 14px;
+      color: var(--ink);
+      user-select: none;
+    }
+    .filter-check:hover { background: var(--mist); }
+    .filter-check input { display: none; }
+    .filter-check .box {
+      width: 18px; height: 18px;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 5px;
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .filter-check .box svg { width: 12px; height: 12px; color: white; opacity: 0; }
+    .filter-check input:checked + .box {
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+    .filter-check input:checked + .box svg { opacity: 1; }
+    .filter-check .count {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .price-range { padding: 4px 0; }
+    .price-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .price-inputs label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .price-inputs input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .price-inputs input:focus { border-color: var(--orange); }
+
+    .filter-clear {
+      width: 100%;
+      padding: 11px;
+      background: transparent;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: all 0.2s;
+      color: var(--ink);
+    }
+    .filter-clear:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* Toolbar */
+    .shop-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-bottom: 22px;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .shop-count {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .shop-count strong {
+      color: var(--ink);
+      font-family: var(--f-display);
+      font-weight: 700;
+      font-size: 18px;
+      margin-right: 4px;
+    }
+    .toolbar-right { display: flex; align-items: center; gap: 12px; }
+    .shop-sort {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .shop-sort select {
+      padding: 9px 36px 9px 14px;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      background: white;
+      cursor: pointer;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2315191F' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    .shop-sort select:hover, .shop-sort select:focus { border-color: var(--orange); }
+    .view-toggle { display: inline-flex; gap: 4px; padding: 3px; background: var(--mist); border-radius: 8px; }
+    .view-toggle button {
+      width: 32px; height: 32px;
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      border-radius: 6px;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+    .view-toggle button.active { background: white; color: var(--orange); box-shadow: var(--shadow-sm); }
+    .view-toggle svg { width: 16px; height: 16px; }
+
+    /* Active filter chips */
+    .active-filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+    .active-filters .label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .active-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px 6px 12px;
+      background: rgba(236,72,21,0.1);
+      border: 1px solid rgba(236,72,21,0.3);
+      border-radius: 999px;
+      color: var(--orange);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .active-chip button {
+      width: 18px; height: 18px;
+      border-radius: 999px;
+      background: rgba(236,72,21,0.2);
+      color: var(--orange);
+      display: inline-flex;
+      align-items: center; justify-content: center;
+    }
+    .active-chip button:hover { background: var(--orange); color: white; }
+    .active-chip svg { width: 10px; height: 10px; }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 48px;
+      align-items: center;
+    }
+    .pagination button {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: white;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--ink);
+      transition: all 0.15s;
+    }
+    .pagination button:hover { border-color: var(--orange); color: var(--orange); }
+    .pagination button.active { background: var(--ink); color: white; border-color: var(--ink); }
+    .pagination button svg { width: 14px; height: 14px; }
+
+    .mobile-filter-btn {
+      display: none;
+      width: 100%;
+      padding: 14px;
+      background: var(--ink);
+      color: white;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 16px;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    @media (max-width: 1024px) {
+      .shop-grid { grid-template-columns: 1fr; }
+      .shop-side { position: static; display: none; }
+      .shop-side.is-open { display: block; }
+      .mobile-filter-btn { display: inline-flex; }
+    }
+    @media (max-width: 720px) {
+      .shop-catalog { padding-top: 24px; }
+      .shop-brand-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 18px;
+        margin-bottom: 22px;
+      }
+      .shop-brand-logo { height: 32px; }
+      .shop-brand-head .section-title { font-size: 28px; }
+      .shop-search {
+        align-items: stretch;
+        flex-wrap: wrap;
+        width: 320px;
+        max-width: calc(100vw - 60px);
+        padding: 14px;
+        gap: 10px;
+        overflow: hidden;
+      }
+      .shop-search svg.s-ico { margin: 12px 0 0 6px; }
+      .shop-search input {
+        min-width: 0;
+        max-width: calc(100vw - 120px);
+        flex: 1 1 calc(100% - 42px);
+        padding: 10px 0;
+      }
+      .shop-search .btn {
+        width: calc(100vw - 88px);
+        max-width: calc(100vw - 88px);
+      }
+      .mobile-filter-btn, .shop-toolbar { width: 320px; max-width: calc(100vw - 60px); }
+      .shop-toolbar { align-items: stretch; overflow: hidden; }
+      .toolbar-right {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      .shop-sort { flex: 1 1 100%; justify-content: space-between; }
+      .shop-sort select { min-width: 170px; }
+    }
+  </style>
+</head>
+<body class="site-intro-active">
+<div class="site-intro" id="siteIntro" role="status" aria-label="Carregando o site Champion">
+  <img src="assets/img/misc/intro.gif" alt="" />
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-info">
+      <span class="pill">FRETE GRÁTIS para pedidos acima de R$ 500</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>0800 723 1616</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>contato@champion.ind.br</span>
+    </div>
+    <div class="topbar-social">
+      <a href="https://www.instagram.com/championsaudeanimal/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+      <a href="https://www.facebook.com/championsaudeanimal" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5C10.5 7 12 5.7 14.2 5.7c1 0 2.1.2 2.1.2V8h-1.2c-1.2 0-1.6.7-1.6 1.5V12h2.7l-.4 3h-2.3v7A10 10 0 0 0 22 12z"/></svg></a>
+      <a href="https://www.youtube.com/amigopecuaristaoficial" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.1-1C16.9 3.5 12 3.5 12 3.5s-4.9 0-8 .2c-.4 0-1.3 0-2.1 1C1.2 5.4 1 7 1 7s-.2 1.9-.2 3.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.2 7.7.2s4.9 0 8-.2c.4 0 1.3 0 2.1-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.7v-1.7C23.2 8.9 23 7 23 7zM9.7 14.6V8.4l6.4 3.1-6.4 3.1z"/></svg></a>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header" id="siteHeader">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="nav" id="primaryNav">
+      <a href="index.html">Página Inicial</a>
+      <a href="produtos.html" class="active">Produtos</a>
+      <a href="sobre.html">Sobre a Champion</a>
+      <a href="blog.html">Blog</a>
+      <a href="https://champion.pertinhodemim.com/" target="_blank" rel="noopener">Revenda</a>
+      <a href="calculo-dose.html">Cálculo de dose</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-btn" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+      <button class="icon-btn" aria-label="Conta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+      <button class="icon-btn cart-btn" id="cartBtn" aria-label="Carrinho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="badge" id="cartBadge">0</span></button>
+      <button class="icon-btn menu-toggle" id="menuToggle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<section class="section shop-catalog" id="catalogo">
+  <div class="container">
+    <div class="section-head shop-brand-head">
+      <img class="shop-brand-logo" src="assets/img/brand/logo.png" alt="Champion" />
+      <div>
+        <span class="section-eyebrow">Catálogo</span>
+        <h2 class="section-title">Linha completa <em>Champion</em>.</h2>
+        <p class="section-sub">Use a busca, filtros e ordenação para encontrar a solução ideal para o seu rebanho.</p>
+      </div>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="shop-search">
+      <svg class="s-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="shopSearch" placeholder="Busque produto, indicação ou categoria..." autocomplete="off" />
+      <button class="btn btn-primary" id="shopSearchBtn" type="button">Buscar</button>
+    </div>
+
+    <button class="mobile-filter-btn" id="mobileFilterBtn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      Filtrar produtos
+    </button>
+
+    <div class="shop-grid">
+      <!-- SIDEBAR -->
+      <aside class="shop-side" id="shopSide">
+        <div class="filter-block">
+          <h5>Categoria</h5>
+          <ul>
+            <li><label class="filter-check"><input type="checkbox" data-cat="larvicida" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Larvicida<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="inseticida" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Inseticida<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="vermifugo" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Vermífugo<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="mineralizacao" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mineralização<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="nutricao" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Nutrição<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="reproducao" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Reprodução<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="parasitario" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Antiparasitário<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-cat="suplemento" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Suplemento<span class="count">0</span></label></li>
+          </ul>
+        </div>
+
+        <div class="filter-block">
+          <h5>Espécie</h5>
+          <ul>
+            <li><label class="filter-check"><input type="checkbox" data-esp="bovinos" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Bovinos<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-esp="equinos" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Equinos<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-esp="suinos" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Suínos<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-esp="aves" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Aves<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-esp="ambientes" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Ambientes<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-esp="veterinario" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Uso veterinário<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-esp="minerais" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Minerais<span class="count">0</span></label></li>
+          </ul>
+        </div>
+
+        <div class="filter-block">
+          <h5>Forma de uso</h5>
+          <ul>
+            <li><label class="filter-check"><input type="checkbox" data-use="sal-racao" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Mistura no sal/ração<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-use="dieta-premix" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Pré-mix / formulação<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-use="pulverizacao" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Pulverização<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-use="po-topico" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Aplicação em pó<span class="count">0</span></label></li>
+            <li><label class="filter-check"><input type="checkbox" data-use="agua-parada" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Água parada<span class="count">0</span></label></li>
+          </ul>
+        </div>
+
+        <div class="filter-block price-range">
+          <h5>Faixa de preço</h5>
+          <div class="price-inputs">
+            <div>
+              <label>Mínimo</label>
+              <input type="text" id="priceMin" inputmode="decimal" placeholder="R$ 0" />
+            </div>
+            <div>
+              <label>Máximo</label>
+              <input type="text" id="priceMax" inputmode="decimal" placeholder="R$ 300" />
+            </div>
+          </div>
+          <ul>
+            <li><label class="filter-check"><input type="radio" name="price" data-price-min="0" data-price-max="80" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Até R$ 80</label></li>
+            <li><label class="filter-check"><input type="radio" name="price" data-price-min="80" data-price-max="150" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>R$ 80 a R$ 150</label></li>
+            <li><label class="filter-check"><input type="radio" name="price" data-price-min="150" data-price-max="200" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>R$ 150 a R$ 200</label></li>
+            <li><label class="filter-check"><input type="radio" name="price" data-price-min="200" /><span class="box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Acima de R$ 200</label></li>
+          </ul>
+        </div>
+
+        <button class="filter-clear" type="button" id="filterClear">Limpar filtros</button>
+      </aside>
+
+      <!-- MAIN -->
+      <div>
+        <div class="shop-toolbar">
+          <span class="shop-count"><strong id="shopTotal">17</strong>produtos encontrados</span>
+          <div class="toolbar-right">
+            <div class="shop-sort">
+              <span>Ordenar por</span>
+              <select id="shopSort">
+                <option value="relevance">Relevância</option>
+                <option value="best">Mais vendidos</option>
+                <option value="price-asc">Menor preço</option>
+                <option value="price-desc">Maior preço</option>
+                <option value="new">Lançamentos</option>
+                <option value="name">A-Z</option>
+              </select>
+            </div>
+            <div class="view-toggle">
+              <button class="active" type="button" data-view="grid" aria-label="Grade" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+              <button type="button" data-view="list" aria-label="Lista" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="active-filters" id="activeFilters" style="display:none">
+          <span class="label">Filtros ativos:</span>
+        </div>
+
+        <div class="product-list stagger">
+          <article class="product-card" data-product="difly">
+            <div class="product-thumb bg-difly"><span class="product-tag">Anti-mosca</span><div class="product-thumb-art"><div class="pack pack-difly"><div class="pack-brand">Difly</div><div class="pack-sub">Larvicida</div><div class="pack-stripe">60 mg/cab/dia</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Larvicida</span><h3 class="product-name"><a href="produto.html?p=difly">Difly</a></h3><p class="product-desc">Controle total da mosca-dos-chifres direto na origem, sem estresse no manejo.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 129,90</span></div><a href="produto.html?p=difly" class="product-add" aria-label="Ver Difly"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="difly-s3">
+            <div class="product-thumb bg-difly-s3"><span class="product-tag">Mosca + carrapato</span><div class="product-thumb-art"><div class="pack pack-difly-s3"><div class="pack-brand">Difly S3</div><div class="pack-sub">Proteção dupla</div><div class="pack-stripe">1 g/cab/dia</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Antiparasitário</span><h3 class="product-name"><a href="produto.html?p=difly-s3">Difly S3</a></h3><p class="product-desc">Proteção dupla contra moscas e carrapatos para propriedades com múltiplas infestações.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 189,90</span></div><a href="produto.html?p=difly-s3" class="product-add" aria-label="Ver Difly S3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="vermi-sal">
+            <div class="product-thumb bg-vermisal"><span class="product-tag">Vermífugo mineral</span><div class="product-thumb-art"><div class="pack pack-vermisal"><div class="pack-brand" style="color:#ffd640">Vermi-Sal</div><div class="pack-sub" style="color:#ffd640">Mineralizante</div><div class="pack-stripe" style="background:rgba(255,214,64,0.18);color:#ffd640">275g / 25kg sal</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Mineralização</span><h3 class="product-name"><a href="produto.html?p=vermi-sal">Vermi-Sal</a></h3><p class="product-desc">Vermifugação contínua com mineralização completa e ação antianêmica no cocho.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 149,90</span></div><a href="produto.html?p=vermi-sal" class="product-add" aria-label="Ver Vermi-Sal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="ade-po">
+            <div class="product-thumb bg-vitaminico"><span class="product-tag">Vitaminas A.D.E.</span><div class="product-thumb-art"><div class="pack pack-vitaminico"><div class="pack-brand">A.D.E.</div><div class="pack-sub">Suplemento</div><div class="pack-stripe">Pó vitamínico</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Suplemento vitamínico</span><h3 class="product-name"><a href="produto.html?p=ade-po">A.D.E. Pó</a></h3><p class="product-desc">Recuperação, desempenho e alta produtividade em períodos críticos, seca e recria.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 79,90</span></div><a href="produto.html?p=ade-po" class="product-add" aria-label="Ver A.D.E. Pó"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="diazinon">
+            <div class="product-thumb bg-diazinon"><span class="product-tag">Uso com EPI</span><div class="product-thumb-art"><div class="pack pack-diazinon"><div class="pack-brand">Diazinon</div><div class="pack-sub">Inseticida</div><div class="pack-stripe">Instalações</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Ambientes rurais · Inseticida</span><h3 class="product-name"><a href="produto.html?p=diazinon">Diazinon</a></h3><p class="product-desc">Alta potência contra moscas e pragas em currais, estábulos e instalações rurais.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 64,90</span></div><a href="produto.html?p=diazinon" class="product-add" aria-label="Ver Diazinon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="nucleo-supera">
+            <div class="product-thumb bg-supera"><span class="product-tag">Ganho de peso</span><div class="product-thumb-art"><div class="pack pack-supera"><div class="pack-brand">Supera</div><div class="pack-sub">Núcleo</div><div class="pack-stripe">Pré-mix</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Nutrição</span><h3 class="product-name"><a href="produto.html?p=nucleo-supera">Núcleo Supera</a></h3><p class="product-desc">Mais ganho de peso com menor custo de produção e formulação prática de dietas.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 219,90</span></div><a href="produto.html?p=nucleo-supera" class="product-add" aria-label="Ver Núcleo Supera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="nucleo-tm-force">
+            <div class="product-thumb bg-force"><span class="product-tag">Alto desempenho</span><div class="product-thumb-art"><div class="pack pack-force"><div class="pack-brand">TM Force</div><div class="pack-sub">Núcleo</div><div class="pack-stripe" style="background:rgba(23,77,130,0.16);color:#174d82">Intensivo</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Nutrição</span><h3 class="product-name"><a href="produto.html?p=nucleo-tm-force">Núcleo TM Force</a></h3><p class="product-desc">Performance nutricional com máxima eficiência para dietas de alto ganho intensivo.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 249,90</span></div><a href="produto.html?p=nucleo-tm-force" class="product-add" aria-label="Ver Núcleo TM Force"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="iatf-boost">
+            <div class="product-thumb bg-boost"><span class="product-tag">Reprodução</span><div class="product-thumb-art"><div class="pack pack-boost"><div class="pack-brand">IATF</div><div class="pack-sub">Boost</div><div class="pack-stripe">Prenhez</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Reprodução</span><h3 class="product-name"><a href="produto.html?p=iatf-boost">IATF Boost</a></h3><p class="product-desc">Aumente a taxa de prenhez do rebanho com suporte à função ovariana.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 179,90</span></div><a href="produto.html?p=iatf-boost" class="product-add" aria-label="Ver IATF Boost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="andro-boost">
+            <div class="product-thumb bg-andro"><span class="product-tag">Touros</span><div class="product-thumb-art"><div class="pack pack-andro"><div class="pack-brand">Andro</div><div class="pack-sub">Boost</div><div class="pack-stripe">Fertilidade</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Bovinos · Reprodução</span><h3 class="product-name"><a href="produto.html?p=andro-boost">Andro Boost</a></h3><p class="product-desc">Mais fertilidade, motilidade e qualidade espermática para reprodutores.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 169,90</span></div><a href="produto.html?p=andro-boost" class="product-add" aria-label="Ver Andro Boost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="propoxur-1">
+            <div class="product-thumb bg-propoxur"><span class="product-tag">Ectoparasitas</span><div class="product-thumb-art"><div class="pack pack-propoxur"><div class="pack-brand">Propoxur</div><div class="pack-sub">1%</div><div class="pack-stripe">Inseticida em pó</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Uso veterinário · Inseticida</span><h3 class="product-name"><a href="produto.html?p=propoxur-1">Propoxur 1%</a></h3><p class="product-desc">Controle eficaz de pulgas, carrapatos e piolhos com aplicação em pó.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 49,90</span></div><a href="produto.html?p=propoxur-1" class="product-add" aria-label="Ver Propoxur 1%"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="domifly-s3">
+            <div class="product-thumb bg-domifly"><span class="product-tag">Larvicida líquido</span><div class="product-thumb-art"><div class="pack pack-domifly"><div class="pack-brand">Domifly</div><div class="pack-sub">S3</div><div class="pack-stripe">Água parada</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Ambientes · Controle de mosquito</span><h3 class="product-name"><a href="produto.html?p=domifly-s3">Domifly S3</a></h3><p class="product-desc">Combate direto ao mosquito da dengue, impedindo o desenvolvimento das larvas.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 89,90</span></div><a href="produto.html?p=domifly-s3" class="product-add" aria-label="Ver Domifly S3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="datropa">
+            <div class="product-thumb bg-equinos"><span class="product-tag">Equinos</span><div class="product-thumb-art"><div class="pack pack-equinos"><div class="pack-brand">Datropa</div><div class="pack-sub">Equinos</div><div class="pack-stripe">Performance</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Equinos · Nutrição</span><h3 class="product-name"><a href="produto.html?p=datropa">Datropa</a></h3><p class="product-desc">Performance e saúde total para equinos, com alta palatabilidade e suporte ósseo.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 139,90</span></div><a href="produto.html?p=datropa" class="product-add" aria-label="Ver Datropa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="avecal">
+            <div class="product-thumb bg-aves"><span class="product-tag">Aves</span><div class="product-thumb-art"><div class="pack pack-aves"><div class="pack-brand">Avecal</div><div class="pack-sub">Cálcio</div><div class="pack-stripe">Produção</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Aves · Mineralização</span><h3 class="product-name"><a href="produto.html?p=avecal">Avecal</a></h3><p class="product-desc">Cálcio essencial para crescimento, estrutura óssea e produção eficiente.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 59,90</span></div><a href="produto.html?p=avecal" class="product-add" aria-label="Ver Avecal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="suino-nobre">
+            <div class="product-thumb bg-suinos"><span class="product-tag">Suínos</span><div class="product-thumb-art"><div class="pack pack-suinos"><div class="pack-brand">Suíno</div><div class="pack-sub">Nobre</div><div class="pack-stripe">Conversão</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Suínos · Nutrição</span><h3 class="product-name"><a href="produto.html?p=suino-nobre">Suíno Nobre</a></h3><p class="product-desc">Ganho de peso acelerado e melhor conversão alimentar para produção suína.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 159,90</span></div><a href="produto.html?p=suino-nobre" class="product-add" aria-label="Ver Suíno Nobre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="farinha-calcio">
+            <div class="product-thumb bg-calcio"><span class="product-tag">Mineral</span><div class="product-thumb-art"><div class="pack pack-calcio"><div class="pack-brand">Cálcio</div><div class="pack-sub">Farinha</div><div class="pack-stripe">Ossos fortes</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Mineralização · Cálcio</span><h3 class="product-name"><a href="produto.html?p=farinha-calcio">Farinha de Cálcio</a></h3><p class="product-desc">Base nutricional para ossos fortes e produção eficiente em diferentes sistemas.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 39,90</span></div><a href="produto.html?p=farinha-calcio" class="product-add" aria-label="Ver Farinha de Cálcio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="farinha-calcio-fosfatada">
+            <div class="product-thumb bg-calcio"><span class="product-tag">Fosfatada</span><div class="product-thumb-art"><div class="pack pack-calcio"><div class="pack-brand">Cálcio</div><div class="pack-sub">Fosfatada</div><div class="pack-stripe">Precisão</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Mineralização · Cálcio e fósforo</span><h3 class="product-name"><a href="produto.html?p=farinha-calcio-fosfatada">Farinha de Cálcio Fosfatada</a></h3><p class="product-desc">Balanceamento nutricional de alta precisão para formulações minerais.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 54,90</span></div><a href="produto.html?p=farinha-calcio-fosfatada" class="product-add" aria-label="Ver Farinha de Cálcio Fosfatada"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+
+          <article class="product-card" data-product="farinha-calcio-b12">
+            <div class="product-thumb bg-calcio"><span class="product-tag">Com B12</span><div class="product-thumb-art"><div class="pack pack-calcio"><div class="pack-brand">Cálcio</div><div class="pack-sub">+ B12</div><div class="pack-stripe">Suporte completo</div></div></div></div>
+            <div class="product-body"><span class="product-cat">Mineralização · Cálcio e vitaminas</span><h3 class="product-name"><a href="produto.html?p=farinha-calcio-b12">Farinha de Cálcio + B12</a></h3><p class="product-desc">Nutrição mineral com suporte vitamínico completo para desempenho e saúde.</p><div class="product-foot"><div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 69,90</span></div><a href="produto.html?p=farinha-calcio-b12" class="product-add" aria-label="Ver Farinha de Cálcio + B12"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a></div></div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <div class="container">
+    <div class="cta-grid">
+      <div>
+        <span class="section-eyebrow" style="color:var(--orange-soft)">Atendimento técnico</span>
+        <h2>Não sabe qual <em style="color:var(--orange-soft); font-style:normal">produto escolher</em>?</h2>
+        <p>Fale com nosso time de especialistas. Indicamos a melhor solução para o seu rebanho — sem custo e sem compromisso.</p>
+        <div class="cta-actions">
+          <a href="https://api.whatsapp.com/send/?phone=556240150742&type=phone_number&app_absent=0" target="_blank" rel="noopener" class="btn btn-primary">Falar com especialista</a>
+          <a href="tel:08007231616" class="btn btn-ghost">0800 723 1616</a>
+        </div>
+      </div>
+      <div class="cta-side">
+        <h4>Receba ofertas</h4>
+        <input class="cta-input" placeholder="Seu nome" />
+        <input class="cta-input" placeholder="E-mail" type="email" />
+        <button class="btn btn-primary">Quero receber</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <img src="assets/img/brand/logo.png" alt="Champion" />
+        <p>Empresa genuinamente brasileira que há mais de 60 anos entrega resultados reais para a maior pecuária comercial do mundo.</p>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/championsaudeanimal/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="https://www.facebook.com/championsaudeanimal" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.9v-7H8v-3h2.5V9.5C10.5 7 12 5.7 14.2 5.7c1 0 2.1.2 2.1.2V8h-1.2c-1.2 0-1.6.7-1.6 1.5V12h2.7l-.4 3h-2.3v7A10 10 0 0 0 22 12z"/></svg></a>
+          <a href="https://www.youtube.com/amigopecuaristaoficial" target="_blank" rel="noopener" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 7s-.2-1.6-.9-2.3c-.8-.9-1.7-.9-2.1-1C16.9 3.5 12 3.5 12 3.5s-4.9 0-8 .2c-.4 0-1.3 0-2.1 1C1.2 5.4 1 7 1 7s-.2 1.9-.2 3.7v1.7c0 1.9.2 3.7.2 3.7s.2 1.6.9 2.3c.8.9 1.9.9 2.4 1 1.7.2 7.7.2 7.7.2s4.9 0 8-.2c.4 0 1.3 0 2.1-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.7v-1.7C23.2 8.9 23 7 23 7zM9.7 14.6V8.4l6.4 3.1-6.4 3.1z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Empresa</h5>
+        <ul>
+          <li><a href="sobre.html">Sobre a Champion</a></li>
+          <li><a href="sobre.html#missao">Missão e Valores</a></li>
+          <li><a href="sobre.html#cultura">Jeito Champion</a></li>
+          <li><a href="blog.html">Blog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Produtos</h5>
+        <ul>
+          <li><a href="produto.html?p=difly">Difly</a></li>
+          <li><a href="produto.html?p=difly-s3">Difly S3</a></li>
+          <li><a href="produto.html?p=ver-mi-sal">VER-MI-SAL</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Contato</h5>
+        <div class="footer-contact">
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Av. Diomício de Freitas, L.12<br>DAIA · Anápolis-GO</span></div>
+          <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>0800 723 1616</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Champion Farmoquímico Ltda. Todos os direitos reservados.</span>
+      <span><a href="#">Política de Privacidade</a> · <a href="#">Termos de uso</a></span>
+    </div>
+  </div>
+</footer>
+
+<button type="button" class="cart-float" id="cartFloat" aria-label="Abrir carrinho" data-has-items="false" style="position:fixed;bottom:96px;right:24px;width:60px;height:60px;border-radius:999px;background:linear-gradient(135deg,#FF6A33,#EC4815,#C13808);color:white;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 14px 30px -8px rgba(236,72,21,0.55), inset 0 1px 0 rgba(255,255,255,0.18);z-index:9999;border:0;cursor:pointer;visibility:visible;opacity:1;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="badge" data-cart-badge>0</span><span class="cart-float-label" aria-hidden="true">Carrinho</span></button>
+
+<a href="https://api.whatsapp.com/send/?phone=556240150742&type=phone_number&app_absent=0" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3.5A11 11 0 0 0 3.6 17l-1.5 5.5 5.7-1.5a11 11 0 0 0 5.2 1.3 11 11 0 0 0 7.5-19zM12 20.5a9 9 0 0 1-4.6-1.3l-.3-.2-3.4.9.9-3.3-.2-.3a9 9 0 1 1 7.6 4.2zm5-6.7c-.3-.1-1.7-.8-1.9-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5 0-.2 0-.4-.1-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3 4.7 4.2 1.7.7 2.3.8 3.1.6.5-.1 1.6-.7 1.8-1.3.2-.6.2-1.1.2-1.3-.2-.1-.4-.2-.7-.3z"/></svg>
+</a>
+
+<aside class="cart-overlay" id="cartOverlay"></aside>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>Seu carrinho</h3>
+    <button class="icon-btn" id="cartClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <p>Seu carrinho está vazio.<br>Que tal adicionar um produto?</p>
+    </div>
+  </div>
+  <div class="cart-foot">
+    <div class="cart-total"><span>Total</span><strong id="cartTotal">R$ 0,00</strong></div>
+    <button class="btn btn-primary" id="cartCheckout">Finalizar pedido</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Adicionado ao carrinho</span>
+</div>
+
+<script src="js/customer-store.js"></script>
+<script src="js/order-store.js"></script>
+<script src="js/main.js"></script>
+<script type="module" src="js/products-cms.js"></script>
+<script type="module" src="js/site-settings.js"></script>
+</body>
+</html>

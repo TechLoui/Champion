@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FAQ, depoimentos & vagas · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="conteudo-faq">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Conteúdo &amp; Cadastros</span>
+        <span class="ap-topbar-title">FAQ, depoimentos &amp; vagas</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>FAQ, depoimentos, vagas &amp; newsletter</h2>
+          <p>Mantenha as áreas de conteúdo do site atualizadas — sem depender do time técnico para alterações de rotina.</p>
+        </div>
+      </div>
+
+      <div class="ap-tabs">
+        <button class="is-active" data-tab="faq">FAQ</button>
+        <button data-tab="depoimentos">Depoimentos</button>
+        <button data-tab="vagas">Vagas</button>
+        <button data-tab="newsletter">Newsletter</button>
+      </div>
+
+      <!-- FAQ -->
+      <section data-panel="faq">
+        <div class="ap-split">
+          <div class="ap-card">
+            <div class="ap-card-head"><h3>Perguntas frequentes</h3><button class="ap-btn ap-btn-primary ap-btn-sm">+ Pergunta</button></div>
+            <div class="ap-card-body">
+              <div class="ap-list">
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Quanto tempo para começar a ver resultado?</h4><p>Categoria: Difly · publicada</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Como aplicar o VER-MI-SAL no cocho?</h4><p>Categoria: VER-MI-SAL · publicada</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Posso comprar direto da fábrica?</h4><p>Categoria: Compra · rascunho</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Qual o prazo de validade do produto?</h4><p>Categoria: Geral · publicada</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ap-card">
+            <div class="ap-card-head"><h3>Categorias de FAQ</h3></div>
+            <div class="ap-card-body">
+              <div class="ap-list">
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Difly</h4><p>6 perguntas</p></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Núcleo</h4><p>4 perguntas</p></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>VER-MI-SAL</h4><p>5 perguntas</p></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Compra &amp; entrega</h4><p>8 perguntas</p></div></div>
+                <div class="ap-list-row"><div class="ap-list-row-main"><h4>Geral</h4><p>7 perguntas</p></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Depoimentos -->
+      <section data-panel="depoimentos" hidden>
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Depoimentos de clientes</h3><button class="ap-btn ap-btn-primary ap-btn-sm">+ Depoimento</button></div>
+          <div class="ap-card-body">
+            <div class="ap-card-grid">
+              <div class="ap-card" style="border-radius:10px"><div class="ap-card-body"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="ap-init">JS</span><div><div class="strong">João Silva</div><div class="muted" style="font-size:11.5px">Fazenda Aurora · Rio Verde/GO</div></div></div><p style="font-size:12.5px;color:#687080">"Em 6 meses usando Difly o controle de mosca-do-chifre virou problema do passado. Recomendo."</p><div style="margin-top:10px;display:flex;gap:6px;justify-content:space-between"><span class="ap-pill green">Publicado</span><div><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div></div></div>
+              <div class="ap-card" style="border-radius:10px"><div class="ap-card-body"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="ap-init blue">CB</span><div><div class="strong">Carla Bragança</div><div class="muted" style="font-size:11.5px">Rancho Boa Vista · Cuiabá/MT</div></div></div><p style="font-size:12.5px;color:#687080">"Mudei pro VER-MI-SAL e o ganho de peso do gado em pé melhorou visivelmente."</p><div style="margin-top:10px;display:flex;gap:6px;justify-content:space-between"><span class="ap-pill green">Publicado</span><div><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div></div></div>
+              <div class="ap-card" style="border-radius:10px"><div class="ap-card-body"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="ap-init green">EM</span><div><div class="strong">Eduardo Marin</div><div class="muted" style="font-size:11.5px">Pecuária Marin · Barreiras/BA</div></div></div><p style="font-size:12.5px;color:#687080">"Atendimento técnico que me ensinou a montar o protocolo. Excelente parceria."</p><div style="margin-top:10px;display:flex;gap:6px;justify-content:space-between"><span class="ap-pill amber">Rascunho</span><div><button class="ap-mini-btn">Editar</button><button class="ap-mini-btn danger">Excluir</button></div></div></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vagas -->
+      <section data-panel="vagas" hidden>
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Vagas em aberto</h3><button class="ap-btn ap-btn-primary ap-btn-sm">+ Nova vaga</button></div>
+          <div class="ap-card-body" style="padding:0">
+            <div class="ap-table-scroll">
+              <table class="ap-table" style="min-width:auto">
+                <thead><tr><th>Vaga</th><th>Área</th><th>Local</th><th>Tipo</th><th class="num">Candidaturas</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td class="strong">Médico Veterinário · Suporte técnico</td><td>Operações</td><td>Goiânia / GO</td><td><span class="ap-tag">CLT</span></td><td class="num">12</td><td><span class="ap-pill green">Aberta</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                  <tr><td class="strong">Representante comercial · MT</td><td>Comercial</td><td>Cuiabá / MT</td><td><span class="ap-tag">PJ</span></td><td class="num">8</td><td><span class="ap-pill green">Aberta</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                  <tr><td class="strong">Auxiliar de produção</td><td>Fábrica</td><td>Goiânia / GO</td><td><span class="ap-tag">CLT</span></td><td class="num">28</td><td><span class="ap-pill amber">Em revisão</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                  <tr><td class="strong">Estágio · Marketing</td><td>Marketing</td><td>Goiânia / GO</td><td><span class="ap-tag">Estágio</span></td><td class="num">42</td><td><span class="ap-pill gray">Encerrada</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Newsletter -->
+      <section data-panel="newsletter" hidden>
+        <div class="ap-metrics">
+          <div class="ap-metric-card"><div class="ap-metric-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div><div class="ap-metric-label">Inscritos</div><div class="ap-metric-value">2.418</div><span class="ap-metric-trend up">▲ 122 no mês</span></div></div>
+          <div class="ap-metric-card"><div class="ap-metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="ap-metric-label">Taxa de abertura</div><div class="ap-metric-value">38%</div><span class="ap-metric-trend up">acima da média do setor</span></div></div>
+          <div class="ap-metric-card"><div class="ap-metric-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div><div class="ap-metric-label">Taxa de clique</div><div class="ap-metric-value">9,4%</div><span class="ap-metric-trend up">▲ 1,2pp</span></div></div>
+        </div>
+
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Últimas campanhas</h3><button class="ap-btn ap-btn-primary ap-btn-sm">+ Nova campanha</button></div>
+          <div class="ap-card-body" style="padding:0">
+            <div class="ap-table-scroll">
+              <table class="ap-table" style="min-width:auto">
+                <thead><tr><th>Campanha</th><th>Enviada em</th><th class="num">Inscritos</th><th class="num">Abertura</th><th class="num">Cliques</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td class="strong">Maio · Difly em foco</td><td class="muted">02/05/2026</td><td class="num">2.418</td><td class="num">41%</td><td class="num">10,2%</td><td><span class="ap-pill green">Enviada</span></td></tr>
+                  <tr><td class="strong">Abril · Cocho cheio</td><td class="muted">04/04/2026</td><td class="num">2.296</td><td class="num">36%</td><td class="num">8,6%</td><td><span class="ap-pill green">Enviada</span></td></tr>
+                  <tr><td class="strong">Junho · Promo VER-MI-SAL</td><td class="muted">agendada · 03/06/2026</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td><span class="ap-pill amber">Agendada</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="_panel.js"></script>
+<script>
+  document.querySelectorAll('.ap-tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var tab = b.getAttribute('data-tab');
+      document.querySelectorAll('.ap-tabs button').forEach(function (x) { x.classList.toggle('is-active', x === b); });
+      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== tab; });
+    });
+  });
+</script>
+</body>
+</html>

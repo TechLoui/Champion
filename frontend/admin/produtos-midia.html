@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mídias & materiais · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="produtos-midia">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Produtos &amp; Operação</span>
+        <span class="ap-topbar-title">Mídias &amp; materiais</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>Imagens, banners, estoque &amp; materiais técnicos</h2>
+          <p>Centralize a biblioteca de imagens dos produtos, banners da home, controle de estoque e fichas técnicas em PDF.</p>
+        </div>
+        <div class="ap-section-head-actions">
+          <button class="ap-btn ap-btn-primary" type="button">+ Enviar arquivo</button>
+        </div>
+      </div>
+
+      <div class="ap-tabs">
+        <button class="is-active" data-tab="imagens">Imagens</button>
+        <button data-tab="banners">Banners</button>
+        <button data-tab="estoque">Estoque</button>
+        <button data-tab="materiais">Materiais técnicos</button>
+      </div>
+
+      <!-- Imagens -->
+      <section data-panel="imagens">
+        <div class="ap-toolbar">
+          <div class="ap-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" placeholder="Buscar imagem por nome…" />
+          </div>
+          <select class="ap-filter">
+            <option>Todos produtos</option>
+            <option>Difly</option><option>Núcleo</option><option>VER-MI-SAL</option>
+          </select>
+          <div class="ap-toolbar-spacer"></div>
+          <span class="ap-tag">128 arquivos · 84 MB</span>
+        </div>
+
+        <div class="ap-media-grid">
+          <div class="ap-media-empty">+ Enviar imagem</div>
+          <div class="ap-media-tile"><img src="../assets/img/hero/hero-1.png" alt="" /><div class="ap-media-meta">hero-1.png · 240KB</div></div>
+          <div class="ap-media-tile"><img src="../assets/img/hero/hero-2.png" alt="" /><div class="ap-media-meta">hero-2.png · 312KB</div></div>
+          <div class="ap-media-tile"><img src="../assets/img/hero/hero-3.png" alt="" /><div class="ap-media-meta">hero-3.png · 198KB</div></div>
+        </div>
+      </section>
+
+      <!-- Banners -->
+      <section data-panel="banners" hidden>
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Banners da home</h3><button class="ap-btn ap-btn-primary ap-btn-sm">+ Novo banner</button></div>
+          <div class="ap-card-body" style="padding:0">
+            <div class="ap-table-scroll">
+              <table class="ap-table" style="min-width:auto">
+                <thead><tr><th>Imagem</th><th>Rótulo</th><th>Link</th><th class="num">Ordem</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                  <tr><td><img src="../assets/img/hero/hero-1.png" alt="" style="width:80px;height:44px;object-fit:cover;border-radius:6px" /></td><td class="strong">Linha Difly</td><td class="muted">produtos.html</td><td class="num">1</td><td><span class="ap-pill green">Publicado</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                  <tr><td><img src="../assets/img/hero/hero-2.png" alt="" style="width:80px;height:44px;object-fit:cover;border-radius:6px" /></td><td class="strong">Linha Núcleo</td><td class="muted">produtos.html</td><td class="num">2</td><td><span class="ap-pill green">Publicado</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                  <tr><td><img src="../assets/img/hero/hero-3.png" alt="" style="width:80px;height:44px;object-fit:cover;border-radius:6px" /></td><td class="strong">VER-MI-SAL</td><td class="muted">produto.html?p=ver-mi-sal</td><td class="num">3</td><td><span class="ap-pill green">Publicado</span></td><td><div class="ap-table-actions"><button class="ap-mini-btn">Editar</button></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Estoque -->
+      <section data-panel="estoque" hidden>
+        <div class="ap-metrics">
+          <div class="ap-metric-card"><div class="ap-metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div><div><div class="ap-metric-label">Em estoque</div><div class="ap-metric-value">5.842</div><span class="ap-metric-trend up">unidades disponíveis</span></div></div>
+          <div class="ap-metric-card"><div class="ap-metric-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg></div><div><div class="ap-metric-label">Estoque baixo</div><div class="ap-metric-value">7</div><span class="ap-metric-trend down">SKUs abaixo do mínimo</span></div></div>
+          <div class="ap-metric-card"><div class="ap-metric-icon red" style="background:#FEEDEA;color:#C13808"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div><div><div class="ap-metric-label">Esgotados</div><div class="ap-metric-value">2</div><span class="ap-metric-trend down">SKUs indisponíveis</span></div></div>
+        </div>
+
+        <div class="ap-table-wrap">
+          <div class="ap-table-scroll">
+            <table class="ap-table">
+              <thead><tr><th>SKU</th><th>Produto</th><th class="num">Disponível</th><th class="num">Reservado</th><th class="num">Mínimo</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><span class="ap-tag">DIF-5L</span></td><td class="strong">Difly Champion 5L</td><td class="num">128</td><td class="num">12</td><td class="num">30</td><td><span class="ap-pill green">OK</span></td></tr>
+                <tr><td><span class="ap-tag">VMS-10</span></td><td class="strong">VER-MI-SAL 10kg</td><td class="num">312</td><td class="num">48</td><td class="num">100</td><td><span class="ap-pill green">OK</span></td></tr>
+                <tr><td><span class="ap-tag">CR-25</span></td><td class="strong">Champion Reprodução 25kg</td><td class="num">19</td><td class="num">8</td><td class="num">25</td><td><span class="ap-pill amber">Baixo</span></td></tr>
+                <tr><td><span class="ap-tag">CC-30</span></td><td class="strong">Champion Crescimento 30kg</td><td class="num">0</td><td class="num">0</td><td class="num">15</td><td><span class="ap-pill red">Esgotado</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Materiais técnicos -->
+      <section data-panel="materiais" hidden>
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Fichas técnicas e bulas</h3><button class="ap-btn ap-btn-primary ap-btn-sm">+ Enviar PDF</button></div>
+          <div class="ap-card-body">
+            <div class="ap-list">
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Ficha técnica · Difly Champion 5L</h4><p>PDF · 1,2 MB · atualizada em 14/03/2026</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Visualizar</button><button class="ap-mini-btn">Substituir</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Bula · VER-MI-SAL Premium</h4><p>PDF · 880 KB · atualizada em 02/02/2026</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Visualizar</button><button class="ap-mini-btn">Substituir</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Manual de aplicação · Núcleo Mineral</h4><p>PDF · 2,4 MB · atualizado em 19/12/2025</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Visualizar</button><button class="ap-mini-btn">Substituir</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+              <div class="ap-list-row"><div class="ap-list-row-main"><h4>Estudo de eficácia · Champion Crescimento</h4><p>PDF · 3,1 MB · atualizado em 08/11/2025</p></div><div class="ap-list-row-actions"><button class="ap-mini-btn">Visualizar</button><button class="ap-mini-btn">Substituir</button><button class="ap-mini-btn danger">Excluir</button></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="_panel.js"></script>
+<script>
+  document.querySelectorAll('.ap-tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var tab = b.getAttribute('data-tab');
+      document.querySelectorAll('.ap-tabs button').forEach(function (x) { x.classList.toggle('is-active', x === b); });
+      document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.getAttribute('data-panel') !== tab; });
+    });
+  });
+</script>
+</body>
+</html>

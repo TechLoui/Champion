@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pagamentos · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="relatorios-pagamentos">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Relatórios &amp; Performance</span>
+        <span class="ap-topbar-title">Pagamentos &amp; comportamento comercial</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>Formas de pagamento &amp; comportamento comercial</h2>
+          <p>Distribuição entre Pix, boleto e cartão, taxas de aprovação e comportamento por canal de venda.</p>
+        </div>
+        <div class="ap-section-head-actions">
+          <select class="ap-filter"><option>Últimos 30 dias</option><option>Trimestre</option><option>Ano</option></select>
+        </div>
+      </div>
+
+      <div class="ap-metrics">
+        <div class="ap-metric-card"><div class="ap-metric-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><div><div class="ap-metric-label">Volume aprovado</div><div class="ap-metric-value">R$ 84,2k</div><span class="ap-metric-trend up">▲ 12,4%</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="ap-metric-label">Taxa de aprovação</div><div class="ap-metric-value">94,2%</div><span class="ap-metric-trend up">▲ 1,1pp</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg></div><div><div class="ap-metric-label">Boletos vencidos</div><div class="ap-metric-value">R$ 1,8k</div><span class="ap-metric-trend down">8 boletos</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="ap-metric-label">Custo médio (taxa)</div><div class="ap-metric-value">2,8%</div><span class="ap-metric-trend flat">sobre receita</span></div></div>
+      </div>
+
+      <div class="ap-split equal">
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Distribuição por forma de pagamento</h3></div>
+          <div class="ap-card-body">
+            <div class="ap-list">
+              <div class="ap-list-row" style="padding:14px 16px">
+                <div style="width:42px;height:42px;border-radius:9px;background:#FFF0EB;color:#EC4815;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">PIX</div>
+                <div class="ap-list-row-main"><h4>Pix</h4><p>52,4% dos pedidos · R$ 44,1k aprovados</p></div>
+                <div style="text-align:right"><div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">52,4%</div><span class="ap-pill green">99% aprovação</span></div>
+              </div>
+              <div class="ap-list-row" style="padding:14px 16px">
+                <div style="width:42px;height:42px;border-radius:9px;background:#EBF3FE;color:#1E40AF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px">CC</div>
+                <div class="ap-list-row-main"><h4>Cartão de crédito</h4><p>28,8% dos pedidos · R$ 24,3k aprovados</p></div>
+                <div style="text-align:right"><div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">28,8%</div><span class="ap-pill green">96% aprovação</span></div>
+              </div>
+              <div class="ap-list-row" style="padding:14px 16px">
+                <div style="width:42px;height:42px;border-radius:9px;background:#FFF8EB;color:#B45309;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px">BOL</div>
+                <div class="ap-list-row-main"><h4>Boleto bancário</h4><p>16,2% dos pedidos · R$ 13,6k aprovados</p></div>
+                <div style="text-align:right"><div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">16,2%</div><span class="ap-pill amber">82% aprovação</span></div>
+              </div>
+              <div class="ap-list-row" style="padding:14px 16px">
+                <div style="width:42px;height:42px;border-radius:9px;background:#F3F0FD;color:#7C3AED;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:11px">FAT</div>
+                <div class="ap-list-row-main"><h4>Faturado (B2B)</h4><p>2,6% dos pedidos · R$ 2,2k aprovados</p></div>
+                <div style="text-align:right"><div style="font-family:Sora,sans-serif;font-size:18px;font-weight:800">2,6%</div><span class="ap-pill green">100% aprovação</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Aprovação x recusa</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Forma</th><th class="num">Tentativas</th><th class="num">Aprovadas</th><th class="num">Recusadas</th><th class="num">Taxa</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Pix</td><td class="num">114</td><td class="num">113</td><td class="num">1</td><td class="num">99,1%</td></tr>
+                <tr><td class="strong">Cartão</td><td class="num">68</td><td class="num">65</td><td class="num">3</td><td class="num">95,6%</td></tr>
+                <tr><td class="strong">Boleto</td><td class="num">42</td><td class="num">35</td><td class="num">7</td><td class="num">83,3%</td></tr>
+                <tr><td class="strong">Faturado</td><td class="num">6</td><td class="num">6</td><td class="num">0</td><td class="num">100%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="ap-divider"></div>
+
+      <div class="ap-split equal">
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Tempo médio até pagamento</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Forma</th><th class="num">Tempo médio</th><th class="num">Mais rápido</th><th class="num">Mais lento</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Pix</td><td class="num">3 min</td><td class="num">8s</td><td class="num">42 min</td></tr>
+                <tr><td class="strong">Cartão</td><td class="num">imediato</td><td class="num">—</td><td class="num">—</td></tr>
+                <tr><td class="strong">Boleto</td><td class="num">2,4 dias</td><td class="num">2h</td><td class="num">3 dias</td></tr>
+                <tr><td class="strong">Faturado</td><td class="num">14 dias</td><td class="num">7 dias</td><td class="num">30 dias</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Comportamento por canal</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Canal</th><th>Forma preferida</th><th class="num">Ticket médio</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Site (B2C)</td><td><span class="ap-tag">Pix</span> 64%</td><td class="num">R$ 269</td></tr>
+                <tr><td class="strong">Atacado (B2B)</td><td><span class="ap-tag">Boleto</span> 58%</td><td class="num">R$ 863</td></tr>
+                <tr><td class="strong">Revenda</td><td><span class="ap-tag">Faturado</span> 71%</td><td class="num">R$ 414</td></tr>
+                <tr><td class="strong">Manual</td><td><span class="ap-tag">Pix</span> 84%</td><td class="num">R$ 256</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="_panel.js"></script>
+</body>
+</html>

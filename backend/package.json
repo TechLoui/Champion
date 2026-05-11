@@ -1,0 +1,20 @@
+{
+  "name": "champion-backend",
+  "version": "1.0.0",
+  "description": "Champion Saúde Animal — API backend (Railway)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.1",
+    "firebase-admin": "^12.2.0",
+    "resend": "^3.5.0"
+  }
+}

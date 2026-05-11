@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ticket & recorrência · Champion Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="../assets/img/brand/icon.png" />
+  <link rel="stylesheet" href="_panel.css" />
+</head>
+<body data-admin-page="relatorios-clientes">
+
+<div class="ap-shell">
+  <aside class="ap-sidebar">
+    <a href="../index.html" class="ap-sidebar-brand"><img src="../assets/img/brand/logo.png" alt="Champion" /></a>
+    <nav class="ap-nav" aria-label="Administração" data-admin-nav></nav>
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar" data-admin-avatar>A</div>
+        <div class="ap-user-info"><div class="ap-user-email" data-admin-user>admin@champion.com.br</div><div class="ap-user-mode">Local</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="ap-main">
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-crumb">Relatórios &amp; Performance</span>
+        <span class="ap-topbar-title">Ticket &amp; recorrência</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="../index.html" target="_blank" rel="noopener">Ver site</a>
+        <button class="ap-btn ap-btn-danger" type="button" data-admin-logout>Sair</button>
+      </div>
+    </header>
+
+    <div class="ap-content">
+      <div class="ap-section-head">
+        <div>
+          <h2>Ticket médio, recorrência &amp; mais vendidos</h2>
+          <p>Comportamento de compra, lealdade dos clientes e ranking dos produtos mais procurados.</p>
+        </div>
+        <div class="ap-section-head-actions">
+          <select class="ap-filter"><option>Últimos 90 dias</option><option>Últimos 30 dias</option><option>Trimestre</option><option>Ano</option></select>
+        </div>
+      </div>
+
+      <div class="ap-metrics">
+        <div class="ap-metric-card"><div class="ap-metric-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="ap-metric-label">Ticket médio</div><div class="ap-metric-value">R$ 386</div><span class="ap-metric-trend up">▲ 4,1%</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><div><div class="ap-metric-label">Taxa de recompra</div><div class="ap-metric-value">62%</div><span class="ap-metric-trend up">▲ 4pp</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div><div class="ap-metric-label">Frequência média</div><div class="ap-metric-value">2,4×</div><span class="ap-metric-trend flat">por trimestre</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div><div class="ap-metric-label">Novos clientes</div><div class="ap-metric-value">122</div><span class="ap-metric-trend up">▲ 18%</span></div></div>
+        <div class="ap-metric-card"><div class="ap-metric-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="ap-metric-label">LTV médio (12m)</div><div class="ap-metric-value">R$ 1.842</div><span class="ap-metric-trend up">▲ 8,4%</span></div></div>
+      </div>
+
+      <div class="ap-card">
+        <div class="ap-card-head"><h3>Top 10 produtos mais vendidos</h3><span class="ap-tag">Últimos 90 dias</span></div>
+        <div class="ap-card-body" style="padding:0">
+          <div class="ap-table-scroll">
+            <table class="ap-table">
+              <thead><tr><th>#</th><th>Produto</th><th>Categoria</th><th class="num">Pedidos</th><th class="num">Unidades</th><th class="num">Receita</th><th>Tendência</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">1</td><td class="strong">Difly Champion 5L</td><td>Difly</td><td class="num">68</td><td class="num">112</td><td class="num">R$ 54.768</td><td><span class="ap-sparkline"><span style="height:40%"></span><span style="height:55%"></span><span style="height:62%"></span><span style="height:70%"></span><span style="height:75%"></span><span style="height:88%"></span><span style="height:100%"></span></span></td></tr>
+                <tr><td class="strong">2</td><td class="strong">VER-MI-SAL 10kg</td><td>Sal mineral</td><td class="num">52</td><td class="num">186</td><td class="num">R$ 17.112</td><td><span class="ap-sparkline"><span style="height:62%"></span><span style="height:55%"></span><span style="height:70%"></span><span style="height:65%"></span><span style="height:78%"></span><span style="height:80%"></span><span style="height:92%"></span></span></td></tr>
+                <tr><td class="strong">3</td><td class="strong">Núcleo Mineral Bovino 25kg</td><td>Núcleo</td><td class="num">42</td><td class="num">88</td><td class="num">R$ 15.664</td><td><span class="ap-sparkline"><span style="height:30%"></span><span style="height:42%"></span><span style="height:55%"></span><span style="height:50%"></span><span style="height:62%"></span><span style="height:74%"></span><span style="height:82%"></span></span></td></tr>
+                <tr><td class="strong">4</td><td class="strong">Champion Reprodução 25kg</td><td>Suplementos</td><td class="num">28</td><td class="num">52</td><td class="num">R$ 10.296</td><td><span class="ap-sparkline"><span style="height:55%"></span><span style="height:62%"></span><span style="height:48%"></span><span style="height:60%"></span><span style="height:68%"></span><span style="height:72%"></span><span style="height:78%"></span></span></td></tr>
+                <tr><td class="strong">5</td><td class="strong">Champion Crescimento 30kg</td><td>Suplementos</td><td class="num">22</td><td class="num">38</td><td class="num">R$ 8.170</td><td><span class="ap-sparkline"><span style="height:40%"></span><span style="height:38%"></span><span style="height:42%"></span><span style="height:55%"></span><span style="height:62%"></span><span style="height:58%"></span><span style="height:65%"></span></span></td></tr>
+                <tr><td class="strong">6</td><td>Difly Champion 1L</td><td>Difly</td><td class="num">42</td><td class="num">68</td><td class="num">R$ 6.460</td><td><span class="ap-sparkline"><span style="height:65%"></span><span style="height:60%"></span><span style="height:55%"></span><span style="height:50%"></span><span style="height:48%"></span><span style="height:45%"></span><span style="height:42%"></span></span></td></tr>
+                <tr><td class="strong">7</td><td>VER-MI-SAL Premium 20kg</td><td>Sal mineral</td><td class="num">18</td><td class="num">44</td><td class="num">R$ 6.116</td><td><span class="ap-sparkline"><span style="height:30%"></span><span style="height:35%"></span><span style="height:38%"></span><span style="height:50%"></span><span style="height:62%"></span><span style="height:74%"></span><span style="height:80%"></span></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="ap-divider"></div>
+
+      <div class="ap-split equal">
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Top 5 clientes</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Cliente</th><th class="num">Pedidos</th><th class="num">Total</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Rancho Bom Pasto</td><td class="num">22</td><td class="num">R$ 36.220</td></tr>
+                <tr><td class="strong">Fazenda Aurora</td><td class="num">14</td><td class="num">R$ 18.480</td></tr>
+                <tr><td class="strong">Casa do Pecuarista</td><td class="num">8</td><td class="num">R$ 9.680</td></tr>
+                <tr><td class="strong">Agropecuária Sol</td><td class="num">6</td><td class="num">R$ 7.420</td></tr>
+                <tr><td class="strong">Pecuária Marin</td><td class="num">5</td><td class="num">R$ 6.840</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="ap-card">
+          <div class="ap-card-head"><h3>Coortes de recompra</h3></div>
+          <div class="ap-card-body" style="padding:0">
+            <table class="ap-table" style="min-width:auto">
+              <thead><tr><th>Mês de cadastro</th><th class="num">Clientes</th><th class="num">2ª compra</th><th class="num">3+ compras</th></tr></thead>
+              <tbody>
+                <tr><td class="strong">Dez/2025</td><td class="num">94</td><td class="num">62 (66%)</td><td class="num">38 (40%)</td></tr>
+                <tr><td class="strong">Jan/2026</td><td class="num">112</td><td class="num">71 (63%)</td><td class="num">42 (38%)</td></tr>
+                <tr><td class="strong">Fev/2026</td><td class="num">98</td><td class="num">58 (59%)</td><td class="num">31 (32%)</td></tr>
+                <tr><td class="strong">Mar/2026</td><td class="num">122</td><td class="num">68 (56%)</td><td class="num">28 (23%)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="_panel.js"></script>
+</body>
+</html>

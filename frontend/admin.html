@@ -1,0 +1,1414 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Painel Administrativo · Champion Saúde Animal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <style>
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    [hidden] { display: none !important; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #15191F;
+      background: #F2F4F8;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Login fallback ─── */
+    .ap-login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0D1117 0%, #1A2030 100%);
+      padding: 24px;
+    }
+    .ap-login-card {
+      background: white;
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    }
+    .ap-login-card img { width: 130px; display: block; margin-bottom: 32px; }
+    .ap-login-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #EC4815;
+      margin-bottom: 8px;
+    }
+    .ap-login-card h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: #15191F;
+      margin-bottom: 6px;
+    }
+    .ap-login-card > p { font-size: 14px; color: #687080; margin-bottom: 28px; }
+    .ap-field { margin-bottom: 16px; }
+    .ap-field label { display: block; font-size: 12px; font-weight: 600; color: #15191F; margin-bottom: 6px; letter-spacing: 0.01em; }
+    .ap-field input {
+      width: 100%; padding: 12px 14px; border: 1.5px solid #E4E8EF; border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; color: #15191F; background: #F9FAFB; outline: none;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .ap-field input:focus { border-color: #EC4815; background: white; box-shadow: 0 0 0 3px rgba(236,72,21,.1); }
+    .ap-login-feedback { font-size: 13px; color: #C13808; font-weight: 600; min-height: 20px; margin-bottom: 8px; }
+    .ap-login-btn {
+      width: 100%; padding: 14px; background: linear-gradient(135deg,#FF6A33,#EC4815 55%,#C13808);
+      color: white; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700;
+      border: none; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 6px 20px -4px rgba(236,72,21,.5); transition: transform .18s, box-shadow .18s;
+    }
+    .ap-login-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -4px rgba(236,72,21,.55); }
+    .ap-login-note { margin-top: 20px; font-size: 12px; color: #A0A8B4; text-align: center; }
+
+    /* ─── App shell ─── */
+    .ap-shell {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ─── */
+    .ap-sidebar {
+      width: 248px;
+      flex-shrink: 0;
+      background: #0D1117;
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      position: relative;
+      z-index: 10;
+    }
+    .ap-sidebar-brand {
+      display: flex;
+      align-items: center;
+      padding: 28px 24px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      text-decoration: none;
+    }
+    .ap-sidebar-brand img { width: 118px; display: block; }
+
+    /* Nav */
+    .ap-nav {
+      padding: 16px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+    .ap-nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      padding: 10px 12px 6px;
+      margin-top: 8px;
+    }
+    .ap-nav button,
+    .ap-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      background: none;
+      border: none;
+      border-radius: 9px;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .ap-nav button:hover,
+    .ap-nav a:hover {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+    }
+    .ap-nav button.is-active,
+    .ap-nav a.is-active {
+      background: rgba(236,72,21,0.16);
+      color: #FF8055;
+      font-weight: 600;
+    }
+    .ap-nav button.is-active .ap-nav-ico,
+    .ap-nav a.is-active .ap-nav-ico { color: #EC4815; }
+    .ap-nav-ico {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      color: rgba(255,255,255,0.3);
+      transition: color .15s;
+    }
+    .ap-nav button:hover .ap-nav-ico,
+    .ap-nav a:hover .ap-nav-ico { color: rgba(255,255,255,0.7); }
+
+    /* Sidebar footer */
+    .ap-sidebar-foot {
+      padding: 16px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .ap-sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.05);
+    }
+    .ap-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EC4815, #C13808);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .ap-user-info { flex: 1; min-width: 0; }
+    .ap-user-email {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.75);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ap-user-mode {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.32);
+    }
+
+    /* ─── Main content ─── */
+    .ap-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Topbar */
+    .ap-topbar {
+      background: white;
+      border-bottom: 1px solid #E5E8EF;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+    .ap-topbar-left { display: flex; align-items: center; gap: 10px; }
+    .ap-topbar-crumb {
+      font-size: 13px;
+      color: #9EA6B4;
+      font-weight: 500;
+    }
+    .ap-topbar-crumb::after { content: '/'; margin: 0 8px; }
+    .ap-topbar-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #15191F;
+    }
+    .ap-topbar-actions { display: flex; align-items: center; gap: 8px; }
+    .ap-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: all .18s;
+      text-decoration: none;
+    }
+    .ap-btn svg { width: 15px; height: 15px; }
+    .ap-btn-ghost {
+      background: transparent;
+      color: #687080;
+      border: 1.5px solid #E4E8EF;
+    }
+    .ap-btn-ghost:hover { background: #F4F5F8; color: #15191F; border-color: #D4D8E2; }
+    .ap-btn-danger {
+      background: #FFF1EF;
+      color: #C13808;
+      border: 1.5px solid #FAD0C6;
+    }
+    .ap-btn-danger:hover { background: #FCDDD8; }
+    .ap-btn-primary {
+      background: linear-gradient(135deg, #FF6A33, #EC4815 60%, #C13808);
+      color: white;
+      box-shadow: 0 4px 14px -3px rgba(236,72,21,.45);
+    }
+    .ap-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -3px rgba(236,72,21,.5); }
+    .ap-btn-outline {
+      background: transparent;
+      color: #687080;
+      border: 1.5px solid #E4E8EF;
+    }
+    .ap-btn-outline:hover { background: #F4F5F8; color: #15191F; }
+    .ap-btn-dark {
+      background: #15191F;
+      color: white;
+    }
+    .ap-btn-dark:hover { background: #232A36; }
+
+    /* Scrollable content */
+    .ap-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 32px;
+    }
+
+    /* ─── Panels ─── */
+    [data-admin-panel] { display: block; }
+    [data-admin-panel][hidden] { display: none; }
+
+    /* ─── Dashboard ─── */
+    .ap-metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .ap-metric-card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 22px;
+      border: 1px solid #ECEEf4;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: box-shadow .18s, transform .18s;
+    }
+    .ap-metric-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); transform: translateY(-2px); }
+    .ap-metric-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ap-metric-icon svg { width: 20px; height: 20px; }
+    .ap-metric-icon.orange { background: #FFF0EB; color: #EC4815; }
+    .ap-metric-icon.green  { background: #EDFAF3; color: #1A9B5F; }
+    .ap-metric-icon.amber  { background: #FFF8EB; color: #D97706; }
+    .ap-metric-icon.purple { background: #F3F0FD; color: #7C3AED; }
+    .ap-metric-icon.teal   { background: #E8F8F8; color: #0891B2; }
+    .ap-metric-label { font-size: 12.5px; color: #9EA6B4; font-weight: 500; }
+    .ap-metric-value {
+      font-family: 'Sora', sans-serif;
+      font-size: 30px;
+      font-weight: 800;
+      color: #15191F;
+      line-height: 1;
+    }
+
+    /* Quick actions */
+    .ap-section-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #15191F;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ap-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .ap-quick-card {
+      background: white;
+      border: 1.5px solid #E5E8EF;
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: #15191F;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+    }
+    .ap-quick-card:hover {
+      border-color: #EC4815;
+      background: #FFF9F7;
+      box-shadow: 0 2px 12px rgba(236,72,21,.1);
+      color: #EC4815;
+    }
+    .ap-quick-ico {
+      width: 38px; height: 38px;
+      border-radius: 9px;
+      background: #F4F5F8;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .18s;
+    }
+    .ap-quick-ico svg { width: 18px; height: 18px; color: #687080; transition: color .18s; }
+    .ap-quick-card:hover .ap-quick-ico { background: #FFF0EB; }
+    .ap-quick-card:hover .ap-quick-ico svg { color: #EC4815; }
+    .ap-quick-card span { flex: 1; }
+    .ap-quick-arrow { color: #D0D5DE; }
+    .ap-quick-arrow svg { width: 14px; height: 14px; }
+
+    /* ─── Section header ─── */
+    .ap-section-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .ap-section-head h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      color: #15191F;
+      margin-bottom: 4px;
+    }
+    .ap-section-head p { font-size: 13.5px; color: #687080; }
+    .ap-section-head-actions { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+
+    /* ─── Products layout ─── */
+    .ap-products-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ─── Card wrapper ─── */
+    .ap-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .ap-card-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid #F0F2F6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ap-card-head h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #15191F;
+    }
+    .ap-card-body { padding: 22px; }
+
+    /* ─── Form fields ─── */
+    .ap-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 16px;
+    }
+    .ap-form-field { display: flex; flex-direction: column; gap: 6px; }
+    .ap-form-field.full { grid-column: 1 / -1; }
+    .ap-form-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #15191F;
+      letter-spacing: 0.01em;
+    }
+    .ap-form-field input,
+    .ap-form-field select,
+    .ap-form-field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      color: #15191F;
+      background: #F9FAFB;
+      outline: none;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+      appearance: none;
+    }
+    .ap-form-field textarea { resize: vertical; min-height: 80px; }
+    .ap-form-field input:focus,
+    .ap-form-field select:focus,
+    .ap-form-field textarea:focus {
+      border-color: #EC4815;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(236,72,21,.09);
+    }
+    .ap-form-field input::placeholder,
+    .ap-form-field textarea::placeholder { color: #BEC6D0; }
+    .ap-form-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .ap-feedback {
+      font-size: 13px;
+      font-weight: 600;
+      min-height: 20px;
+      margin-top: 10px;
+    }
+    .ap-feedback:not(:empty) {
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: #FFF1EF;
+      border: 1px solid #FAD0C6;
+      color: #C13808;
+    }
+    .ap-feedback.is-success:not(:empty) {
+      background: #EDFAF3;
+      border-color: #A8E6C6;
+      color: #1A7A48;
+    }
+
+    /* ─── List panel ─── */
+    .ap-list-panel { display: flex; flex-direction: column; gap: 12px; }
+    .ap-search-wrap {
+      position: relative;
+    }
+    .ap-search-wrap svg {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      width: 15px; height: 15px;
+      color: #9EA6B4;
+      pointer-events: none;
+    }
+    .ap-search-wrap input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      background: white;
+      outline: none;
+      color: #15191F;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .ap-search-wrap input:focus { border-color: #EC4815; box-shadow: 0 0 0 3px rgba(236,72,21,.09); }
+    .ap-search-wrap input::placeholder { color: #B0B8C6; }
+
+    /* Dynamic list rows (.admin-row from admin.js) */
+    .admin-list { display: flex; flex-direction: column; gap: 0; }
+    .admin-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .admin-row:hover { border-color: #D4D8E2; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+    .admin-row img {
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #F4F5F8;
+      flex-shrink: 0;
+      border: 1px solid #EEF0F4;
+      padding: 4px;
+    }
+    .admin-row-main { flex: 1; min-width: 0; }
+    .admin-row-main h3 { font-size: 13.5px; font-weight: 600; color: #15191F; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .admin-row-main p { font-size: 12px; color: #9EA6B4; }
+    .admin-row-main small { font-size: 11.5px; color: #B0B8C6; display: block; margin-top: 2px; }
+    .admin-row-actions { display: flex; gap: 5px; flex-shrink: 0; }
+    .admin-row-compact { padding: 12px 16px; }
+
+    /* Status badges */
+    .blog-admin-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #EDFAF3;
+      color: #1A7A48;
+      margin-top: 4px;
+    }
+    .blog-admin-status::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      display: inline-block;
+    }
+    .blog-admin-status.is-draft {
+      background: #FFF8EB;
+      color: #B45309;
+    }
+
+    /* Mini buttons */
+    .blog-admin-mini {
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid #E4E8EF;
+      background: white;
+      color: #687080;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+    }
+    .blog-admin-mini:hover { background: #F4F5F8; border-color: #D4D8E2; color: #15191F; }
+    .blog-admin-mini.is-danger {
+      border-color: #FAD0C6;
+      color: #C13808;
+      background: #FFF5F3;
+    }
+    .blog-admin-mini.is-danger:hover { background: #FCDDD8; border-color: #F5B8AE; }
+
+    /* Empty state */
+    .admin-empty {
+      padding: 40px 24px;
+      text-align: center;
+      color: #9EA6B4;
+      font-size: 14px;
+      background: white;
+      border: 1.5px dashed #E4E8EF;
+      border-radius: 12px;
+    }
+
+    /* ─── Leads toolbar ─── */
+    .ap-leads-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .ap-leads-filter {
+      padding: 10px 12px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      color: #15191F;
+      background: white;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      min-width: 140px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239EA6B4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .ap-leads-filter:focus { border-color: #EC4815; box-shadow: 0 0 0 3px rgba(236,72,21,.09); }
+
+    /* ─── Lead rows ─── */
+    .admin-row-lead { align-items: flex-start; gap: 14px; }
+    .admin-row-lead.is-done { opacity: 0.65; }
+    .admin-row-lead-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EC4815, #C13808);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .admin-row-lead-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .admin-row-lead-header h3 { margin-bottom: 0 !important; white-space: normal !important; }
+    .admin-row-lead-header .blog-admin-status { margin-top: 0; }
+    .admin-row-lead-contact {
+      font-size: 12.5px;
+      color: #687080;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+    .admin-row-lead-source {
+      display: inline-block;
+      background: #F0F2F6;
+      color: #687080;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 1px 7px;
+      border-radius: 99px;
+    }
+    .admin-row-lead-msg {
+      font-size: 12.5px;
+      color: #9EA6B4;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .admin-row-lead-date {
+      font-size: 11px;
+      color: #B0B8C6;
+    }
+
+    /* ─── Settings ─── */
+    .ap-settings-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+      max-width: 680px;
+    }
+
+    /* ─── Utilities ─── */
+    .ap-divider {
+      height: 1px;
+      background: #F0F2F6;
+      margin: 20px 0;
+    }
+
+    /* Reuse old class names so admin.js works without modifications */
+    .blog-admin-feedback { }
+
+    /* ─── Banner upload area ─── */
+    .banner-upload-area {
+      border: 2px dashed #E4E8EF;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color .18s, background .18s;
+      background: #F9FAFB;
+    }
+    .banner-upload-area:hover { border-color: #EC4815; background: #FFF9F7; }
+    .banner-upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 32px 20px;
+      text-align: center;
+    }
+    .banner-upload-placeholder span { font-size: 13.5px; font-weight: 600; color: #687080; }
+    .banner-upload-placeholder small { font-size: 12px; color: #9EA6B4; }
+    #adminBannerPreview { width: 100%; height: 180px; object-fit: cover; display: block; }
+
+    /* ─── Product image preview ─── */
+    .image-input-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .image-input-group input { flex: 1; }
+    .ap-btn-sm { padding: 8px 12px; font-size: 12.5px; white-space: nowrap; }
+    #adminProductPreview {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #F4F5F8;
+      border: 1px solid #E5E8EF;
+      margin-top: 8px;
+      display: block;
+    }
+
+    /* ─── Banner list rows ─── */
+    .admin-row-banner img {
+      width: 80px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #F4F5F8;
+      flex-shrink: 0;
+      border: 1px solid #EEF0F4;
+      padding: 0;
+    }
+    .admin-row-banner-label { font-size: 13.5px; font-weight: 600; color: #15191F; margin-bottom: 2px; }
+    .admin-row-banner-link { font-size: 12px; color: #9EA6B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 1100px) {
+      .ap-products-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .ap-sidebar { width: 200px; }
+      .ap-content { padding: 20px; }
+      .ap-topbar { padding: 0 20px; }
+    }
+    @media (max-width: 680px) {
+      .ap-shell { flex-direction: column; }
+      .ap-sidebar { width: 100%; height: auto; }
+      .ap-nav { flex-direction: row; overflow-x: auto; padding: 8px; flex-wrap: wrap; }
+      .ap-nav button { white-space: nowrap; }
+      .ap-metrics { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     LOGIN FALLBACK (hidden after auth)
+════════════════════════════════════════════════ -->
+<div class="ap-login-wrap" data-admin-login>
+  <div class="ap-login-card">
+    <img src="assets/img/brand/logo.png" alt="Champion Saúde Animal" />
+    <div class="ap-login-eyebrow">Área restrita</div>
+    <h1>Painel administrativo</h1>
+    <p>Gerencie catálogo, contatos e dados principais do site Champion.</p>
+
+    <form id="adminLoginForm" novalidate>
+      <div class="ap-field">
+        <label for="adminLoginEmail">E-mail</label>
+        <input id="adminLoginEmail" name="email" type="email" autocomplete="username" placeholder="admin@champion.com.br" required />
+      </div>
+      <div class="ap-field">
+        <label for="adminLoginPassword">Senha</label>
+        <input id="adminLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+      </div>
+      <div class="ap-login-feedback blog-admin-feedback" id="adminLoginFeedback" aria-live="polite"></div>
+      <button class="ap-login-btn" type="submit">Entrar no painel</button>
+    </form>
+
+    <p class="ap-login-note">Acesso restrito · admin@champion.com.br</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════ -->
+<div class="ap-shell" data-admin-app hidden>
+
+  <!-- ── Sidebar ── -->
+  <aside class="ap-sidebar">
+    <a href="index.html" class="ap-sidebar-brand" aria-label="Champion — ir para o site">
+      <img src="assets/img/brand/logo.png" alt="Champion" />
+    </a>
+
+    <nav class="ap-nav admin-nav" aria-label="Administração">
+      <span class="ap-nav-label">Navegação</span>
+
+      <button class="is-active" type="button" data-admin-tab="dashboard" aria-selected="true">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Visão geral
+      </button>
+
+      <button type="button" data-admin-tab="products" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Produtos
+      </button>
+
+      <button type="button" data-admin-tab="banners" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Banners
+      </button>
+
+      <button type="button" data-admin-tab="leads" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Contatos
+      </button>
+
+      <button type="button" data-admin-tab="settings" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configurações
+      </button>
+
+      <span class="ap-nav-label">Produtos &amp; Operação</span>
+      <a href="admin/produtos-cadastro.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Catálogo &amp; preços</a>
+      <a href="admin/produtos-midia.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Mídias &amp; materiais</a>
+      <a href="admin/pedidos.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Pedidos &amp; frete</a>
+      <a href="admin/lojas.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-6h16l1 6"/><path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9"/></svg>Lojas &amp; filiais</a>
+
+      <span class="ap-nav-label">Conteúdo &amp; Cadastros</span>
+      <a href="admin/clientes.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clientes</a>
+      <a href="admin/conteudo-faq.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>FAQ &amp; conteúdo</a>
+      <a href="admin/conteudo-paginas.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Páginas institucionais</a>
+      <a href="admin/controle.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Painel central</a>
+
+      <span class="ap-nav-label">Relatórios &amp; Performance</span>
+      <a href="admin/relatorios-vendas.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Vendas &amp; financeiro</a>
+      <a href="admin/relatorios-clientes.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Ticket &amp; recorrência</a>
+      <a href="admin/relatorios-trafego.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><polyline points="7 14 11 10 14 13 21 6"/></svg>Tráfego &amp; comportamento</a>
+      <a href="admin/relatorios-pagamentos.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Pagamentos</a>
+    </nav>
+
+    <div class="ap-sidebar-foot">
+      <div class="ap-sidebar-user">
+        <div class="ap-avatar">A</div>
+        <div class="ap-user-info">
+          <div class="ap-user-email" id="adminUser">admin@champion.com.br</div>
+          <div class="ap-user-mode" id="adminMode">Local</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="ap-main">
+
+    <!-- Topbar -->
+    <header class="ap-topbar">
+      <div class="ap-topbar-left">
+        <span class="ap-topbar-crumb">Champion</span>
+        <span class="ap-topbar-title">Painel administrativo</span>
+      </div>
+      <div class="ap-topbar-actions">
+        <a class="ap-btn ap-btn-ghost" href="index.html" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Ver site
+        </a>
+        <button class="ap-btn ap-btn-danger" type="button" id="adminLogout">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sair
+        </button>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <div class="ap-content">
+
+      <!-- ─── Dashboard ─── -->
+      <section data-admin-panel="dashboard" class="is-active">
+
+        <div class="ap-metrics">
+          <div class="ap-metric-card">
+            <div class="ap-metric-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            </div>
+            <div>
+              <div class="ap-metric-label">Total de produtos</div>
+              <div class="ap-metric-value" id="adminStatsProducts">—</div>
+            </div>
+          </div>
+
+          <div class="ap-metric-card">
+            <div class="ap-metric-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div>
+              <div class="ap-metric-label">Publicados</div>
+              <div class="ap-metric-value" id="adminStatsPublished">—</div>
+            </div>
+          </div>
+
+          <div class="ap-metric-card">
+            <div class="ap-metric-icon amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="ap-metric-label">Rascunhos</div>
+              <div class="ap-metric-value" id="adminStatsDrafts">—</div>
+            </div>
+          </div>
+
+          <div class="ap-metric-card">
+            <div class="ap-metric-icon teal">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <div class="ap-metric-label">Contatos abertos</div>
+              <div class="ap-metric-value" id="adminStatsLeads">—</div>
+            </div>
+          </div>
+
+          <div class="ap-metric-card">
+            <div class="ap-metric-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </div>
+            <div>
+              <div class="ap-metric-label">Banners ativos</div>
+              <div class="ap-metric-value" id="adminStatsBanners">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ap-section-title">Acesso rápido</div>
+        <div class="ap-quick-grid">
+          <a class="ap-quick-card" href="produtos.html" target="_blank" rel="noopener">
+            <span class="ap-quick-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </span>
+            <span>Abrir catálogo</span>
+            <span class="ap-quick-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </a>
+
+          <button class="ap-quick-card" type="button" data-admin-tab="products">
+            <span class="ap-quick-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </span>
+            <span>Novo produto</span>
+            <span class="ap-quick-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </button>
+
+          <button class="ap-quick-card" type="button" data-admin-tab="banners">
+            <span class="ap-quick-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            </span>
+            <span>Editar banners</span>
+            <span class="ap-quick-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </button>
+
+          <a class="ap-quick-card" href="calculo-dose.html" target="_blank" rel="noopener">
+            <span class="ap-quick-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
+            </span>
+            <span>Cálculo de dose</span>
+            <span class="ap-quick-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+          </a>
+        </div>
+
+      </section>
+
+      <!-- ─── Produtos ─── -->
+      <section data-admin-panel="products" hidden>
+
+        <div class="ap-section-head">
+          <div>
+            <h2>Produtos</h2>
+            <p>Cadastre produtos, publique ou mantenha como rascunho. O catálogo público exibe apenas os publicados.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <button class="ap-btn ap-btn-ghost" type="button" id="adminSeedProducts">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+              Restaurar padrão
+            </button>
+            <button class="ap-btn ap-btn-primary" type="button" id="adminNewProduct">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo produto
+            </button>
+          </div>
+        </div>
+
+        <div class="ap-products-layout">
+
+          <!-- Form -->
+          <div class="ap-card">
+            <div class="ap-card-head">
+              <h3>Dados do produto</h3>
+            </div>
+            <div class="ap-card-body">
+              <form class="admin-product-form" id="adminProductForm">
+                <input type="hidden" name="order" />
+                <div class="ap-form-grid">
+                  <div class="ap-form-field full">
+                    <label for="productName">Nome</label>
+                    <input id="productName" name="name" placeholder="Ex: Difly Pour-On" required />
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productId">URL / ID</label>
+                    <input id="productId" name="id" placeholder="difly-pour-on" required />
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productStatus">Status</label>
+                    <select id="productStatus" name="status">
+                      <option value="published">Publicado</option>
+                      <option value="draft">Rascunho</option>
+                    </select>
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productCategory">Categoria</label>
+                    <input id="productCategory" name="category" placeholder="Bovinos · Nutrição" required />
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productTag">Selo</label>
+                    <input id="productTag" name="tag" placeholder="Mais vendido" />
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productSpecies">Espécie</label>
+                    <select id="productSpecies" name="species">
+                      <option value="bovinos">Bovinos</option>
+                      <option value="equinos">Equinos</option>
+                      <option value="ovinos">Ovinos</option>
+                      <option value="suinos">Suínos</option>
+                      <option value="aves">Aves</option>
+                      <option value="minerais">Minerais</option>
+                      <option value="ambientes">Ambientes</option>
+                      <option value="veterinario">Veterinário</option>
+                    </select>
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productGroup">Grupo</label>
+                    <select id="productGroup" name="group">
+                      <option value="larvicida">Larvicida</option>
+                      <option value="inseticida">Inseticida</option>
+                      <option value="vermifugo">Vermífugo</option>
+                      <option value="mineralizacao">Mineralização</option>
+                      <option value="nutricao">Nutrição</option>
+                      <option value="reproducao">Reprodução</option>
+                      <option value="parasitario">Antiparasitário</option>
+                      <option value="suplemento">Suplemento</option>
+                    </select>
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productUse">Uso</label>
+                    <input id="productUse" name="use" placeholder="sal-racao" />
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="productPrice">Preço (R$)</label>
+                    <input id="productPrice" name="price" type="number" step="0.01" min="0" placeholder="129.90" />
+                  </div>
+                  <div class="ap-form-field full">
+                    <label>Imagem do produto</label>
+                    <div class="image-input-group">
+                      <input id="productImage" name="image" placeholder="assets/img/products/difly.png" />
+                      <button type="button" class="ap-btn ap-btn-ghost ap-btn-sm" id="adminProductPickFile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Upload
+                      </button>
+                      <input type="file" id="adminProductFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                    </div>
+                    <img id="adminProductPreview" src="" alt="" hidden />
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="productExcerpt">Resumo</label>
+                    <textarea id="productExcerpt" name="excerpt" placeholder="Descrição curta exibida no catálogo" required></textarea>
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="productHeadline">Chamada da página do produto</label>
+                    <input id="productHeadline" name="headline" placeholder="Frase de destaque para a página do produto" />
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="productContent">Descrição completa</label>
+                    <textarea id="productContent" name="content" placeholder="Texto completo sobre o produto" style="min-height:100px;"></textarea>
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="productBenefits">Benefícios (um por linha)</label>
+                    <textarea id="productBenefits" name="benefits" placeholder="Cada linha será um item da lista"></textarea>
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="productUsage">Modo de uso</label>
+                    <textarea id="productUsage" name="usage" placeholder="Instruções de aplicação"></textarea>
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="productPresentations">Apresentações</label>
+                    <input id="productPresentations" name="presentations" placeholder="Consultar embalagem" />
+                  </div>
+                </div>
+
+                <div class="ap-feedback blog-admin-feedback" id="adminProductFeedback" aria-live="polite"></div>
+                <div class="ap-form-actions blog-admin-actions">
+                  <button class="ap-btn ap-btn-primary" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span id="adminProductSubmitLabel">Salvar produto</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- List -->
+          <div class="ap-list-panel">
+            <div class="ap-search-wrap blog-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="adminProductSearch" type="search" placeholder="Buscar produto..." autocomplete="off" />
+            </div>
+            <div class="admin-list" id="adminProductList"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── Banners ─── -->
+      <section data-admin-panel="banners" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Banners</h2>
+            <p>Slides do carrossel da página inicial. Apenas os publicados são exibidos, na ordem definida.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <button class="ap-btn ap-btn-primary" type="button" id="adminNewBanner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Novo banner
+            </button>
+          </div>
+        </div>
+
+        <div class="ap-products-layout">
+
+          <!-- Form -->
+          <div class="ap-card">
+            <div class="ap-card-head">
+              <h3>Dados do banner</h3>
+            </div>
+            <div class="ap-card-body">
+              <form id="adminBannerForm">
+                <input type="hidden" name="id" />
+                <input type="hidden" name="image" id="adminBannerImageUrl" />
+
+                <div class="ap-form-field" style="margin-bottom:16px;">
+                  <label>Imagem</label>
+                  <div class="banner-upload-area" id="bannerUploadArea">
+                    <img id="adminBannerPreview" src="" alt="" hidden />
+                    <div class="banner-upload-placeholder" id="bannerUploadPlaceholder">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#9EA6B4;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      <span>Clique para escolher uma imagem</span>
+                      <small>Recomendado: 1400 × 600 px · JPG, PNG ou WebP</small>
+                    </div>
+                    <input type="file" id="adminBannerFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                  </div>
+                </div>
+
+                <div class="ap-form-grid">
+                  <div class="ap-form-field full">
+                    <label for="bannerLabel">Rótulo / título</label>
+                    <input id="bannerLabel" name="label" placeholder="Ex: Linha Difly" required />
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="bannerAlt">Texto alternativo (acessibilidade)</label>
+                    <input id="bannerAlt" name="alt" placeholder="Difly Champion — Proteção completa para o gado" />
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="bannerLink">Link ao clicar</label>
+                    <input id="bannerLink" name="link" placeholder="produtos.html" required />
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="bannerStatus">Status</label>
+                    <select id="bannerStatus" name="status">
+                      <option value="published">Publicado</option>
+                      <option value="draft">Rascunho</option>
+                    </select>
+                  </div>
+                  <div class="ap-form-field">
+                    <label for="bannerOrder">Ordem</label>
+                    <input id="bannerOrder" name="order" type="number" min="1" value="1" />
+                  </div>
+                </div>
+
+                <div class="ap-feedback blog-admin-feedback" id="adminBannerFeedback" aria-live="polite"></div>
+                <div class="ap-form-actions blog-admin-actions">
+                  <button class="ap-btn ap-btn-primary" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span id="adminBannerSubmitLabel">Salvar banner</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- List -->
+          <div class="ap-list-panel">
+            <div class="admin-list" id="adminBannerList"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ─── Contatos ─── -->
+      <section data-admin-panel="leads" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Contatos</h2>
+            <p>Solicitações recebidas pelo site. Responda por e-mail ou marque como resolvido.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <button class="ap-btn ap-btn-ghost" type="button" id="adminExportLeads">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar CSV
+            </button>
+            <button class="ap-btn ap-btn-ghost" type="button" id="adminAddExampleLead">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Exemplo
+            </button>
+          </div>
+        </div>
+
+        <div class="ap-leads-toolbar">
+          <div class="ap-search-wrap" style="flex:1;max-width:320px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="adminLeadsSearch" type="search" placeholder="Buscar por nome, e-mail ou mensagem..." autocomplete="off" />
+          </div>
+          <select id="adminLeadsFilter" class="ap-leads-filter">
+            <option value="all">Todos</option>
+            <option value="open">Abertos</option>
+            <option value="done">Resolvidos</option>
+          </select>
+        </div>
+
+        <div class="admin-list" id="adminLeadsList"></div>
+      </section>
+
+      <!-- ─── Configurações ─── -->
+      <section data-admin-panel="settings" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Configurações</h2>
+            <p>Dados centrais usados para atendimento, contato e comunicação do site.</p>
+          </div>
+        </div>
+
+        <div class="ap-settings-card ap-card">
+          <div class="ap-card-head">
+            <h3>Informações de contato</h3>
+          </div>
+          <div class="ap-card-body">
+            <form id="adminSettingsForm">
+              <div class="ap-form-grid">
+                <div class="ap-form-field full">
+                  <label for="settingsPromo">Texto da faixa superior</label>
+                  <input id="settingsPromo" name="promoText" placeholder="FRETE GRÁTIS para pedidos acima de R$ 500" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="settingsPhone">Telefone</label>
+                  <input id="settingsPhone" name="phone" placeholder="0800 723 1616" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="settingsEmail">E-mail</label>
+                  <input id="settingsEmail" name="email" type="email" placeholder="contato@champion.ind.br" required />
+                </div>
+                <div class="ap-form-field full">
+                  <label for="settingsWhatsapp">WhatsApp (somente números com DDD e DDI)</label>
+                  <input id="settingsWhatsapp" name="whatsapp" placeholder="556240150742" required />
+                </div>
+              </div>
+              <div class="ap-feedback blog-admin-feedback" id="adminSettingsFeedback" aria-live="polite"></div>
+              <div class="ap-form-actions blog-admin-actions">
+                <button class="ap-btn ap-btn-primary" type="submit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Salvar configurações
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /ap-content -->
+  </div><!-- /ap-main -->
+</div><!-- /ap-shell -->
+
+<script>
+(function () {
+  var SESSION_KEY = 'champion-admin-session';
+  var ADMIN_EMAIL = 'admin@champion.com.br';
+  var ADMIN_PASSWORD = 'Champion@2026';
+
+  var loginEl = document.querySelector('[data-admin-login]');
+  var appEl   = document.querySelector('[data-admin-app]');
+
+  function showApp(email) {
+    if (loginEl) loginEl.hidden = true;
+    if (appEl)   appEl.removeAttribute('hidden');
+    var userEl = document.getElementById('adminUser');
+    var modeEl = document.getElementById('adminMode');
+    if (userEl) userEl.textContent = email || ADMIN_EMAIL;
+    if (modeEl) modeEl.textContent = 'Local';
+    /* Update avatar initial */
+    var avatar = document.querySelector('.ap-avatar');
+    if (avatar) avatar.textContent = (email || 'A')[0].toUpperCase();
+  }
+
+  function showLogin() {
+    if (loginEl) loginEl.removeAttribute('hidden');
+    if (appEl)   appEl.hidden = true;
+  }
+
+  function getSession() {
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch (e) { return null; }
+  }
+
+  function setSession(email) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ user: email, loggedAt: new Date().toISOString() }));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+  }
+
+  var session = getSession();
+  if (session && session.loggedAt) {
+    showApp(session.user);
+  }
+
+  var loginForm = document.getElementById('adminLoginForm');
+  var loginFeedback = document.getElementById('adminLoginFeedback');
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var emailInput    = document.getElementById('adminLoginEmail');
+      var passwordInput = document.getElementById('adminLoginPassword');
+      var email    = emailInput    ? emailInput.value.trim().toLowerCase()    : '';
+      var password = passwordInput ? passwordInput.value.trim() : '';
+      console.log('[login] email:', email, '| password:', password);
+      if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+        if (loginFeedback) {
+          loginFeedback.textContent = 'E-mail ou senha incorretos.';
+          loginFeedback.style.display = 'block';
+        }
+        return;
+      }
+      if (loginFeedback) loginFeedback.textContent = '';
+      setSession(email);
+      showApp(email);
+    });
+  }
+
+  var logoutBtn = document.getElementById('adminLogout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      clearSession(); /* admin.js handles Firebase signOut + redirect */
+    });
+  }
+
+  /* Quick-access tab buttons on dashboard */
+  document.querySelectorAll('[data-admin-tab]').forEach(function(btn) {
+    if (!btn.closest('.admin-nav') && !btn.closest('.ap-nav')) {
+      btn.addEventListener('click', function() {
+        var tab = btn.getAttribute('data-admin-tab');
+        document.querySelectorAll('.ap-nav button[data-admin-tab]').forEach(function(n) {
+          n.classList.toggle('is-active', n.getAttribute('data-admin-tab') === tab);
+        });
+        document.querySelectorAll('[data-admin-panel]').forEach(function(p) {
+          p.hidden = p.getAttribute('data-admin-panel') !== tab;
+        });
+      });
+    }
+  });
+})();
+</script>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
