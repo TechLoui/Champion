@@ -4332,6 +4332,34 @@ p { margin: 0; }
 .blog-article-content a:hover { color: var(--orange-deep); }
 .blog-article-content strong { color: var(--ink); font-weight: 700; }
 
+/* ── Imagem secundária (capítulo adicional) ── */
+.blog-secondary-image {
+  margin: 32px 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #F4F5F8;
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+}
+.blog-secondary-image img {
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  object-fit: cover;
+  display: block;
+}
+.blog-secondary-image figcaption {
+  padding: 14px 22px;
+  font-size: 14px;
+  color: var(--steel);
+  font-style: italic;
+  text-align: center;
+  background: white;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 720px) {
+  .blog-secondary-image img { aspect-ratio: 16 / 9; }
+}
+
 /* ── Template: Galeria ── */
 .blog-gallery {
   display: grid;

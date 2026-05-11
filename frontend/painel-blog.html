@@ -394,6 +394,548 @@
       align-items: center;
     }
 
+    /* ════════════════════════════════════════════════════════════
+       POSTS · List view (cards) + Editor split-view
+       ════════════════════════════════════════════════════════════ */
+
+    /* List view: grid de cards */
+    .bp-posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .bp-post-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform .18s, box-shadow .18s, border-color .18s;
+      display: flex;
+      flex-direction: column;
+    }
+    .bp-post-card:hover {
+      border-color: #EC4815;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.07);
+    }
+    .bp-post-card-img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg,#F9FAFB,#F0F2F6);
+      overflow: hidden;
+      position: relative;
+    }
+    .bp-post-card-img img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .25s;
+    }
+    .bp-post-card:hover .bp-post-card-img img { transform: scale(1.04); }
+    .bp-post-card-img .pill {
+      position: absolute;
+      top: 10px; left: 10px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(255,255,255,0.95);
+      color: #1A7A48;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .bp-post-card-img .pill.is-draft { color: #B45309; }
+    .bp-post-card-img .tpl-badge {
+      position: absolute;
+      top: 10px; right: 10px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(13,17,23,0.85);
+      color: white;
+      backdrop-filter: blur(6px);
+    }
+    .bp-post-card-body {
+      padding: 14px 18px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .bp-post-card-body h4 {
+      font-family: 'Sora',sans-serif;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #15191F;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .bp-post-card-body .meta {
+      font-size: 11.5px;
+      color: #9EA6B4;
+      font-weight: 500;
+    }
+    .bp-post-card-body .excerpt {
+      font-size: 12.5px;
+      color: #687080;
+      line-height: 1.5;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .bp-post-card-actions {
+      padding: 10px 14px;
+      border-top: 1px solid #F0F2F6;
+      display: flex;
+      gap: 6px;
+      background: #FAFBFC;
+    }
+    .bp-icon-btn {
+      flex: 1;
+      padding: 8px 6px;
+      background: white;
+      border: 1px solid #E4E8EF;
+      border-radius: 7px;
+      color: #687080;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    .bp-icon-btn svg { width: 14px; height: 14px; }
+    .bp-icon-btn:hover { background: #F4F5F8; border-color: #D4D8E2; color: #15191F; }
+    .bp-icon-btn.primary { color: #EC4815; border-color: #FAD0C6; background: #FFF5F1; }
+    .bp-icon-btn.primary:hover { background: #FFEAE0; }
+    .bp-icon-btn.danger { color: #C13808; border-color: #FAD0C6; background: #FFF5F3; }
+    .bp-icon-btn.danger:hover { background: #FCDDD8; }
+
+    /* Editor: split-view (form + preview) */
+    .bp-editor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+      margin-top: 0;
+    }
+    @media (max-width: 1200px) { .bp-editor { grid-template-columns: 1fr; } }
+
+    .bp-editor-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .bp-editor-header h2 {
+      font-family: 'Sora',sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #15191F;
+    }
+    .bp-editor-header .editor-back {
+      background: white;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 9px;
+      padding: 8px 14px;
+      color: #687080;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bp-editor-header .editor-back:hover { background: #F4F5F8; color: #15191F; }
+    .bp-editor-header-spacer { flex: 1; }
+
+    /* Banner upload area com aspect ratio fixo 16:9 */
+    .bp-hero-upload {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #F9FAFB;
+      border: 2px dashed #E4E8EF;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: border-color .18s, background .18s;
+    }
+    .bp-hero-upload:hover, .bp-hero-upload.is-dragging {
+      border-color: #EC4815;
+      background: #FFF9F7;
+    }
+    .bp-hero-upload img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .bp-hero-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 24px;
+      text-align: center;
+      pointer-events: none;
+    }
+    .bp-hero-placeholder svg { width: 36px; height: 36px; color: #9EA6B4; }
+    .bp-hero-placeholder strong { font-size: 14px; color: #15191F; font-weight: 700; }
+    .bp-hero-placeholder small { font-size: 12px; color: #9EA6B4; }
+    .bp-hero-upload.has-image .bp-hero-placeholder { display: none; }
+    .bp-hero-actions {
+      position: absolute;
+      top: 10px; right: 10px;
+      display: flex;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity .15s;
+    }
+    .bp-hero-upload:hover .bp-hero-actions,
+    .bp-hero-upload.has-image .bp-hero-actions { opacity: 1; }
+    .bp-hero-action {
+      background: rgba(13,17,23,0.85);
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .bp-hero-action:hover { background: rgba(13,17,23,0.95); }
+    .bp-hero-action.danger { background: rgba(193,56,8,0.9); }
+    .bp-hero-progress {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: rgba(0,0,0,0.08);
+    }
+    .bp-hero-progress::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 30%;
+      background: linear-gradient(90deg,#FF6A33,#EC4815);
+      animation: bp-progress 1.2s linear infinite;
+    }
+    @keyframes bp-progress {
+      0% { width: 10%; margin-left: -10%; }
+      100% { width: 100%; margin-left: 100%; }
+    }
+
+    /* Secondary image (capítulo adicional) */
+    .bp-secondary-upload {
+      width: 100%;
+      aspect-ratio: 21 / 9;
+      background: #F9FAFB;
+      border: 2px dashed #E4E8EF;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .bp-secondary-upload:hover { border-color: #EC4815; background: #FFF9F7; }
+    .bp-secondary-upload img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bp-secondary-upload.has-image .bp-hero-placeholder { display: none; }
+
+    /* Preview pane */
+    .bp-preview-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+      position: sticky;
+      top: 16px;
+    }
+    .bp-preview-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid #E5E8EF;
+      background: #FAFBFC;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .bp-preview-head h3 {
+      font-family: 'Sora',sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #15191F;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bp-preview-head h3::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #1A9B5F;
+      box-shadow: 0 0 0 3px rgba(26,155,95,0.15);
+    }
+    .bp-preview-template-switch {
+      display: flex;
+      gap: 2px;
+      background: #F4F5F8;
+      border-radius: 7px;
+      padding: 2px;
+    }
+    .bp-preview-template-switch button {
+      border: none;
+      background: transparent;
+      padding: 5px 10px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      color: #687080;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .bp-preview-template-switch button.is-active {
+      background: white;
+      color: #15191F;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+
+    .bp-preview-body {
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+      padding: 0;
+    }
+
+    /* Preview content (mimics blog.html style) */
+    .bp-prev {
+      padding: 0;
+    }
+    .bp-prev-hero {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: linear-gradient(135deg,#F9FAFB,#F0F2F6);
+      overflow: hidden;
+    }
+    .bp-prev-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .bp-prev-hero.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #B0B8C6;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .bp-prev-body { padding: 24px 28px 28px; }
+    .bp-prev-kicker {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #EC4815;
+      margin-bottom: 8px;
+    }
+    .bp-prev-title {
+      font-family: 'Sora',sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #15191F;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .bp-prev-meta {
+      font-size: 12px;
+      color: #9EA6B4;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .bp-prev-excerpt {
+      font-size: 14.5px;
+      color: #687080;
+      font-style: italic;
+      margin-bottom: 18px;
+      padding-left: 14px;
+      border-left: 3px solid #EC4815;
+    }
+    .bp-prev-content {
+      font-size: 14.5px;
+      line-height: 1.75;
+      color: #2B2F36;
+    }
+    .bp-prev-content p { margin-bottom: 14px; }
+    .bp-prev-secondary {
+      margin: 22px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #F4F5F8;
+    }
+    .bp-prev-secondary img { width: 100%; display: block; }
+    .bp-prev-secondary figcaption {
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: #687080;
+      font-style: italic;
+      text-align: center;
+      background: white;
+    }
+    .bp-prev-gallery {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .bp-prev-gallery figure {
+      margin: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #F4F5F8;
+    }
+    .bp-prev-gallery img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+    .bp-prev-gallery figcaption {
+      padding: 6px 10px;
+      font-size: 11.5px;
+      color: #687080;
+      font-style: italic;
+      text-align: center;
+      background: white;
+    }
+    .bp-prev-steps {
+      list-style: none;
+      padding: 0;
+      margin: 18px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .bp-prev-step {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      background: #FAFBFC;
+      border: 1px solid #E5E8EF;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .bp-prev-step-num {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#FF6A33,#EC4815);
+      color: white;
+      font-family: 'Sora',sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .bp-prev-step h4 {
+      font-family: 'Sora',sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .bp-prev-step img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 7px;
+      margin: 6px 0;
+    }
+    .bp-prev-step p { font-size: 13px; color: #687080; line-height: 1.55; }
+
+    .bp-prev-empty {
+      padding: 60px 24px;
+      text-align: center;
+      color: #9EA6B4;
+      font-size: 13px;
+    }
+    .bp-prev-empty strong { display: block; color: #15191F; font-size: 15px; margin-bottom: 6px; }
+
+    /* Status bar at bottom of editor */
+    .bp-editor-status {
+      grid-column: 1 / -1;
+      margin-top: 10px;
+      padding: 12px 18px;
+      background: #FAFBFC;
+      border: 1px solid #E5E8EF;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12.5px;
+      color: #687080;
+    }
+    .bp-editor-status strong { color: #15191F; font-weight: 700; }
+
+    /* Sections (collapsible) */
+    .bp-section {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .bp-section-head {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      transition: background .12s;
+    }
+    .bp-section-head:hover { background: #FAFBFC; }
+    .bp-section-head h4 {
+      font-family: 'Sora',sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #15191F;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bp-section-head .bp-section-icon {
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      background: #FFF0EB;
+      color: #EC4815;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .bp-section-head .bp-section-icon svg { width: 15px; height: 15px; }
+    .bp-section-head .chev {
+      width: 14px; height: 14px;
+      color: #9EA6B4;
+      transition: transform .2s;
+    }
+    .bp-section.is-collapsed .bp-section-body { display: none; }
+    .bp-section.is-collapsed .chev { transform: rotate(-90deg); }
+    .bp-section-body {
+      padding: 0 18px 18px;
+      border-top: 1px solid #F0F2F6;
+      padding-top: 18px;
+    }
+
     /* ─── Template chooser ─── */
     .bp-templates {
       display: grid;
@@ -688,134 +1230,272 @@
       <!-- ─── Posts panel ─── -->
       <section data-blog-panel="posts" class="is-active">
 
-        <div class="bp-section-head">
-          <div>
-            <h2>Posts</h2>
-            <p>Crie novos artigos, mantenha rascunhos e publique conteúdos no blog.</p>
+        <!-- ── VIEW: LIST (default) ── -->
+        <div data-blog-view="list">
+          <div class="bp-section-head">
+            <div>
+              <h2>Posts do blog</h2>
+              <p>Crie novos artigos, edite rascunhos e publique conteúdos. Clique em um post para abrir o editor.</p>
+            </div>
+            <div class="bp-section-head-actions">
+              <button class="bp-btn bp-btn-ghost" type="button" id="blogSeedDefaults">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+                Restaurar padrão
+              </button>
+              <button class="bp-btn bp-btn-primary" type="button" id="blogNewPost">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Novo post
+              </button>
+            </div>
           </div>
-          <div class="bp-section-head-actions">
-            <button class="bp-btn bp-btn-ghost" type="button" id="blogSeedDefaults">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-              Restaurar padrão
-            </button>
-            <button class="bp-btn bp-btn-primary" type="button" id="blogNewPost">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Novo post
-            </button>
-          </div>
+
+          <div id="blogAdminPostList" class="bp-posts-grid"></div>
         </div>
 
-        <div class="bp-posts-layout">
-
-          <!-- Form card -->
-          <div class="bp-card">
-            <div class="bp-card-head">
-              <h3>Dados do post</h3>
-            </div>
-            <div class="bp-card-body">
-              <form id="blogPostForm">
-                <input type="hidden" name="id" />
-                <input type="hidden" name="template" id="blogPostTemplate" value="standard" />
-
-                <!-- Template chooser -->
-                <label style="font-size:12px;font-weight:600;color:#15191F;display:block;margin-bottom:8px">Modelo do artigo</label>
-                <div class="bp-templates" role="radiogroup" aria-label="Modelo do artigo">
-                  <div class="bp-template is-active" data-template="standard" tabindex="0" role="radio" aria-checked="true">
-                    <div class="bp-template-icon">📄</div>
-                    <div>
-                      <h4>Padrão</h4>
-                      <p>Artigo informativo simples — capa + texto corrido.</p>
-                    </div>
-                  </div>
-                  <div class="bp-template" data-template="gallery" tabindex="0" role="radio" aria-checked="false">
-                    <div class="bp-template-icon">🖼️</div>
-                    <div>
-                      <h4>Galeria</h4>
-                      <p>Capa + grade de fotos com legendas + texto.</p>
-                    </div>
-                  </div>
-                  <div class="bp-template" data-template="tutorial" tabindex="0" role="radio" aria-checked="false">
-                    <div class="bp-template-icon">📋</div>
-                    <div>
-                      <h4>Tutorial</h4>
-                      <p>Capa + passos numerados, cada um com foto e descrição.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="bp-form-grid">
-                  <div class="bp-form-field full">
-                    <label for="blogPostTitle">Título</label>
-                    <input id="blogPostTitle" name="title" placeholder="Título do artigo" required />
-                  </div>
-                  <div class="bp-form-field">
-                    <label for="blogPostSlug">URL amigável</label>
-                    <input id="blogPostSlug" name="slug" placeholder="url-do-artigo" required />
-                  </div>
-                  <div class="bp-form-field">
-                    <label for="blogPostCategory">Categoria</label>
-                    <input id="blogPostCategory" name="category" placeholder="Manejo, Nutrição..." required />
-                  </div>
-                  <div class="bp-form-field">
-                    <label for="blogPostAuthor">Autor</label>
-                    <input id="blogPostAuthor" name="author" required />
-                  </div>
-                  <div class="bp-form-field">
-                    <label for="blogPostDate">Data</label>
-                    <input id="blogPostDate" name="date" type="date" required />
-                  </div>
-                  <div class="bp-form-field full">
-                    <label for="blogPostImage">Imagem de capa</label>
-                    <input id="blogPostImage" name="image" placeholder="assets/img/about/pecuarista.jpg ou URL" required />
-                  </div>
-                  <div class="bp-form-field">
-                    <label for="blogPostStatus">Status</label>
-                    <select id="blogPostStatus" name="status">
-                      <option value="published">Publicado</option>
-                      <option value="draft">Rascunho</option>
-                    </select>
-                  </div>
-                  <div class="bp-form-field full">
-                    <label for="blogPostExcerpt">Resumo</label>
-                    <textarea id="blogPostExcerpt" name="excerpt" required></textarea>
-                  </div>
-
-                  <!-- Standard / Gallery: content textarea -->
-                  <div class="bp-form-field full" data-show-for="standard,gallery">
-                    <label for="blogPostContent">Conteúdo (texto principal)</label>
-                    <textarea id="blogPostContent" name="content" class="tall" placeholder="Texto do artigo. Você pode separar parágrafos com linhas em branco."></textarea>
-                  </div>
-
-                  <!-- Gallery: image rows -->
-                  <div class="bp-form-field full" data-show-for="gallery" hidden>
-                    <label>Galeria de fotos</label>
-                    <div class="bp-rows" id="blogGalleryRows"></div>
-                    <button type="button" class="bp-add-btn" id="blogGalleryAdd" style="margin-top:8px">+ Adicionar foto</button>
-                  </div>
-
-                  <!-- Tutorial: steps rows -->
-                  <div class="bp-form-field full" data-show-for="tutorial" hidden>
-                    <label>Passos do tutorial</label>
-                    <div class="bp-rows" id="blogStepsRows"></div>
-                    <button type="button" class="bp-add-btn" id="blogStepsAdd" style="margin-top:8px">+ Adicionar passo</button>
-                  </div>
-                </div>
-                <div class="blog-admin-feedback" id="blogPostFeedback" aria-live="polite"></div>
-                <div class="bp-form-actions">
-                  <button class="bp-btn bp-btn-primary" type="submit">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <span id="blogPostSubmitLabel">Publicar post</span>
-                  </button>
-                </div>
-              </form>
-            </div>
+        <!-- ── VIEW: EDITOR (criar/editar) ── -->
+        <div data-blog-view="editor" hidden>
+          <div class="bp-editor-header">
+            <button type="button" class="editor-back" id="blogEditorBack">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Voltar
+            </button>
+            <h2 id="blogEditorTitle">Novo post</h2>
+            <span class="bp-editor-header-spacer"></span>
+            <button class="bp-btn bp-btn-outline" type="button" id="blogPreviewToggle">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span id="blogPreviewToggleLabel">Ocultar prévia</span>
+            </button>
+            <button class="bp-btn bp-btn-primary" type="submit" form="blogPostForm" id="blogPostSubmitBtn">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span id="blogPostSubmitLabel">Publicar</span>
+            </button>
           </div>
 
-          <!-- List panel -->
-          <div>
-            <div id="blogAdminPostList"></div>
-          </div>
+          <div class="bp-editor" id="blogEditor">
 
+            <!-- Form (esquerda) -->
+            <form id="blogPostForm">
+              <input type="hidden" name="id" />
+              <input type="hidden" name="template" id="blogPostTemplate" value="standard" />
+              <input type="hidden" name="image" id="blogPostImage" />
+              <input type="hidden" name="secondaryImage" id="blogPostSecondaryImage" />
+
+              <!-- Section 1: Modelo -->
+              <div class="bp-section">
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    </span>
+                    Modelo do artigo
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-templates" role="radiogroup">
+                    <div class="bp-template is-active" data-template="standard" tabindex="0" role="radio" aria-checked="true">
+                      <div class="bp-template-icon">📄</div>
+                      <div><h4>Padrão</h4><p>Capa + texto corrido. Para notícias e artigos informativos.</p></div>
+                    </div>
+                    <div class="bp-template" data-template="gallery" tabindex="0" role="radio" aria-checked="false">
+                      <div class="bp-template-icon">🖼️</div>
+                      <div><h4>Galeria</h4><p>Capa + grade de fotos com legendas + texto.</p></div>
+                    </div>
+                    <div class="bp-template" data-template="tutorial" tabindex="0" role="radio" aria-checked="false">
+                      <div class="bp-template-icon">📋</div>
+                      <div><h4>Tutorial</h4><p>Capa + passos numerados, cada um com foto e descrição.</p></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2: Banner / capa -->
+              <div class="bp-section">
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </span>
+                    Imagem de capa
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-hero-upload" id="blogHeroUpload" data-upload-target="image">
+                    <img id="blogHeroPreview" src="" alt="" hidden />
+                    <div class="bp-hero-placeholder">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      <strong>Clique ou arraste uma imagem aqui</strong>
+                      <small>Proporção 16:9 · ideal 1600 × 900 px · JPG, PNG ou WebP até 4 MB</small>
+                    </div>
+                    <div class="bp-hero-actions">
+                      <button type="button" class="bp-hero-action" data-replace-image>Trocar</button>
+                      <button type="button" class="bp-hero-action danger" data-remove-image>Remover</button>
+                    </div>
+                    <input type="file" id="blogHeroFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                  </div>
+                  <small style="display:block;margin-top:8px;color:#9EA6B4;font-size:11.5px" id="blogHeroInfo">A imagem é exibida em 16:9 no topo do artigo. Qualquer corte é feito automaticamente.</small>
+                </div>
+              </div>
+
+              <!-- Section 3: Informações básicas -->
+              <div class="bp-section">
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="14" y2="18"/></svg>
+                    </span>
+                    Informações
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-form-grid">
+                    <div class="bp-form-field full">
+                      <label for="blogPostTitle">Título</label>
+                      <input id="blogPostTitle" name="title" placeholder="Título do artigo" required />
+                    </div>
+                    <div class="bp-form-field">
+                      <label for="blogPostSlug">URL amigável</label>
+                      <input id="blogPostSlug" name="slug" placeholder="url-do-artigo" required />
+                    </div>
+                    <div class="bp-form-field">
+                      <label for="blogPostCategory">Categoria</label>
+                      <input id="blogPostCategory" name="category" placeholder="Manejo, Nutrição..." required />
+                    </div>
+                    <div class="bp-form-field">
+                      <label for="blogPostAuthor">Autor</label>
+                      <input id="blogPostAuthor" name="author" required />
+                    </div>
+                    <div class="bp-form-field">
+                      <label for="blogPostDate">Data</label>
+                      <input id="blogPostDate" name="date" type="date" required />
+                    </div>
+                    <div class="bp-form-field">
+                      <label for="blogPostStatus">Status</label>
+                      <select id="blogPostStatus" name="status">
+                        <option value="published">Publicado</option>
+                        <option value="draft">Rascunho</option>
+                      </select>
+                    </div>
+                    <div class="bp-form-field full">
+                      <label for="blogPostExcerpt">Resumo</label>
+                      <textarea id="blogPostExcerpt" name="excerpt" placeholder="Frase de impacto que aparece como prévia no listing" required></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 4: Conteúdo principal -->
+              <div class="bp-section" data-show-for="standard,gallery,tutorial">
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                    </span>
+                    Texto do artigo
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-form-field full">
+                    <textarea id="blogPostContent" name="content" class="tall" rows="8" placeholder="Escreva o conteúdo. Separe parágrafos com linhas em branco. Você pode usar HTML básico (h2, h3, strong, em, ul, blockquote)."></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 5: Imagem secundária (capítulo adicional) -->
+              <div class="bp-section">
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 17l5-5 4 4 6-6"/><circle cx="8" cy="9" r="1.5"/></svg>
+                    </span>
+                    Imagem do capítulo adicional <span style="font-size:11px;color:#9EA6B4;font-weight:500;margin-left:6px">opcional</span>
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-secondary-upload" id="blogSecondaryUpload" data-upload-target="secondaryImage">
+                    <img id="blogSecondaryPreview" src="" alt="" hidden />
+                    <div class="bp-hero-placeholder">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      <strong>Imagem complementar</strong>
+                      <small>Exibida entre o resumo e o texto principal · proporção 21:9</small>
+                    </div>
+                    <div class="bp-hero-actions">
+                      <button type="button" class="bp-hero-action" data-replace-image>Trocar</button>
+                      <button type="button" class="bp-hero-action danger" data-remove-image>Remover</button>
+                    </div>
+                    <input type="file" id="blogSecondaryFile" accept="image/jpeg,image/png,image/webp" style="display:none" />
+                  </div>
+                  <div class="bp-form-field full" style="margin-top:10px">
+                    <label for="blogPostSecondaryCaption">Legenda da imagem (opcional)</label>
+                    <input id="blogPostSecondaryCaption" name="secondaryCaption" placeholder="Ex.: Aplicação no cocho em manejo de inverno" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 6: Galeria (template gallery) -->
+              <div class="bp-section" data-show-for="gallery" hidden>
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                    </span>
+                    Galeria de fotos
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-rows" id="blogGalleryRows"></div>
+                  <button type="button" class="bp-add-btn" id="blogGalleryAdd" style="margin-top:10px">+ Adicionar foto</button>
+                </div>
+              </div>
+
+              <!-- Section 7: Passos (template tutorial) -->
+              <div class="bp-section" data-show-for="tutorial" hidden>
+                <div class="bp-section-head">
+                  <h4>
+                    <span class="bp-section-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    </span>
+                    Passos do tutorial
+                  </h4>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="bp-section-body">
+                  <div class="bp-rows" id="blogStepsRows"></div>
+                  <button type="button" class="bp-add-btn" id="blogStepsAdd" style="margin-top:10px">+ Adicionar passo</button>
+                </div>
+              </div>
+
+              <div class="blog-admin-feedback" id="blogPostFeedback" aria-live="polite"></div>
+            </form>
+
+            <!-- Preview (direita) -->
+            <div class="bp-preview-card" id="blogPreviewCard">
+              <div class="bp-preview-head">
+                <h3>Prévia em tempo real</h3>
+                <div class="bp-preview-template-switch" id="blogPreviewSwitch">
+                  <button type="button" data-prev-tpl="standard" class="is-active">Padrão</button>
+                  <button type="button" data-prev-tpl="gallery">Galeria</button>
+                  <button type="button" data-prev-tpl="tutorial">Tutorial</button>
+                </div>
+              </div>
+              <div class="bp-preview-body" id="blogPreviewBody">
+                <div class="bp-prev-empty">
+                  <strong>Comece preenchendo o título</strong>
+                  A prévia aparece aqui automaticamente.
+                </div>
+              </div>
+            </div>
+
+            <div class="bp-editor-status">
+              <span><strong id="blogEditorWords">0</strong> palavras · <strong id="blogEditorReading">0 min</strong> de leitura</span>
+              <span id="blogEditorAutoSave" style="color:#9EA6B4">Pressione <strong>Ctrl + S</strong> ou clique em Publicar pra salvar</span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1018,6 +1698,369 @@
       renumberRows('[data-step-row]', 'Passo');
     }
   });
+
+  /* ── View switching: lista ↔ editor ─────────────────────────── */
+  function showBlogView(view) {
+    document.querySelectorAll('[data-blog-view]').forEach(function (el) {
+      el.hidden = el.getAttribute('data-blog-view') !== view;
+    });
+    window.__blogView = view;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  document.getElementById('blogNewPost')?.addEventListener('click', function () {
+    /* reset form */
+    var form = document.getElementById('blogPostForm');
+    if (form) form.reset();
+    document.getElementById('blogPostTitle').value = '';
+    document.getElementById('blogPostImage').value = '';
+    document.getElementById('blogPostSecondaryImage').value = '';
+    setHeroImage('', 'blogHeroPreview', 'blogHeroUpload');
+    setHeroImage('', 'blogSecondaryPreview', 'blogSecondaryUpload');
+    document.getElementById('blogGalleryRows').innerHTML = '';
+    document.getElementById('blogStepsRows').innerHTML = '';
+    applyTemplateUI('standard');
+    document.getElementById('blogEditorTitle').textContent = 'Novo post';
+    document.getElementById('blogPostSubmitLabel').textContent = 'Publicar';
+    var dateInput = document.getElementById('blogPostDate');
+    if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+    var authorInput = document.getElementById('blogPostAuthor');
+    if (authorInput && !authorInput.value) authorInput.value = 'Equipe Champion';
+    showBlogView('editor');
+    setTimeout(updatePreview, 30);
+  });
+  document.getElementById('blogEditorBack')?.addEventListener('click', function () {
+    showBlogView('list');
+  });
+
+  /* ── Section collapse ──────────────────────────────────────── */
+  document.querySelectorAll('.bp-section .bp-section-head').forEach(function (head) {
+    head.addEventListener('click', function (e) {
+      /* não colapsa se clicou em algo interativo dentro do head */
+      if (e.target.closest('button, input, select, a, .bp-template')) return;
+      head.parentElement.classList.toggle('is-collapsed');
+    });
+  });
+
+  /* ── File upload (hero + secondary) ────────────────────────── */
+  function setHeroImage(url, previewId, wrapId) {
+    var img = document.getElementById(previewId);
+    var wrap = document.getElementById(wrapId);
+    if (!img || !wrap) return;
+    if (url) {
+      img.src = url;
+      img.hidden = false;
+      wrap.classList.add('has-image');
+    } else {
+      img.src = '';
+      img.hidden = true;
+      wrap.classList.remove('has-image');
+    }
+  }
+
+  async function uploadAndApply(file, target) {
+    var previewId = target === 'image' ? 'blogHeroPreview' : 'blogSecondaryPreview';
+    var wrapId = target === 'image' ? 'blogHeroUpload' : 'blogSecondaryUpload';
+    var hiddenId = target === 'image' ? 'blogPostImage' : 'blogPostSecondaryImage';
+    var infoId = target === 'image' ? 'blogHeroInfo' : null;
+    var wrap = document.getElementById(wrapId);
+
+    /* Show local preview first (base64) for fast feedback */
+    var reader = new FileReader();
+    reader.onload = function () {
+      setHeroImage(reader.result, previewId, wrapId);
+      document.getElementById(hiddenId).value = reader.result;
+      updatePreview();
+    };
+    reader.readAsDataURL(file);
+
+    /* Show progress bar */
+    if (wrap) {
+      var prog = document.createElement('div');
+      prog.className = 'bp-hero-progress';
+      wrap.appendChild(prog);
+    }
+
+    /* Try to upload to Firebase Storage via ChampionAdminAuth's store (if module loaded blog store).
+       Fallback: keep base64 (works locally, large but functional). */
+    try {
+      if (window.ChampionBlogStore && typeof window.ChampionBlogStore.uploadImage === 'function') {
+        var url = await window.ChampionBlogStore.uploadImage(file, 'blog');
+        setHeroImage(url, previewId, wrapId);
+        document.getElementById(hiddenId).value = url;
+        if (infoId) document.getElementById(infoId).innerHTML = '<span style="color:#1A9B5F;font-weight:600">✓ Salvo no Storage</span> · Proporção 16:9 aplicada automaticamente.';
+      } else {
+        if (infoId) document.getElementById(infoId).innerHTML = '<span style="color:#D97706;font-weight:600">⚠</span> Imagem mantida localmente (base64). No Firebase, será enviada ao Storage automaticamente.';
+      }
+    } catch (err) {
+      console.warn('Upload falhou:', err.message);
+      if (infoId) document.getElementById(infoId).innerHTML = '<span style="color:#C13808;font-weight:600">Erro no upload:</span> ' + err.message + ' · usando preview local.';
+    } finally {
+      if (wrap) {
+        var p = wrap.querySelector('.bp-hero-progress');
+        if (p) p.remove();
+      }
+    }
+    updatePreview();
+  }
+
+  function wireUploadArea(wrapId, fileInputId) {
+    var wrap = document.getElementById(wrapId);
+    var fileInput = document.getElementById(fileInputId);
+    if (!wrap || !fileInput) return;
+    var target = wrap.getAttribute('data-upload-target');
+
+    /* Click area → open file picker (except on action buttons) */
+    wrap.addEventListener('click', function (e) {
+      if (e.target.closest('.bp-hero-action')) return;
+      fileInput.click();
+    });
+
+    /* File chosen */
+    fileInput.addEventListener('change', function () {
+      var f = fileInput.files && fileInput.files[0];
+      if (!f) return;
+      if (f.size > 4 * 1024 * 1024) {
+        alert('Imagem muito grande. Máximo 4 MB.');
+        fileInput.value = '';
+        return;
+      }
+      uploadAndApply(f, target);
+      fileInput.value = '';
+    });
+
+    /* Drag and drop */
+    ['dragenter', 'dragover'].forEach(function (ev) {
+      wrap.addEventListener(ev, function (e) { e.preventDefault(); wrap.classList.add('is-dragging'); });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+      wrap.addEventListener(ev, function (e) { e.preventDefault(); wrap.classList.remove('is-dragging'); });
+    });
+    wrap.addEventListener('drop', function (e) {
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f && f.type.match(/^image\//)) {
+        if (f.size > 4 * 1024 * 1024) { alert('Imagem muito grande. Máximo 4 MB.'); return; }
+        uploadAndApply(f, target);
+      }
+    });
+
+    /* Replace + remove buttons */
+    wrap.querySelector('[data-replace-image]')?.addEventListener('click', function (e) {
+      e.stopPropagation();
+      fileInput.click();
+    });
+    wrap.querySelector('[data-remove-image]')?.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var hiddenId = target === 'image' ? 'blogPostImage' : 'blogPostSecondaryImage';
+      var previewId = target === 'image' ? 'blogHeroPreview' : 'blogSecondaryPreview';
+      document.getElementById(hiddenId).value = '';
+      setHeroImage('', previewId, wrapId);
+      updatePreview();
+    });
+  }
+  wireUploadArea('blogHeroUpload', 'blogHeroFile');
+  wireUploadArea('blogSecondaryUpload', 'blogSecondaryFile');
+
+  /* ── Live preview ──────────────────────────────────────────── */
+  var previewTemplateOverride = null;
+  function getCurrentTemplate() {
+    return previewTemplateOverride || (document.getElementById('blogPostTemplate') || {}).value || 'standard';
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  function renderContent(text) {
+    var safe = esc(text || '');
+    var paragraphs = safe.split(/\n\s*\n/).map(function (p) {
+      return p.trim() ? '<p>' + p.replace(/\n/g, '<br>') + '</p>' : '';
+    }).filter(Boolean);
+    return paragraphs.join('');
+  }
+
+  function updatePreview() {
+    var body = document.getElementById('blogPreviewBody');
+    if (!body) return;
+    var title = document.getElementById('blogPostTitle').value;
+    var category = document.getElementById('blogPostCategory').value;
+    var author = document.getElementById('blogPostAuthor').value;
+    var date = document.getElementById('blogPostDate').value;
+    var excerpt = document.getElementById('blogPostExcerpt').value;
+    var content = document.getElementById('blogPostContent').value;
+    var hero = document.getElementById('blogPostImage').value;
+    var secondary = document.getElementById('blogPostSecondaryImage').value;
+    var secondaryCaption = document.getElementById('blogPostSecondaryCaption').value;
+    var tpl = getCurrentTemplate();
+
+    if (!title && !excerpt && !content && !hero) {
+      body.innerHTML = '<div class="bp-prev-empty"><strong>Comece preenchendo o título</strong>A prévia aparece aqui automaticamente.</div>';
+      updateWordCount(content);
+      return;
+    }
+
+    var dateStr = date ? new Date(date + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '';
+    var words = String(content || '').trim().split(/\s+/).filter(Boolean).length;
+    var reading = Math.max(1, Math.ceil(words / 180));
+
+    var html = '<div class="bp-prev">';
+    html += '<div class="bp-prev-hero' + (hero ? '' : ' empty') + '">';
+    html += hero ? '<img src="' + esc(hero) + '" alt="" />' : 'Adicione uma imagem de capa';
+    html += '</div>';
+    html += '<div class="bp-prev-body">';
+    html += category ? '<div class="bp-prev-kicker">' + esc(category) + '</div>' : '';
+    html += '<div class="bp-prev-title">' + esc(title || 'Título do artigo') + '</div>';
+    html += '<div class="bp-prev-meta">';
+    html += dateStr ? '<span>' + dateStr + '</span>' : '';
+    html += author ? '<span>· ' + esc(author) + '</span>' : '';
+    html += '<span>· ' + reading + ' min de leitura</span>';
+    html += '</div>';
+    html += excerpt ? '<div class="bp-prev-excerpt">' + esc(excerpt) + '</div>' : '';
+    html += '<div class="bp-prev-content">' + renderContent(content) + '</div>';
+
+    /* Imagem secundária (capítulo adicional) — aparece após o excerpt e antes do conteúdo principal */
+    if (secondary) {
+      html += '<figure class="bp-prev-secondary"><img src="' + esc(secondary) + '" alt="" />';
+      if (secondaryCaption) html += '<figcaption>' + esc(secondaryCaption) + '</figcaption>';
+      html += '</figure>';
+    }
+
+    /* Gallery */
+    if (tpl === 'gallery') {
+      var items = window.ChampionBlogTemplates ? window.ChampionBlogTemplates.collectGallery() : [];
+      if (items.length) {
+        html += '<div class="bp-prev-gallery">';
+        items.forEach(function (g) {
+          if (!g.image) return;
+          html += '<figure><img src="' + esc(g.image) + '" alt="" />';
+          if (g.caption) html += '<figcaption>' + esc(g.caption) + '</figcaption>';
+          html += '</figure>';
+        });
+        html += '</div>';
+      }
+    }
+
+    /* Tutorial */
+    if (tpl === 'tutorial') {
+      var steps = window.ChampionBlogTemplates ? window.ChampionBlogTemplates.collectSteps() : [];
+      if (steps.length) {
+        html += '<ol class="bp-prev-steps">';
+        steps.forEach(function (s, i) {
+          html += '<li class="bp-prev-step">';
+          html += '<div class="bp-prev-step-num">' + (i + 1) + '</div>';
+          html += '<div>';
+          html += s.title ? '<h4>' + esc(s.title) + '</h4>' : '';
+          html += s.image ? '<img src="' + esc(s.image) + '" alt="" />' : '';
+          html += s.description ? '<p>' + esc(s.description).replace(/\n/g, '<br>') + '</p>' : '';
+          html += '</div></li>';
+        });
+        html += '</ol>';
+      }
+    }
+
+    html += '</div></div>';
+    body.innerHTML = html;
+    updateWordCount(content);
+  }
+
+  function updateWordCount(content) {
+    var words = String(content || '').trim().split(/\s+/).filter(Boolean).length;
+    var reading = Math.max(1, Math.ceil(words / 180));
+    var wEl = document.getElementById('blogEditorWords');
+    var rEl = document.getElementById('blogEditorReading');
+    if (wEl) wEl.textContent = words;
+    if (rEl) rEl.textContent = reading + ' min';
+  }
+
+  /* Auto-update on any form input */
+  var form = document.getElementById('blogPostForm');
+  if (form) {
+    form.addEventListener('input', updatePreview);
+  }
+  document.addEventListener('input', function (e) {
+    /* Galeria/steps inputs também */
+    if (e.target.matches('[data-gallery-row] input, [data-step-row] input, [data-step-row] textarea')) {
+      updatePreview();
+    }
+  });
+
+  /* Preview template switch (independente do template real do form) */
+  document.querySelectorAll('#blogPreviewSwitch button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('#blogPreviewSwitch button').forEach(function (x) { x.classList.toggle('is-active', x === b); });
+      previewTemplateOverride = b.getAttribute('data-prev-tpl');
+      updatePreview();
+    });
+  });
+
+  /* Sync preview switch quando o template do form muda */
+  document.querySelectorAll('.bp-template').forEach(function (card) {
+    card.addEventListener('click', function () {
+      previewTemplateOverride = null;
+      var tpl = card.getAttribute('data-template');
+      document.querySelectorAll('#blogPreviewSwitch button').forEach(function (b) {
+        b.classList.toggle('is-active', b.getAttribute('data-prev-tpl') === tpl);
+      });
+      updatePreview();
+    });
+  });
+
+  /* Toggle preview pane */
+  document.getElementById('blogPreviewToggle')?.addEventListener('click', function () {
+    var card = document.getElementById('blogPreviewCard');
+    var editor = document.getElementById('blogEditor');
+    var label = document.getElementById('blogPreviewToggleLabel');
+    var hidden = card.style.display === 'none';
+    if (hidden) {
+      card.style.display = '';
+      editor.style.gridTemplateColumns = '1fr 1fr';
+      label.textContent = 'Ocultar prévia';
+    } else {
+      card.style.display = 'none';
+      editor.style.gridTemplateColumns = '1fr';
+      label.textContent = 'Mostrar prévia';
+    }
+  });
+
+  /* Ctrl+S salva o post */
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's' && window.__blogView === 'editor') {
+      e.preventDefault();
+      document.getElementById('blogPostSubmitBtn')?.click();
+    }
+  });
+
+  /* Expose helpers (também usados pelo blog.js módulo) */
+  window.ChampionBlogEditor = {
+    showView: showBlogView,
+    openFor: function (post) {
+      var form = document.getElementById('blogPostForm');
+      if (!form || !post) return;
+      form.elements.id.value = post.id || '';
+      form.elements.title.value = post.title || '';
+      form.elements.slug.value = post.slug || '';
+      form.elements.category.value = post.category || '';
+      form.elements.author.value = post.author || '';
+      form.elements.date.value = post.date || '';
+      form.elements.status.value = post.status || 'published';
+      form.elements.excerpt.value = post.excerpt || '';
+      form.elements.content.value = post.content || '';
+      form.elements.image.value = post.image || '';
+      form.elements.secondaryImage.value = post.secondaryImage || '';
+      form.elements.secondaryCaption.value = post.secondaryCaption || '';
+      setHeroImage(post.image || '', 'blogHeroPreview', 'blogHeroUpload');
+      setHeroImage(post.secondaryImage || '', 'blogSecondaryPreview', 'blogSecondaryUpload');
+      applyTemplateUI(post.template || 'standard');
+      previewTemplateOverride = null;
+      var wrap = document.getElementById('blogGalleryRows');
+      if (wrap) wrap.innerHTML = '';
+      (post.gallery || []).forEach(addGalleryRow);
+      var sWrap = document.getElementById('blogStepsRows');
+      if (sWrap) sWrap.innerHTML = '';
+      (post.steps || []).forEach(addStepRow);
+      document.getElementById('blogEditorTitle').textContent = post.id ? 'Editar post' : 'Novo post';
+      document.getElementById('blogPostSubmitLabel').textContent = post.id ? 'Salvar alterações' : 'Publicar';
+      showBlogView('editor');
+      setTimeout(updatePreview, 30);
+    },
+    updatePreview: updatePreview
+  };
 
   /* Expose helpers for blog.js (module) to read current rows + write template UI. */
   window.ChampionBlogTemplates = {

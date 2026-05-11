@@ -118,6 +118,8 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       status: post.status === 'draft' ? 'draft' : 'published',
       excerpt: String(post.excerpt || '').trim(),
       content: String(post.content || '').trim(),
+      secondaryImage: String(post.secondaryImage || '').trim(),
+      secondaryCaption: String(post.secondaryCaption || '').trim(),
       template,
       gallery,
       steps
@@ -395,6 +397,9 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     console.error('Firebase não inicializado. O blog continuará em modo local.', error);
   }
 
+  /* Expose o store para o painel inline (usado pelo upload do banner) */
+  window.ChampionBlogStore = store;
+
   function setFeedback(target, message, type = 'error') {
     if (!target) return;
     target.textContent = message || '';
@@ -609,9 +614,21 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     `;
   }
 
+  function renderSecondary(post) {
+    if (!post.secondaryImage) return '';
+    return `
+      <figure class="blog-secondary-image">
+        <img src="${escapeHtml(post.secondaryImage)}" alt="${escapeHtml(post.secondaryCaption || '')}" loading="lazy" />
+        ${post.secondaryCaption ? `<figcaption>${escapeHtml(post.secondaryCaption)}</figcaption>` : ''}
+      </figure>
+    `;
+  }
+
   function renderTemplate(post) {
+    const secondary = renderSecondary(post);
     if (post.template === 'gallery' && Array.isArray(post.gallery) && post.gallery.length) {
       return `
+        ${secondary}
         ${renderContent(post.content)}
         <div class="blog-gallery">
           ${post.gallery.map((g) => `
@@ -625,6 +642,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     }
     if (post.template === 'tutorial' && Array.isArray(post.steps) && post.steps.length) {
       return `
+        ${secondary}
         ${renderContent(post.content)}
         <ol class="blog-steps">
           ${post.steps.map((s, i) => `
@@ -640,7 +658,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         </ol>
       `;
     }
-    return renderContent(post.content);
+    return secondary + renderContent(post.content);
   }
 
   async function initBlogPage() {
@@ -780,6 +798,12 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
   }
 
   function fillPostForm(post) {
+    /* Prefer the inline editor helper if available (handles the new UI) */
+    if (window.ChampionBlogEditor && typeof window.ChampionBlogEditor.openFor === 'function') {
+      window.ChampionBlogEditor.openFor(post);
+      return;
+    }
+    /* Fallback (legacy form) */
     const form = $('#blogPostForm');
     if (!form || !post) return;
     form.dataset.slugEdited = 'true';
@@ -789,7 +813,9 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     form.elements.category.value = post.category;
     form.elements.author.value = post.author;
     form.elements.date.value = post.date;
-    form.elements.image.value = post.image;
+    if (form.elements.image) form.elements.image.value = post.image;
+    if (form.elements.secondaryImage) form.elements.secondaryImage.value = post.secondaryImage || '';
+    if (form.elements.secondaryCaption) form.elements.secondaryCaption.value = post.secondaryCaption || '';
     form.elements.status.value = post.status;
     form.elements.excerpt.value = post.excerpt;
     form.elements.content.value = post.content || '';
@@ -806,21 +832,40 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     const posts = await store.getAllPosts();
 
     if (!posts.length) {
-      list.innerHTML = '<div class="blog-empty">Nenhum post cadastrado.</div>';
+      list.innerHTML = `
+        <div style="grid-column:1/-1;background:white;border:1.5px dashed #E4E8EF;border-radius:14px;padding:48px 24px;text-align:center;color:#687080">
+          <strong style="display:block;color:#15191F;font-size:17px;margin-bottom:6px">Nenhum post cadastrado ainda</strong>
+          <p style="font-size:13.5px;margin-bottom:18px">Clique em <strong>+ Novo post</strong> para escrever o primeiro artigo do blog Champion.</p>
+        </div>`;
       return;
     }
 
+    const templateLabel = { standard: 'Padrão', gallery: 'Galeria', tutorial: 'Tutorial' };
     list.innerHTML = posts.map((post) => `
-      <article class="blog-admin-post">
-        <img src="${escapeHtml(post.image)}" alt="" loading="lazy" />
-        <div>
-          <h3>${escapeHtml(post.title)}</h3>
-          <p>${escapeHtml(formatDate(post.date))} · ${escapeHtml(post.category)}</p>
-          <span class="blog-admin-status${post.status === 'draft' ? ' is-draft' : ''}">${post.status === 'draft' ? 'Rascunho' : 'Publicado'}</span>
+      <article class="bp-post-card">
+        <div class="bp-post-card-img">
+          <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" onerror="this.style.display='none'" />
+          <span class="pill${post.status === 'draft' ? ' is-draft' : ''}">${post.status === 'draft' ? 'Rascunho' : 'Publicado'}</span>
+          <span class="tpl-badge">${templateLabel[post.template] || 'Padrão'}</span>
         </div>
-        <div class="blog-admin-post-actions">
-          <button class="blog-admin-mini" type="button" data-edit-post="${escapeHtml(post.id)}">Editar</button>
-          <button class="blog-admin-mini is-danger" type="button" data-delete-post="${escapeHtml(post.id)}">Excluir</button>
+        <div class="bp-post-card-body">
+          <h4>${escapeHtml(post.title)}</h4>
+          <div class="meta">${escapeHtml(formatDate(post.date))} · ${escapeHtml(post.category)}</div>
+          <div class="excerpt">${escapeHtml(post.excerpt || '')}</div>
+        </div>
+        <div class="bp-post-card-actions">
+          <a class="bp-icon-btn" href="blog.html?p=${encodeURIComponent(post.slug)}" target="_blank" rel="noopener" title="Ver no blog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            Ver
+          </a>
+          <button class="bp-icon-btn primary" type="button" data-edit-post="${escapeHtml(post.id)}" title="Editar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Editar
+          </button>
+          <button class="bp-icon-btn danger" type="button" data-delete-post="${escapeHtml(post.id)}" title="Excluir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Excluir
+          </button>
         </div>
       </article>
     `).join('');
@@ -969,6 +1014,8 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
           author: data.author,
           date: data.date,
           image: data.image,
+          secondaryImage: data.secondaryImage,
+          secondaryCaption: data.secondaryCaption,
           status: data.status,
           excerpt: data.excerpt,
           content: data.content,
@@ -982,13 +1029,15 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         await fillConfigForm();
         setFeedback(postFeedback, 'Post salvo com sucesso.', 'success');
         window.ChampionToast?.('Post salvo.');
+        /* Return to list view after save */
+        if (window.ChampionBlogEditor && typeof window.ChampionBlogEditor.showView === 'function') {
+          window.ChampionBlogEditor.showView('list');
+        }
       } catch (error) {
         setFeedback(postFeedback, friendlyFirebaseError(error));
       } finally {
         showBusy(postForm, false);
       }
-
-      if (savedPost) fillPostForm(savedPost);
     });
 
     $('#blogAdminPostList')?.addEventListener('click', async (event) => {
