@@ -788,6 +788,127 @@
     }
 
     /* ════════════════════════════════════════════════════════════
+       SIDEBAR · Dropdown (Relatórios)
+       ════════════════════════════════════════════════════════════ */
+
+    .ap-nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 8px;
+    }
+    .ap-nav-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      background: none;
+      border: none;
+      border-radius: 9px;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s, color .15s;
+    }
+    .ap-nav-toggle:hover {
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.85);
+    }
+    .ap-nav-toggle .chev {
+      transition: transform .25s ease;
+      width: 14px; height: 14px;
+      color: rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+    .ap-nav-toggle .chev svg { width: 14px; height: 14px; }
+    .ap-nav-group.is-open .ap-nav-toggle .chev { transform: rotate(180deg); }
+    .ap-nav-group.is-open .ap-nav-toggle {
+      color: rgba(255,255,255,0.85);
+    }
+
+    .ap-nav-submenu {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+      padding-left: 8px;
+      margin-left: 12px;
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+    .ap-nav-group.is-open .ap-nav-submenu { max-height: 460px; }
+    .ap-nav-submenu button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 10px;
+      background: none;
+      border: none;
+      border-radius: 7px;
+      color: rgba(255,255,255,0.45);
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background .15s, color .15s;
+    }
+    .ap-nav-submenu button:hover {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.85);
+    }
+    .ap-nav-submenu button.is-active {
+      background: rgba(236,72,21,0.16);
+      color: #FF8055;
+      font-weight: 600;
+    }
+    .ap-nav-submenu button .submini {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .ap-nav-submenu button:hover .submini { background: rgba(255,255,255,0.6); }
+    .ap-nav-submenu button.is-active .submini { background: #EC4815; }
+
+    /* Topbar icon buttons (gear, mail) */
+    .ap-topbar-icon {
+      width: 38px; height: 38px;
+      border-radius: 9px;
+      border: 1.5px solid #E4E8EF;
+      background: white;
+      color: #687080;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s;
+      position: relative;
+    }
+    .ap-topbar-icon svg { width: 16px; height: 16px; }
+    .ap-topbar-icon:hover { background: #F4F5F8; color: #15191F; border-color: #D4D8E2; }
+    .ap-topbar-icon .badge-count {
+      position: absolute;
+      top: -5px; right: -5px;
+      min-width: 18px; height: 18px;
+      padding: 0 5px;
+      background: #EC4815;
+      color: white;
+      border-radius: 99px;
+      font-size: 10.5px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ════════════════════════════════════════════════════════════
        PRODUTOS · Grid + Drawer
        ════════════════════════════════════════════════════════════ */
 
@@ -1049,6 +1170,207 @@
       margin-bottom: 6px;
     }
     .prod-empty-state p { font-size: 13.5px; margin-bottom: 18px; }
+
+    /* ════════════════════════════════════════════════════════════
+       TABELAS / PILLS / KANBAN (compartilhado)
+       ════════════════════════════════════════════════════════════ */
+
+    .ap-table-wrap {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .ap-table-scroll { overflow-x: auto; }
+    .ap-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      min-width: 640px;
+    }
+    .ap-data-table thead th {
+      padding: 13px 18px;
+      text-align: left;
+      background: #F9FAFB;
+      border-bottom: 1px solid #E5E8EF;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #687080;
+      white-space: nowrap;
+    }
+    .ap-data-table tbody td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #F0F2F6;
+      color: #15191F;
+      vertical-align: middle;
+    }
+    .ap-data-table tbody tr:last-child td { border-bottom: none; }
+    .ap-data-table tbody tr:hover { background: #FAFBFC; }
+    .ap-data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .ap-data-table .strong { font-weight: 600; }
+    .ap-data-table .muted { color: #9EA6B4; font-size: 12px; }
+    .ap-data-table .col-actions { text-align: right; }
+
+    .ap-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: #F0F2F6;
+      color: #687080;
+      white-space: nowrap;
+    }
+    .ap-pill::before {
+      content: '';
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .ap-pill.green  { background: #EDFAF3; color: #1A7A48; }
+    .ap-pill.amber  { background: #FFF8EB; color: #B45309; }
+    .ap-pill.red    { background: #FEEDEA; color: #C13808; }
+    .ap-pill.blue   { background: #EBF3FE; color: #1E40AF; }
+    .ap-pill.purple { background: #F3F0FD; color: #6D28D9; }
+    .ap-pill.gray   { background: #F0F2F6; color: #687080; }
+
+    .ap-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #F0F2F6;
+      color: #687080;
+    }
+
+    .ap-init {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EC4815, #C13808);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12.5px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .ap-init.blue { background: linear-gradient(135deg,#3B82F6,#1E40AF); }
+    .ap-init.green { background: linear-gradient(135deg,#10B981,#047857); }
+    .ap-init.gray { background: linear-gradient(135deg,#9CA3AF,#6B7280); }
+    .ap-init.purple { background: linear-gradient(135deg,#A78BFA,#6D28D9); }
+
+    /* Mini buttons inline (row actions) */
+    .ap-mini-btn {
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid #E4E8EF;
+      background: white;
+      color: #687080;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ap-mini-btn:hover { background: #F4F5F8; border-color: #D4D8E2; color: #15191F; }
+    .ap-mini-btn.primary { border-color: #EC4815; color: #EC4815; background: #FFF5F1; }
+    .ap-mini-btn.primary:hover { background: #FFEAE0; }
+    .ap-mini-btn.danger { border-color: #FAD0C6; color: #C13808; background: #FFF5F3; }
+    .ap-mini-btn.danger:hover { background: #FCDDD8; }
+
+    /* Filtros / toolbar */
+    .ap-data-toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .ap-data-toolbar .ap-search-wrap { flex: 1; min-width: 240px; max-width: 380px; }
+    .ap-data-toolbar .filter-select {
+      padding: 10px 30px 10px 12px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-family: 'Inter', sans-serif;
+      background: white;
+      color: #15191F;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239EA6B4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      min-width: 140px;
+    }
+
+    /* Kanban */
+    .ap-kanban {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .ap-kanban-col {
+      background: #F4F5F8;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 200px;
+    }
+    .ap-kanban-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px 4px;
+    }
+    .ap-kanban-head h4 {
+      font-size: 12.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #687080;
+    }
+    .ap-kanban-count {
+      font-size: 11px;
+      font-weight: 700;
+      background: white;
+      color: #687080;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+    .ap-kanban-card {
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 9px;
+      padding: 12px 14px;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .ap-kanban-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.06); transform: translateY(-1px); }
+    .ap-kanban-card h5 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .ap-kanban-card p { font-size: 11.5px; color: #9EA6B4; margin-bottom: 8px; }
+
+    /* Empty state */
+    .ap-data-empty {
+      padding: 40px 24px;
+      text-align: center;
+      color: #9EA6B4;
+      font-size: 14px;
+      background: white;
+      border: 1.5px dashed #E4E8EF;
+      border-radius: 12px;
+    }
+    .ap-data-empty strong { display: block; color: #15191F; font-size: 15px; margin-bottom: 6px; }
 
     /* ════════════════════════════════════════════════════════════
        DASHBOARD · Visão geral
@@ -1445,33 +1767,47 @@
 
       <button class="is-active" type="button" data-admin-tab="dashboard" aria-selected="true">
         <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Visão geral
+        Visão Geral
+      </button>
+
+      <button type="button" data-admin-tab="orders" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M9 14l2 2 4-4"/></svg>
+        Pedidos
       </button>
 
       <button type="button" data-admin-tab="products" aria-selected="false">
         <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        Produtos
+        Catálogo
+      </button>
+
+      <button type="button" data-admin-tab="customers" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clientes
       </button>
 
       <button type="button" data-admin-tab="banners" aria-selected="false">
         <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Banners
+        Banners Site
       </button>
 
-      <button type="button" data-admin-tab="leads" aria-selected="false">
-        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        Contatos
-      </button>
-
-      <button type="button" data-admin-tab="settings" aria-selected="false">
-        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Configurações
-      </button>
-
-      <span class="ap-nav-label">Operação</span>
-      <a href="admin/produtos-cadastro.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>Catálogo &amp; preços</a>
-      <a href="admin/pedidos.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Pedidos &amp; frete</a>
-      <a href="admin/clientes.html"><svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clientes</a>
+      <!-- Dropdown Relatórios -->
+      <div class="ap-nav-group" id="reportsGroup">
+        <button class="ap-nav-toggle" type="button" id="reportsToggle">
+          <span style="display:flex;align-items:center;gap:10px">
+            <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><polyline points="7 14 11 10 14 13 21 6"/></svg>
+            Relatórios
+          </span>
+          <span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="ap-nav-submenu">
+          <button type="button" data-admin-tab="rep-sales"><span class="submini"></span>Total de Vendas</button>
+          <button type="button" data-admin-tab="rep-bestsellers"><span class="submini"></span>Produtos Mais Vendidos</button>
+          <button type="button" data-admin-tab="rep-avg-ticket"><span class="submini"></span>Ticket Médio</button>
+          <button type="button" data-admin-tab="rep-pending"><span class="submini"></span>Pedidos Pendentes</button>
+          <button type="button" data-admin-tab="rep-financial"><span class="submini"></span>Relatório Financeiro</button>
+          <button type="button" data-admin-tab="rep-abandoned"><span class="submini"></span>Abandono de Carrinho</button>
+        </div>
+      </div>
     </nav>
 
     <div class="ap-sidebar-foot">
@@ -1495,6 +1831,13 @@
         <span class="ap-topbar-title">Painel administrativo</span>
       </div>
       <div class="ap-topbar-actions">
+        <button class="ap-topbar-icon" type="button" data-admin-tab="leads" title="Contatos / leads">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="badge-count" id="topbarLeadsBadge" hidden>0</span>
+        </button>
+        <button class="ap-topbar-icon" type="button" data-admin-tab="settings" title="Configurações">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
         <a class="ap-btn ap-btn-ghost" href="index.html" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Ver site
@@ -1881,11 +2224,257 @@
         </aside>
       </div>
 
+      <!-- ─── Pedidos ─── -->
+      <section data-admin-panel="orders" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Pedidos</h2>
+            <p>Acompanhe pedidos do recebimento à entrega. Use o botão <strong>Avançar</strong> para promover o status.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <span class="ap-tag" id="ordersTotalTag">— pedidos</span>
+          </div>
+        </div>
+
+        <div class="dash-kpis" id="ordersKpis" style="margin-bottom:20px"></div>
+
+        <div class="ap-data-toolbar">
+          <div class="ap-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="ordersSearch" type="search" placeholder="Buscar por número, cliente ou rastreio..." autocomplete="off" />
+          </div>
+          <select class="filter-select" id="ordersStatusFilter">
+            <option value="">Todos status</option>
+            <option value="paid">Pago</option>
+            <option value="separating">Em separação</option>
+            <option value="shipped">Em trânsito</option>
+            <option value="delivered">Entregue</option>
+            <option value="cancelled">Cancelado</option>
+          </select>
+          <select class="filter-select" id="ordersViewMode">
+            <option value="kanban">Visão Kanban</option>
+            <option value="list">Visão Lista</option>
+          </select>
+        </div>
+
+        <div id="ordersKanban" class="ap-kanban"></div>
+        <div id="ordersList" class="ap-table-wrap" hidden></div>
+      </section>
+
+      <!-- ─── Clientes ─── -->
+      <section data-admin-panel="customers" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Clientes</h2>
+            <p>Base de clientes cadastrados pelo site. Visualize histórico de compras e gerencie status.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <span class="ap-tag" id="customersTotalTag">— clientes</span>
+          </div>
+        </div>
+
+        <div class="dash-kpis" id="customersKpis" style="margin-bottom:20px"></div>
+
+        <div class="ap-data-toolbar">
+          <div class="ap-search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="customersSearch" type="search" placeholder="Buscar por nome, e-mail ou CPF/CNPJ..." autocomplete="off" />
+          </div>
+          <select class="filter-select" id="customersProfileFilter">
+            <option value="">Todos perfis</option>
+            <option value="pessoa-fisica">Pessoa Física</option>
+            <option value="pecuarista">Pecuarista</option>
+            <option value="revenda">Revenda</option>
+          </select>
+          <select class="filter-select" id="customersStatusFilter">
+            <option value="">Todos status</option>
+            <option value="active">Ativo</option>
+            <option value="blocked">Bloqueado</option>
+          </select>
+        </div>
+
+        <div class="ap-table-wrap">
+          <div class="ap-table-scroll">
+            <table class="ap-data-table" id="customersTable">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Perfil</th>
+                  <th>Cidade</th>
+                  <th class="num">Pedidos</th>
+                  <th class="num">Total gasto</th>
+                  <th>Última compra</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════ RELATÓRIOS ═══════════════════ -->
+
+      <!-- Total de Vendas -->
+      <section data-admin-panel="rep-sales" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Total de Vendas</h2>
+            <p>Acompanhamento consolidado do volume vendido na operação.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <select class="filter-select" id="repSalesPeriod">
+              <option value="30">Últimos 30 dias</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="90">Trimestre</option>
+              <option value="365">Ano</option>
+            </select>
+          </div>
+        </div>
+        <div class="dash-kpis" id="repSalesKpis"></div>
+        <div class="dash-card" style="margin-top:18px">
+          <div class="dash-card-head">
+            <div><h3>Receita por dia</h3><p>Acompanhe a curva de faturamento</p></div>
+            <span class="dash-card-tag" id="repSalesTotal">R$ —</span>
+          </div>
+          <svg class="dash-line" id="repSalesChart" viewBox="0 0 700 220" preserveAspectRatio="none"></svg>
+        </div>
+      </section>
+
+      <!-- Produtos Mais Vendidos -->
+      <section data-admin-panel="rep-bestsellers" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Produtos Mais Vendidos</h2>
+            <p>Leitura de desempenho por item e categoria para apoiar decisões.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <select class="filter-select" id="repBestsellersPeriod">
+              <option value="30">Últimos 30 dias</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="90">Trimestre</option>
+              <option value="365">Ano</option>
+            </select>
+          </div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-head"><div><h3>Top 10 produtos por receita</h3><p>Receita total e unidades vendidas no período</p></div></div>
+          <div class="ap-table-scroll">
+            <table class="ap-data-table" id="repBestsellersTable" style="min-width:600px">
+              <thead><tr><th>#</th><th>Produto</th><th class="num">Pedidos</th><th class="num">Unidades</th><th class="num">Receita</th><th class="num">% total</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ticket Médio -->
+      <section data-admin-panel="rep-avg-ticket" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Ticket Médio</h2>
+            <p>Visão do valor médio por pedido para medir rentabilidade.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <select class="filter-select" id="repTicketPeriod">
+              <option value="30">Últimos 30 dias</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="90">Trimestre</option>
+              <option value="365">Ano</option>
+            </select>
+          </div>
+        </div>
+        <div class="dash-kpis" id="repTicketKpis"></div>
+        <div class="dash-grid" style="margin-top:18px">
+          <div class="dash-card">
+            <div class="dash-card-head"><div><h3>Ticket médio diário</h3><p>Evolução do valor médio por pedido</p></div></div>
+            <svg class="dash-line" id="repTicketChart" viewBox="0 0 700 220" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-head"><div><h3>Distribuição</h3><p>Pedidos por faixa de valor</p></div></div>
+            <div class="dash-bars" id="repTicketRanges"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pedidos Pendentes -->
+      <section data-admin-panel="rep-pending" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Pedidos Pendentes</h2>
+            <p>Controle operacional dos pedidos em aberto e etapas de atendimento.</p>
+          </div>
+        </div>
+        <div class="dash-kpis" id="repPendingKpis"></div>
+        <div class="ap-table-wrap" style="margin-top:18px">
+          <div class="ap-table-scroll">
+            <table class="ap-data-table" id="repPendingTable">
+              <thead><tr><th>Pedido</th><th>Cliente</th><th>Aguardando há</th><th>Status atual</th><th class="num">Valor</th><th></th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Relatório Financeiro -->
+      <section data-admin-panel="rep-financial" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Relatório Financeiro</h2>
+            <p>Faturamento por período e leitura das formas de pagamento.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <select class="filter-select" id="repFinPeriod">
+              <option value="30">Últimos 30 dias</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="90">Trimestre</option>
+              <option value="365">Ano</option>
+            </select>
+          </div>
+        </div>
+        <div class="dash-kpis" id="repFinKpis"></div>
+        <div class="dash-grid" style="margin-top:18px">
+          <div class="dash-card">
+            <div class="dash-card-head"><div><h3>Receita acumulada</h3><p>Faturamento ao longo do período</p></div></div>
+            <svg class="dash-line" id="repFinChart" viewBox="0 0 700 220" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-head"><div><h3>Forma de pagamento</h3><p>Distribuição dos pedidos pagos</p></div></div>
+            <div class="dash-donut-wrap">
+              <svg class="dash-pie" id="repFinPie" viewBox="0 0 180 180"></svg>
+              <div class="dash-legend" id="repFinPieLegend"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Abandono de Carrinho -->
+      <section data-admin-panel="rep-abandoned" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Abandono de Carrinho</h2>
+            <p>Monitoramento de oportunidades perdidas e pontos de melhora na conversão.</p>
+          </div>
+        </div>
+        <div class="dash-kpis" id="repAbandonedKpis"></div>
+        <div class="dash-grid equal" style="margin-top:18px">
+          <div class="dash-card">
+            <div class="dash-card-head"><div><h3>Funil de conversão</h3><p>Da visita ao pedido confirmado</p></div></div>
+            <div class="dash-bars" id="repAbandonedFunnel"></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-head"><div><h3>Carrinhos abertos</h3><p>Clientes que adicionaram itens mas não finalizaram</p></div></div>
+            <div id="repAbandonedList" style="display:flex;flex-direction:column;gap:10px"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ─── Banners ─── -->
       <section data-admin-panel="banners" hidden>
         <div class="ap-section-head">
           <div>
-            <h2>Banners</h2>
+            <h2>Banners do site</h2>
             <p>Slides do carrossel da página inicial. Apenas os publicados são exibidos, na ordem definida.</p>
           </div>
           <div class="ap-section-head-actions">
@@ -2503,6 +3092,589 @@
   if (isDemo) {
     var sub = $('dashHelloSub');
     if (sub) sub.textContent = 'Mostrando dados de exemplo. Conforme pedidos reais chegarem, os gráficos vão refletir.';
+  }
+
+  /* Expor pra outros panels reusarem (Pedidos, Clientes, Relatórios) */
+  window.__championAdminData = { orders: orders, customers: customers, isDemo: isDemo };
+})();
+</script>
+
+<!-- Pedidos / Clientes / Relatórios -->
+<script>
+(async function () {
+  'use strict';
+
+  /* Aguarda dashboard popular __championAdminData */
+  function waitForData() {
+    return new Promise(function (resolve) {
+      var tries = 0;
+      var check = function () {
+        if (window.__championAdminData) return resolve(window.__championAdminData);
+        if (++tries > 60) return resolve({ orders: [], customers: [], isDemo: true });
+        setTimeout(check, 100);
+      };
+      check();
+    });
+  }
+  var data = await waitForData();
+  var orders = data.orders;
+  var customers = data.customers;
+
+  /* ── Helpers ─────────────────────────────────────────────── */
+  function $(id) { return document.getElementById(id); }
+  function fmt(v) {
+    var n = Number(v) || 0;
+    if (Math.abs(n) >= 1000) return 'R$ ' + (n / 1000).toFixed(1).replace('.', ',') + 'k';
+    return 'R$ ' + n.toFixed(2).replace('.', ',');
+  }
+  function fmtFull(v) { return 'R$ ' + (Number(v) || 0).toFixed(2).replace('.', ','); }
+  function fmtInt(v) { return Number(v || 0).toLocaleString('pt-BR'); }
+  function fmtDate(iso) { return iso ? new Date(iso).toLocaleDateString('pt-BR') : '—'; }
+  function ago(iso) {
+    if (!iso) return '';
+    var diff = Date.now() - new Date(iso).getTime();
+    var h = Math.floor(diff / 3600000);
+    if (h < 1) return Math.floor(diff / 60000) + 'min';
+    if (h < 24) return h + 'h';
+    return Math.floor(h / 24) + 'd';
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function initials(name, email) {
+    var s = String(name || email || 'A').trim();
+    var parts = s.split(/\s+/);
+    return ((parts[0] || ' ')[0] + (parts.length > 1 ? (parts[parts.length - 1] || ' ')[0] : '')).toUpperCase();
+  }
+  function filterByDays(items, days) {
+    var since = Date.now() - days * 86400000;
+    return items.filter(function (o) { return new Date(o.createdAt).getTime() >= since; });
+  }
+  var statusMap = {
+    paid: { pill: 'blue', label: 'Pago' },
+    separating: { pill: 'amber', label: 'Em separação' },
+    shipped: { pill: 'purple', label: 'Em trânsito' },
+    delivered: { pill: 'green', label: 'Entregue' },
+    cancelled: { pill: 'gray', label: 'Cancelado' }
+  };
+
+  /* ── Dropdown Relatórios ─────────────────────────────────── */
+  var reportsGroup = $('reportsGroup');
+  var reportsToggle = $('reportsToggle');
+  if (reportsToggle) {
+    reportsToggle.addEventListener('click', function () {
+      reportsGroup.classList.toggle('is-open');
+    });
+  }
+  /* Abre se a tab ativa for um relatório */
+  document.querySelectorAll('[data-admin-tab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-admin-tab');
+      if (t && t.indexOf('rep-') === 0) reportsGroup.classList.add('is-open');
+      /* Re-renderiza quando troca de tab */
+      setTimeout(function () { renderForTab(t); }, 30);
+    });
+  });
+
+  /* ── Pedidos (Kanban + Lista) ────────────────────────────── */
+  function renderOrdersKpis() {
+    var paid = orders.filter(function (o) { return o.status === 'paid'; }).length;
+    var sep = orders.filter(function (o) { return o.status === 'separating'; }).length;
+    var ship = orders.filter(function (o) { return o.status === 'shipped'; }).length;
+    var del = orders.filter(function (o) { return o.status === 'delivered'; }).length;
+    var revenue = orders.filter(function (o) { return o.status !== 'cancelled'; })
+                        .reduce(function (a, o) { return a + (o.total || 0); }, 0);
+    var html = ''
+      + kpiCard('Aguardando separação', sep, 'amber', '🟠')
+      + kpiCard('Em trânsito', ship, 'purple', '🚚')
+      + kpiCard('Entregues', del, 'green', '✓')
+      + kpiCard('Receita acumulada', fmt(revenue), 'orange', 'R$');
+    $('ordersKpis').innerHTML = html;
+    $('ordersTotalTag').textContent = orders.length + ' pedidos';
+  }
+  function kpiCard(label, value, color, glyph) {
+    return '<div class="dash-kpi">'
+      + '<div class="dash-kpi-head"><span class="dash-kpi-label">' + label + '</span>'
+      + '<span class="dash-kpi-icon ' + color + '" style="font-weight:800;font-size:13px">' + glyph + '</span></div>'
+      + '<div class="dash-kpi-value">' + value + '</div></div>';
+  }
+  function filteredOrders() {
+    var term = String(($('ordersSearch') || {}).value || '').trim().toLowerCase();
+    var st = String(($('ordersStatusFilter') || {}).value || '');
+    return orders.filter(function (o) {
+      if (st && o.status !== st) return false;
+      if (!term) return true;
+      var hay = (o.number + ' ' + (o.customer && o.customer.name || '')).toLowerCase();
+      return hay.indexOf(term) >= 0;
+    });
+  }
+  function renderOrdersKanban() {
+    var items = filteredOrders();
+    var cols = {
+      paid: { title: 'Pago · aguardando separação', orders: [] },
+      separating: { title: 'Em separação', orders: [] },
+      shipped: { title: 'Em trânsito', orders: [] },
+      delivered: { title: 'Entregue', orders: [] }
+    };
+    items.forEach(function (o) { if (cols[o.status]) cols[o.status].orders.push(o); });
+    $('ordersKanban').innerHTML = Object.keys(cols).map(function (k) {
+      var c = cols[k];
+      var s = statusMap[k];
+      return '<div class="ap-kanban-col">'
+        + '<div class="ap-kanban-head"><h4>' + c.title + '</h4><span class="ap-kanban-count">' + c.orders.length + '</span></div>'
+        + (c.orders.length === 0
+            ? '<div style="font-size:12px;color:#9EA6B4;text-align:center;padding:14px 8px">—</div>'
+            : c.orders.slice(0, 8).map(function (o) {
+                var cust = (o.customer && o.customer.name) || 'Cliente';
+                var qty = (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0);
+                return '<div class="ap-kanban-card">'
+                  + '<h5>#' + o.number + ' · ' + escHtml(cust) + '</h5>'
+                  + '<p>' + qty + ' itens · ' + fmt(o.total) + '</p>'
+                  + '<div style="display:flex;justify-content:space-between;align-items:center">'
+                  +   '<span class="ap-pill ' + s.pill + '">' + s.label + '</span>'
+                  +   (k !== 'delivered' ? '<button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar →</button>' : '')
+                  + '</div></div>';
+              }).join(''))
+        + '</div>';
+    }).join('');
+  }
+  function renderOrdersList() {
+    var items = filteredOrders();
+    if (!items.length) {
+      $('ordersList').innerHTML = '<div class="ap-data-empty"><strong>Nenhum pedido</strong>Os pedidos aparecem aqui quando clientes finalizam compras.</div>';
+      return;
+    }
+    $('ordersList').innerHTML = '<div class="ap-table-scroll"><table class="ap-data-table">'
+      + '<thead><tr><th>Pedido</th><th>Cliente</th><th>Data</th><th class="num">Itens</th><th class="num">Total</th><th>Pagamento</th><th>Status</th><th></th></tr></thead><tbody>'
+      + items.map(function (o) {
+          var s = statusMap[o.status] || { pill: 'gray', label: o.status };
+          var cust = (o.customer && o.customer.name) || '—';
+          var qty = (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0);
+          return '<tr>'
+            + '<td class="strong">#' + o.number + '</td>'
+            + '<td>' + escHtml(cust) + '</td>'
+            + '<td class="muted">' + fmtDate(o.createdAt) + '</td>'
+            + '<td class="num">' + qty + '</td>'
+            + '<td class="num">' + fmt(o.total) + '</td>'
+            + '<td><span class="ap-tag">' + (o.paymentMethod || 'pix').toUpperCase() + '</span></td>'
+            + '<td><span class="ap-pill ' + s.pill + '">' + s.label + '</span></td>'
+            + '<td class="col-actions">' + (o.status !== 'delivered' && o.status !== 'cancelled'
+                ? '<button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar</button>' : '—') + '</td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table></div>';
+  }
+  function renderOrders() {
+    renderOrdersKpis();
+    var mode = String(($('ordersViewMode') || {}).value || 'kanban');
+    $('ordersKanban').hidden = mode !== 'kanban';
+    $('ordersList').hidden = mode !== 'list';
+    if (mode === 'kanban') renderOrdersKanban();
+    else renderOrdersList();
+  }
+  $('ordersSearch')?.addEventListener('input', renderOrders);
+  $('ordersStatusFilter')?.addEventListener('change', renderOrders);
+  $('ordersViewMode')?.addEventListener('change', renderOrders);
+
+  document.addEventListener('click', async function (e) {
+    var advBtn = e.target.closest('[data-advance-order]');
+    if (!advBtn) return;
+    var id = advBtn.getAttribute('data-advance-order');
+    var order = orders.find(function (o) { return o.id === id; });
+    if (!order) return;
+    var flow = ['paid', 'separating', 'shipped', 'delivered'];
+    var next = flow[flow.indexOf(order.status) + 1];
+    if (!next) return;
+    if (window.ChampionOrders && window.ChampionOrders.mode() !== 'local') {
+      try { await window.ChampionOrders.updateStatus(id, next); } catch (err) {}
+    }
+    order.status = next;
+    renderOrders();
+  });
+
+  /* ── Clientes ────────────────────────────────────────────── */
+  function customerStats(id) {
+    var own = orders.filter(function (o) { return o.customerId === id && o.status !== 'cancelled'; });
+    return {
+      count: own.length,
+      total: own.reduce(function (a, b) { return a + (b.total || 0); }, 0),
+      last: own.sort(function (a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)); })[0]
+    };
+  }
+  function renderCustomersKpis() {
+    var active = customers.filter(function (c) { return c.status === 'active'; }).length;
+    var b2b = customers.filter(function (c) { return c.profile === 'pecuarista' || c.profile === 'revenda'; }).length;
+    var withOrders = customers.filter(function (c) { return customerStats(c.id).count > 0; }).length;
+    var totalSpent = customers.reduce(function (a, c) { return a + customerStats(c.id).total; }, 0);
+    var avg = customers.length ? totalSpent / customers.length : 0;
+    $('customersKpis').innerHTML = ''
+      + kpiCard('Clientes ativos', active, 'green', '👥')
+      + kpiCard('B2B (pecuarista + revenda)', b2b, 'blue', '🏢')
+      + kpiCard('Com pelo menos 1 pedido', withOrders, 'orange', '✓')
+      + kpiCard('LTV médio', fmt(avg), 'purple', '$');
+    $('customersTotalTag').textContent = customers.length + ' clientes';
+  }
+  var profileLabel = { 'pessoa-fisica': 'Pessoa Física', 'pecuarista': 'Pecuarista', 'revenda': 'Revenda' };
+  function filteredCustomers() {
+    var term = String(($('customersSearch') || {}).value || '').trim().toLowerCase();
+    var pf = String(($('customersProfileFilter') || {}).value || '');
+    var st = String(($('customersStatusFilter') || {}).value || '');
+    return customers.filter(function (c) {
+      if (pf && c.profile !== pf) return false;
+      if (st && c.status !== st) return false;
+      if (!term) return true;
+      var hay = ((c.name || '') + ' ' + (c.email || '') + ' ' + (c.cpfCnpj || '')).toLowerCase();
+      return hay.indexOf(term) >= 0;
+    });
+  }
+  function renderCustomers() {
+    renderCustomersKpis();
+    var items = filteredCustomers();
+    var tbody = document.querySelector('#customersTable tbody');
+    if (!items.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div style="text-align:center;padding:36px 16px;color:#9EA6B4"><strong style="color:#15191F;display:block;margin-bottom:6px">Nenhum cliente cadastrado ainda</strong>Os clientes aparecem aqui assim que se cadastrarem no site.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = items.map(function (c) {
+      var s = customerStats(c.id);
+      var st = c.status === 'blocked' ? { pill: 'red', label: 'Bloqueado' } : { pill: 'green', label: 'Ativo' };
+      return '<tr>'
+        + '<td><div style="display:flex;align-items:center;gap:10px">'
+        +   '<span class="ap-init">' + initials(c.name, c.email) + '</span>'
+        +   '<div><div class="strong">' + escHtml(c.name || '—') + '</div><div class="muted">' + escHtml(c.email) + '</div></div>'
+        + '</div></td>'
+        + '<td><span class="ap-tag">' + (profileLabel[c.profile] || c.profile) + '</span></td>'
+        + '<td>' + (c.address && c.address.city ? escHtml(c.address.city) + ' / ' + escHtml(c.address.uf) : '—') + '</td>'
+        + '<td class="num">' + s.count + '</td>'
+        + '<td class="num">' + fmt(s.total) + '</td>'
+        + '<td class="muted">' + fmtDate(s.last && s.last.createdAt) + '</td>'
+        + '<td><span class="ap-pill ' + st.pill + '">' + st.label + '</span></td>'
+        + '<td class="col-actions"><button class="ap-mini-btn ' + (c.status === 'active' ? 'danger' : 'primary') + '" data-toggle-customer="' + c.id + '">'
+        +   (c.status === 'active' ? 'Bloquear' : 'Reativar')
+        + '</button></td>'
+        + '</tr>';
+    }).join('');
+  }
+  $('customersSearch')?.addEventListener('input', renderCustomers);
+  $('customersProfileFilter')?.addEventListener('change', renderCustomers);
+  $('customersStatusFilter')?.addEventListener('change', renderCustomers);
+  document.addEventListener('click', async function (e) {
+    var tg = e.target.closest('[data-toggle-customer]');
+    if (!tg) return;
+    var id = tg.getAttribute('data-toggle-customer');
+    var c = customers.find(function (x) { return x.id === id; });
+    if (!c) return;
+    var newStatus = c.status === 'active' ? 'blocked' : 'active';
+    if (window.ChampionCustomers && window.ChampionCustomers.mode() !== 'local') {
+      try { await window.ChampionCustomers.updateProfile(id, { status: newStatus }); } catch (err) { return; }
+    }
+    c.status = newStatus;
+    renderCustomers();
+  });
+
+  /* ── Relatórios ──────────────────────────────────────────── */
+  function lineChart(svgId, period) {
+    var svg = $(svgId);
+    if (!svg) return;
+    var w = 700, h = 220, pad = { top: 20, right: 20, bottom: 30, left: 50 };
+    var buckets = {};
+    for (var i = 0; i < period; i++) {
+      var d = new Date(Date.now() - (period - 1 - i) * 86400000);
+      buckets[d.toISOString().slice(0, 10)] = 0;
+    }
+    var inP = filterByDays(orders, period);
+    inP.forEach(function (o) {
+      var key = String(o.createdAt).slice(0, 10);
+      if (buckets[key] !== undefined) buckets[key] += (o.total || 0);
+    });
+    var keys = Object.keys(buckets).sort();
+    var values = keys.map(function (k) { return buckets[k]; });
+    var max = Math.max.apply(null, values) || 1;
+    var xs = function (i) { return pad.left + i * ((w - pad.left - pad.right) / Math.max(1, values.length - 1)); };
+    var ys = function (v) { return pad.top + (h - pad.top - pad.bottom) * (1 - v / max); };
+    var linePath = values.map(function (v, i) { return (i === 0 ? 'M' : 'L') + xs(i).toFixed(1) + ',' + ys(v).toFixed(1); }).join(' ');
+    var areaPath = linePath + ' L' + xs(values.length - 1).toFixed(1) + ',' + (h - pad.bottom) + ' L' + pad.left + ',' + (h - pad.bottom) + ' Z';
+    var grid = '';
+    for (var g = 0; g <= 3; g++) {
+      var gy = pad.top + (h - pad.top - pad.bottom) * (g / 3);
+      grid += '<line class="grid" x1="' + pad.left + '" y1="' + gy + '" x2="' + (w - pad.right) + '" y2="' + gy + '"/>';
+      var lv = max * (1 - g / 3);
+      grid += '<text class="axis" x="' + (pad.left - 8) + '" y="' + (gy + 3) + '" text-anchor="end">' + (lv >= 1000 ? Math.round(lv / 1000) + 'k' : Math.round(lv)) + '</text>';
+    }
+    svg.innerHTML = '<defs><linearGradient id="' + svgId + 'Grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EC4815" stop-opacity="0.5"/><stop offset="100%" stop-color="#EC4815" stop-opacity="0"/></linearGradient></defs>'
+      + grid
+      + '<path class="area" d="' + areaPath + '" fill="url(#' + svgId + 'Grad)" opacity="0.5"/>'
+      + '<path class="line" d="' + linePath + '"/>'
+      + values.map(function (v, i) { return '<circle class="point" cx="' + xs(i) + '" cy="' + ys(v) + '" r="3"/>'; }).join('');
+    return values.reduce(function (a, b) { return a + b; }, 0);
+  }
+
+  function renderRepSales() {
+    var period = parseInt($('repSalesPeriod').value, 10) || 30;
+    var inP = filterByDays(orders, period);
+    var rev = inP.reduce(function (a, o) { return a + (o.total || 0); }, 0);
+    var qty = inP.length;
+    var items = inP.reduce(function (a, o) { return a + (o.items || []).reduce(function (b, it) { return b + (it.qty || 1); }, 0); }, 0);
+    $('repSalesKpis').innerHTML = ''
+      + kpiCard('Receita total', fmt(rev), 'orange', '$')
+      + kpiCard('Pedidos', fmtInt(qty), 'blue', '#')
+      + kpiCard('Itens vendidos', fmtInt(items), 'purple', '◇')
+      + kpiCard('Ticket médio', fmt(qty ? rev / qty : 0), 'green', 'R$');
+    var total = lineChart('repSalesChart', period);
+    $('repSalesTotal').textContent = fmt(total);
+  }
+  $('repSalesPeriod')?.addEventListener('change', renderRepSales);
+
+  function renderRepBestsellers() {
+    var period = parseInt($('repBestsellersPeriod').value, 10) || 30;
+    var inP = filterByDays(orders, period);
+    var counts = {};
+    inP.forEach(function (o) {
+      (o.items || []).forEach(function (it) {
+        if (!counts[it.name]) counts[it.name] = { qty: 0, revenue: 0, orderIds: new Set() };
+        counts[it.name].qty += it.qty || 1;
+        counts[it.name].revenue += (it.price || 0) * (it.qty || 1);
+        counts[it.name].orderIds.add(o.id);
+      });
+    });
+    var totalRev = Object.values(counts).reduce(function (a, b) { return a + b.revenue; }, 0) || 1;
+    var top = Object.entries(counts)
+      .map(function (e) { return { name: e[0], qty: e[1].qty, revenue: e[1].revenue, orders: e[1].orderIds.size }; })
+      .sort(function (a, b) { return b.revenue - a.revenue; })
+      .slice(0, 10);
+    var tbody = document.querySelector('#repBestsellersTable tbody');
+    tbody.innerHTML = top.length
+      ? top.map(function (p, i) {
+          var pct = (p.revenue / totalRev * 100).toFixed(1).replace('.', ',');
+          return '<tr><td class="strong">' + (i + 1) + '</td><td class="strong">' + escHtml(p.name) + '</td>'
+            + '<td class="num">' + p.orders + '</td><td class="num">' + p.qty + '</td>'
+            + '<td class="num">' + fmt(p.revenue) + '</td><td class="num">' + pct + '%</td></tr>';
+        }).join('')
+      : '<tr><td colspan="6"><div class="ap-data-empty">Sem dados no período.</div></td></tr>';
+  }
+  $('repBestsellersPeriod')?.addEventListener('change', renderRepBestsellers);
+
+  function renderRepTicket() {
+    var period = parseInt($('repTicketPeriod').value, 10) || 30;
+    var inP = filterByDays(orders, period);
+    var rev = inP.reduce(function (a, o) { return a + (o.total || 0); }, 0);
+    var avg = inP.length ? rev / inP.length : 0;
+    var min = inP.length ? Math.min.apply(null, inP.map(function (o) { return o.total || 0; })) : 0;
+    var max = inP.length ? Math.max.apply(null, inP.map(function (o) { return o.total || 0; })) : 0;
+    $('repTicketKpis').innerHTML = ''
+      + kpiCard('Ticket médio', fmt(avg), 'orange', 'R$')
+      + kpiCard('Maior pedido', fmt(max), 'green', '↑')
+      + kpiCard('Menor pedido', fmt(min), 'amber', '↓')
+      + kpiCard('Total pedidos', fmtInt(inP.length), 'blue', '#');
+
+    /* Daily average ticket */
+    var buckets = {};
+    for (var i = 0; i < period; i++) {
+      var d = new Date(Date.now() - (period - 1 - i) * 86400000);
+      buckets[d.toISOString().slice(0, 10)] = { sum: 0, count: 0 };
+    }
+    inP.forEach(function (o) {
+      var key = String(o.createdAt).slice(0, 10);
+      if (buckets[key]) { buckets[key].sum += (o.total || 0); buckets[key].count += 1; }
+    });
+    var keys = Object.keys(buckets).sort();
+    var values = keys.map(function (k) { return buckets[k].count ? buckets[k].sum / buckets[k].count : 0; });
+    drawSimpleLine('repTicketChart', values);
+
+    /* Ranges */
+    var ranges = [
+      { label: 'Até R$ 100', min: 0, max: 100 },
+      { label: 'R$ 100 - 300', min: 100, max: 300 },
+      { label: 'R$ 300 - 600', min: 300, max: 600 },
+      { label: 'R$ 600 - 1.500', min: 600, max: 1500 },
+      { label: 'Acima R$ 1.500', min: 1500, max: Infinity }
+    ];
+    ranges.forEach(function (r) { r.count = inP.filter(function (o) { return (o.total || 0) >= r.min && (o.total || 0) < r.max; }).length; });
+    var maxCount = Math.max.apply(null, ranges.map(function (r) { return r.count; })) || 1;
+    $('repTicketRanges').innerHTML = ranges.map(function (r) {
+      var pct = (r.count / maxCount) * 100;
+      return '<div class="dash-bar-row"><span class="dash-bar-label">' + r.label + '</span>'
+        + '<div class="dash-bar-track"><div class="dash-bar-fill" style="width:' + pct.toFixed(0) + '%"></div></div>'
+        + '<span class="dash-bar-value">' + r.count + '</span></div>';
+    }).join('');
+  }
+  function drawSimpleLine(svgId, values) {
+    var svg = $(svgId);
+    if (!svg) return;
+    var w = 700, h = 220, pad = { top: 20, right: 20, bottom: 30, left: 50 };
+    var max = Math.max.apply(null, values) || 1;
+    var xs = function (i) { return pad.left + i * ((w - pad.left - pad.right) / Math.max(1, values.length - 1)); };
+    var ys = function (v) { return pad.top + (h - pad.top - pad.bottom) * (1 - v / max); };
+    var p = values.map(function (v, i) { return (i === 0 ? 'M' : 'L') + xs(i).toFixed(1) + ',' + ys(v).toFixed(1); }).join(' ');
+    var grid = '';
+    for (var g = 0; g <= 3; g++) {
+      var gy = pad.top + (h - pad.top - pad.bottom) * (g / 3);
+      grid += '<line class="grid" x1="' + pad.left + '" y1="' + gy + '" x2="' + (w - pad.right) + '" y2="' + gy + '"/>';
+    }
+    svg.innerHTML = grid + '<path class="line" d="' + p + '"/>';
+  }
+  $('repTicketPeriod')?.addEventListener('change', renderRepTicket);
+
+  function renderRepPending() {
+    var pending = orders.filter(function (o) { return o.status === 'paid' || o.status === 'separating'; });
+    var late = pending.filter(function (o) { return (Date.now() - new Date(o.createdAt).getTime()) > 2 * 86400000; });
+    var totalValue = pending.reduce(function (a, o) { return a + (o.total || 0); }, 0);
+    $('repPendingKpis').innerHTML = ''
+      + kpiCard('Total pendentes', pending.length, 'amber', '⏱')
+      + kpiCard('Aguardando há +2 dias', late.length, 'red', '⚠')
+      + kpiCard('Valor em aberto', fmt(totalValue), 'orange', '$')
+      + kpiCard('Aguardando separação', orders.filter(function (o) { return o.status === 'separating'; }).length, 'blue', '📦');
+
+    var tbody = document.querySelector('#repPendingTable tbody');
+    tbody.innerHTML = pending.length
+      ? pending.sort(function (a, b) { return new Date(a.createdAt) - new Date(b.createdAt); }).map(function (o) {
+          var s = statusMap[o.status];
+          var lateClass = (Date.now() - new Date(o.createdAt).getTime()) > 2 * 86400000 ? 'red' : 'amber';
+          return '<tr><td class="strong">#' + o.number + '</td><td>' + escHtml((o.customer && o.customer.name) || '—') + '</td>'
+            + '<td><span class="ap-pill ' + lateClass + '">' + ago(o.createdAt) + '</span></td>'
+            + '<td><span class="ap-pill ' + s.pill + '">' + s.label + '</span></td>'
+            + '<td class="num">' + fmt(o.total) + '</td>'
+            + '<td class="col-actions"><button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar</button></td></tr>';
+        }).join('')
+      : '<tr><td colspan="6"><div class="ap-data-empty"><strong>Tudo em dia!</strong>Nenhum pedido aguardando atendimento.</div></td></tr>';
+  }
+
+  function renderRepFinancial() {
+    var period = parseInt($('repFinPeriod').value, 10) || 30;
+    var inP = filterByDays(orders, period);
+    var rev = inP.reduce(function (a, o) { return a + (o.total || 0); }, 0);
+    var ship = inP.reduce(function (a, o) { return a + (o.shipping || 0); }, 0);
+    var avg = inP.length ? rev / inP.length : 0;
+    $('repFinKpis').innerHTML = ''
+      + kpiCard('Faturamento total', fmt(rev), 'orange', '$')
+      + kpiCard('Frete coletado', fmt(ship), 'blue', '🚚')
+      + kpiCard('Ticket médio', fmt(avg), 'green', 'R$')
+      + kpiCard('Receita líquida', fmt(rev - ship), 'purple', '≈');
+    lineChart('repFinChart', period);
+
+    /* Pie: forma de pagamento */
+    var methods = [
+      { key: 'pix', label: 'Pix', color: '#EC4815' },
+      { key: 'cartao', label: 'Cartão', color: '#2563EB' },
+      { key: 'boleto', label: 'Boleto', color: '#D97706' }
+    ];
+    var counts = methods.map(function (m) {
+      var subset = inP.filter(function (o) { return o.paymentMethod === m.key; });
+      return Object.assign({}, m, {
+        count: subset.length,
+        revenue: subset.reduce(function (a, o) { return a + (o.total || 0); }, 0)
+      });
+    });
+    var totalCount = counts.reduce(function (a, b) { return a + b.count; }, 0);
+    var svg = $('repFinPie');
+    if (totalCount === 0) {
+      svg.innerHTML = '<text x="90" y="95" text-anchor="middle" fill="#9EA6B4" font-size="12" font-family="Inter,sans-serif" transform="rotate(90 90 90)">sem dados</text>';
+      $('repFinPieLegend').innerHTML = '';
+    } else {
+      var cx = 90, cy = 90, r = 78, start = 0;
+      svg.style.transform = 'rotate(-90deg)';
+      svg.innerHTML = counts.map(function (m) {
+        if (!m.count) return '';
+        var angle = (m.count / totalCount) * Math.PI * 2;
+        var end = start + angle;
+        var x1 = cx + r * Math.cos(start), y1 = cy + r * Math.sin(start);
+        var x2 = cx + r * Math.cos(end), y2 = cy + r * Math.sin(end);
+        var large = angle > Math.PI ? 1 : 0;
+        var d = 'M' + cx + ',' + cy + ' L' + x1.toFixed(2) + ',' + y1.toFixed(2) + ' A' + r + ',' + r + ' 0 ' + large + ' 1 ' + x2.toFixed(2) + ',' + y2.toFixed(2) + ' Z';
+        start = end;
+        return '<path d="' + d + '" fill="' + m.color + '"/>';
+      }).join('');
+      $('repFinPieLegend').innerHTML = counts.filter(function (m) { return m.count > 0; }).map(function (m) {
+        var pct = Math.round(m.count / totalCount * 100);
+        return '<div class="dash-legend-row"><span class="dash-legend-dot" style="background:' + m.color + '"></span>'
+          + '<span class="dash-legend-label">' + m.label + '</span>'
+          + '<span class="dash-legend-value">' + fmt(m.revenue) + '</span>'
+          + '<span class="dash-legend-pct">' + pct + '%</span></div>';
+      }).join('');
+    }
+  }
+  $('repFinPeriod')?.addEventListener('change', renderRepFinancial);
+
+  function renderRepAbandoned() {
+    /* Carrinhos abertos: localStorage de outros usuários não acessamos diretamente.
+       Mostramos funil baseado em sessões estimadas (10x pedidos) + visualização. */
+    var convertedOrders = orders.length;
+    var sessions = Math.max(convertedOrders * 12, 100);
+    var visited = sessions;
+    var viewedProduct = Math.round(sessions * 0.62);
+    var addedCart = Math.round(sessions * 0.18);
+    var startedCheckout = Math.round(sessions * 0.08);
+    var purchased = convertedOrders;
+    var abandonedRate = addedCart ? Math.round((1 - purchased / addedCart) * 100) : 0;
+    var lostRevenue = (addedCart - purchased) * (orders.reduce(function (a, o) { return a + (o.total || 0); }, 0) / Math.max(1, orders.length));
+
+    $('repAbandonedKpis').innerHTML = ''
+      + kpiCard('Taxa de abandono', abandonedRate + '%', 'red', '↓')
+      + kpiCard('Carrinhos com itens', fmtInt(addedCart - purchased), 'amber', '🛒')
+      + kpiCard('Receita potencial perdida', fmt(lostRevenue), 'orange', '$')
+      + kpiCard('Conversão final', (sessions ? (purchased / sessions * 100).toFixed(1) : '0') + '%', 'green', '✓');
+
+    var funnel = [
+      { label: 'Visitou o site', count: visited },
+      { label: 'Viu produto', count: viewedProduct },
+      { label: 'Adicionou ao carrinho', count: addedCart },
+      { label: 'Iniciou checkout', count: startedCheckout },
+      { label: 'Comprou', count: purchased }
+    ];
+    var max = funnel[0].count;
+    $('repAbandonedFunnel').innerHTML = funnel.map(function (f, i) {
+      var pct = (f.count / max) * 100;
+      var color = i === funnel.length - 1 ? 'green' : (i >= 3 ? '' : 'alt');
+      return '<div class="dash-bar-row"><span class="dash-bar-label">' + f.label + '</span>'
+        + '<div class="dash-bar-track"><div class="dash-bar-fill ' + color + '" style="width:' + pct.toFixed(0) + '%"></div></div>'
+        + '<span class="dash-bar-value">' + fmtInt(f.count) + '</span></div>';
+    }).join('');
+
+    /* Lista de carrinhos: não temos dados granulares. Mostramos amostra ilustrativa. */
+    var sample = [
+      { name: 'Visitante 8412', items: 3, value: 487, lastActive: '15min' },
+      { name: 'Visitante 8408', items: 1, value: 129, lastActive: '42min' },
+      { name: 'Visitante 8402', items: 5, value: 1240, lastActive: '2h' },
+      { name: 'Visitante 8398', items: 2, value: 298, lastActive: '4h' }
+    ];
+    $('repAbandonedList').innerHTML = sample.map(function (s) {
+      return '<div style="background:white;border:1px solid #E5E8EF;border-radius:9px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px">'
+        + '<div><div style="font-weight:600">' + s.name + '</div><div style="color:#9EA6B4;font-size:11.5px">' + s.items + ' itens · há ' + s.lastActive + '</div></div>'
+        + '<div style="font-weight:700;color:#15191F">' + fmt(s.value) + '</div></div>';
+    }).join('') + '<p style="font-size:11.5px;color:#9EA6B4;margin-top:4px">Dados estimados. Para acompanhamento real, ative analytics no site.</p>';
+  }
+
+  /* Render quando tab é trocada */
+  function renderForTab(name) {
+    if (name === 'orders') renderOrders();
+    else if (name === 'customers') renderCustomers();
+    else if (name === 'rep-sales') renderRepSales();
+    else if (name === 'rep-bestsellers') renderRepBestsellers();
+    else if (name === 'rep-avg-ticket') renderRepTicket();
+    else if (name === 'rep-pending') renderRepPending();
+    else if (name === 'rep-financial') renderRepFinancial();
+    else if (name === 'rep-abandoned') renderRepAbandoned();
+  }
+
+  /* Render inicial pra todos (alguns ficam hidden mas dados ficam prontos) */
+  renderOrders();
+  renderCustomers();
+  renderRepSales();
+  renderRepBestsellers();
+  renderRepTicket();
+  renderRepPending();
+  renderRepFinancial();
+  renderRepAbandoned();
+
+  /* Badge de leads na topbar */
+  if (window.__championAdminLeadsCount !== undefined) {
+    var badge = $('topbarLeadsBadge');
+    if (badge && window.__championAdminLeadsCount > 0) {
+      badge.textContent = window.__championAdminLeadsCount;
+      badge.hidden = false;
+    }
   }
 })();
 </script>

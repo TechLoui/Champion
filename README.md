@@ -17,12 +17,7 @@ Champion/
 │   ├── login-blog.html        # Login do painel do blog
 │   ├── admin.html             # Painel admin · visão geral / produtos / banners / contatos / configurações
 │   ├── painel-blog.html       # Painel do blog
-│   ├── admin/                 # Sub-páginas do painel administrativo
-│   │   ├── _panel.css         # CSS compartilhado por todas as sub-páginas
-│   │   ├── _panel.js          # Login guard + sidebar + logout (script comum)
-│   │   ├── produtos-cadastro.html  # Catálogo & preços
-│   │   ├── pedidos.html            # Pedidos & frete (kanban + lista)
-│   │   └── clientes.html           # Base de clientes
+│   │                          # (Sem sub-páginas — tudo unificado em admin.html)
 │   ├── assets/                # Imagens e vídeos
 │   ├── css/                   # CSS do site público
 │   └── js/                    # Scripts do site (módulos ES + Firebase client)
@@ -55,17 +50,26 @@ Champion/
 
 ### Visão geral das telas
 
-**Núcleo** (em `admin.html`, com tabs internas):
-- Visão geral · dashboard com gráficos (KPIs, linha, donut, barras, pizza)
-- Produtos · catálogo (grid de cards + drawer lateral de edição)
-- Banners · home
-- Contatos · leads
-- Configurações · gerais
+Tudo unificado em `admin.html` (single-page com tabs):
 
-**Operação** (sub-páginas em `admin/`):
-- Catálogo & preços — produtos, categorias, tabelas de preço
-- Pedidos & frete — kanban + lista + status (Pago → Separação → Trânsito → Entregue)
-- Clientes — base com histórico de compras, segmentação, bloqueio/reativação
+**Sidebar principal:**
+- Visão Geral · dashboard com gráficos (KPIs, linha, donut, barras, pizza)
+- Pedidos · kanban + lista, avançar status
+- Catálogo · grid de cards + drawer lateral de edição
+- Clientes · base com histórico, bloqueio/reativação
+- Banners Site · carrossel da home
+
+**Dropdown Relatórios (sidebar):**
+- Total de Vendas
+- Produtos Mais Vendidos
+- Ticket Médio
+- Pedidos Pendentes
+- Relatório Financeiro
+- Abandono de Carrinho
+
+**Topbar (ícones):**
+- Contatos (leads do formulário)
+- Configurações (info de contato/promo)
 
 ### Acesso
 
