@@ -460,44 +460,37 @@
   </div>
 
 </div>
+<script src="js/admin-auth.js"></script>
 <script>
 (function () {
-  var SESSION_KEY = 'champion-blog-admin-session';
-  var ADMIN_EMAIL = 'admin@champion.com.br';
-  var ADMIN_PASSWORD = 'Champion@2026';
-
-  try {
-    var session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-    if (session && session.loggedAt) {
-      window.location.replace('painel-blog.html');
-      return;
-    }
-  } catch (e) {}
+  /* Já logado? vai pro painel */
+  if (window.ChampionAdminAuth && window.ChampionAdminAuth.isLogged(window.ChampionAdminAuth.BLOG_SESSION_KEY)) {
+    window.location.replace('painel-blog.html');
+    return;
+  }
 
   var form = document.querySelector('form');
   var errorBox = document.getElementById('loginError');
   var btn = form.querySelector('button[type="submit"]');
 
-  form.addEventListener('submit', function (e) {
+  form.addEventListener('submit', async function (e) {
     e.preventDefault();
     errorBox.style.display = 'none';
+    btn.disabled = true;
+    btn.innerHTML = 'Entrando...';
 
     var email = form.querySelector('#email').value.trim().toLowerCase();
     var password = form.querySelector('#password').value.trim();
 
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      errorBox.textContent = 'E-mail ou senha incorretos.';
-      errorBox.style.display = 'block';
-      return;
-    }
-
     try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ user: email, loggedAt: new Date().toISOString() }));
-    } catch (e) {}
-
-    btn.disabled = true;
-    btn.innerHTML = 'Entrando...';
-    window.location.replace('painel-blog.html');
+      await window.ChampionAdminAuth.login(email, password);
+      window.location.replace('painel-blog.html');
+    } catch (err) {
+      errorBox.textContent = err.message || 'Erro ao entrar.';
+      errorBox.style.display = 'block';
+      btn.disabled = false;
+      btn.innerHTML = 'Entrar';
+    }
   });
 })();
 </script>

@@ -1319,6 +1319,7 @@
   </div><!-- /ap-main -->
 </div><!-- /ap-shell -->
 
+<script src="js/admin-auth.js"></script>
 <script>
 (function () {
   var SESSION_KEY = 'champion-admin-session';
@@ -1366,30 +1367,36 @@
   var loginFeedback = document.getElementById('adminLoginFeedback');
 
   if (loginForm) {
-    loginForm.addEventListener('submit', function (e) {
+    loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       var emailInput    = document.getElementById('adminLoginEmail');
       var passwordInput = document.getElementById('adminLoginPassword');
       var email    = emailInput    ? emailInput.value.trim().toLowerCase()    : '';
       var password = passwordInput ? passwordInput.value.trim() : '';
-      console.log('[login] email:', email, '| password:', password);
-      if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      var submitBtn = loginForm.querySelector('button[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Entrando...'; }
+      try {
+        if (!window.ChampionAdminAuth) throw new Error('Módulo de autenticação não carregou.');
+        var session = await window.ChampionAdminAuth.login(email, password);
+        if (loginFeedback) { loginFeedback.textContent = ''; loginFeedback.style.display = 'none'; }
+        showApp(session.user || email);
+      } catch (err) {
         if (loginFeedback) {
-          loginFeedback.textContent = 'E-mail ou senha incorretos.';
+          loginFeedback.textContent = err.message || 'Não foi possível entrar.';
           loginFeedback.style.display = 'block';
         }
-        return;
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Entrar no painel'; }
       }
-      if (loginFeedback) loginFeedback.textContent = '';
-      setSession(email);
-      showApp(email);
     });
   }
 
   var logoutBtn = document.getElementById('adminLogout');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', function () {
-      clearSession(); /* admin.js handles Firebase signOut + redirect */
+    logoutBtn.addEventListener('click', async function () {
+      if (window.ChampionAdminAuth) await window.ChampionAdminAuth.logout();
+      else clearSession();
+      window.location.replace('login-admin.html');
     });
   }
 

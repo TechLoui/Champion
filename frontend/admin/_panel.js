@@ -10,7 +10,11 @@
   var SESSION_KEY = 'champion-admin-session';
   var ADMIN_EMAIL = 'admin@champion.com.br';
 
-  /* ---- Auth guard ---------------------------------------------------- */
+  /* ---- Auth guard --------------------------------------------------- *
+   * Lê sessão de localStorage (tanto modo Firebase quanto local escrevem essa chave
+   * via ChampionAdminAuth). Não verifica auth.currentUser aqui porque o módulo
+   * Firebase é assíncrono — confiamos no cache de sessão e as Firestore rules
+   * cuidam de escritas não-autenticadas.                                */
   try {
     var raw = localStorage.getItem(SESSION_KEY);
     var session = raw ? JSON.parse(raw) : null;
@@ -92,8 +96,13 @@
 
     var logoutBtns = document.querySelectorAll('[data-admin-logout]');
     logoutBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+      btn.addEventListener('click', async function () {
+        /* Se ChampionAdminAuth estiver carregado, deslogamos do Firebase também */
+        if (window.ChampionAdminAuth) {
+          try { await window.ChampionAdminAuth.logout(); } catch (e) {}
+        } else {
+          try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+        }
         window.location.replace('../login-admin.html');
       });
     });

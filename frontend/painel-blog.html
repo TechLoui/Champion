@@ -951,27 +951,38 @@
   var loginFeedback = document.getElementById('blogLoginFeedback');
 
   if (loginForm) {
-    loginForm.addEventListener('submit', function (e) {
+    loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
       var email    = ((loginForm.querySelector('[name="email"]')    || {}).value || '').trim().toLowerCase();
       var password = (((loginForm.querySelector('[name="password"]') || {}).value) || '').trim();
-      if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-        if (loginFeedback) loginFeedback.textContent = 'E-mail ou senha incorretos.';
-        return;
+      var submitBtn = loginForm.querySelector('button[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Entrando...'; }
+      try {
+        if (!window.ChampionAdminAuth) throw new Error('Módulo de autenticação não carregou.');
+        var session = await window.ChampionAdminAuth.login(email, password);
+        if (loginFeedback) { loginFeedback.textContent = ''; loginFeedback.style.display = 'none'; }
+        showApp(session.user || email);
+      } catch (err) {
+        if (loginFeedback) {
+          loginFeedback.textContent = err.message || 'E-mail ou senha incorretos.';
+          loginFeedback.style.display = 'block';
+        }
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Entrar no painel'; }
       }
-      if (loginFeedback) loginFeedback.textContent = '';
-      setSession(email);
-      showApp(email);
     });
   }
 
-  /* Logout — sidebar button */
+  /* Logout (sidebar + topbar) — sai do Firebase também */
+  async function doFullLogout() {
+    if (window.ChampionAdminAuth) await window.ChampionAdminAuth.logout();
+    else clearSession();
+    window.location.replace('login-blog.html');
+  }
   var logoutBtn = document.getElementById('blogAdminLogout');
-  if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
-
-  /* Logout — topbar button */
+  if (logoutBtn) logoutBtn.addEventListener('click', doFullLogout);
   var logoutBtn2 = document.getElementById('blogAdminLogout2');
-  if (logoutBtn2) logoutBtn2.addEventListener('click', doLogout);
+  if (logoutBtn2) logoutBtn2.addEventListener('click', doFullLogout);
 
   /* Mirror #blogSeedDefaults2 clicks to #blogSeedDefaults so blog.js gets a single target */
   var seedBtn2 = document.getElementById('blogSeedDefaults2');
@@ -1121,6 +1132,7 @@
   };
 })();
 </script>
+<script src="js/admin-auth.js"></script>
 <script type="module" src="js/blog.js"></script>
 </body>
 </html>
