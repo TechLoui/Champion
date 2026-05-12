@@ -1292,21 +1292,127 @@
       max-width: 680px;
     }
 
+    /* ── Mobile hamburger + backdrop ── */
+    .bp-mobile-toggle {
+      display: none;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: white;
+      border: 1.5px solid #E4E8EF;
+      color: #15191F;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .bp-mobile-toggle svg { width: 20px; height: 20px; }
+    .bp-mobile-toggle:hover { background: #F4F5F8; }
+
+    .bp-sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,17,23,0.55);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .bp-sidebar-backdrop.is-open { display: block; opacity: 1; }
+
     /* ─── Responsive ─── */
     @media (max-width: 1100px) {
       .bp-posts-layout { grid-template-columns: 1fr; }
     }
-    @media (max-width: 860px) {
-      .bp-sidebar { width: 200px; }
-      .bp-content { padding: 20px; }
-      .bp-topbar { padding: 0 20px; }
+
+    @media (max-width: 980px) {
+      .bp-shell { position: relative; }
+
+      .bp-sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        transform: translateX(-100%);
+        transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 200;
+        box-shadow: 12px 0 40px rgba(0,0,0,0.25);
+      }
+      .bp-sidebar.is-mobile-open { transform: translateX(0); }
+
+      .bp-main { width: 100%; }
+
+      .bp-topbar {
+        padding: 0 16px;
+        gap: 8px;
+      }
+      .bp-mobile-toggle { display: inline-flex; }
+
+      .bp-topbar-crumb { display: none; }
+      .bp-topbar-title {
+        font-size: 14px;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .bp-topbar-actions { gap: 6px; }
+      .bp-topbar-actions .bp-btn span { display: none; }
+      .bp-topbar-actions .bp-btn { padding: 8px 10px; }
+      .bp-topbar-actions .bp-btn svg { margin: 0; }
+
+      .bp-content { padding: 18px; }
+
+      /* Editor: form e prévia em stack */
+      .bp-editor { grid-template-columns: 1fr; gap: 14px; }
+      .bp-editor-header { gap: 10px; }
+      .bp-editor-header h2 { font-size: 18px; width: 100%; }
+      .bp-editor-header-spacer { display: none; }
+
+      /* Preview card sai do sticky no mobile */
+      .bp-preview-card { position: relative; top: auto; }
+      .bp-preview-body { max-height: none; }
+
+      /* Posts grid cards menores */
+      .bp-posts-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+      .bp-post-card-body { padding: 12px 14px 10px; }
+      .bp-post-card-actions { padding: 8px 10px; flex-wrap: wrap; }
+
+      /* Templates em coluna */
+      .bp-templates { grid-template-columns: 1fr; }
+
+      /* Section heads (lista) */
+      .bp-section-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .bp-section-head-actions { width: 100%; }
+      .bp-section-head-actions .bp-btn { flex: 1; justify-content: center; }
+
+      /* Form grid */
+      .bp-form-grid { grid-template-columns: 1fr; }
     }
-    @media (max-width: 680px) {
-      .bp-shell { flex-direction: column; }
-      .bp-sidebar { width: 100%; height: auto; }
-      .bp-nav { flex-direction: row; overflow-x: auto; padding: 8px; flex-wrap: wrap; }
-      .bp-nav button { white-space: nowrap; }
-      .bp-login-card { padding: 36px 28px; }
+
+    @media (max-width: 600px) {
+      .bp-content { padding: 14px; }
+      .bp-section-head h2 { font-size: 17px; }
+      .bp-section-head p { font-size: 12.5px; }
+
+      /* Login card mais compacto */
+      .bp-login-card { padding: 30px 22px; }
+
+      /* Upload areas mais baixas */
+      .bp-hero-upload, .bp-secondary-upload { border-radius: 10px; }
+
+      /* Preview compacto */
+      .bp-prev-body { max-height: none; }
+      .bp-prev-title { font-size: 19px; }
+      .bp-prev-content { font-size: 14px; }
+    }
+
+    @media (max-width: 420px) {
+      .bp-posts-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -1315,10 +1421,11 @@
 <!-- ═══════════════════════════════════════════════
      APP SHELL
 ════════════════════════════════════════════════ -->
+<div class="bp-sidebar-backdrop" id="bpSidebarBackdrop" aria-hidden="true"></div>
 <div data-blog-admin-app class="bp-shell" hidden>
 
   <!-- ── Sidebar ── -->
-  <aside class="bp-sidebar">
+  <aside class="bp-sidebar" id="bpSidebar">
     <a href="blog.html" class="bp-sidebar-brand" aria-label="Champion — ir para o blog">
       <img src="assets/img/brand/logo.png" alt="Champion" />
     </a>
@@ -1357,6 +1464,9 @@
 
     <!-- Topbar -->
     <header class="bp-topbar">
+      <button class="bp-mobile-toggle" type="button" id="bpMobileToggle" aria-label="Abrir menu" aria-controls="bpSidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
       <div class="bp-topbar-left">
         <span class="bp-topbar-crumb">Blog Champion</span>
         <span class="bp-topbar-title">Painel do blog</span>
@@ -2273,6 +2383,46 @@
       (items || []).forEach(addStepRow);
     }
   };
+
+  /* ── Mobile sidebar toggle (painel-blog) ───────────────────── */
+  var bpSidebar = document.getElementById('bpSidebar');
+  var bpBackdrop = document.getElementById('bpSidebarBackdrop');
+  var bpToggle = document.getElementById('bpMobileToggle');
+
+  function openBpSidebar() {
+    if (bpSidebar) bpSidebar.classList.add('is-mobile-open');
+    if (bpBackdrop) bpBackdrop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeBpSidebar() {
+    if (bpSidebar) bpSidebar.classList.remove('is-mobile-open');
+    if (bpBackdrop) bpBackdrop.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  if (bpToggle) bpToggle.addEventListener('click', function () {
+    if (bpSidebar && bpSidebar.classList.contains('is-mobile-open')) closeBpSidebar();
+    else openBpSidebar();
+  });
+  if (bpBackdrop) bpBackdrop.addEventListener('click', closeBpSidebar);
+
+  document.querySelectorAll('.bp-nav button[data-blog-tab]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (window.matchMedia('(max-width: 980px)').matches) closeBpSidebar();
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && bpSidebar && bpSidebar.classList.contains('is-mobile-open')) {
+      closeBpSidebar();
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 980 && bpSidebar && bpSidebar.classList.contains('is-mobile-open')) {
+      closeBpSidebar();
+    }
+  });
 })();
 </script>
 <script src="js/admin-auth.js"></script>

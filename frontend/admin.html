@@ -866,20 +866,173 @@
     .admin-row-banner-link { font-size: 12px; color: #9EA6B4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
 
     /* ─── Responsive ─── */
+    /* ── Hamburger button (só aparece em mobile) ── */
+    .ap-mobile-toggle {
+      display: none;
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: white;
+      border: 1.5px solid #E4E8EF;
+      color: #15191F;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .ap-mobile-toggle svg { width: 20px; height: 20px; }
+    .ap-mobile-toggle:hover { background: #F4F5F8; }
+
+    /* ── Backdrop quando sidebar abre no mobile ── */
+    .ap-sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(13,17,23,0.55);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+    .ap-sidebar-backdrop.is-open {
+      display: block;
+      opacity: 1;
+    }
+
     @media (max-width: 1100px) {
       .ap-products-layout { grid-template-columns: 1fr; }
     }
-    @media (max-width: 860px) {
-      .ap-sidebar { width: 200px; }
-      .ap-content { padding: 20px; }
-      .ap-topbar { padding: 0 20px; }
+
+    /* Mobile: sidebar vira drawer off-canvas */
+    @media (max-width: 980px) {
+      .ap-shell { position: relative; }
+
+      .ap-sidebar {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        transform: translateX(-100%);
+        transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 200;
+        box-shadow: 12px 0 40px rgba(0,0,0,0.25);
+      }
+      .ap-sidebar.is-mobile-open { transform: translateX(0); }
+
+      .ap-main { width: 100%; }
+
+      .ap-topbar {
+        padding: 0 16px;
+        gap: 8px;
+      }
+      .ap-mobile-toggle { display: inline-flex; }
+
+      /* Esconde breadcrumb e título em mobile (sobra espaço) */
+      .ap-topbar-crumb { display: none; }
+      .ap-topbar-title {
+        font-size: 14px;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .ap-topbar-actions { gap: 6px; }
+      /* "Ver site" texto some, vira só ícone */
+      .ap-topbar-actions .ap-btn-ghost span,
+      .ap-topbar-actions .ap-btn-danger span { display: none; }
+      .ap-topbar-actions .ap-btn { padding: 8px 10px; }
+      .ap-topbar-actions .ap-btn svg { margin: 0; }
+
+      .ap-content { padding: 18px; }
+
+      /* Dashboard mobile-friendly */
+      .dash-hello {
+        padding: 18px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .dash-hello h2 { font-size: 19px; }
+      .dash-kpis { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+      .dash-kpi { padding: 14px 16px; }
+      .dash-kpi-value { font-size: 22px; }
+      .dash-grid, .dash-grid.three, .dash-grid.equal { grid-template-columns: 1fr; gap: 12px; }
+      .dash-card { padding: 18px 18px; }
+      .dash-line { height: 180px; }
+      .dash-donut-wrap { flex-direction: column; align-items: stretch; }
+
+      /* Drawer (produto/banner) ocupa tela toda */
+      .prod-drawer-panel { width: 100%; max-width: 100%; }
+      .prod-drawer-head { padding: 16px 18px; }
+      .prod-drawer-body { padding: 18px; }
+      .prod-drawer-foot { padding: 14px 18px; flex-direction: column; }
+      .prod-drawer-foot .ap-btn { width: 100%; justify-content: center; }
+
+      /* Tabelas: forçar scroll horizontal */
+      .ap-data-table { min-width: 600px; }
+      .ap-data-toolbar { gap: 8px; }
+      .ap-data-toolbar .ap-search-wrap { max-width: 100%; }
+      .filter-select { min-width: 0; flex: 1; }
+
+      /* Section head mais compacto */
+      .ap-section-head {
+        flex-direction: column;
+        align-items: stretch;
+        margin-bottom: 18px;
+      }
+      .ap-section-head-actions { width: 100%; }
+      .ap-section-head-actions .ap-btn { flex: 1; justify-content: center; }
+      .ap-section-head h2 { font-size: 19px; }
+      .ap-section-head p { font-size: 13px; }
+
+      /* Tabs internas viram scroll horizontal */
+      .ap-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .ap-tabs::-webkit-scrollbar { display: none; }
+
+      /* Kanban vira coluna única */
+      .ap-kanban { grid-template-columns: 1fr; gap: 12px; }
+
+      /* Cards de produto */
+      .prod-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+      .prod-card-body { padding: 12px 14px 10px; }
+      .prod-card-body h4 { font-size: 13.5px; }
+      .prod-card-actions { padding: 8px 10px; flex-wrap: wrap; }
+      .icon-btn { font-size: 11.5px; padding: 7px 5px; }
     }
-    @media (max-width: 680px) {
-      .ap-shell { flex-direction: column; }
-      .ap-sidebar { width: 100%; height: auto; }
-      .ap-nav { flex-direction: row; overflow-x: auto; padding: 8px; flex-wrap: wrap; }
-      .ap-nav button { white-space: nowrap; }
-      .ap-metrics { grid-template-columns: 1fr 1fr; }
+
+    @media (max-width: 600px) {
+      .dash-kpis { grid-template-columns: 1fr 1fr; }
+      .dash-kpi-head { gap: 6px; }
+      .dash-kpi-label { font-size: 10.5px; letter-spacing: 0.04em; }
+      .dash-kpi-value { font-size: 19px; }
+      .dash-spark { width: 50px; height: 22px; }
+
+      .ap-form-grid { grid-template-columns: 1fr; }
+      .ap-section-head h2 { font-size: 17px; }
+      .ap-content { padding: 14px; }
+
+      /* Confirmações de drawer */
+      .prod-drawer-head h3 { font-size: 15px; }
+      .prod-drawer-head p { font-size: 12px; }
+
+      /* Pills/tags menores */
+      .ap-pill, .ap-tag { font-size: 10.5px; padding: 2px 8px; }
+
+      /* Tabelas: padding menor */
+      .ap-data-table thead th,
+      .ap-data-table tbody td { padding: 10px 12px; font-size: 12.5px; }
+
+      /* Topbar icons mais apertados */
+      .ap-topbar-icon { width: 36px; height: 36px; }
+      .ap-topbar-icon svg { width: 15px; height: 15px; }
+
+      /* Esconde o user info do sidebar foot em telas muito pequenas para sobrar espaço */
+      .ap-user-info .ap-user-mode { font-size: 9.5px; }
+    }
+
+    @media (max-width: 420px) {
+      .dash-kpis { grid-template-columns: 1fr; }
+      .prod-grid { grid-template-columns: 1fr; }
     }
 
     /* ════════════════════════════════════════════════════════════
@@ -1862,10 +2015,11 @@
 <!-- ═══════════════════════════════════════════════
      APP SHELL
 ════════════════════════════════════════════════ -->
+<div class="ap-sidebar-backdrop" id="apSidebarBackdrop" aria-hidden="true"></div>
 <div class="ap-shell" data-admin-app hidden>
 
   <!-- ── Sidebar ── -->
-  <aside class="ap-sidebar">
+  <aside class="ap-sidebar" id="apSidebar">
     <a href="index.html" class="ap-sidebar-brand" aria-label="Champion — ir para o site">
       <img src="assets/img/brand/logo.png" alt="Champion" />
     </a>
@@ -1944,6 +2098,9 @@
 
     <!-- Topbar -->
     <header class="ap-topbar">
+      <button class="ap-mobile-toggle" type="button" id="apMobileToggle" aria-label="Abrir menu" aria-controls="apSidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
       <div class="ap-topbar-left">
         <span class="ap-topbar-crumb">Champion</span>
         <span class="ap-topbar-title">Painel administrativo</span>
@@ -2933,6 +3090,51 @@
           p.hidden = p.getAttribute('data-admin-panel') !== tab;
         });
       });
+    }
+  });
+
+  /* ── Mobile sidebar toggle ──────────────────────────── */
+  var apSidebar = document.getElementById('apSidebar');
+  var apBackdrop = document.getElementById('apSidebarBackdrop');
+  var apToggle = document.getElementById('apMobileToggle');
+
+  function openMobileSidebar() {
+    if (apSidebar) apSidebar.classList.add('is-mobile-open');
+    if (apBackdrop) apBackdrop.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMobileSidebar() {
+    if (apSidebar) apSidebar.classList.remove('is-mobile-open');
+    if (apBackdrop) apBackdrop.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  if (apToggle) apToggle.addEventListener('click', function () {
+    if (apSidebar && apSidebar.classList.contains('is-mobile-open')) closeMobileSidebar();
+    else openMobileSidebar();
+  });
+  if (apBackdrop) apBackdrop.addEventListener('click', closeMobileSidebar);
+
+  /* Fecha o sidebar ao clicar em qualquer item de navegação (só em mobile) */
+  document.querySelectorAll('.ap-nav button[data-admin-tab], .ap-nav a, .ap-nav-submenu button').forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (window.matchMedia('(max-width: 980px)').matches) {
+        closeMobileSidebar();
+      }
+    });
+  });
+
+  /* Fecha com Escape */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && apSidebar && apSidebar.classList.contains('is-mobile-open')) {
+      closeMobileSidebar();
+    }
+  });
+
+  /* Se voltar pro desktop com o drawer aberto, fecha pra liberar o body */
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 980 && apSidebar && apSidebar.classList.contains('is-mobile-open')) {
+      closeMobileSidebar();
     }
   });
 })();
