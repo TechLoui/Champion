@@ -140,29 +140,90 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     return product.status === 'draft' ? 'Rascunho' : 'Publicado';
   }
 
+  const SPECIES_LABELS = {
+    bovinos: 'Bovinos', equinos: 'Equinos', suinos: 'Suínos', aves: 'Aves',
+    minerais: 'Minerais', ambientes: 'Ambientes', veterinario: 'Veterinário'
+  };
+
+  function updateCatalogKpis() {
+    const total = productsCache.length;
+    const pub = productsCache.filter((p) => p.status === 'published').length;
+    const draft = total - pub;
+    const prices = productsCache.map((p) => Number(p.price) || 0).filter((n) => n > 0);
+    const avg = prices.length ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+    const min = prices.length ? Math.min(...prices) : 0;
+    const max = prices.length ? Math.max(...prices) : 0;
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('catKpiTotal', total);
+    set('catKpiPublished', pub);
+    set('catKpiPubPct', total ? `${Math.round((pub / total) * 100)}% do catálogo` : '—');
+    set('catKpiDrafts', draft);
+    set('catKpiDraftHint', draft ? 'Aguardando publicação' : 'Tudo publicado ✓');
+    set('catKpiAvgPrice', formatBRL(avg));
+    set('catKpiPriceRange', prices.length ? `de ${formatBRL(min)} a ${formatBRL(max)}` : 'Sem preços definidos');
+  }
+
+  function renderResultBar(filtered) {
+    const bar = document.getElementById('catResultBar');
+    if (!bar) return;
+    const term = String(refs.productSearch?.value || '').trim();
+    const speciesFilter = String(document.getElementById('adminProductSpeciesFilter')?.value || '');
+    const statusFilter = String(document.getElementById('adminProductStatusFilter')?.value || '');
+    const chips = [];
+    if (term) chips.push({ key: 'term', label: `Busca: "${term}"` });
+    if (speciesFilter) chips.push({ key: 'species', label: `Espécie: ${SPECIES_LABELS[speciesFilter] || speciesFilter}` });
+    if (statusFilter) chips.push({ key: 'status', label: `Status: ${statusFilter === 'published' ? 'Publicados' : 'Rascunhos'}` });
+
+    const countStr = filtered.length === productsCache.length
+      ? `<strong>${productsCache.length}</strong> produtos no catálogo`
+      : `<strong>${filtered.length}</strong> de ${productsCache.length} produtos`;
+
+    bar.innerHTML = `
+      <div class="cat-result-count">${countStr}</div>
+      <div class="cat-active-filters">
+        ${chips.map((c) => `
+          <span class="cat-filter-chip">${c.label}
+            <button type="button" data-clear-filter="${c.key}" aria-label="Remover filtro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </span>
+        `).join('')}
+        ${chips.length > 1 ? '<button class="cat-clear-filters" type="button" data-clear-filter="all">Limpar todos</button>' : ''}
+      </div>
+    `;
+  }
+
+  function sortProducts(list, mode) {
+    const arr = list.slice();
+    if (mode === 'name-asc') return arr.sort((a, b) => String(a.name).localeCompare(String(b.name), 'pt-BR'));
+    if (mode === 'name-desc') return arr.sort((a, b) => String(b.name).localeCompare(String(a.name), 'pt-BR'));
+    if (mode === 'price-asc') return arr.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+    if (mode === 'price-desc') return arr.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+    if (mode === 'newest') return arr.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+    return arr; /* ordem padrão (já vem ordenada do store) */
+  }
+
   function renderProducts() {
     const list = refs.productList;
     if (!list) return;
     const term = String(refs.productSearch?.value || '').trim().toLowerCase();
     const speciesFilter = String(document.getElementById('adminProductSpeciesFilter')?.value || '');
     const statusFilter = String(document.getElementById('adminProductStatusFilter')?.value || '');
+    const sortMode = String(document.getElementById('adminProductSort')?.value || 'order');
 
-    const products = productsCache.filter((product) => {
+    let products = productsCache.filter((product) => {
       const haystack = `${product.name} ${product.category} ${product.excerpt} ${product.id}`.toLowerCase();
       if (term && !haystack.includes(term)) return false;
       if (speciesFilter && product.species !== speciesFilter) return false;
       if (statusFilter && product.status !== statusFilter) return false;
       return true;
     });
+    products = sortProducts(products, sortMode);
 
-    /* Stats no toolbar */
-    const stats = document.getElementById('adminProductStats');
-    if (stats) {
-      const total = productsCache.length;
-      const pub = productsCache.filter((p) => p.status === 'published').length;
-      const draft = total - pub;
-      stats.innerHTML = `<strong>${total}</strong> produtos · ${pub} publicados · ${draft} rascunhos`;
-    }
+    /* KPIs e barra de resultado */
+    updateCatalogKpis();
+    renderResultBar(products);
+
+    /* Mantém o data-view-mode (controlado pelo toggle button) */
+    if (!list.getAttribute('data-view-mode')) list.setAttribute('data-view-mode', 'grid');
 
     if (!productsCache.length) {
       list.innerHTML = `
@@ -178,14 +239,14 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     }
 
     if (!products.length) {
-      list.innerHTML = '<div class="prod-empty-state"><h3>Nenhum produto bate com os filtros</h3><p>Tente outra busca ou limpe os filtros.</p></div>';
+      list.innerHTML = '<div class="prod-empty-state"><h3>Nenhum produto bate com os filtros</h3><p>Tente outra busca ou ajuste os filtros acima.</p><button class="ap-btn ap-btn-ghost" type="button" data-clear-filter="all" style="margin-top:14px">Limpar todos os filtros</button></div>';
       return;
     }
 
     list.innerHTML = products.map((product) => `
-      <article class="prod-card">
+      <article class="prod-card" data-status="${escapeHtml(product.status)}">
         <div class="prod-card-img">
-          <img src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" />
+          <img src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.style.opacity='0.3'" />
           <span class="status-pill${product.status === 'draft' ? ' is-draft' : ''}">${productStatusLabel(product)}</span>
           ${product.tag ? `<span class="tag-pill">${escapeHtml(product.tag)}</span>` : ''}
         </div>
@@ -531,6 +592,33 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     refs.productSearch?.addEventListener('input', renderProducts);
     $('#adminProductSpeciesFilter')?.addEventListener('change', renderProducts);
     $('#adminProductStatusFilter')?.addEventListener('change', renderProducts);
+    $('#adminProductSort')?.addEventListener('change', renderProducts);
+
+    /* View mode toggle (grid ↔ list) */
+    document.querySelectorAll('.cat-view-toggle button[data-view-mode]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-view-mode');
+        document.querySelectorAll('.cat-view-toggle button').forEach((b) => b.classList.toggle('is-active', b === btn));
+        if (refs.productList) refs.productList.setAttribute('data-view-mode', mode);
+      });
+    });
+
+    /* Clear filter chips */
+    document.addEventListener('click', (e) => {
+      const clearBtn = e.target.closest('[data-clear-filter]');
+      if (!clearBtn) return;
+      const which = clearBtn.getAttribute('data-clear-filter');
+      if (which === 'term' || which === 'all') {
+        if (refs.productSearch) refs.productSearch.value = '';
+      }
+      if (which === 'species' || which === 'all') {
+        const f = $('#adminProductSpeciesFilter'); if (f) f.value = '';
+      }
+      if (which === 'status' || which === 'all') {
+        const f = $('#adminProductStatusFilter'); if (f) f.value = '';
+      }
+      renderProducts();
+    });
 
     /* Botões de fechar drawer (genérico — fecha o .prod-drawer mais próximo) */
     document.addEventListener('click', (e) => {
