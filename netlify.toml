@@ -1,5 +1,6 @@
 # Netlify deploy config — Champion Saúde Animal frontend
-# Site público: https://ecommerce-champion.netlify.app
+# Site público: https://ofertaschampion.com.br
+# URL Netlify (fallback): https://ecommerce-champion.netlify.app
 
 [build]
   publish = "frontend"

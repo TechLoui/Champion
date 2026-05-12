@@ -114,9 +114,36 @@ firebase deploy --only hosting
 
 A URL pública aparece no final do deploy (algo como `https://champion-xxxxx.web.app`).
 
-### 3.2. Domínio customizado (opcional)
+### 3.2. Domínio customizado · `ofertaschampion.com.br`
 
-No console: **Hosting → Adicionar domínio personalizado** → adicione `champion.ind.br`. O Firebase mostra os registros DNS (geralmente A `151.101.x.x` ou CNAME). Configure no painel do seu registrador (Registro.br, Cloudflare, etc.).
+O domínio oficial em produção é **`https://ofertaschampion.com.br`**, hospedado via Netlify.
+
+**No painel do Netlify:**
+
+1. <https://app.netlify.com/sites/ecommerce-champion/domain-management>
+2. **Add custom domain** → `ofertaschampion.com.br`
+3. Netlify mostra os registros DNS necessários (NS, A ou CNAME)
+
+**No painel do registrador (Registro.br):**
+
+1. Acesse o painel do `ofertaschampion.com.br`
+2. Aponte os DNS para Netlify (geralmente apex `A 75.2.60.5` + `www` CNAME `apex-loadbalancer.netlify.com`) ou use os Netlify DNS nameservers
+3. Aguarde propagação (5 min a 24h)
+
+**Importante depois do domínio funcionar:**
+
+1. **Firebase Authentication** → Settings → **Authorized domains** → adicionar:
+   - `ofertaschampion.com.br`
+   - `www.ofertaschampion.com.br`
+
+2. **Railway** → variável `ALLOWED_ORIGINS` deve incluir o domínio novo:
+   ```
+   https://ofertaschampion.com.br,https://www.ofertaschampion.com.br,https://ecommerce-champion.netlify.app
+   ```
+
+3. **SSL** é emitido automaticamente pelo Netlify (Let's Encrypt) após o DNS propagar — sem ação manual necessária.
+
+Após esses 3 ajustes, `https://ofertaschampion.com.br` será o domínio oficial e os fluxos de auth + leads vão funcionar normalmente.
 
 ### 3.3. Deploy automático via GitHub Actions
 
@@ -147,7 +174,7 @@ Em **Settings → Variables**, declare:
 
 | Variável | Valor | Obrigatória? |
 |---|---|---|
-| `ALLOWED_ORIGINS` | `https://champion-xxxxx.web.app,https://champion.ind.br` | **Sim** |
+| `ALLOWED_ORIGINS` | `https://ofertaschampion.com.br,https://www.ofertaschampion.com.br,https://ecommerce-champion.netlify.app` | **Sim** |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON completo da service account (mesmo do GitHub) | Sim, para salvar leads no Firestore |
 | `RESEND_API_KEY` | Chave da API do Resend (<https://resend.com/api-keys>) | Para enviar e-mail de notificação |
 | `NOTIFICATION_EMAIL` | E-mail que recebe os contatos (ex.: `comercial@champion.ind.br`) | Para enviar e-mail |

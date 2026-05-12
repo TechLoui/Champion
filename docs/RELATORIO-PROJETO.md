@@ -32,7 +32,7 @@ O projeto entrega uma **plataforma completa de e-commerce e gestão** para a Cha
                                            ▼
                 ┌──────────────────────────────────────────────────────┐
                 │              FRONTEND · Netlify                      │
-                │   https://ecommerce-champion.netlify.app             │
+                │   https://ofertaschampion.com.br                     │
                 │   • HTML/CSS/JS estático (sem framework pesado)      │
                 │   • Modules ES6 carregados via CDN                   │
                 │   • Deploy automático via push no GitHub             │
@@ -503,7 +503,7 @@ O sistema atual já está pronto para receber esses três módulos sem necessida
 ## 8. Repositório e acesso
 
 - **Código:** <https://github.com/TechLoui/Champion>
-- **Site:** <https://ecommerce-champion.netlify.app>
+- **Site:** <https://ofertaschampion.com.br>
 - **Console Firebase:** <https://console.firebase.google.com/project/champion-e84e8>
 - **Painel Railway:** <https://railway.app> (acesso via conta do projeto)
 
