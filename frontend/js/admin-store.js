@@ -22,6 +22,7 @@ const DEFAULT_BANNERS = [
 function normalizeSlide(slide = {}) {
   return {
     image: String(slide.image || '').trim(),
+    imageMobile: String(slide.imageMobile || '').trim(),
     eyebrow: String(slide.eyebrow || '').trim(),
     title: String(slide.title || '').trim(),
     subtitle: String(slide.subtitle || '').trim(),
@@ -36,6 +37,7 @@ function normalizeBanner(banner = {}, index = 0) {
   if (!slides) {
     slides = [{
       image: banner.image || '',
+      imageMobile: banner.imageMobile || '',
       eyebrow: banner.label || '',
       title: '',
       subtitle: '',
@@ -59,6 +61,7 @@ function normalizeBanner(banner = {}, index = 0) {
     slides,
     /* Campos legados mantidos para retrocompatibilidade no front público */
     image: slides[0] ? slides[0].image : '',
+    imageMobile: slides[0] ? slides[0].imageMobile : '',
     link: slides[0] ? slides[0].link : '',
     alt: String(banner.alt || (slides[0] && slides[0].title) || '').trim(),
     label: String(banner.label || (slides[0] && slides[0].eyebrow) || `Banner ${index + 1}`).trim(),

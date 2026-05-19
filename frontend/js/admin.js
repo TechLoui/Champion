@@ -1,4 +1,4 @@
-import { getAdminStore, friendlyAdminError } from './admin-store.js';
+import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260519-4';
 import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js';
 
 (async function () {
@@ -54,7 +54,8 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
   }
 
   function setBusy(form, busy, label = 'Salvando...') {
-    const button = form?.querySelector('button[type="submit"]');
+    const button = form?.querySelector('button[type="submit"]')
+      || (form?.id ? document.querySelector(`button[type="submit"][form="${form.id}"]`) : null);
     if (!button) return;
     if (busy) button.dataset.previousHtml = button.innerHTML;
     button.disabled = busy;
@@ -380,6 +381,64 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
 
   /* In-memory slide state for the open banner */
   let _bannerSlides = [];
+  const _bannerUploadPromises = new Set();
+
+  function emptyBannerSlide(overrides = {}) {
+    return Object.assign({ image: '', imageMobile: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' }, overrides);
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function trackBannerUpload(promise) {
+    _bannerUploadPromises.add(promise);
+    promise.then(
+      () => _bannerUploadPromises.delete(promise),
+      () => _bannerUploadPromises.delete(promise)
+    );
+    return promise;
+  }
+
+  async function waitForBannerUploads() {
+    if (!_bannerUploadPromises.size) return;
+    setFeedback(refs.bannerFeedback, 'Aguardando upload das imagens...');
+    const results = await Promise.allSettled(Array.from(_bannerUploadPromises));
+    const failed = results.find((result) => result.status === 'rejected');
+    if (failed) throw failed.reason;
+  }
+
+  function isDataUrl(value) {
+    return String(value || '').startsWith('data:image/');
+  }
+
+  async function uploadBannerSlideImage(file, idx, target) {
+    const preview = await readFileAsDataUrl(file);
+    if (!_bannerSlides[idx]) return;
+    _bannerSlides[idx][target] = preview;
+    renderBannerSlides();
+
+    try {
+      const url = await store.uploadImage(file, 'banners');
+      if (_bannerSlides[idx]) {
+        _bannerSlides[idx][target] = url;
+        renderBannerSlides();
+      }
+    } catch (err) {
+      if (store.isFirebase) {
+        if (_bannerSlides[idx] && _bannerSlides[idx][target] === preview) _bannerSlides[idx][target] = '';
+        renderBannerSlides();
+        throw new Error('Upload da imagem falhou. Verifique as permissoes do Storage e tente novamente.');
+      }
+      console.warn('Upload do banner falhou, usando preview local:', err.message);
+    }
+  }
+
   function renderBannerSlides() {
     const wrap = document.getElementById('adminBannerSlides');
     const counter = document.getElementById('slidesCount');
@@ -395,11 +454,19 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
           <strong style="font-size:13px;color:#15191F">Slide ${i + 1}</strong>
           <button type="button" data-remove-slide="${i}" style="background:none;border:none;color:#C13808;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:5px">Remover</button>
         </div>
-        <div style="display:grid;grid-template-columns:120px 1fr;gap:12px;align-items:start">
+        <div style="display:grid;grid-template-columns:minmax(120px,150px) minmax(120px,150px) minmax(0,1fr);gap:12px;align-items:start">
           <div>
-            <div style="aspect-ratio:16/9;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}">
+            <label style="display:block;font-size:11px;font-weight:700;color:#687080;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Desktop</label>
+            <div style="aspect-ratio:16/9;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}" data-slide-target="image">
               ${s.image ? `<img src="${escapeHtml(s.image)}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Clique<br>p/ upload</div>'}
             </div>
+          </div>
+          <div>
+            <label style="display:block;font-size:11px;font-weight:700;color:#687080;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Mobile</label>
+            <div style="aspect-ratio:9/16;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}" data-slide-target="imageMobile">
+              ${s.imageMobile ? `<img src="${escapeHtml(s.imageMobile)}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Opcional<br>usa desktop</div>'}
+            </div>
+            ${s.imageMobile ? `<button type="button" data-clear-slide-mobile="${i}" style="margin-top:6px;background:none;border:0;color:#C13808;font-size:11.5px;font-weight:600;cursor:pointer;padding:0">Remover mobile</button>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <input type="text" data-slide-field="eyebrow" data-slide-idx="${i}" value="${escapeHtml(s.eyebrow || '')}" placeholder="Eyebrow (ex: Página Inicial)" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none" />
@@ -424,7 +491,7 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     if (form.elements.page) form.elements.page.value = 'home';
     if (form.elements.aspect) form.elements.aspect.value = '16/9';
     if (form.elements.transitionMs) form.elements.transitionMs.value = '6';
-    _bannerSlides = [{ image: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' }];
+    _bannerSlides = [emptyBannerSlide()];
     renderBannerSlides();
     $('#adminBannerSubmitLabel').textContent = 'Salvar banner';
     setFeedback(refs.bannerFeedback, '');
@@ -446,8 +513,8 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     form.elements.status.value = banner.status || 'published';
     form.elements.order.value = String(banner.order || 1);
     _bannerSlides = (banner.slides && banner.slides.length)
-      ? banner.slides.map((s) => Object.assign({ image: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' }, s))
-      : [{ image: banner.image || '', eyebrow: banner.label || '', title: '', subtitle: '', link: banner.link || '', cta: '' }];
+      ? banner.slides.map((s) => emptyBannerSlide(s))
+      : [emptyBannerSlide({ image: banner.image || '', imageMobile: banner.imageMobile || '', eyebrow: banner.label || '', link: banner.link || '' })];
     renderBannerSlides();
     $('#adminBannerSubmitLabel').textContent = 'Salvar alterações';
     setFeedback(refs.bannerFeedback, '');
@@ -765,7 +832,7 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
         setFeedback(refs.bannerFeedback, 'Máximo de 5 fotos por banner.');
         return;
       }
-      _bannerSlides.push({ image: '', eyebrow: '', title: '', subtitle: '', link: '', cta: '' });
+      _bannerSlides.push(emptyBannerSlide());
       renderBannerSlides();
     });
 
@@ -778,34 +845,26 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
         renderBannerSlides();
         return;
       }
+      const clearMobileBtn = e.target.closest('[data-clear-slide-mobile]');
+      if (clearMobileBtn) {
+        const idx = parseInt(clearMobileBtn.getAttribute('data-clear-slide-mobile'), 10);
+        if (_bannerSlides[idx]) _bannerSlides[idx].imageMobile = '';
+        renderBannerSlides();
+        return;
+      }
       const upload = e.target.closest('[data-slide-upload]');
       if (upload) {
         const idx = parseInt(upload.getAttribute('data-slide-upload'), 10);
+        const target = upload.getAttribute('data-slide-target') || 'image';
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/jpeg,image/png,image/webp';
         input.addEventListener('change', async () => {
           const file = input.files && input.files[0];
           if (!file) return;
-          if (file.size > 4 * 1024 * 1024) { alert('Imagem muito grande. Máximo 4 MB.'); return; }
-          try {
-            const reader = new FileReader();
-            reader.onload = async () => {
-              _bannerSlides[idx].image = reader.result;
-              renderBannerSlides();
-              try {
-                const url = await store.uploadImage(file, 'banners');
-                _bannerSlides[idx].image = url;
-                renderBannerSlides();
-              } catch (err) {
-                /* Fallback: mantém base64 (funciona localmente) */
-                console.warn('Upload do banner falhou, usando preview local:', err.message);
-              }
-            };
-            reader.readAsDataURL(file);
-          } catch (err) {
-            setFeedback(refs.bannerFeedback, 'Erro no upload: ' + err.message);
-          }
+          if (file.size > 4 * 1024 * 1024) { alert('Imagem muito grande. Maximo 4 MB.'); return; }
+          trackBannerUpload(uploadBannerSlideImage(file, idx, target))
+            .catch((err) => setFeedback(refs.bannerFeedback, err.message || 'Erro no upload.'));
         });
         input.click();
       }
@@ -821,13 +880,18 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     refs.bannerForm?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!refs.bannerForm.reportValidity()) return;
-      const validSlides = _bannerSlides.filter((s) => s.image);
-      if (!validSlides.length) {
-        setFeedback(refs.bannerFeedback, 'Adicione ao menos uma foto ao carrossel.');
-        return;
-      }
       setBusy(refs.bannerForm, true);
       try {
+        await waitForBannerUploads();
+        const validSlides = _bannerSlides.filter((s) => s.image);
+        if (!validSlides.length) {
+          setFeedback(refs.bannerFeedback, 'Adicione ao menos uma foto ao carrossel.');
+          return;
+        }
+        if (store.isFirebase && validSlides.some((s) => isDataUrl(s.image) || isDataUrl(s.imageMobile))) {
+          setFeedback(refs.bannerFeedback, 'Aguarde o upload terminar antes de salvar.');
+          return;
+        }
         const data = Object.fromEntries(new FormData(refs.bannerForm).entries());
         /* Converte segundos do form em ms */
         data.transitionMs = Math.max(2, Number(data.transitionMs || 6)) * 1000;

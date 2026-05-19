@@ -4727,6 +4727,7 @@ p { margin: 0; }
   pointer-events: auto;
 }
 .cms-banner-slide img,
+.cms-banner-slide picture,
 .cms-banner-slide .cms-banner-link,
 .cms-banner-slide .cms-banner-static {
   position: absolute;
@@ -4734,6 +4735,7 @@ p { margin: 0; }
   width: 100%;
   height: 100%;
 }
+.cms-banner-slide picture { display: block; }
 .cms-banner-slide img {
   object-fit: cover;
 }

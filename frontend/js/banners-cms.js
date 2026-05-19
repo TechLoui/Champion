@@ -7,7 +7,7 @@
  * Para cada página que tiver um <div data-banner-page="<key>"> a gente
  * popula com o banner publicado correspondente.
  */
-import { getAdminStore } from './admin-store.js';
+import { getAdminStore } from './admin-store.js?v=20260519-4';
 
 (async function () {
   'use strict';
@@ -79,7 +79,7 @@ import { getAdminStore } from './admin-store.js';
   function renderGenericBanner(banner, target) {
     const slides = (banner.slides && banner.slides.length)
       ? banner.slides
-      : [{ image: banner.image, eyebrow: banner.label, link: banner.link, title: '', subtitle: '', cta: '' }];
+      : [{ image: banner.image, imageMobile: banner.imageMobile, eyebrow: banner.label, link: banner.link, title: '', subtitle: '', cta: '' }];
 
     target.classList.add('cms-banner');
     target.style.setProperty('--banner-aspect', banner.aspect || '16/9');
@@ -94,7 +94,13 @@ import { getAdminStore } from './admin-store.js';
               ${s.subtitle ? `<p class="cms-banner-subtitle">${esc(s.subtitle)}</p>` : ''}
               ${s.cta && s.link ? `<a class="cms-banner-cta" href="${esc(s.link)}">${esc(s.cta)} →</a>` : ''}
             </div>` : '';
-          const img = `<img src="${esc(s.image)}" alt="${esc(s.title || s.eyebrow || '')}" />`;
+          const desktopSrc = esc(s.image || '');
+          const mobileSrc = esc(s.imageMobile || s.image || '');
+          const img = `
+            <picture>
+              <source media="(max-width: 720px)" srcset="${mobileSrc}" />
+              <img src="${desktopSrc}" alt="${esc(s.title || s.eyebrow || '')}" />
+            </picture>`;
           const inner = s.link && !s.cta
             ? `<a href="${esc(s.link)}" class="cms-banner-link" aria-label="${esc(s.title || 'Banner')}">${img}${overlay}</a>`
             : `<div class="cms-banner-static">${img}${overlay}</div>`;
