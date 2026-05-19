@@ -460,15 +460,9 @@
   </div>
 
 </div>
-<script src="js/admin-auth.js"></script>
+<script src="js/admin-auth.js?v=20260519-3"></script>
 <script>
 (function () {
-  /* Já logado? vai direto pro painel */
-  if (window.ChampionAdminAuth && window.ChampionAdminAuth.isLogged()) {
-    window.location.replace('admin.html');
-    return;
-  }
-
   var form = document.querySelector('form');
   var errorBox = document.getElementById('loginError');
   var btn = form.querySelector('button[type="submit"]');

@@ -921,7 +921,7 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
         if (refs.app) refs.app.hidden = true;
         return;
       }
-      window.location.replace('login-admin.html');
+      window.location.replace('login-admin.html?expired=1');
       return;
     }
     appEverLoaded = true;
