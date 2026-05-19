@@ -902,10 +902,18 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
   }
 
   const LOCAL_USER_LABEL = 'admin@champion.com.br';
+  const ADMIN_SESSION_KEYS = ['champion-admin-session', 'champion-blog-admin-session'];
   let appEverLoaded = false;
+
+  function clearAdminSessions() {
+    ADMIN_SESSION_KEYS.forEach((key) => {
+      try { localStorage.removeItem(key); } catch {}
+    });
+  }
 
   async function syncAuth(logged, user = null) {
     if (!logged) {
+      clearAdminSessions();
       /* Se há form de login embarcado neste HTML, usa ele.
          Caso contrário, redireciona para a página dedicada login-admin.html. */
       if (refs.login) {
