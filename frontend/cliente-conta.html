@@ -105,6 +105,24 @@
     }
     .foot a { color: #687080; text-decoration: none; }
     .foot a:hover { color: #15191F; }
+
+    /* Mobile polish */
+    @media (max-width: 480px) {
+      body { padding: 16px; align-items: flex-start; padding-top: 32px; }
+      .card { padding: 28px 22px; border-radius: 16px; }
+      .logo { width: 110px; margin-bottom: 22px; }
+      h1 { font-size: 22px; }
+      .sub { font-size: 13.5px; margin-bottom: 22px; }
+      .tabs { margin-bottom: 20px; }
+      .tabs button { font-size: 13px; padding: 10px 8px; min-height: 40px; }
+      .field input, .field select { font-size: 16px; padding: 13px 14px; }
+      .row { grid-template-columns: 1fr; gap: 0; }
+      .btn { padding: 14px; font-size: 15px; min-height: 48px; }
+    }
+    @media (max-width: 380px) {
+      body { padding: 12px; padding-top: 24px; }
+      .card { padding: 22px 18px; }
+    }
   </style>
 </head>
 <body>

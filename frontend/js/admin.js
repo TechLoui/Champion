@@ -906,14 +906,14 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
 
   async function syncAuth(logged, user = null) {
     if (!logged) {
-      /* After the app was shown (logout), redirect to the dedicated login page.
-         On initial check (app never shown), always display the embedded form. */
-      if (appEverLoaded) {
-        window.location.replace('login-admin.html');
+      /* Se há form de login embarcado neste HTML, usa ele.
+         Caso contrário, redireciona para a página dedicada login-admin.html. */
+      if (refs.login) {
+        refs.login.hidden = false;
+        if (refs.app) refs.app.hidden = true;
         return;
       }
-      if (refs.login) refs.login.hidden = false;
-      if (refs.app) refs.app.hidden = true;
+      window.location.replace('login-admin.html');
       return;
     }
     appEverLoaded = true;

@@ -43,11 +43,157 @@
   // ------------------------------------------------------------
   // Mobile menu
   // ------------------------------------------------------------
-  const menuToggle = document.getElementById('menuToggle');
-  const nav = document.getElementById('primaryNav');
-  if (menuToggle && nav) {
-    menuToggle.addEventListener('click', () => nav.classList.toggle('is-open'));
-  }
+  // Mobile menu — FAB + bottom-sheet panel (replaces header on <=720px)
+  (function setupMobileMenu() {
+    const nav = document.getElementById('primaryNav');
+    if (!nav || document.querySelector('.mobile-menu-fab')) return;
+
+    // Collect links from the desktop nav so the mobile panel mirrors them
+    const navLinks = Array.from(nav.querySelectorAll('a')).map(a => ({
+      href: a.getAttribute('href') || '#',
+      text: a.textContent.trim(),
+      active: a.classList.contains('active'),
+      target: a.getAttribute('target') || '',
+      rel: a.getAttribute('rel') || ''
+    }));
+
+    // Icon mapping per link
+    const iconFor = (text) => {
+      const t = text.toLowerCase();
+      if (t.includes('inicial') || t.includes('home') || t.includes('início')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+      }
+      if (t.includes('produto')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>';
+      }
+      if (t.includes('sobre')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+      }
+      if (t.includes('blog')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+      }
+      if (t.includes('revenda')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+      }
+      if (t.includes('cálculo') || t.includes('dose') || t.includes('calculo')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="10" y2="10"/><line x1="12" y1="10" x2="14" y2="10"/><line x1="8" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="14" y2="14"/><line x1="8" y1="18" x2="14" y2="18"/></svg>';
+      }
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/></svg>';
+    };
+    const arrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+
+    // Brand logo
+    const brandImg = document.querySelector('.site-header .brand img');
+    const brandSrc = brandImg ? brandImg.getAttribute('src') : 'assets/img/brand/logo.png';
+
+    // Build FAB
+    const fab = document.createElement('button');
+    fab.className = 'mobile-menu-fab';
+    fab.type = 'button';
+    fab.setAttribute('aria-label', 'Abrir menu');
+    fab.setAttribute('aria-expanded', 'false');
+    fab.setAttribute('aria-controls', 'mobilePanel');
+    fab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>';
+
+    // Build panel
+    const panel = document.createElement('div');
+    panel.className = 'mobile-panel';
+    panel.id = 'mobilePanel';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-label', 'Menu de navegação');
+
+    const linksHtml = navLinks.map(l => {
+      const isExternal = l.target === '_blank';
+      const externalAttrs = isExternal ? ` target="_blank" rel="${l.rel || 'noopener'}"` : '';
+      return `<a href="${l.href}"${externalAttrs}${l.active ? ' class="active"' : ''}>
+        <span class="ico">${iconFor(l.text)}</span>
+        <span class="label">${l.text}</span>
+        <span class="arrow">${arrowSvg}</span>
+      </a>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <div class="mobile-panel-backdrop" aria-hidden="true"></div>
+      <div class="mobile-panel-sheet" role="document">
+        <div class="mobile-panel-grip" aria-hidden="true"></div>
+        <div class="mobile-panel-brand">
+          <img src="${brandSrc}" alt="Champion" />
+          <button class="mobile-panel-close" type="button" aria-label="Fechar menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+          </button>
+        </div>
+        <div class="mobile-panel-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="mobilePanelSearch" placeholder="Buscar produtos…" autocomplete="off" />
+        </div>
+        <nav class="mobile-panel-nav" aria-label="Menu principal">
+          ${linksHtml}
+        </nav>
+        <div class="mobile-panel-foot">
+          <button type="button" id="mobilePanelAccount">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Minha conta
+          </button>
+          <a href="https://wa.me/5564993021616" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(fab);
+    document.body.appendChild(panel);
+
+    const backdrop = panel.querySelector('.mobile-panel-backdrop');
+    const closeBtn = panel.querySelector('.mobile-panel-close');
+    const accountBtn = panel.querySelector('#mobilePanelAccount');
+    const searchInput = panel.querySelector('#mobilePanelSearch');
+
+    const setOpen = (open) => {
+      panel.classList.toggle('is-open', open);
+      document.body.classList.toggle('mobile-panel-open', open);
+      fab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      fab.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    };
+
+    fab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setOpen(!panel.classList.contains('is-open'));
+    });
+    backdrop.addEventListener('click', () => setOpen(false));
+    closeBtn.addEventListener('click', () => setOpen(false));
+    panel.querySelectorAll('.mobile-panel-nav a').forEach(a => {
+      a.addEventListener('click', () => setOpen(false));
+    });
+    if (accountBtn) {
+      accountBtn.addEventListener('click', () => {
+        setOpen(false);
+        const trigger = document.querySelector('.account-trigger') || document.querySelector('[data-account-trigger]');
+        if (trigger) setTimeout(() => trigger.click(), 200);
+        else window.location.href = 'cliente-conta.html';
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && panel.classList.contains('is-open')) setOpen(false);
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const q = searchInput.value.trim();
+          if (q) window.location.href = 'produtos.html?q=' + encodeURIComponent(q);
+        }
+      });
+    }
+
+    window.addEventListener('resize', () => {
+      if (window.matchMedia('(min-width: 721px)').matches && panel.classList.contains('is-open')) {
+        setOpen(false);
+      }
+    });
+  })();
 
   // ------------------------------------------------------------
   // Header language switch
@@ -246,6 +392,37 @@
   }
   window.ChampionCarousel = { reinit: initHeroCarousel };
   initHeroCarousel();
+
+  // Mobile: indicador de scroll na base do hero
+  (function setupHeroScrollIndicator() {
+    const hero = document.querySelector('.hero');
+    if (!hero || hero.querySelector('.hero-scroll-indicator')) return;
+    const indicator = document.createElement('div');
+    indicator.className = 'hero-scroll-indicator';
+    indicator.setAttribute('aria-hidden', 'true');
+    indicator.innerHTML = `
+      <span class="hero-scroll-indicator-mouse"></span>
+      <span class="hero-scroll-indicator-label">Role</span>
+      <span class="hero-scroll-indicator-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </span>
+    `;
+    hero.appendChild(indicator);
+    const onScroll = () => {
+      if (window.scrollY > 40) {
+        hero.classList.add('is-scrolled');
+        window.removeEventListener('scroll', onScroll);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    // Clicar no indicador faz scroll suave para a próxima seção
+    indicator.style.pointerEvents = 'auto';
+    indicator.style.cursor = 'pointer';
+    indicator.addEventListener('click', () => {
+      const next = hero.nextElementSibling;
+      if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  })();
 
   // ------------------------------------------------------------
   // Story play button (focus video / open YouTube)

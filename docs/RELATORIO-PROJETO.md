@@ -31,11 +31,11 @@ O projeto entrega uma **plataforma completa de e-commerce e gestão** para a Cha
                                            │
                                            ▼
                 ┌──────────────────────────────────────────────────────┐
-                │              FRONTEND · Netlify                      │
+                │              FRONTEND · Hostinger                    │
                 │   https://ofertaschampion.com.br                     │
                 │   • HTML/CSS/JS estático (sem framework pesado)      │
                 │   • Modules ES6 carregados via CDN                   │
-                │   • Deploy automático via push no GitHub             │
+                │   • Hospedagem compartilhada Hostinger               │
                 └────────┬───────────────────────┬─────────────────────┘
                          │                       │
                          ▼                       ▼

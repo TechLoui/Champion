@@ -179,8 +179,39 @@
       .calc-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 720px) {
-      .calc-card, .calc-result { padding: 28px; }
-      .calc-row { grid-template-columns: 1fr; }
+      .calc-grid { gap: 18px; }
+      .calc-card, .calc-result { padding: 22px; border-radius: 14px; }
+      .calc-card h3, .calc-result h3 { font-size: 18px; }
+      .calc-card > p { font-size: 13px; margin-bottom: 22px; }
+      .calc-field { margin-bottom: 16px; }
+      .calc-input, .calc-select { padding: 13px 14px; font-size: 16px; }
+      .calc-row { grid-template-columns: 1fr; gap: 0; }
+      .calc-row .calc-field { margin-bottom: 16px; }
+      .calc-actions { flex-direction: column; gap: 10px; margin-top: 22px; }
+      .calc-actions .btn { width: 100%; }
+      .calc-result { min-height: 0; }
+      .result-empty { padding: 32px 8px; }
+      .result-empty svg { width: 60px; height: 60px; }
+      .result-headline { font-size: 26px; }
+      .result-sub { font-size: 13px; }
+      .result-list { padding: 16px 0; gap: 10px; }
+      .result-list div { font-size: 13px; }
+      .result-list div strong { font-size: 14px; }
+      .result-foot {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 18px;
+      }
+      .result-foot .btn { width: 100%; min-height: 46px; justify-content: center; }
+      .calc-disclaimer { margin-top: 22px; padding: 14px 16px; gap: 10px; }
+      .calc-disclaimer svg { width: 18px; height: 18px; }
+      .calc-disclaimer p { font-size: 12.5px; }
+    }
+    @media (max-width: 480px) {
+      .calc-card, .calc-result { padding: 18px; }
+      .result-headline { font-size: 22px; }
     }
 
     /* Quick guide */
@@ -215,6 +246,12 @@
     .guide-card h4 { font-size: 17px; font-weight: 700; letter-spacing: 0; margin-bottom: 8px; }
     .guide-card p { font-size: 14px; color: var(--steel); line-height: 1.6; }
     @media (max-width: 1024px) { .guide-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) {
+      .guide-grid { gap: 14px; }
+      .guide-card { padding: 22px 20px; }
+      .guide-card h4 { font-size: 16px; }
+      .guide-card p { font-size: 13.5px; }
+    }
   </style>
 </head>
 <body class="site-intro-active">

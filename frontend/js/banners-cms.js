@@ -37,7 +37,7 @@ import { getAdminStore } from './admin-store.js';
 
     const slides = (banner.slides && banner.slides.length)
       ? banner.slides
-      : [{ image: banner.image, eyebrow: banner.label, link: banner.link, title: '', subtitle: '', cta: '' }];
+      : [{ image: banner.image, imageMobile: banner.imageMobile, eyebrow: banner.label, link: banner.link, title: '', subtitle: '', cta: '' }];
 
     track.innerHTML = slides.map((s, i) => {
       const overlay = (s.eyebrow || s.title || s.subtitle || s.cta) ? `
@@ -47,7 +47,14 @@ import { getAdminStore } from './admin-store.js';
           ${s.subtitle ? `<p class="hero-slide-subtitle">${esc(s.subtitle)}</p>` : ''}
           ${s.cta && s.link ? `<a class="hero-slide-cta" href="${esc(s.link)}">${esc(s.cta)}</a>` : ''}
         </div>` : '';
-      const img = `<img src="${esc(s.image)}" alt="${esc(s.title || s.eyebrow || '')}" />`;
+      const altText = esc(s.title || s.eyebrow || '');
+      const desktopSrc = esc(s.image || '');
+      const mobileSrc = esc(s.imageMobile || s.image || '');
+      const img = `
+        <picture>
+          <source media="(max-width: 720px)" srcset="${mobileSrc}" />
+          <img src="${desktopSrc}" alt="${altText}" />
+        </picture>`;
       const inner = s.link
         ? `<a href="${esc(s.link)}" aria-label="${esc(s.title || s.eyebrow || 'Banner')}">${img}${overlay}</a>`
         : `<div class="hero-slide-static">${img}${overlay}</div>`;

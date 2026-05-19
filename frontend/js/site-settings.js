@@ -5,11 +5,9 @@ import { getAdminStore } from './admin-store.js';
 
   function setTextAfterIcon(node, text) {
     if (!node || !text) return;
-    const textNode = Array.from(node.childNodes).find((child) => child.nodeType === Node.TEXT_NODE);
-    if (textNode) {
-      textNode.nodeValue = text;
-      return;
-    }
+    Array.from(node.childNodes).forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) child.remove();
+    });
     node.append(document.createTextNode(text));
   }
 

@@ -203,6 +203,33 @@
       background: #FFF1EF; border: 1px solid #FAD0C6; color: #C13808;
     }
 
+    /* Mobile polish */
+    @media (max-width: 720px) {
+      .topbar { padding: 12px 16px; }
+      .topbar img { width: 90px; }
+      .topbar .back { font-size: 12px; }
+      .wrap { padding: 18px 14px 60px; gap: 18px; }
+      h1 { font-size: 22px; }
+      .lead { font-size: 13px; margin-bottom: 18px; }
+      .card { padding: 18px; margin-bottom: 12px; border-radius: 12px; }
+      .steps { gap: 4px; margin-bottom: 18px; flex-wrap: wrap; }
+      .step { padding: 10px 10px; font-size: 11.5px; gap: 6px; }
+      .step .num { width: 18px; height: 18px; font-size: 10px; }
+      .field input, .field select, .field textarea {
+        padding: 13px 13px;
+        font-size: 16px; /* evita zoom iOS */
+      }
+      .actions { flex-direction: column-reverse; align-items: stretch; gap: 8px; }
+      .actions .btn { width: 100%; justify-content: center; }
+      .summary { padding: 18px; border-radius: 12px; position: static; }
+      .summary-item img { width: 40px; height: 40px; }
+      .success-card { margin: 30px 14px; padding: 30px 22px; }
+    }
+    @media (max-width: 480px) {
+      .steps .step span:not(.num) { font-size: 10.5px; }
+      .pay-options label { padding: 12px 10px; font-size: 12.5px; }
+    }
+
     /* Success view */
     .success-card {
       background: white;
