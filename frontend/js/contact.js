@@ -3,7 +3,7 @@
 (function () {
   const API_URL = (
     typeof window !== 'undefined' && window.CHAMPION_API_URL
-  ) || 'https://champion-backend.up.railway.app/api/leads';
+  ) || 'https://champion-production-cab6.up.railway.app/api/leads';
 
   const form     = document.getElementById('contactForm');
   const feedback = document.getElementById('contactFeedback');
