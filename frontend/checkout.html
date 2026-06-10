@@ -270,7 +270,7 @@
 <div class="wrap" id="checkoutWrap">
   <div>
     <h1>Finalizar compra</h1>
-    <p class="lead">Revise seus dados e confirme o pedido. Sem gateway de pagamento — o pedido é registrado como <strong>pago</strong> assim que você confirma.</p>
+    <p class="lead">Revise seus dados, escolha a forma de pagamento e finalize com segurança. Pagamento processado via <strong>Pagar.me</strong>.</p>
 
     <div class="steps">
       <div class="step is-active" data-step-pill="1"><span class="num">1</span>Identificação</div>
@@ -327,15 +327,51 @@
     <!-- STEP 3: Payment -->
     <div class="card" data-step="3" hidden>
       <h2>3 · Forma de pagamento</h2>
-      <p style="color:#687080;font-size:13px;margin-bottom:14px">No ambiente de demonstração não há gateway. O pedido será marcado como <strong>pago</strong> assim que você confirmar.</p>
-      <div class="pay-options" style="margin-bottom:16px">
+      <div class="pay-options" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
         <label><input type="radio" name="payment" value="pix" checked /><span>📱 Pix</span></label>
         <label><input type="radio" name="payment" value="cartao" /><span>💳 Cartão</span></label>
         <label><input type="radio" name="payment" value="boleto" /><span>📄 Boleto</span></label>
       </div>
-      <div class="actions">
+
+      <!-- Card fields (shown only for credit card) -->
+      <div id="cardFields" hidden>
+        <div class="field"><label>Número do cartão</label><input id="ccNumber" type="text" inputmode="numeric" autocomplete="cc-number" placeholder="0000 0000 0000 0000" /></div>
+        <div class="field"><label>Nome impresso no cartão</label><input id="ccName" type="text" autocomplete="cc-name" placeholder="Como aparece no cartão" /></div>
+        <div class="row3">
+          <div class="field"><label>Validade</label><input id="ccExp" type="text" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/AA" maxlength="5" /></div>
+          <div class="field"><label>CVV</label><input id="ccCvv" type="text" inputmode="numeric" autocomplete="cc-csc" placeholder="123" maxlength="4" /></div>
+          <div class="field"><label>Parcelas</label><select id="ccInstallments"></select></div>
+        </div>
+        <p style="font-size:12px;color:#9EA6B4;display:flex;align-items:center;gap:6px;margin-top:2px">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Pagamento criptografado pela Pagar.me. Não armazenamos os dados do seu cartão.
+        </p>
+      </div>
+
+      <!-- Pix panel (shown after generating the charge) -->
+      <div id="pixPanel" hidden style="text-align:center;margin-top:4px">
+        <p style="color:#687080;font-size:13px;margin-bottom:12px">Escaneie o QR Code no app do seu banco ou use o Pix copia-e-cola. A confirmação é automática assim que o pagamento cair.</p>
+        <img id="pixQr" alt="QR Code Pix" style="width:220px;height:220px;border:1px solid #E5E8EF;border-radius:12px;padding:8px;background:#fff;object-fit:contain" />
+        <div style="margin:12px 0">
+          <button class="btn btn-ghost" type="button" id="pixCopy">📋 Copiar código Pix</button>
+        </div>
+        <div id="pixStatus" style="font-size:13px;font-weight:600;color:#687080">⏳ Aguardando pagamento…</div>
+      </div>
+
+      <!-- Boleto panel (shown after generating the boleto) -->
+      <div id="boletoPanel" hidden style="text-align:center;margin-top:4px">
+        <p style="color:#687080;font-size:13px;margin-bottom:14px">Seu boleto foi gerado. Pague em qualquer banco ou app até o vencimento — confirmamos automaticamente após a compensação (1–2 dias úteis).</p>
+        <div id="boletoLine" style="background:#F9FAFB;border:1px solid #E5E8EF;border-radius:10px;padding:12px;font-family:monospace;font-size:13px;word-break:break-all;margin-bottom:12px">—</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-ghost" type="button" id="boletoCopy">📋 Copiar linha digitável</button>
+          <a class="btn btn-primary" id="boletoPdf" target="_blank" rel="noopener">⬇ Baixar boleto (PDF)</a>
+        </div>
+        <div style="margin-top:16px"><a class="btn btn-ghost" href="produtos.html">Voltar à loja</a></div>
+      </div>
+
+      <div class="actions" id="payActions">
         <button class="btn btn-ghost" type="button" data-prev="2">← Voltar</button>
-        <button class="btn btn-primary" type="button" id="confirmOrder">Confirmar e finalizar pedido</button>
+        <button class="btn btn-primary" type="button" id="confirmOrder">Confirmar e pagar</button>
       </div>
     </div>
   </div>
@@ -366,11 +402,23 @@
   </div>
 </div>
 
-<script src="js/customer-store.js"></script>
+<script src="js/customer-store.js?v=20260609-2"></script>
 <script src="js/order-store.js"></script>
 <script>
 (async function () {
   var CART_KEY = 'champion-cart';
+
+  /* ─── Configuração Pagar.me / backend ───
+     PAGARME_PK  → chave PÚBLICA. É pública: pode ficar no frontend. Usada SÓ para
+                   tokenizar o cartão no navegador (os dados do cartão nunca passam
+                   pelo nosso servidor).
+     IMPORTANTE: precisa ser a chave pública de PRODUÇÃO, do MESMO ambiente da
+     secret key de produção no Railway (PAGARME_SECRET_KEY). NÃO use a de teste aqui.
+     CHECKOUT_API → backend no Railway (mesma origem usada em contact.js). */
+  var PAGARME_PK   = 'COLE_A_PUBLIC_KEY_DE_PRODUCAO'; /* pk de PRODUÇÃO (painel → ambiente Produção) */
+  var CHECKOUT_API = 'https://champion-backend.up.railway.app/api/checkout';
+  var TOKEN_API    = 'https://api.pagar.me/core/v5/tokens';
+
   var cart = [];
   try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch (e) { cart = []; }
 
@@ -474,16 +522,129 @@
     b.addEventListener('click', function () { goStep(parseInt(b.getAttribute('data-prev'), 10)); });
   });
 
-  /* Confirm order */
-  document.getElementById('confirmOrder').addEventListener('click', async function () {
+  /* ─── Pagamento: alterna entre cartão e Pix ─── */
+  var cardFields = document.getElementById('cardFields');
+  var pixPanel = document.getElementById('pixPanel');
+  var confirmBtn = document.getElementById('confirmOrder');
+  var ccInstallments = document.getElementById('ccInstallments');
+
+  function selectedMethod() {
+    return (document.querySelector('input[name="payment"]:checked') || {}).value || 'pix';
+  }
+  function syncMethodUI() {
+    var m = selectedMethod();
+    cardFields.hidden = m !== 'cartao';
+    confirmBtn.textContent = m === 'cartao' ? 'Pagar ' + fmt(total)
+      : m === 'boleto' ? 'Gerar boleto de ' + fmt(total)
+      : 'Gerar Pix de ' + fmt(total);
+  }
+  document.querySelectorAll('input[name="payment"]').forEach(function (r) {
+    r.addEventListener('change', syncMethodUI);
+  });
+
+  /* Parcelas 1–12, mostrando o valor de cada parcela */
+  (function fillInstallments() {
+    var html = '';
+    for (var n = 1; n <= 12; n++) {
+      html += '<option value="' + n + '">' + n + 'x de ' + fmt(total / n) + (n === 1 ? ' à vista' : '') + '</option>';
+    }
+    ccInstallments.innerHTML = html;
+  })();
+
+  /* Máscaras dos campos de cartão */
+  var ccNumber = document.getElementById('ccNumber');
+  var ccExp = document.getElementById('ccExp');
+  var ccCvv = document.getElementById('ccCvv');
+  ccNumber.addEventListener('input', function () {
+    var d = ccNumber.value.replace(/\D/g, '').slice(0, 19);
+    ccNumber.value = d.replace(/(.{4})/g, '$1 ').trim();
+  });
+  ccExp.addEventListener('input', function () {
+    var d = ccExp.value.replace(/\D/g, '').slice(0, 4);
+    ccExp.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
+  });
+  ccCvv.addEventListener('input', function () {
+    ccCvv.value = ccCvv.value.replace(/\D/g, '').slice(0, 4);
+  });
+  syncMethodUI();
+
+  /* Tokeniza o cartão no navegador → os dados do cartão NÃO passam pelo nosso backend (PCI) */
+  async function tokenizeCard() {
+    var number = ccNumber.value.replace(/\D/g, '');
+    var holder = document.getElementById('ccName').value.trim();
+    var exp = ccExp.value.replace(/\D/g, '');
+    var cvv = ccCvv.value.replace(/\D/g, '');
+    if (number.length < 13) throw new Error('Número do cartão inválido.');
+    if (!holder) throw new Error('Informe o nome impresso no cartão.');
+    if (exp.length !== 4) throw new Error('Validade inválida (use MM/AA).');
+    if (cvv.length < 3) throw new Error('CVV inválido.');
+    var resp = await fetch(TOKEN_API + '?appId=' + encodeURIComponent(PAGARME_PK), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'card',
+        card: {
+          number: number, holder_name: holder,
+          exp_month: parseInt(exp.slice(0, 2), 10),
+          exp_year: parseInt(exp.slice(2), 10),
+          cvv: cvv
+        }
+      })
+    });
+    var data = await resp.json().catch(function () { return {}; });
+    if (!resp.ok || !data.id) throw new Error((data && data.message) || 'Não foi possível validar o cartão.');
+    return data.id;
+  }
+
+  function showSuccess(number) {
+    document.getElementById('checkoutWrap').hidden = true;
+    document.getElementById('successWrap').hidden = false;
+    document.getElementById('successNumber').textContent = '#' + number;
+  }
+
+  /* Polling do status do pedido (Pix) — confirmação chega pelo webhook no backend */
+  function pollPixStatus(orderId, idToken, orderNumber) {
+    var pixStatus = document.getElementById('pixStatus');
+    var tries = 0, maxTries = 225; /* ~15 min a cada 4s */
+    var timer = setInterval(async function () {
+      if (++tries > maxTries) { clearInterval(timer); pixStatus.textContent = '⌛ O código Pix expirou. Recarregue a página para gerar outro.'; return; }
+      try {
+        var r = await fetch(CHECKOUT_API + '/' + encodeURIComponent(orderId) + '/status', {
+          headers: { Authorization: 'Bearer ' + idToken }
+        });
+        var d = await r.json().catch(function () { return {}; });
+        if (d.status === 'paid') {
+          clearInterval(timer);
+          try { localStorage.removeItem(CART_KEY); } catch (e) {}
+          showSuccess(orderNumber);
+        } else if (d.status === 'failed') {
+          clearInterval(timer);
+          pixStatus.textContent = '❌ Pagamento não confirmado. Tente novamente.';
+        }
+      } catch (e) { /* ignora falha de rede transitória */ }
+    }, 4000);
+  }
+
+  /* Confirmar pedido — cria a cobrança via backend (Pagar.me) */
+  confirmBtn.addEventListener('click', async function () {
     if (!validateStep1() || !validateStep2()) return;
     clearError();
-    var btn = document.getElementById('confirmOrder');
-    btn.disabled = true;
-    btn.textContent = 'Processando…';
+    var method = selectedMethod();
+
+    function resetBtn() { confirmBtn.disabled = false; syncMethodUI(); }
+
+    var docDigits = document.getElementById('fDoc').value.replace(/\D/g, '');
+    if (docDigits.length !== 11 && docDigits.length !== 14) {
+      showError('Informe um CPF (11 dígitos) ou CNPJ (14 dígitos) para o pagamento.');
+      return;
+    }
+
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Processando…';
 
     try {
-      var paymentMethod = (document.querySelector('input[name="payment"]:checked') || {}).value || 'pix';
+      var idToken = window.ChampionCustomers ? await window.ChampionCustomers.getIdToken() : null;
+      if (!idToken) { window.location.href = 'cliente-conta.html?redirect=checkout.html'; return; }
 
       var customerData = {
         name: document.getElementById('fName').value.trim(),
@@ -504,39 +665,81 @@
 
       /* Persist address on logged customer for next time */
       if (current && window.ChampionCustomers) {
-        await window.ChampionCustomers.updateProfile(current.id, {
-          name: customerData.name,
-          phone: customerData.phone,
-          cpfCnpj: customerData.cpfCnpj,
-          address: address
-        });
+        try {
+          await window.ChampionCustomers.updateProfile(current.id, {
+            name: customerData.name, phone: customerData.phone,
+            cpfCnpj: customerData.cpfCnpj, address: address
+          });
+        } catch (e) {}
       }
 
-      var order = await window.ChampionOrders.create({
-        customerId: current ? current.id : null,
+      var payload = {
+        paymentMethod: method,
         customer: customerData,
         address: address,
         items: cart.map(function (i) {
           return { id: i.id, name: i.name, price: Number(i.price) || 0, qty: Number(i.qty) || 1, image: i.image || '' };
-        }),
-        subtotal: subtotal,
-        shipping: shipping,
-        total: total,
-        paymentMethod: paymentMethod,
-        status: 'paid' /* sem gateway: já considera pago ao confirmar */
+        })
+      };
+
+      if (method === 'cartao') {
+        confirmBtn.textContent = 'Validando cartão…';
+        payload.card_token = await tokenizeCard();
+        payload.installments = parseInt(ccInstallments.value, 10) || 1;
+        confirmBtn.textContent = 'Processando pagamento…';
+      }
+
+      var res = await fetch(CHECKOUT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + idToken },
+        body: JSON.stringify(payload)
       });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Não foi possível processar o pagamento.');
 
-      /* Clear cart */
-      try { localStorage.removeItem(CART_KEY); } catch (e) {}
-
-      /* Show success */
-      document.getElementById('checkoutWrap').hidden = true;
-      document.getElementById('successWrap').hidden = false;
-      document.getElementById('successNumber').textContent = '#' + order.number;
+      if (method === 'pix') {
+        document.getElementById('payActions').hidden = true;
+        cardFields.hidden = true;
+        pixPanel.hidden = false;
+        var pix = data.pix || {};
+        if (pix.qr_code_url) document.getElementById('pixQr').src = pix.qr_code_url;
+        var copyBtn = document.getElementById('pixCopy');
+        copyBtn.onclick = function () {
+          if (!pix.qr_code) return;
+          navigator.clipboard.writeText(pix.qr_code).then(function () {
+            copyBtn.textContent = '✓ Código copiado';
+            setTimeout(function () { copyBtn.textContent = '📋 Copiar código Pix'; }, 2000);
+          });
+        };
+        pollPixStatus(data.orderId, idToken, data.orderNumber);
+      } else if (method === 'boleto') {
+        document.getElementById('payActions').hidden = true;
+        cardFields.hidden = true;
+        document.getElementById('boletoPanel').hidden = false;
+        var bol = data.boleto || {};
+        document.getElementById('boletoLine').textContent = bol.line || 'Boleto gerado — use o botão abaixo para baixar o PDF.';
+        var pdf = document.getElementById('boletoPdf');
+        if (bol.pdf || bol.url) { pdf.href = bol.pdf || bol.url; } else { pdf.style.display = 'none'; }
+        var bc = document.getElementById('boletoCopy');
+        bc.onclick = function () {
+          if (!bol.line) return;
+          navigator.clipboard.writeText(bol.line).then(function () {
+            bc.textContent = '✓ Copiado';
+            setTimeout(function () { bc.textContent = '📋 Copiar linha digitável'; }, 2000);
+          });
+        };
+        try { localStorage.removeItem(CART_KEY); } catch (e) {}
+      } else {
+        if (data.status === 'paid' || data.status === 'processing') {
+          try { localStorage.removeItem(CART_KEY); } catch (e) {}
+          showSuccess(data.orderNumber);
+        } else {
+          throw new Error('Pagamento não autorizado. Verifique os dados do cartão.');
+        }
+      }
     } catch (err) {
-      btn.disabled = false;
-      btn.textContent = 'Confirmar e finalizar pedido';
-      showError(err.message || 'Não foi possível registrar o pedido.');
+      showError(err.message || 'Não foi possível concluir o pagamento.');
+      resetBtn();
     }
   });
 })();

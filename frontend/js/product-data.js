@@ -322,10 +322,33 @@ export function slugify(value) {
     .slice(0, 80) || `produto-${Date.now()}`;
 }
 
+function normalizeVariant(variant = {}, index = 0) {
+  const name = String(variant.name || '').trim();
+  if (!name) return null;
+  const price = Number.parseFloat(String(variant.price ?? '').replace(',', '.'));
+  return {
+    id: slugify(variant.id || name) || `var-${index + 1}`,
+    name,
+    price: Number.isFinite(price) ? price : null,
+    image: String(variant.image || '').trim()
+  };
+}
+
 export function normalizeProduct(product = {}, index = 0) {
   const name = String(product.name || `Produto ${index + 1}`).trim();
   const id = slugify(product.id || name);
   const price = Number.parseFloat(String(product.price ?? '').replace(',', '.'));
+  const variants = Array.isArray(product.variants)
+    ? product.variants.map((v, i) => normalizeVariant(v, i)).filter(Boolean)
+    : [];
+  const faq = Array.isArray(product.faq)
+    ? product.faq
+        .map((item) => ({
+          q: String(item && item.q || '').trim(),
+          a: String(item && item.a || '').trim()
+        }))
+        .filter((item) => item.q && item.a)
+    : [];
   return {
     id,
     name,
@@ -343,8 +366,27 @@ export function normalizeProduct(product = {}, index = 0) {
     benefits: String(product.benefits || '').trim(),
     usage: String(product.usage || '').trim(),
     presentations: String(product.presentations || 'Consultar embalagem').trim(),
+    variants,
+    faq,
     order: Number.isFinite(Number(product.order)) ? Number(product.order) : index + 1
   };
+}
+
+/* Menor preço entre as variantes (ou o preço base se não houver variantes). */
+export function getMinPrice(product) {
+  if (!product) return null;
+  const prices = (product.variants || [])
+    .map((v) => Number(v.price))
+    .filter((n) => Number.isFinite(n));
+  if (prices.length) return Math.min(...prices);
+  return Number.isFinite(Number(product.price)) ? Number(product.price) : null;
+}
+
+/* Imagem default exibida no card/detalhe (variant.image cai p/ product.image). */
+export function getDisplayImage(product, variant) {
+  if (variant && variant.image) return variant.image;
+  if (variant && !variant.image && product?.image) return product.image;
+  return product?.image || '';
 }
 
 export function sortProducts(products) {

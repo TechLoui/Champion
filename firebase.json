@@ -1,12 +1,21 @@
 {
+  "functions": {
+    "source": "functions",
+    "predeploy": [
+      "node -e \"require('fs').copyFileSync('frontend/produto.html','functions/produto-template.html')\""
+    ]
+  },
   "hosting": {
     "public": "frontend",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
     ],
     "rewrites": [
+      { "source": "/sitemap.xml", "function": { "functionId": "sitemap", "region": "us-central1" } },
       { "source": "/api/**", "destination": "/" }
     ],
     "headers": [

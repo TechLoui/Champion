@@ -4,7 +4,9 @@ const express   = require('express');
 const cors      = require('cors');
 const rateLimit = require('express-rate-limit');
 
-const leadsRouter = require('./routes/leads');
+const leadsRouter    = require('./routes/leads');
+const checkoutRouter = require('./routes/checkout');
+const webhookPagarme = require('./routes/webhook-pagarme');
 
 const PORT = process.env.PORT || 3000;
 
@@ -38,11 +40,23 @@ const leadsLimiter = rateLimit({
   message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' }
 });
 
+/* Checkout: mais permissivo que leads (cada tentativa de pagamento é uma requisição). */
+const checkoutLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas de pagamento. Aguarde alguns minutos.' }
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'champion-backend', ts: new Date().toISOString() });
 });
 
 app.use('/api/leads', leadsLimiter, leadsRouter);
+app.use('/api/checkout', checkoutLimiter, checkoutRouter);
+/* Webhook server-to-server: sem rate-limit (protegido por Basic Auth na própria rota). */
+app.use('/api/webhooks/pagarme', webhookPagarme);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Rota não encontrada.' });

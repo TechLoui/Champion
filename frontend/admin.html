@@ -1251,7 +1251,38 @@
       align-items: center;
       flex-wrap: wrap;
     }
-    .cat-toolbar-filters .ap-filter { min-width: 0; flex: 0 0 auto; }
+    .cat-toolbar-filters .ap-filter {
+      min-width: 0;
+      flex: 0 0 auto;
+      height: 38px;
+      padding: 0 34px 0 12px;
+      background-color: white;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23687080' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 12px 12px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 9px;
+      color: #15191F;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      transition: border-color .15s, box-shadow .15s, color .15s;
+    }
+    .cat-toolbar-filters .ap-filter:hover {
+      border-color: #C7CCD6;
+      color: #0A0A0A;
+    }
+    .cat-toolbar-filters .ap-filter:focus,
+    .cat-toolbar-filters .ap-filter:focus-visible {
+      outline: none;
+      border-color: #EC4815;
+      box-shadow: 0 0 0 3px rgba(236,72,21,0.18);
+    }
 
     /* View toggle (Grid / Lista) */
     .cat-view-toggle {
@@ -1627,6 +1658,225 @@
       overflow: hidden;
     }
     .prod-drawer.is-open .prod-drawer-panel { transform: translateX(0); }
+    /* Drawer mais largo (usado pelo modal de categorias com 2 colunas) */
+    .prod-drawer.drawer-wide .prod-drawer-panel { width: min(820px, 100%); }
+
+    /* Grid de 2 colunas: Categorias × Espécies */
+    .tax-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    @media (max-width: 720px) { .tax-grid { grid-template-columns: 1fr; } }
+    .tax-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: #FAFBFC;
+      border: 1px solid #E5E8EF;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .tax-col-head h4 {
+      margin: 0 0 2px;
+      font-size: 14px;
+      color: #15191F;
+    }
+    .tax-col-head p { margin: 0; color: #687080; font-size: 12px; }
+    .tax-list { display: flex; flex-direction: column; gap: 6px; min-height: 32px; }
+    .tax-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: white;
+      border: 1px solid #E5E8EF;
+      border-radius: 8px;
+      padding: 6px 8px 6px 12px;
+    }
+    .tax-item input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      font-size: 13px;
+      color: #15191F;
+      padding: 2px 0;
+    }
+    .tax-item input[type="text"]:focus { outline: none; }
+    .tax-item .tax-slug { color: #9EA6B4; font-size: 11px; font-family: ui-monospace, monospace; }
+    .tax-item button {
+      width: 28px; height: 28px;
+      border: 0;
+      background: transparent;
+      color: #9EA6B4;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .tax-item button:hover { background: #FEEDEA; color: #C13808; }
+    .tax-item button svg { width: 14px; height: 14px; }
+    .tax-add {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .tax-add input {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1.5px solid #E5E8EF;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .tax-add input:focus { outline: none; border-color: #EC4815; box-shadow: 0 0 0 3px rgba(236,72,21,0.18); }
+
+    /* Link inline com cara de botão dentro de descrições */
+    .link-as-btn {
+      background: transparent;
+      border: 0;
+      color: #EC4815;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      padding: 0;
+      text-decoration: underline;
+    }
+    .link-as-btn:hover { color: #C13808; }
+
+    /* Editor de variantes do produto */
+    .variants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .variants-list:empty::before {
+      content: 'Nenhuma variante. Sem variantes, o produto usa o preço base e a imagem principal.';
+      display: block;
+      color: #9EA6B4;
+      font-size: 12.5px;
+      font-style: italic;
+      padding: 12px 14px;
+      background: #FAFBFC;
+      border: 1px dashed #E5E8EF;
+      border-radius: 10px;
+    }
+    .variant-row {
+      display: grid;
+      grid-template-columns: 72px 1.4fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      background: #FAFBFC;
+      border: 1px solid #E5E8EF;
+      border-radius: 10px;
+    }
+    @media (max-width: 720px) {
+      .variant-row { grid-template-columns: 72px 1fr auto; }
+      .variant-row .variant-price-wrap { grid-column: 2 / -2; }
+    }
+    .variant-thumb {
+      width: 72px; height: 72px;
+      border-radius: 8px;
+      background: white;
+      border: 1.5px dashed #D4D8E2;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #9EA6B4;
+      position: relative;
+    }
+    .variant-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .variant-thumb svg { width: 22px; height: 22px; }
+    .variant-thumb:hover { border-color: #EC4815; color: #EC4815; }
+    .variant-name-wrap,
+    .variant-price-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .variant-row label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #687080;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .variant-row input[type="text"],
+    .variant-row input[type="number"] {
+      padding: 8px 10px;
+      border: 1.5px solid #E5E8EF;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .variant-row input:focus { outline: none; border-color: #EC4815; box-shadow: 0 0 0 3px rgba(236,72,21,0.18); }
+    .variant-remove {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid #E5E8EF;
+      background: white;
+      color: #9EA6B4;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .variant-remove svg { width: 14px; height: 14px; }
+    .variant-remove:hover { border-color: #FAD0C6; color: #C13808; background: #FFF6F2; }
+
+    /* Editor de FAQ do produto */
+    .faq-list { display: flex; flex-direction: column; gap: 10px; }
+    .faq-list:empty::before {
+      content: 'Nenhuma pergunta. O site gera FAQ automática a partir dos dados do produto.';
+      display: block;
+      color: #9EA6B4;
+      font-size: 12.5px;
+      font-style: italic;
+      padding: 12px 14px;
+      background: #FAFBFC;
+      border: 1px dashed #E5E8EF;
+      border-radius: 10px;
+    }
+    .faq-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      background: #FAFBFC;
+      border: 1px solid #E5E8EF;
+      border-radius: 10px;
+    }
+    .faq-row-fields { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .faq-row input[type="text"],
+    .faq-row textarea {
+      padding: 8px 10px;
+      border: 1.5px solid #E5E8EF;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+    }
+    .faq-row input:focus,
+    .faq-row textarea:focus { outline: none; border-color: #EC4815; box-shadow: 0 0 0 3px rgba(236,72,21,0.18); }
+    .faq-remove {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1.5px solid #E5E8EF;
+      background: white;
+      color: #9EA6B4;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .faq-remove svg { width: 14px; height: 14px; }
+    .faq-remove:hover { border-color: #FAD0C6; color: #C13808; background: #FFF6F2; }
     .prod-drawer-head {
       padding: 18px 24px;
       border-bottom: 1px solid #E5E8EF;
@@ -1746,6 +1996,45 @@
     .ap-data-table .muted { color: #9EA6B4; font-size: 12px; }
     .ap-data-table .col-actions { text-align: right; }
 
+    /* Botões de ação por linha (usado na aba Clientes) */
+    .customer-actions {
+      display: inline-flex;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+    .customer-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      min-height: 32px;
+      border: 1.5px solid #E4E8EF;
+      border-radius: 8px;
+      background: white;
+      color: #687080;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      transition: border-color .15s, color .15s, background .15s, box-shadow .15s;
+    }
+    .customer-action svg { width: 15px; height: 15px; }
+    .customer-action:hover {
+      border-color: #C7CCD6;
+      color: #15191F;
+      background: #FAFBFC;
+    }
+    .customer-action:focus-visible {
+      outline: none;
+      border-color: #EC4815;
+      box-shadow: 0 0 0 3px rgba(236,72,21,0.18);
+    }
+    .customer-action.danger:hover {
+      border-color: #FAD0C6;
+      color: #C13808;
+      background: #FFF6F2;
+    }
+
     .ap-pill {
       display: inline-flex;
       align-items: center;
@@ -1846,52 +2135,81 @@
       min-width: 140px;
     }
 
+    /* Filtro por data (orders) */
+    .ap-date-range {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 0 4px;
+    }
+    .ap-date-range label { font-size: 12px; font-weight: 600; color: #9EA6B4; }
+    .ap-date-input {
+      padding: 9px 10px;
+      border: 1.5px solid #E4E8EF; border-radius: 9px;
+      font-size: 13px; font-family: 'Inter', sans-serif; color: #15191F;
+      background: white; outline: none; cursor: pointer;
+    }
+    .ap-date-input:focus { border-color: #EC4815; box-shadow: 0 0 0 3px rgba(236,72,21,.08); }
+
+    /* Aviso de pedidos aguardando pagamento (acima do Kanban) */
+    .ap-orders-alert {
+      display: flex; align-items: center; gap: 8px;
+      background: #FFF8EB; border: 1px solid #F5DEB3; color: #92400E;
+      padding: 11px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px;
+    }
+    .ap-linkbtn {
+      background: none; border: none; color: #C13808; font-weight: 700;
+      cursor: pointer; text-decoration: underline; font-size: 13px; padding: 0; font-family: inherit;
+    }
+
     /* Kanban */
     .ap-kanban {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
     }
+    @media (max-width: 1100px) { .ap-kanban { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px)  { .ap-kanban { grid-template-columns: 1fr; } }
     .ap-kanban-col {
-      background: #F4F5F8;
-      border-radius: 12px;
-      padding: 14px;
+      background: #F7F8FA;
+      border: 1px solid #EDEFF3;
+      border-radius: 14px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      min-height: 200px;
+      min-height: 140px;
     }
     .ap-kanban-head {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 4px 4px;
+      gap: 8px;
+      padding: 2px 4px 11px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #EAEDF2;
     }
+    .ap-kanban-head .ok-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .ap-kanban-head h4 {
-      font-size: 12.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #687080;
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #4A5160; flex: 1;
     }
     .ap-kanban-count {
-      font-size: 11px;
-      font-weight: 700;
-      background: white;
-      color: #687080;
-      padding: 2px 8px;
-      border-radius: 99px;
+      font-size: 11px; font-weight: 700; background: white; color: #687080;
+      padding: 2px 9px; border-radius: 99px; border: 1px solid #E5E8EF;
     }
-    .ap-kanban-card {
-      background: white;
-      border: 1px solid #E5E8EF;
-      border-radius: 9px;
-      padding: 12px 14px;
-      transition: box-shadow .15s, transform .15s;
+    .ap-kanban-body { display: flex; flex-direction: column; gap: 8px; max-height: 580px; overflow-y: auto; padding: 1px; }
+    .ap-kanban-empty { font-size: 12px; color: #B0B8C6; text-align: center; padding: 16px 8px; }
+
+    .ap-ocard {
+      background: white; border: 1px solid #E7EAF0; border-radius: 11px;
+      padding: 12px; transition: box-shadow .15s, transform .15s, border-color .15s;
     }
-    .ap-kanban-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.06); transform: translateY(-1px); }
-    .ap-kanban-card h5 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-    .ap-kanban-card p { font-size: 11.5px; color: #9EA6B4; margin-bottom: 8px; }
+    .ap-ocard:hover { box-shadow: 0 6px 18px rgba(20,25,31,.08); transform: translateY(-1px); border-color: #DCE0E8; }
+    .ap-ocard-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+    .ap-ocard-num { font-size: 13px; font-weight: 800; font-family: 'Sora', sans-serif; color: #15191F; }
+    .ap-ocard-cust { font-size: 13px; font-weight: 600; color: #2A2F38; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ap-ocard-meta { font-size: 11.5px; color: #9EA6B4; display: flex; align-items: center; gap: 6px; margin-bottom: 11px; flex-wrap: wrap; }
+    .ap-ocard-meta .sep { opacity: .45; }
+    .ap-ocard-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .ap-ocard-total { font-size: 14px; font-weight: 800; font-family: 'Sora', sans-serif; color: #15191F; }
+    .ap-ocard-actions { display: flex; gap: 6px; flex-shrink: 0; }
 
     /* Empty state */
     .ap-data-empty {
@@ -2324,10 +2642,8 @@
         Banners Site
       </button>
 
-      <button type="button" data-admin-tab="categories" aria-selected="false">
-        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-        Categorias
-      </button>
+      <!-- Categorias agora é gerenciada por um modal dentro do Catálogo,
+           então o item do menu lateral foi removido para simplificar. -->
 
       <button type="button" data-admin-tab="dose" aria-selected="false">
         <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
@@ -2607,6 +2923,10 @@
             <p>Gerencie todo o catálogo Champion. Use o <strong>lápis</strong> para editar, o <strong>olho</strong> para visualizar no site e a <strong>lixeira</strong> para remover.</p>
           </div>
           <div class="ap-section-head-actions">
+            <button class="ap-btn ap-btn-ghost" type="button" id="adminOpenCategories">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              Categorias
+            </button>
             <button class="ap-btn ap-btn-ghost" type="button" id="adminSeedProducts">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
               Restaurar padrão
@@ -2738,45 +3058,25 @@
                 </div>
                 <div class="ap-form-field">
                   <label for="productCategory">Categoria</label>
-                  <input id="productCategory" name="category" placeholder="Bovinos · Nutrição" required />
+                  <select id="productCategory" name="category" required></select>
+                  <small style="color:#687080;font-size:11.5px;margin-top:4px">
+                    Gerencie em <button type="button" class="link-as-btn" id="openCategoriesFromForm">Categorias</button>.
+                  </small>
+                </div>
+                <div class="ap-form-field">
+                  <label for="productSpecies">Espécie</label>
+                  <select id="productSpecies" name="species"></select>
                 </div>
                 <div class="ap-form-field">
                   <label for="productTag">Selo (opcional)</label>
                   <input id="productTag" name="tag" placeholder="Mais vendido" />
                 </div>
                 <div class="ap-form-field">
-                  <label for="productSpecies">Espécie</label>
-                  <select id="productSpecies" name="species">
-                    <option value="bovinos">Bovinos</option>
-                    <option value="equinos">Equinos</option>
-                    <option value="ovinos">Ovinos</option>
-                    <option value="suinos">Suínos</option>
-                    <option value="aves">Aves</option>
-                    <option value="minerais">Minerais</option>
-                    <option value="ambientes">Ambientes</option>
-                    <option value="veterinario">Veterinário</option>
-                  </select>
-                </div>
-                <div class="ap-form-field">
-                  <label for="productGroup">Grupo</label>
-                  <select id="productGroup" name="group">
-                    <option value="larvicida">Larvicida</option>
-                    <option value="inseticida">Inseticida</option>
-                    <option value="vermifugo">Vermífugo</option>
-                    <option value="mineralizacao">Mineralização</option>
-                    <option value="nutricao">Nutrição</option>
-                    <option value="reproducao">Reprodução</option>
-                    <option value="parasitario">Antiparasitário</option>
-                    <option value="suplemento">Suplemento</option>
-                  </select>
-                </div>
-                <div class="ap-form-field">
-                  <label for="productUse">Tipo de uso</label>
-                  <input id="productUse" name="use" placeholder="sal-racao" />
-                </div>
-                <div class="ap-form-field">
-                  <label for="productPrice">Preço (R$)</label>
+                  <label for="productPrice">Preço base (R$)</label>
                   <input id="productPrice" name="price" type="number" step="0.01" min="0" placeholder="129.90" />
+                  <small style="color:#687080;font-size:11.5px;margin-top:4px">
+                    Se houver variantes, cada uma terá seu próprio preço — este aqui é usado quando o produto não tem variantes.
+                  </small>
                 </div>
                 <div class="ap-form-field full">
                   <label>Imagem do produto</label>
@@ -2811,8 +3111,36 @@
                   <textarea id="productUsage" name="usage" placeholder="Instruções de aplicação"></textarea>
                 </div>
                 <div class="ap-form-field full">
-                  <label for="productPresentations">Apresentações</label>
+                  <label for="productPresentations">Apresentações (texto livre)</label>
                   <input id="productPresentations" name="presentations" placeholder="Consultar embalagem" />
+                </div>
+
+                <div class="ap-form-field full">
+                  <label style="display:flex;align-items:center;gap:8px;justify-content:space-between">
+                    Variantes
+                    <button type="button" class="ap-btn ap-btn-ghost ap-btn-sm" id="adminAddVariant">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      Adicionar variante
+                    </button>
+                  </label>
+                  <small style="color:#687080;font-size:11.5px;margin-bottom:8px">
+                    Quando o produto tem versões (Ex.: <em>200ml</em> e <em>350ml</em> com preços diferentes), cadastre cada uma aqui. O cliente escolhe na página do produto.
+                  </small>
+                  <div id="variantsList" class="variants-list"></div>
+                </div>
+
+                <div class="ap-form-field full">
+                  <label style="display:flex;align-items:center;gap:8px;justify-content:space-between">
+                    Perguntas frequentes (FAQ)
+                    <button type="button" class="ap-btn ap-btn-ghost ap-btn-sm" id="adminAddFaq">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      Adicionar pergunta
+                    </button>
+                  </label>
+                  <small style="color:#687080;font-size:11.5px;margin-bottom:8px">
+                    Perguntas reais que os clientes fazem (dose, validade, indicação...). Aparecem na página do produto e ajudam no Google (rich results). Se deixar vazio, o site gera perguntas automáticas a partir dos dados.
+                  </small>
+                  <div id="faqList" class="faq-list"></div>
                 </div>
               </div>
               <div class="ap-feedback blog-admin-feedback" id="adminProductFeedback" aria-live="polite"></div>
@@ -2823,6 +3151,56 @@
             <button class="ap-btn ap-btn-primary" type="submit" form="adminProductForm">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
               <span id="adminProductSubmitLabel">Salvar produto</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Drawer: gerenciar categorias e espécies do catálogo -->
+      <div class="prod-drawer drawer-wide" id="categoriesDrawer">
+        <div class="prod-drawer-overlay" data-close-drawer></div>
+        <aside class="prod-drawer-panel">
+          <header class="prod-drawer-head">
+            <div>
+              <h3>Categorias do catálogo</h3>
+              <p>Categorias e espécies aparecem como filtros no catálogo público e nos selects do formulário de produto.</p>
+            </div>
+            <button class="prod-drawer-close" type="button" data-close-drawer aria-label="Fechar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </header>
+          <div class="prod-drawer-body">
+            <div class="tax-grid">
+              <div class="tax-col">
+                <div class="tax-col-head">
+                  <h4>Categorias</h4>
+                  <p>Ex.: Larvicida, Vermífugo, Mineralização.</p>
+                </div>
+                <div class="tax-list" id="taxColGroups" data-tax="groups"></div>
+                <form class="tax-add" data-tax-add-form="groups">
+                  <input type="text" placeholder="Nome da categoria" required />
+                  <button type="submit" class="ap-btn ap-btn-ghost ap-btn-sm">+ Adicionar</button>
+                </form>
+              </div>
+              <div class="tax-col">
+                <div class="tax-col-head">
+                  <h4>Espécies</h4>
+                  <p>Ex.: Bovinos, Equinos, Aves.</p>
+                </div>
+                <div class="tax-list" id="taxColSpecies" data-tax="species"></div>
+                <form class="tax-add" data-tax-add-form="species">
+                  <input type="text" placeholder="Nome da espécie" required />
+                  <button type="submit" class="ap-btn ap-btn-ghost ap-btn-sm">+ Adicionar</button>
+                </form>
+              </div>
+            </div>
+            <p class="ap-feedback" id="categoriesFeedback" role="status"></p>
+          </div>
+          <div class="prod-drawer-foot">
+            <button class="ap-btn ap-btn-ghost" type="button" data-close-drawer>Fechar</button>
+            <button class="ap-btn ap-btn-primary" type="button" id="adminSaveCategories">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+              Salvar alterações
             </button>
           </div>
         </aside>
@@ -2849,19 +3227,27 @@
           </div>
           <select class="filter-select" id="ordersStatusFilter">
             <option value="">Todos status</option>
+            <option value="pending">Aguardando pagamento</option>
             <option value="paid">Pago</option>
             <option value="separating">Em separação</option>
             <option value="shipped">Em trânsito</option>
             <option value="delivered">Entregue</option>
+            <option value="refunded">Estornado</option>
             <option value="cancelled">Cancelado</option>
           </select>
+          <div class="ap-date-range">
+            <label for="ordersDateFrom">De</label>
+            <input class="ap-date-input" id="ordersDateFrom" type="date" aria-label="Data inicial" />
+            <label for="ordersDateTo">até</label>
+            <input class="ap-date-input" id="ordersDateTo" type="date" aria-label="Data final" />
+          </div>
           <select class="filter-select" id="ordersViewMode">
             <option value="kanban">Visão Kanban</option>
             <option value="list">Visão Lista</option>
           </select>
         </div>
 
-        <div id="ordersKanban" class="ap-kanban"></div>
+        <div id="ordersKanban"></div>
         <div id="ordersList" class="ap-table-wrap" hidden></div>
       </section>
 
@@ -2894,6 +3280,7 @@
             <option value="">Todos status</option>
             <option value="active">Ativo</option>
             <option value="blocked">Bloqueado</option>
+            <option value="trashed">Lixeira</option>
           </select>
         </div>
 
@@ -2909,7 +3296,7 @@
                   <th class="num">Total gasto</th>
                   <th>Última compra</th>
                   <th>Status</th>
-                  <th></th>
+                  <th class="col-actions">Ações</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -2917,6 +3304,58 @@
           </div>
         </div>
       </section>
+
+      <!-- Drawer: editar cliente -->
+      <div class="prod-drawer" id="customerDrawer">
+        <div class="prod-drawer-overlay" data-close-drawer></div>
+        <aside class="prod-drawer-panel">
+          <header class="prod-drawer-head">
+            <div>
+              <h3 id="customerDrawerTitle">Editar cliente</h3>
+              <p id="customerDrawerSub">Atualize os dados cadastrais do cliente.</p>
+            </div>
+            <button class="prod-drawer-close" type="button" data-close-drawer aria-label="Fechar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </header>
+          <div class="prod-drawer-body">
+            <form class="admin-product-form" id="adminCustomerForm">
+              <input type="hidden" name="id" />
+              <div class="ap-form-grid">
+                <div class="ap-form-field full">
+                  <label for="customerName">Nome</label>
+                  <input id="customerName" name="name" placeholder="Nome completo" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="customerEmail">E-mail</label>
+                  <input id="customerEmail" name="email" type="email" placeholder="cliente@exemplo.com" required />
+                </div>
+                <div class="ap-form-field">
+                  <label for="customerPhone">Telefone</label>
+                  <input id="customerPhone" name="phone" placeholder="(00) 00000-0000" />
+                </div>
+                <div class="ap-form-field">
+                  <label for="customerCpfCnpj">CPF / CNPJ</label>
+                  <input id="customerCpfCnpj" name="cpfCnpj" placeholder="000.000.000-00" />
+                </div>
+                <div class="ap-form-field">
+                  <label for="customerProfile">Perfil</label>
+                  <select id="customerProfile" name="profile">
+                    <option value="pessoa-fisica">Pessoa Física</option>
+                    <option value="pecuarista">Pecuarista</option>
+                    <option value="revenda">Revenda</option>
+                  </select>
+                </div>
+              </div>
+              <p class="ap-feedback" id="adminCustomerFeedback" role="status"></p>
+            </form>
+          </div>
+          <footer class="prod-drawer-foot">
+            <button class="ap-btn ap-btn-ghost" type="button" data-close-drawer>Cancelar</button>
+            <button class="ap-btn ap-btn-primary" type="submit" form="adminCustomerForm">Salvar cliente</button>
+          </footer>
+        </aside>
+      </div>
 
       <!-- ═══════════════════ RELATÓRIOS ═══════════════════ -->
 
@@ -3468,9 +3907,10 @@
   });
 })();
 </script>
-<script src="js/customer-store.js?v=20260519-3"></script>
-<script src="js/order-store.js?v=20260519-3"></script>
-<script type="module" src="js/admin.js?v=20260519-4"></script>
+<script src="js/customer-store.js?v=20260609-2"></script>
+<script src="js/order-store.js?v=20260522-1"></script>
+<script type="module" src="js/admin.js?v=20260522-3"></script>
+<script src="js/admin-customers.js?v=20260522-1"></script>
 
 <!-- Dashboard charts (vanilla SVG, sem dependências) -->
 <script>
@@ -3933,12 +4373,30 @@
     return items.filter(function (o) { return new Date(o.createdAt).getTime() >= since; });
   }
   var statusMap = {
+    pending: { pill: 'amber', label: 'Aguardando pagamento' },
+    processing: { pill: 'amber', label: 'Em análise' },
     paid: { pill: 'blue', label: 'Pago' },
     separating: { pill: 'amber', label: 'Em separação' },
     shipped: { pill: 'purple', label: 'Em trânsito' },
     delivered: { pill: 'green', label: 'Entregue' },
-    cancelled: { pill: 'gray', label: 'Cancelado' }
+    cancelled: { pill: 'gray', label: 'Cancelado' },
+    refunded: { pill: 'red', label: 'Estornado' },
+    failed: { pill: 'red', label: 'Falhou' }
   };
+
+  /* Backend de pagamentos (mesmo host do checkout) — usado para estorno. */
+  var ORDERS_API = 'https://champion-backend.up.railway.app/api/checkout';
+
+  /* Só dá para estornar pedidos pagos via Pagar.me (com cobrança vinculada). */
+  function canRefund(o) {
+    if (!o || !o.pagarmeChargeId) return false;
+    return ['paid', 'separating', 'shipped', 'delivered'].indexOf(o.status) >= 0;
+  }
+  /* "Avançar" só vale na esteira de fulfillment de um pedido já pago.
+     Nunca em pending/processing/failed (senão marcaria pago sem pagamento). */
+  function canAdvance(o) {
+    return o && ['paid', 'separating', 'shipped'].indexOf(o.status) >= 0;
+  }
 
   /* ── Dropdown Relatórios ─────────────────────────────────── */
   var reportsGroup = $('reportsGroup');
@@ -3959,66 +4417,94 @@
   });
 
   /* ── Pedidos (Kanban + Lista) ────────────────────────────── */
+  var ORDER_ICONS = {
+    box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+    truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    cash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>'
+  };
   function renderOrdersKpis() {
-    var paid = orders.filter(function (o) { return o.status === 'paid'; }).length;
-    var sep = orders.filter(function (o) { return o.status === 'separating'; }).length;
+    var toSep = orders.filter(function (o) { return o.status === 'paid' || o.status === 'separating'; }).length;
     var ship = orders.filter(function (o) { return o.status === 'shipped'; }).length;
     var del = orders.filter(function (o) { return o.status === 'delivered'; }).length;
-    var revenue = orders.filter(function (o) { return o.status !== 'cancelled'; })
-                        .reduce(function (a, o) { return a + (o.total || 0); }, 0);
-    var html = ''
-      + kpiCard('Aguardando separação', sep, 'amber', '🟠')
-      + kpiCard('Em trânsito', ship, 'purple', '🚚')
-      + kpiCard('Entregues', del, 'green', '✓')
-      + kpiCard('Receita acumulada', fmt(revenue), 'orange', 'R$');
-    $('ordersKpis').innerHTML = html;
+    var revenue = orders.filter(function (o) {
+      return ['paid', 'separating', 'shipped', 'delivered'].indexOf(o.status) >= 0;
+    }).reduce(function (a, o) { return a + (o.total || 0); }, 0);
+    $('ordersKpis').innerHTML = ''
+      + kpiCard('A separar', toSep, 'amber', ORDER_ICONS.box)
+      + kpiCard('Em trânsito', ship, 'purple', ORDER_ICONS.truck)
+      + kpiCard('Entregues', del, 'green', ORDER_ICONS.check)
+      + kpiCard('Receita', fmt(revenue), 'orange', ORDER_ICONS.cash);
     $('ordersTotalTag').textContent = orders.length + ' pedidos';
   }
-  function kpiCard(label, value, color, glyph) {
+  function kpiCard(label, value, color, svg) {
     return '<div class="dash-kpi">'
       + '<div class="dash-kpi-head"><span class="dash-kpi-label">' + label + '</span>'
-      + '<span class="dash-kpi-icon ' + color + '" style="font-weight:800;font-size:13px">' + glyph + '</span></div>'
+      + '<span class="dash-kpi-icon ' + color + '">' + svg + '</span></div>'
       + '<div class="dash-kpi-value">' + value + '</div></div>';
   }
   function filteredOrders() {
     var term = String(($('ordersSearch') || {}).value || '').trim().toLowerCase();
     var st = String(($('ordersStatusFilter') || {}).value || '');
+    var fromStr = String(($('ordersDateFrom') || {}).value || '');
+    var toStr = String(($('ordersDateTo') || {}).value || '');
+    var from = fromStr ? new Date(fromStr + 'T00:00:00').getTime() : null;
+    var to = toStr ? new Date(toStr + 'T23:59:59').getTime() : null;
     return orders.filter(function (o) {
       if (st && o.status !== st) return false;
+      if (from != null || to != null) {
+        var t = new Date(o.createdAt).getTime();
+        if (isNaN(t)) return false;
+        if (from != null && t < from) return false;
+        if (to != null && t > to) return false;
+      }
       if (!term) return true;
       var hay = (o.number + ' ' + (o.customer && o.customer.name || '')).toLowerCase();
       return hay.indexOf(term) >= 0;
     });
   }
+  function orderCardHtml(o) {
+    var s = statusMap[o.status] || { pill: 'gray', label: o.status };
+    var cust = (o.customer && o.customer.name) || 'Cliente';
+    var qty = (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0);
+    var pay = (o.paymentMethod || 'pix').toUpperCase();
+    var actions = '';
+    if (canAdvance(o)) actions += '<button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar →</button>';
+    if (canRefund(o)) actions += '<button class="ap-mini-btn danger" data-refund-order="' + o.id + '">Estornar</button>';
+    return '<div class="ap-ocard">'
+      + '<div class="ap-ocard-top"><span class="ap-ocard-num">#' + o.number + '</span><span class="ap-pill ' + s.pill + '">' + s.label + '</span></div>'
+      + '<div class="ap-ocard-cust">' + escHtml(cust) + '</div>'
+      + '<div class="ap-ocard-meta"><span>' + qty + ' ' + (qty === 1 ? 'item' : 'itens') + '</span><span class="sep">·</span><span>' + pay + '</span><span class="sep">·</span><span>' + fmtDate(o.createdAt) + '</span></div>'
+      + '<div class="ap-ocard-foot"><span class="ap-ocard-total">' + fmtFull(o.total) + '</span>'
+      + (actions ? '<span class="ap-ocard-actions">' + actions + '</span>' : '')
+      + '</div></div>';
+  }
   function renderOrdersKanban() {
     var items = filteredOrders();
     var cols = {
-      paid: { title: 'Pago · aguardando separação', orders: [] },
-      separating: { title: 'Em separação', orders: [] },
-      shipped: { title: 'Em trânsito', orders: [] },
-      delivered: { title: 'Entregue', orders: [] }
+      paid: { title: 'A separar', dot: '#2563EB', orders: [] },
+      separating: { title: 'Em separação', dot: '#D97706', orders: [] },
+      shipped: { title: 'Em trânsito', dot: '#7C3AED', orders: [] },
+      delivered: { title: 'Entregue', dot: '#1A9B5F', orders: [] }
     };
     items.forEach(function (o) { if (cols[o.status]) cols[o.status].orders.push(o); });
-    $('ordersKanban').innerHTML = Object.keys(cols).map(function (k) {
+
+    var pendingCount = items.filter(function (o) { return o.status === 'pending' || o.status === 'processing'; }).length;
+    var alert = pendingCount
+      ? '<div class="ap-orders-alert">⏳ <strong style="margin:0 2px">' + pendingCount + '</strong> pedido(s) aguardando pagamento — veja na <button type="button" class="ap-linkbtn" data-orders-view="list">Visão Lista</button>.</div>'
+      : '';
+
+    var board = Object.keys(cols).map(function (k) {
       var c = cols[k];
-      var s = statusMap[k];
+      var body = c.orders.length
+        ? c.orders.map(orderCardHtml).join('')
+        : '<div class="ap-kanban-empty">Nenhum pedido</div>';
       return '<div class="ap-kanban-col">'
-        + '<div class="ap-kanban-head"><h4>' + c.title + '</h4><span class="ap-kanban-count">' + c.orders.length + '</span></div>'
-        + (c.orders.length === 0
-            ? '<div style="font-size:12px;color:#9EA6B4;text-align:center;padding:14px 8px">—</div>'
-            : c.orders.slice(0, 8).map(function (o) {
-                var cust = (o.customer && o.customer.name) || 'Cliente';
-                var qty = (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0);
-                return '<div class="ap-kanban-card">'
-                  + '<h5>#' + o.number + ' · ' + escHtml(cust) + '</h5>'
-                  + '<p>' + qty + ' itens · ' + fmt(o.total) + '</p>'
-                  + '<div style="display:flex;justify-content:space-between;align-items:center">'
-                  +   '<span class="ap-pill ' + s.pill + '">' + s.label + '</span>'
-                  +   (k !== 'delivered' ? '<button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar →</button>' : '')
-                  + '</div></div>';
-              }).join(''))
+        + '<div class="ap-kanban-head"><span class="ok-dot" style="background:' + c.dot + '"></span><h4>' + c.title + '</h4><span class="ap-kanban-count">' + c.orders.length + '</span></div>'
+        + '<div class="ap-kanban-body">' + body + '</div>'
         + '</div>';
     }).join('');
+    $('ordersKanban').innerHTML = alert + '<div class="ap-kanban">' + board + '</div>';
   }
   function renderOrdersList() {
     var items = filteredOrders();
@@ -4027,21 +4513,25 @@
       return;
     }
     $('ordersList').innerHTML = '<div class="ap-table-scroll"><table class="ap-data-table">'
-      + '<thead><tr><th>Pedido</th><th>Cliente</th><th>Data</th><th class="num">Itens</th><th class="num">Total</th><th>Pagamento</th><th>Status</th><th></th></tr></thead><tbody>'
+      + '<thead><tr><th>Pedido</th><th>Cliente</th><th>Data</th><th class="num">Itens</th><th class="num">Total</th><th>Pagamento</th><th>Status</th><th class="col-actions">Ações</th></tr></thead><tbody>'
       + items.map(function (o) {
           var s = statusMap[o.status] || { pill: 'gray', label: o.status };
           var cust = (o.customer && o.customer.name) || '—';
+          var email = (o.customer && o.customer.email) || '';
           var qty = (o.items || []).reduce(function (a, b) { return a + (b.qty || 1); }, 0);
           return '<tr>'
             + '<td class="strong">#' + o.number + '</td>'
-            + '<td>' + escHtml(cust) + '</td>'
+            + '<td><div>' + escHtml(cust) + '</div>' + (email ? '<div class="muted">' + escHtml(email) + '</div>' : '') + '</td>'
             + '<td class="muted">' + fmtDate(o.createdAt) + '</td>'
             + '<td class="num">' + qty + '</td>'
-            + '<td class="num">' + fmt(o.total) + '</td>'
+            + '<td class="num strong">' + fmtFull(o.total) + '</td>'
             + '<td><span class="ap-tag">' + (o.paymentMethod || 'pix').toUpperCase() + '</span></td>'
             + '<td><span class="ap-pill ' + s.pill + '">' + s.label + '</span></td>'
-            + '<td class="col-actions">' + (o.status !== 'delivered' && o.status !== 'cancelled'
-                ? '<button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar</button>' : '—') + '</td>'
+            + '<td class="col-actions">'
+                + (canAdvance(o) ? '<button class="ap-mini-btn primary" data-advance-order="' + o.id + '">Avançar</button>' : '')
+                + (canRefund(o) ? (canAdvance(o) ? ' ' : '') + '<button class="ap-mini-btn danger" data-refund-order="' + o.id + '">Estornar</button>' : '')
+                + (!canAdvance(o) && !canRefund(o) ? '<span class="muted">—</span>' : '')
+              + '</td>'
             + '</tr>';
         }).join('')
       + '</tbody></table></div>';
@@ -4057,6 +4547,16 @@
   $('ordersSearch')?.addEventListener('input', renderOrders);
   $('ordersStatusFilter')?.addEventListener('change', renderOrders);
   $('ordersViewMode')?.addEventListener('change', renderOrders);
+  $('ordersDateFrom')?.addEventListener('change', renderOrders);
+  $('ordersDateTo')?.addEventListener('change', renderOrders);
+
+  /* Atalho do alerta "aguardando pagamento" → troca para a Visão Lista */
+  document.addEventListener('click', function (e) {
+    var vb = e.target.closest('[data-orders-view]');
+    if (!vb) return;
+    var vm = $('ordersViewMode');
+    if (vm) { vm.value = vb.getAttribute('data-orders-view'); renderOrders(); }
+  });
 
   document.addEventListener('click', async function (e) {
     var advBtn = e.target.closest('[data-advance-order]');
@@ -4065,13 +4565,46 @@
     var order = orders.find(function (o) { return o.id === id; });
     if (!order) return;
     var flow = ['paid', 'separating', 'shipped', 'delivered'];
-    var next = flow[flow.indexOf(order.status) + 1];
+    var idx = flow.indexOf(order.status);
+    if (idx < 0) return; /* pending/processing/failed não avançam (evita marcar pago sem pagamento) */
+    var next = flow[idx + 1];
     if (!next) return;
     if (window.ChampionOrders && window.ChampionOrders.mode() !== 'local') {
       try { await window.ChampionOrders.updateStatus(id, next); } catch (err) {}
     }
     order.status = next;
     renderOrders();
+  });
+
+  /* Estorno (admin) — chama o backend, que devolve a cobrança via Pagar.me. */
+  document.addEventListener('click', async function (e) {
+    var rfBtn = e.target.closest('[data-refund-order]');
+    if (!rfBtn) return;
+    var id = rfBtn.getAttribute('data-refund-order');
+    var order = orders.find(function (o) { return o.id === id; });
+    if (!order) return;
+    if (!window.confirm('Estornar o pedido #' + order.number + '?\nO valor de ' + fmtFull(order.total)
+        + ' será devolvido ao cliente. Esta ação não pode ser desfeita.')) return;
+    var prev = rfBtn.textContent;
+    rfBtn.disabled = true;
+    rfBtn.textContent = 'Estornando…';
+    try {
+      var idToken = window.ChampionCustomers ? await window.ChampionCustomers.getIdToken() : null;
+      if (!idToken) { alert('Sua sessão expirou. Faça login novamente.'); rfBtn.disabled = false; rfBtn.textContent = prev; return; }
+      var res = await fetch(ORDERS_API + '/' + encodeURIComponent(id) + '/refund', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + idToken }
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Não foi possível estornar.');
+      order.status = 'refunded';
+      renderOrders();
+      if (window.ChampionToast) window.ChampionToast('Pedido #' + order.number + ' estornado.');
+    } catch (err) {
+      alert((err && err.message) || 'Erro ao estornar o pedido.');
+      rfBtn.disabled = false;
+      rfBtn.textContent = prev;
+    }
   });
 
   /* ── Clientes ────────────────────────────────────────────── */

@@ -1,5 +1,5 @@
 import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-config.js';
-import { DEFAULT_PRODUCTS, normalizeProduct, sortProducts } from './product-data.js';
+import { DEFAULT_PRODUCTS, normalizeProduct, sortProducts } from './product-data.js?v=20260522-2';
 
 const LOCAL_BANNERS_KEY = 'champion-admin-banners';
 

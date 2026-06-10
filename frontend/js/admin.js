@@ -1,5 +1,5 @@
-import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260519-4';
-import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js';
+import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260522-2';
+import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260522-2';
 
 (async function () {
   'use strict';
@@ -109,6 +109,9 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     form.elements.presentations.value = 'Consultar embalagem';
     if (refs.productPreview) { refs.productPreview.hidden = true; refs.productPreview.src = ''; }
     _pendingProductFile = null;
+    /* Limpa o editor de variantes — produto novo começa sem variantes. */
+    if (typeof clearVariants === 'function') clearVariants();
+    if (typeof clearFaq === 'function') clearFaq();
     $('#adminProductSubmitLabel').textContent = 'Salvar produto';
     setFeedback(refs.productFeedback, '');
   }
@@ -123,14 +126,24 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     if (!form || !product) return;
     form.dataset.slugEdited = 'true';
     _pendingProductFile = null;
-    Object.entries(normalizeProduct(product)).forEach(([key, value]) => {
+    const normalized = normalizeProduct(product);
+    Object.entries(normalized).forEach(([key, value]) => {
       const input = form.elements[key];
       if (!input) return;
+      /* variants e faq são arrays com editores próprios — não setar como string. */
+      if (key === 'variants' || key === 'faq') return;
       input.value = value ?? '';
     });
     if (refs.productPreview && product.image) {
       refs.productPreview.src = product.image;
       refs.productPreview.hidden = false;
+    }
+    /* Carrega variantes (se houver) no editor visual. */
+    if (typeof loadVariantsIntoEditor === 'function') {
+      loadVariantsIntoEditor(normalized.variants);
+    }
+    if (typeof loadFaqIntoEditor === 'function') {
+      loadFaqIntoEditor(normalized.faq);
     }
     $('#adminProductSubmitLabel').textContent = 'Salvar alterações';
     setFeedback(refs.productFeedback, '');
@@ -732,6 +745,13 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
           data.image = await store.uploadImage(_pendingProductFile, 'products');
           _pendingProductFile = null;
         }
+        /* Anexa as variantes e o FAQ do editor visual (não fazem parte do FormData). */
+        data.variants = (typeof readVariantsFromEditor === 'function')
+          ? readVariantsFromEditor()
+          : [];
+        data.faq = (typeof readFaqFromEditor === 'function')
+          ? readFaqFromEditor()
+          : [];
         savedProduct = await store.saveProduct(data);
         productsCache = await store.getProducts();
         renderProducts();
@@ -1082,6 +1102,288 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     if (taxonomyCache[type] && taxonomyCache[type][idx]) {
       taxonomyCache[type][idx][key] = field.value;
     }
+  });
+
+  /* ── Modal de Categorias (acessado pelo Catálogo) ───────────── */
+  /* Renderiza as colunas Categorias + Espécies (sem Forma de uso). */
+  function renderCategoriesColumn(type) {
+    const wrap = document.getElementById(type === 'groups' ? 'taxColGroups' : 'taxColSpecies');
+    if (!wrap) return;
+    const items = taxonomyCache[type] || [];
+    if (!items.length) {
+      wrap.innerHTML = '<div style="padding:10px 12px;color:#9EA6B4;font-size:12.5px;font-style:italic">Nenhum item ainda.</div>';
+      return;
+    }
+    wrap.innerHTML = items.map((it, i) => `
+      <div class="tax-item" data-cat-row="${type}-${i}">
+        <input type="text" value="${escapeHtml(it.name)}" data-cat-field="name" data-cat-type="${type}" data-cat-idx="${i}" />
+        <span class="tax-slug">${escapeHtml(it.slug)}</span>
+        <button type="button" data-cat-remove="${type}-${i}" aria-label="Remover">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  function renderCategoriesModal() {
+    renderCategoriesColumn('groups');
+    renderCategoriesColumn('species');
+  }
+
+  function openCategoriesDrawer() {
+    const drawer = document.getElementById('categoriesDrawer');
+    if (!drawer) return;
+    renderCategoriesModal();
+    drawer.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCategoriesDrawer() {
+    const drawer = document.getElementById('categoriesDrawer');
+    if (!drawer) return;
+    drawer.classList.remove('is-open');
+    document.body.style.overflow = '';
+    setFeedback(document.getElementById('categoriesFeedback'), '');
+  }
+
+  /* Popula os selects de Categoria e Espécie no formulário de produto. */
+  function populateProductTaxonomySelects() {
+    const fillSelect = (selectEl, items) => {
+      if (!selectEl) return;
+      const current = selectEl.value;
+      selectEl.innerHTML = '<option value="">— selecione —</option>' + (items || []).map((it) => `
+        <option value="${escapeHtml(it.slug)}">${escapeHtml(it.name)}</option>
+      `).join('');
+      if (current && items.some((it) => it.slug === current)) selectEl.value = current;
+    };
+    const form = refs.productForm;
+    if (!form) return;
+    fillSelect(form.elements.category, taxonomyCache.groups);
+    fillSelect(form.elements.species, taxonomyCache.species);
+  }
+
+  /* Hook: depois do loadTaxonomy original popular os selects do form. */
+  const _originalLoadTaxonomy = loadTaxonomy;
+  loadTaxonomy = async function () {
+    await _originalLoadTaxonomy();
+    populateProductTaxonomySelects();
+  };
+
+  /* Wiring do modal de categorias */
+  document.addEventListener('click', async (e) => {
+    if (e.target.closest('#adminOpenCategories') || e.target.closest('#openCategoriesFromForm')) {
+      openCategoriesDrawer();
+      return;
+    }
+    const closeBtn = e.target.closest('#categoriesDrawer [data-close-drawer]');
+    if (closeBtn) { closeCategoriesDrawer(); return; }
+    const removeBtn = e.target.closest('[data-cat-remove]');
+    if (removeBtn) {
+      const [type, idxStr] = removeBtn.getAttribute('data-cat-remove').split('-');
+      const idx = parseInt(idxStr, 10);
+      if (taxonomyCache[type]) {
+        taxonomyCache[type].splice(idx, 1);
+        renderCategoriesColumn(type);
+      }
+      return;
+    }
+    if (e.target.closest('#adminSaveCategories')) {
+      const fb = document.getElementById('categoriesFeedback');
+      try {
+        /* gerar slugs faltantes a partir do nome */
+        ['groups', 'species', 'uses'].forEach((type) => {
+          (taxonomyCache[type] || []).forEach((it) => {
+            if (it.name && !it.slug) it.slug = taxonomySlugify(it.name);
+          });
+        });
+        await store.saveTaxonomy(taxonomyCache);
+        taxonomyCache = await store.getTaxonomy();
+        renderCategoriesModal();
+        populateProductTaxonomySelects();
+        setFeedback(fb, 'Categorias salvas. Os filtros do catálogo já refletem as mudanças.', 'success');
+        window.ChampionToast?.('Categorias salvas.');
+        window.setTimeout(closeCategoriesDrawer, 700);
+      } catch (err) {
+        setFeedback(fb, friendlyAdminError(err));
+      }
+    }
+  });
+
+  /* Formulários "+ Adicionar" das colunas de Categorias / Espécies */
+  document.addEventListener('submit', (e) => {
+    const addForm = e.target.closest('[data-tax-add-form]');
+    if (!addForm) return;
+    e.preventDefault();
+    const type = addForm.getAttribute('data-tax-add-form');
+    const input = addForm.querySelector('input[type="text"]');
+    const name = (input?.value || '').trim();
+    if (!name) return;
+    if (!taxonomyCache[type]) taxonomyCache[type] = [];
+    taxonomyCache[type].push({
+      slug: taxonomySlugify(name),
+      name,
+      order: taxonomyCache[type].length + 1
+    });
+    input.value = '';
+    renderCategoriesColumn(type);
+  });
+
+  /* Edição inline dos nomes nas colunas (regenera slug enquanto digita) */
+  document.addEventListener('input', (e) => {
+    const field = e.target.closest('[data-cat-field]');
+    if (!field) return;
+    const type = field.getAttribute('data-cat-type');
+    const idx = parseInt(field.getAttribute('data-cat-idx'), 10);
+    if (!taxonomyCache[type] || !taxonomyCache[type][idx]) return;
+    taxonomyCache[type][idx].name = field.value;
+    /* re-gera slug a partir do nome (preserva ordem) */
+    taxonomyCache[type][idx].slug = taxonomySlugify(field.value);
+    /* atualiza o chip do slug ao lado do input sem re-render completo */
+    const slugSpan = field.parentElement?.querySelector('.tax-slug');
+    if (slugSpan) slugSpan.textContent = taxonomyCache[type][idx].slug;
+  });
+
+  /* ── Editor de Variantes do Produto ──────────────────────────── */
+  function renderVariantRow(variant) {
+    const v = variant || { id: '', name: '', price: '', image: '' };
+    const row = document.createElement('div');
+    row.className = 'variant-row';
+    row.innerHTML = `
+      <div class="variant-thumb" data-variant-thumb tabindex="0" aria-label="Selecionar foto da variante">
+        ${v.image
+          ? `<img src="${escapeHtml(v.image)}" alt="" />`
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'}
+        <input type="file" accept="image/jpeg,image/png,image/webp" hidden />
+      </div>
+      <div class="variant-name-wrap">
+        <label>Nome / tamanho</label>
+        <input type="text" data-variant-field="name" value="${escapeHtml(v.name)}" placeholder="Ex: 200ml" />
+      </div>
+      <div class="variant-price-wrap">
+        <label>Preço (R$)</label>
+        <input type="number" step="0.01" min="0" data-variant-field="price" value="${v.price ?? ''}" placeholder="129.90" />
+      </div>
+      <button type="button" class="variant-remove" aria-label="Remover variante">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <input type="hidden" data-variant-field="image" value="${escapeHtml(v.image)}" />
+      <input type="hidden" data-variant-field="id" value="${escapeHtml(v.id)}" />
+    `;
+    return row;
+  }
+
+  function getVariantsListEl() { return document.getElementById('variantsList'); }
+
+  function clearVariants() {
+    const list = getVariantsListEl();
+    if (list) list.innerHTML = '';
+  }
+
+  function loadVariantsIntoEditor(variants) {
+    const list = getVariantsListEl();
+    if (!list) return;
+    list.innerHTML = '';
+    (variants || []).forEach((v) => list.appendChild(renderVariantRow(v)));
+  }
+
+  function readVariantsFromEditor() {
+    const list = getVariantsListEl();
+    if (!list) return [];
+    return Array.from(list.querySelectorAll('.variant-row')).map((row) => {
+      const get = (k) => row.querySelector(`[data-variant-field="${k}"]`)?.value || '';
+      return {
+        id: get('id') || '',
+        name: get('name'),
+        price: get('price'),
+        image: get('image')
+      };
+    }).filter((v) => String(v.name || '').trim());
+  }
+
+  /* +Adicionar variante */
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#adminAddVariant')) {
+      const list = getVariantsListEl();
+      list?.appendChild(renderVariantRow(null));
+      return;
+    }
+    /* remover */
+    const rmBtn = e.target.closest('.variant-remove');
+    if (rmBtn) {
+      rmBtn.closest('.variant-row')?.remove();
+      return;
+    }
+    /* clique no thumb abre o file picker */
+    const thumb = e.target.closest('[data-variant-thumb]');
+    if (thumb) {
+      const file = thumb.querySelector('input[type="file"]');
+      file?.click();
+    }
+  });
+
+  /* Upload de imagem da variante */
+  document.addEventListener('change', async (e) => {
+    const fileInput = e.target.closest('.variant-thumb input[type="file"]');
+    if (!fileInput) return;
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    const thumb = fileInput.closest('.variant-thumb');
+    const row = thumb.closest('.variant-row');
+    try {
+      thumb.style.opacity = '0.55';
+      const url = await store.uploadImage(file, 'products');
+      const hidden = row.querySelector('[data-variant-field="image"]');
+      if (hidden) hidden.value = url;
+      thumb.innerHTML = `<img src="${escapeHtml(url)}" alt="" />` +
+        '<input type="file" accept="image/jpeg,image/png,image/webp" hidden />';
+    } catch (err) {
+      console.error('[admin] upload variant:', err);
+      window.ChampionToast?.('Erro ao subir imagem da variante.');
+    } finally {
+      thumb.style.opacity = '';
+    }
+  });
+
+  /* ── Editor de FAQ do Produto ────────────────────────────────── */
+  function renderFaqRow(item) {
+    const f = item || { q: '', a: '' };
+    const row = document.createElement('div');
+    row.className = 'faq-row';
+    row.innerHTML = `
+      <div class="faq-row-fields">
+        <input type="text" data-faq-field="q" value="${escapeHtml(f.q)}" placeholder="Pergunta (ex: Qual a dose por animal?)" />
+        <textarea data-faq-field="a" rows="2" placeholder="Resposta clara e objetiva">${escapeHtml(f.a)}</textarea>
+      </div>
+      <button type="button" class="faq-remove" aria-label="Remover pergunta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+    return row;
+  }
+
+  function getFaqListEl() { return document.getElementById('faqList'); }
+  function clearFaq() { const l = getFaqListEl(); if (l) l.innerHTML = ''; }
+  function loadFaqIntoEditor(faq) {
+    const list = getFaqListEl();
+    if (!list) return;
+    list.innerHTML = '';
+    (faq || []).forEach((item) => list.appendChild(renderFaqRow(item)));
+  }
+  function readFaqFromEditor() {
+    const list = getFaqListEl();
+    if (!list) return [];
+    return Array.from(list.querySelectorAll('.faq-row')).map((row) => ({
+      q: row.querySelector('[data-faq-field="q"]')?.value.trim() || '',
+      a: row.querySelector('[data-faq-field="a"]')?.value.trim() || ''
+    })).filter((f) => f.q && f.a);
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#adminAddFaq')) {
+      getFaqListEl()?.appendChild(renderFaqRow(null));
+      return;
+    }
+    const rm = e.target.closest('.faq-remove');
+    if (rm) { rm.closest('.faq-row')?.remove(); }
   });
 
   /* ── Cálculo de Dose ─────────────────────────────────────────── */

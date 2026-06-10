@@ -7,7 +7,7 @@
  * Para cada página que tiver um <div data-banner-page="<key>"> a gente
  * popula com o banner publicado correspondente.
  */
-import { getAdminStore } from './admin-store.js?v=20260519-4';
+import { getAdminStore } from './admin-store.js?v=20260522-2';
 
 (async function () {
   'use strict';
@@ -16,6 +16,13 @@ import { getAdminStore } from './admin-store.js?v=20260519-4';
     return String(v || '').replace(/[&<>"']/g, (c) => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
+  }
+
+  /* Valor seguro para uso em srcset: espaços em branco separam a URL do
+     descritor, então precisam virar %20 (senão o navegador descarta o
+     candidato e cai na imagem desktop). Não afeta data URLs. */
+  function escSrcset(v) {
+    return esc(String(v || '').replace(/\s+/g, '%20'));
   }
 
   function detectPage() {
@@ -49,7 +56,7 @@ import { getAdminStore } from './admin-store.js?v=20260519-4';
         </div>` : '';
       const altText = esc(s.title || s.eyebrow || '');
       const desktopSrc = esc(s.image || '');
-      const mobileSrc = esc(s.imageMobile || s.image || '');
+      const mobileSrc = escSrcset(s.imageMobile || s.image || '');
       const img = `
         <picture>
           <source media="(max-width: 720px)" srcset="${mobileSrc}" />
@@ -95,7 +102,7 @@ import { getAdminStore } from './admin-store.js?v=20260519-4';
               ${s.cta && s.link ? `<a class="cms-banner-cta" href="${esc(s.link)}">${esc(s.cta)} →</a>` : ''}
             </div>` : '';
           const desktopSrc = esc(s.image || '');
-          const mobileSrc = esc(s.imageMobile || s.image || '');
+          const mobileSrc = escSrcset(s.imageMobile || s.image || '');
           const img = `
             <picture>
               <source media="(max-width: 720px)" srcset="${mobileSrc}" />

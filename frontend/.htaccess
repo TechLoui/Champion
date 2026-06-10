@@ -1,0 +1,44 @@
+# Champion Saúde Animal — Hostinger (Apache)
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Home: /index e /index.html → /
+  RewriteCond %{THE_REQUEST} \s/+index(\.html)?[\s?] [NC]
+  RewriteRule ^ / [R=301,L]
+
+  # Remove o .html da URL (301) — endereço fica limpo
+  RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
+  RewriteRule ^ /%1 [R=301,L]
+
+  # Caso especial: /guias coexiste com a pasta guias/ → serve o índice guias.html
+  RewriteRule ^guias/?$ guias.html [L]
+
+  # Serve internamente o .html correspondente à URL sem extensão
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.+?)/?$ $1.html [L]
+</IfModule>
+
+# Compressão
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml application/xml
+</IfModule>
+
+# Cache de assets estáticos
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css            "access plus 1 hour"
+  ExpiresByType application/javascript "access plus 1 hour"
+  ExpiresByType image/png           "access plus 7 days"
+  ExpiresByType image/jpeg          "access plus 7 days"
+  ExpiresByType image/webp          "access plus 7 days"
+  ExpiresByType image/svg+xml       "access plus 7 days"
+  ExpiresByType font/woff2          "access plus 7 days"
+</IfModule>
+
+DirectoryIndex index.html
+ErrorDocument 404 /index.html

@@ -1,0 +1,13 @@
+{
+  "name": "champion-functions",
+  "description": "Cloud Functions da Champion — sitemap dinâmico e meta/SEO server-side dos produtos",
+  "type": "module",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^6.0.0"
+  },
+  "private": true
+}

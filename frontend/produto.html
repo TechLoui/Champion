@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="pt-br">
 <head>
   <meta charset="utf-8" />
@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=20260522-4" />
   <script data-champion-lang-init>(function(){try{var l=localStorage.getItem("champion-language")||"pt";document.documentElement.dataset.lang=l;if(l!=="pt")document.documentElement.lang=l;}catch(e){}})();</script>
   <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
   <link rel="apple-touch-icon" href="assets/img/brand/icon.png" />
@@ -40,6 +40,7 @@
     <nav class="nav" id="primaryNav">
       <a href="index.html">Página Inicial</a>
       <a href="produtos.html" class="active">Produtos</a>
+      <a href="guias.html">Guias</a>
       <a href="sobre.html">Sobre a Champion</a>
       <a href="blog.html">Blog</a>
       <a href="https://champion.pertinhodemim.com/" target="_blank" rel="noopener">Revenda</a>
@@ -82,11 +83,11 @@
 
         <div class="detail-price-block">
           <div class="product-price-block">
-            <span class="product-price-label">Preço fictício</span>
+            <span class="product-price-label"></span>
             <span class="product-price" id="detailPrice">R$ 129<small>,90</small></span>
           </div>
           <div id="detailPayment" style="text-align:right; font-size: 13px; color: var(--muted)">
-            Preço para <strong style="color:var(--ink)">demonstração</strong>
+            Pix, boleto ou cartão em até 6× sem juros
           </div>
         </div>
 
@@ -132,6 +133,47 @@
   </div>
 </section>
 
+<!-- CONTEÚDO SEO: descrição completa, benefícios, modo de uso e FAQ -->
+<section class="section section-tight" id="productContentSection">
+  <div class="container">
+    <div class="product-content-grid">
+      <article class="product-content-main">
+        <div id="productContentBody">
+          <h2 id="productContentTitle">Sobre o produto</h2>
+          <div id="productContentText"></div>
+        </div>
+
+        <div id="productBenefitsBlock" hidden>
+          <h2>Principais benefícios</h2>
+          <ul class="product-content-benefits" id="productBenefitsList"></ul>
+        </div>
+
+        <div id="productUsageBlock" hidden>
+          <h2>Modo de uso</h2>
+          <p id="productUsageText"></p>
+        </div>
+
+        <div id="productFaqBlock" hidden>
+          <h2>Perguntas frequentes</h2>
+          <div class="product-faq" id="productFaqList"></div>
+        </div>
+      </article>
+
+      <aside class="product-content-aside">
+        <div class="product-content-card">
+          <h3>Ficha rápida</h3>
+          <dl id="productSpecsList"></dl>
+          <a href="#" class="btn btn-primary btn-sm" id="productContentCta">Ver opções de compra</a>
+        </div>
+        <div class="guide-aside-box" id="productGuideBox" hidden>
+          <h3>Guia relacionado</h3>
+          <p id="productGuideLink"></p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
 <!-- RELATED -->
 <section class="section section-tight" style="background: var(--bone)">
   <div class="container">
@@ -155,7 +197,7 @@
           <h3 class="product-name">Difly Champion</h3>
           <p class="product-desc">Controle total da mosca-dos-chifres direto na origem.</p>
           <div class="product-foot">
-            <div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 129,90</span></div>
+            
             <a href="produto.html?p=difly" class="product-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
           </div>
         </div>
@@ -169,7 +211,7 @@
           <h3 class="product-name">Difly S3 Champion</h3>
           <p class="product-desc">Proteção dupla contra moscas e carrapatos.</p>
           <div class="product-foot">
-            <div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 189,90</span></div>
+            
             <a href="produto.html?p=difly-s3" class="product-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
           </div>
         </div>
@@ -183,7 +225,7 @@
           <h3 class="product-name">Vermi-Sal</h3>
           <p class="product-desc">Vermifugação contínua com mineralização completa.</p>
           <div class="product-foot">
-            <div class="product-price-block"><span class="product-price-label">Preço fictício</span><span class="product-price">R$ 149,90</span></div>
+            
             <a href="produto.html?p=vermi-sal" class="product-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></a>
           </div>
         </div>
@@ -263,9 +305,9 @@
   <span id="toastMsg">Adicionado ao carrinho</span>
 </div>
 
-<script src="js/customer-store.js"></script>
-<script src="js/order-store.js"></script>
-<script src="js/main.js"></script>
+<script src="js/customer-store.js?v=20260609-2"></script>
+<script src="js/order-store.js?v=20260522-1"></script>
+<script src="js/main.js?v=20260609-3"></script>
 <script>
   // Product detail logic
   const products = {
@@ -582,7 +624,7 @@
     }).split(',');
     priceEl.innerHTML = `R$ ${reais}<small>,${centavos}</small>`;
     const paymentEl = document.getElementById('detailPayment');
-    if (paymentEl) paymentEl.innerHTML = 'Preço para <strong style="color:var(--ink)">demonstração</strong>';
+    if (paymentEl) paymentEl.innerHTML = 'Pix, boleto ou cartão em até 6× sem juros';
   } else {
     priceEl.classList.add('product-price-consult');
     priceEl.textContent = 'Sob consulta';
@@ -670,7 +712,7 @@
     });
   };
 </script>
-<script type="module" src="js/products-cms.js"></script>
-<script type="module" src="js/site-settings.js"></script>
+<script type="module" src="js/products-cms.js?v=20260522-7"></script>
+<script type="module" src="js/site-settings.js?v=20260522-1"></script>
 </body>
 </html>

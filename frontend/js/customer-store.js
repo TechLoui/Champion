@@ -31,7 +31,10 @@
       passwordHash: c.passwordHash || '',
       status: c.status === 'blocked' || c.status === 'inactive' ? c.status : 'active',
       createdAt: c.createdAt || new Date().toISOString(),
-      lastLoginAt: c.lastLoginAt || null
+      lastLoginAt: c.lastLoginAt || null,
+      /* Soft delete: ISO timestamp quando o admin enviou para a lixeira.
+         Após 3 dias o registro pode ser removido em definitivo. */
+      deletedAt: c.deletedAt || null
     };
   }
 
@@ -85,6 +88,7 @@
       var c = await this.findByEmail(email);
       if (!c) throw new Error('E-mail ou senha inválidos.');
       if (c.passwordHash !== hash(String(password || ''))) throw new Error('E-mail ou senha inválidos.');
+      if (c.deletedAt) throw new Error('Conta removida. Entre em contato com a Champion.');
       if (c.status === 'blocked') throw new Error('Conta bloqueada. Entre em contato com a Champion.');
       c.lastLoginAt = new Date().toISOString();
       await this.save(c);
@@ -97,7 +101,14 @@
       if (!c) throw new Error('Cliente não encontrado.');
       Object.assign(c, patch || {});
       return this.save(c);
-    }
+    },
+    /* Modo local (dev/file://) não envia e-mail. Resolve em silêncio para
+       que a UI mostre a mesma mensagem neutra do modo Firebase. */
+    async resetPassword() { return true; },
+    /* Sem Firebase Auth não há ID token para autenticar no backend. */
+    async getIdToken() { return null; },
+    /* Login com Google exige Firebase Auth. */
+    async loginWithGoogle() { throw new Error('Login com Google indisponível neste ambiente.'); }
   };
 
   /* ────────── Firebase backend ────────── */
@@ -168,6 +179,10 @@
             profile = normalizeCustomer({ id: cred.user.uid, email: cred.user.email });
             await this.save(profile);
           }
+          if (profile.deletedAt) {
+            await api.signOut(auth);
+            throw new Error('Conta removida. Entre em contato com a Champion.');
+          }
           if (profile.status === 'blocked') {
             await api.signOut(auth);
             throw new Error('Conta bloqueada. Entre em contato com a Champion.');
@@ -194,6 +209,58 @@
         if (!c) throw new Error('Cliente não encontrado.');
         Object.assign(c, patch || {});
         return this.save(c);
+      },
+      /* Envia o e-mail de redefinição de senha (Firebase Auth).
+         Por segurança, e-mail inexistente NÃO é revelado — resolve normal. */
+      async resetPassword(email) {
+        var e = String(email || '').trim().toLowerCase();
+        if (!e) throw new Error('Informe o e-mail.');
+        try {
+          await api.sendPasswordResetEmail(auth, e);
+          return true;
+        } catch (err) {
+          var code = String(err.code || '');
+          if (code.includes('user-not-found')) return true; /* não revela */
+          if (code.includes('invalid-email')) throw new Error('E-mail inválido.');
+          if (code.includes('too-many-requests')) throw new Error('Muitas tentativas. Aguarde alguns minutos.');
+          throw new Error('Não foi possível enviar o e-mail de redefinição.');
+        }
+      },
+      /* ID token do Firebase Auth — usado para autenticar no backend (checkout). */
+      async getIdToken() {
+        try { return auth.currentUser ? await auth.currentUser.getIdToken() : null; }
+        catch (e) { return null; }
+      },
+      /* Login/cadastro com Google (popup). Cria o perfil no primeiro acesso. */
+      async loginWithGoogle() {
+        var provider = new api.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        var cred;
+        try {
+          cred = await api.signInWithPopup(auth, provider);
+        } catch (err) {
+          var code = String(err.code || '');
+          if (code.includes('popup-closed-by-user') || code.includes('cancelled-popup-request')) {
+            throw new Error('Login com Google cancelado.');
+          }
+          if (code.includes('popup-blocked')) throw new Error('O navegador bloqueou o popup. Permita popups e tente novamente.');
+          if (code.includes('unauthorized-domain')) throw new Error('Este domínio não está autorizado no Firebase (Authentication → Settings → Domínios autorizados).');
+          if (code.includes('operation-not-allowed')) throw new Error('Login com Google não está habilitado no Firebase (Authentication → Sign-in method).');
+          if (code.includes('account-exists-with-different-credential')) throw new Error('Já existe uma conta com esse e-mail usando outro método de login.');
+          throw new Error(err.message || 'Não foi possível entrar com o Google.');
+        }
+        var uid = cred.user.uid;
+        var profile = await loadProfile(uid);
+        if (!profile) {
+          profile = normalizeCustomer({ id: uid, email: cred.user.email, name: cred.user.displayName || '' });
+          await this.save(profile);
+        }
+        if (profile.deletedAt) { await api.signOut(auth); throw new Error('Conta removida. Entre em contato com a Champion.'); }
+        if (profile.status === 'blocked') { await api.signOut(auth); throw new Error('Conta bloqueada. Entre em contato com a Champion.'); }
+        profile.lastLoginAt = new Date().toISOString();
+        await this.save(profile);
+        setSession(profile);
+        return profile;
       }
     };
   }
@@ -255,8 +322,11 @@
     remove:         function (id)      { return ready.then(function () { return backend.remove(id); }); },
     register:       function (i)       { return ready.then(function () { return backend.register(i); }); },
     login:          function (e, p)    { return ready.then(function () { return backend.login(e, p); }); },
+    loginWithGoogle: function ()       { return ready.then(function () { return backend.loginWithGoogle(); }); },
     logout:         function ()        { return ready.then(function () { return backend.logout(); }); },
     updateProfile:  function (id, p)   { return ready.then(function () { return backend.updateProfile(id, p); }); },
+    resetPassword:  function (e)       { return ready.then(function () { return backend.resetPassword(e); }); },
+    getIdToken:     function ()        { return ready.then(function () { return backend.getIdToken(); }); },
 
     /* Sync helpers reading the cached session — work even before ready resolves */
     currentSession: function () { return getSession(); },

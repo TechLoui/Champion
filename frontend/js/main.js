@@ -6,6 +6,42 @@
   'use strict';
 
   // ------------------------------------------------------------
+  // SEO — Organization schema (todas as páginas, idempotente)
+  // Dá ao Google os dados de marca: logo, contato e redes sociais,
+  // o que alimenta o painel de conhecimento e os sitelinks.
+  // ------------------------------------------------------------
+  (function injectOrganizationSchema() {
+    if (document.head.querySelector('script[data-jsonld="organization"]')) return;
+    const ORIGIN = 'https://ofertaschampion.com.br';
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Champion Saúde Animal',
+      url: ORIGIN + '/',
+      logo: ORIGIN + '/assets/img/brand/logo.png',
+      description: 'Champion Saúde Animal — referência há mais de 60 anos em larvicidas, mineralização, suplementos e nutrição para a pecuária brasileira.',
+      foundingDate: '1964',
+      areaServed: 'BR',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: '+55-0800-723-1616',
+        contactType: 'customer service',
+        areaServed: 'BR',
+        availableLanguage: ['Portuguese']
+      },
+      sameAs: [
+        'https://www.instagram.com/championsaudeanimal/',
+        'https://www.facebook.com/championsaudeanimal'
+      ]
+    };
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-jsonld', 'organization');
+    script.textContent = JSON.stringify(data);
+    document.head.appendChild(script);
+  })();
+
+  // ------------------------------------------------------------
   // Intro GIF
   // ------------------------------------------------------------
   const intro = document.getElementById('siteIntro');
@@ -13,7 +49,15 @@
     const INTRO_FADE_START = 4500;
     const INTRO_REMOVE_AT = 5500;
     const INTRO_SESSION_KEY = 'champion-intro-played';
-    const shouldPlayIntro = sessionStorage.getItem(INTRO_SESSION_KEY) !== '1';
+    /* Pula a intro:
+       1) Para crawlers/bots — preserva LCP e indexação rápida.
+       2) Para visitantes que chegam via campanha (utm_source presente) — entregam
+          o conteúdo direto, sem 5s de delay entre clicar no anúncio e ver a oferta. */
+    const ua = (navigator.userAgent || '').toLowerCase();
+    const isBot = /bot|spider|crawl|slurp|search|index|fetch|preview|lighthouse|pagespeed|gtmetrix|headless/i.test(ua);
+    const fromCampaign = /[?&]utm_(source|medium|campaign)=/i.test(window.location.search);
+    const skipIntro = isBot || fromCampaign;
+    const shouldPlayIntro = !skipIntro && sessionStorage.getItem(INTRO_SESSION_KEY) !== '1';
 
     const closeIntro = () => {
       document.body.classList.remove('site-intro-active');
@@ -29,6 +73,37 @@
       intro.remove();
     }
   }
+
+  // ------------------------------------------------------------
+  // SEO — Organization JSON-LD (todas as páginas)
+  // ------------------------------------------------------------
+  (function injectOrganizationSchema() {
+    if (document.head.querySelector('script[data-jsonld="organization"]')) return;
+    const SITE = 'https://ofertaschampion.com.br';
+    const data = {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Champion Saúde Animal',
+      url: SITE,
+      logo: SITE + '/assets/img/brand/logo.png',
+      sameAs: [
+        'https://www.instagram.com/championsaudeanimal/',
+        'https://www.facebook.com/championsaudeanimal'
+      ],
+      contactPoint: [{
+        '@type': 'ContactPoint',
+        telephone: '+556240150742',
+        contactType: 'customer service',
+        areaServed: 'BR',
+        availableLanguage: ['Portuguese']
+      }]
+    };
+    const s = document.createElement('script');
+    s.type = 'application/ld+json';
+    s.setAttribute('data-jsonld', 'organization');
+    s.textContent = JSON.stringify(data);
+    document.head.appendChild(s);
+  })();
 
   // ------------------------------------------------------------
   // Header scroll effect
@@ -86,14 +161,17 @@
     const brandImg = document.querySelector('.site-header .brand img');
     const brandSrc = brandImg ? brandImg.getAttribute('src') : 'assets/img/brand/logo.png';
 
-    // Build FAB
+    // Build FAB — bola branca com ícone Champion no centro
     const fab = document.createElement('button');
     fab.className = 'mobile-menu-fab';
     fab.type = 'button';
     fab.setAttribute('aria-label', 'Abrir menu');
     fab.setAttribute('aria-expanded', 'false');
     fab.setAttribute('aria-controls', 'mobilePanel');
-    fab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>';
+    // Resolve caminho da logo Champion (relativo à página)
+    const iconPath = (document.querySelector('.site-header .brand img')?.getAttribute('src') || '')
+      .replace(/logo\.png$/i, 'icon.png') || 'assets/img/brand/icon.png';
+    fab.innerHTML = `<img src="${iconPath}" alt="" class="mobile-menu-fab-icon" />`;
 
     // Build panel
     const panel = document.createElement('div');
@@ -135,10 +213,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Minha conta
           </button>
-          <a href="https://wa.me/5564993021616" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-            WhatsApp
-          </a>
         </div>
       </div>
     `;
@@ -351,6 +425,7 @@
   // Hero carousel (auto-play)
   // ------------------------------------------------------------
   let _carouselTimer;
+  let _carouselAutoplay = 6000; // ms — sobrescrito pelo banner do admin
   function initHeroCarousel() {
     if (_carouselTimer) clearInterval(_carouselTimer);
     const track = document.getElementById('heroTrack');
@@ -360,7 +435,6 @@
     const prev = document.getElementById('heroPrev');
     const next = document.getElementById('heroNext');
     let i = 0;
-    const AUTOPLAY = 6000;
 
     const go = (n) => {
       i = (n + slides.length) % slides.length;
@@ -370,7 +444,11 @@
     };
 
     const stop = () => { if (_carouselTimer) clearInterval(_carouselTimer); };
-    const start = () => { stop(); _carouselTimer = setInterval(() => go(i + 1), AUTOPLAY); };
+    const start = () => {
+      stop();
+      if (slides.length <= 1) return;
+      _carouselTimer = setInterval(() => go(i + 1), Math.max(2000, _carouselAutoplay));
+    };
 
     prev?.addEventListener('click', () => { go(i - 1); start(); });
     next?.addEventListener('click', () => { go(i + 1); start(); });
@@ -390,7 +468,14 @@
 
     start();
   }
-  window.ChampionCarousel = { reinit: initHeroCarousel };
+  window.ChampionCarousel = {
+    reinit: initHeroCarousel,
+    setInterval(ms) {
+      const n = Number(ms) || 0;
+      if (n >= 1000) _carouselAutoplay = n;
+      initHeroCarousel();
+    }
+  };
   initHeroCarousel();
 
   // Mobile: indicador de scroll na base do hero
@@ -425,11 +510,100 @@
   })();
 
   // ------------------------------------------------------------
-  // Story play button (focus video / open YouTube)
+  // VIDEO LIGHTBOX (toca YouTube no site, sem redirecionar)
   // ------------------------------------------------------------
+  (function setupVideoLightbox() {
+    if (window.ChampionVideo) return; // já inicializado
+
+    function extractVideoId(value) {
+      if (!value) return null;
+      // Já é só o ID
+      if (/^[\w-]{10,15}$/.test(value)) return value;
+      // youtu.be/ID
+      const short = value.match(/youtu\.be\/([\w-]{10,15})/);
+      if (short) return short[1];
+      // youtube.com/watch?v=ID
+      const watch = value.match(/[?&]v=([\w-]{10,15})/);
+      if (watch) return watch[1];
+      // youtube.com/embed/ID
+      const embed = value.match(/\/embed\/([\w-]{10,15})/);
+      if (embed) return embed[1];
+      return null;
+    }
+
+    // Cria o lightbox uma única vez
+    let lightbox = document.querySelector('.video-lightbox');
+    if (!lightbox) {
+      lightbox = document.createElement('div');
+      lightbox.className = 'video-lightbox';
+      lightbox.setAttribute('role', 'dialog');
+      lightbox.setAttribute('aria-modal', 'true');
+      lightbox.setAttribute('aria-label', 'Reprodução de vídeo');
+      lightbox.innerHTML = `
+        <div class="video-lightbox-panel" role="document">
+          <button type="button" class="video-lightbox-close" aria-label="Fechar vídeo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+          </button>
+          <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        </div>
+      `;
+      document.body.appendChild(lightbox);
+    }
+    const panel = lightbox.querySelector('.video-lightbox-panel');
+    const iframe = lightbox.querySelector('iframe');
+    const closeBtn = lightbox.querySelector('.video-lightbox-close');
+
+    function open(videoId) {
+      const id = extractVideoId(videoId);
+      if (!id) { window.open(videoId, '_blank'); return; }
+      // YouTube embed com autoplay, sem cookies (privacy-enhanced)
+      iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      lightbox.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      lightbox.classList.remove('is-open');
+      iframe.src = ''; // para o vídeo
+      document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', close);
+    lightbox.addEventListener('click', (e) => {
+      if (!panel.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+    });
+
+    // Delegação: qualquer elemento com data-video abre o lightbox
+    document.addEventListener('click', (e) => {
+      const trigger = e.target.closest('[data-video]');
+      if (!trigger) return;
+      e.preventDefault();
+      open(trigger.getAttribute('data-video'));
+    });
+
+    // Compat: links antigos para youtu.be/youtube.com — interceptar
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[href*="youtu.be/"], a[href*="youtube.com/watch"], a[href*="youtube.com/embed"]');
+      if (!a) return;
+      // Não interceptar links para canal (sem ID de vídeo) ou se Cmd/Ctrl
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+      const href = a.getAttribute('href') || '';
+      // Se for link de canal (não tem ID extraível), deixa passar
+      const id = extractVideoId(href);
+      if (!id) return;
+      e.preventDefault();
+      open(id);
+    });
+
+    window.ChampionVideo = { open, close, extractVideoId };
+  })();
+
+  // Story play button — abre vídeo via lightbox
   const storyPlay = document.getElementById('storyPlay');
   if (storyPlay) {
-    storyPlay.addEventListener('click', () => window.open('https://youtu.be/SsF-aEboU44', '_blank'));
+    storyPlay.addEventListener('click', () => window.ChampionVideo?.open('SsF-aEboU44'));
   }
 
   // ------------------------------------------------------------
@@ -914,7 +1088,12 @@
 
   document.getElementById('cartCheckout')?.addEventListener('click', () => {
     if (!Cart.items.length) { showToast('Seu carrinho está vazio.'); return; }
-    /* Redireciona para o fluxo de checkout. Sem gateway: o pedido será marcado como pago ao confirmar. */
+    /* Login obrigatório só no checkout: sem sessão, manda entrar/cadastrar e volta. */
+    const logged = window.ChampionCustomers && window.ChampionCustomers.isLogged();
+    if (!logged) {
+      window.location.href = 'cliente-conta.html?redirect=checkout.html';
+      return;
+    }
     window.location.href = 'checkout.html';
   });
 
@@ -923,11 +1102,382 @@
     if (e.key === 'Escape') {
       Cart.close();
       closeAccountModal();
+      if (acctDrawerEl && acctDrawerEl.classList.contains('is-open')) closeAccountDrawer();
     }
   });
 
   Cart.load();
   Cart.render();
+
+  // ------------------------------------------------------------
+  // ACCOUNT DRAWER — gestão da conta in-site (pedidos, dados, endereço, segurança)
+  // ------------------------------------------------------------
+  var acctDrawerEl = null, acctOverlayEl = null, acctInited = false;
+  var acctCurrent = null, acctOrders = [], acctLoaded = false, acctTab = 'orders';
+
+  function acctVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  function acctFmtDate(iso) {
+    if (!iso) return '—';
+    try { var d = new Date(iso); return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+    catch (e) { return '—'; }
+  }
+  function acctStatusPill(s) {
+    var map = {
+      pending: ['amber', 'Aguardando pagamento'], processing: ['amber', 'Em análise'],
+      paid: ['blue', 'Pago'], separating: ['amber', 'Em separação'], shipped: ['purple', 'Em trânsito'],
+      delivered: ['green', 'Entregue'], refunded: ['red', 'Estornado'], failed: ['red', 'Falhou'], cancelled: ['gray', 'Cancelado']
+    };
+    var v = map[s] || ['gray', s || '—'];
+    return '<span class="acct-pill ' + v[0] + '">' + v[1] + '</span>';
+  }
+
+  function injectAccountStyles() {
+    if (document.getElementById('account-drawer-styles')) return;
+    var st = document.createElement('style');
+    st.id = 'account-drawer-styles';
+    st.textContent = [
+      '.acct-overlay{position:fixed;inset:0;background:rgba(13,17,23,.5);opacity:0;pointer-events:none;transition:opacity .25s;z-index:1400}',
+      '.acct-overlay.is-open{opacity:1;pointer-events:auto}',
+      ".acct-drawer{position:fixed;top:0;right:0;height:100%;width:430px;max-width:100%;background:#FAFAF7;box-shadow:-12px 0 40px rgba(0,0,0,.18);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:1401;display:flex;flex-direction:column;font-family:'Inter',system-ui,sans-serif;color:#15191F}",
+      '.acct-drawer.is-open{transform:translateX(0)}',
+      '@media(max-width:480px){.acct-drawer{width:100%}}',
+      '.acct-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;background:#fff;border-bottom:1px solid #E5E8EF}',
+      '.acct-id{display:flex;align-items:center;gap:12px;min-width:0}',
+      '.acct-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#EC4815,#C13808);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}',
+      '.acct-id-txt{min-width:0}',
+      ".acct-id-txt strong{display:block;font-family:'Sora',sans-serif;font-size:15px}",
+      '.acct-id-txt span{display:block;font-size:12px;color:#9EA6B4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}',
+      '.acct-x{background:none;border:none;font-size:26px;line-height:1;color:#9EA6B4;cursor:pointer;padding:0 4px}',
+      '.acct-x:hover{color:#15191F}',
+      '.acct-nav{display:flex;gap:4px;padding:10px 14px;background:#fff;border-bottom:1px solid #E5E8EF;overflow-x:auto}',
+      ".acct-nav button{flex:0 0 auto;border:none;background:none;padding:8px 13px;border-radius:8px;font:600 13px 'Inter',sans-serif;color:#687080;cursor:pointer;white-space:nowrap}",
+      '.acct-nav button:hover{background:#F4F5F8;color:#15191F}',
+      '.acct-nav button.is-active{background:#FFF0EB;color:#EC4815}',
+      '.acct-body{flex:1;overflow-y:auto;padding:16px}',
+      '.acct-foot{padding:12px 16px;border-top:1px solid #E5E8EF;background:#fff}',
+      ".acct-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:9px;border:1.5px solid #E4E8EF;background:#fff;color:#15191F;font:700 13px 'Inter',sans-serif;cursor:pointer;text-decoration:none}",
+      '.acct-btn:hover{background:#F4F5F8}',
+      '.acct-btn.primary{background:linear-gradient(135deg,#FF6A33,#EC4815 60%,#C13808);color:#fff;border:none;box-shadow:0 6px 18px -6px rgba(236,72,21,.5)}',
+      '.acct-btn.ghost{width:100%;color:#C13808;border-color:#FAD0C6;background:#FFF5F3}',
+      ".acct-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font:700 11px 'Inter',sans-serif;background:#F0F2F6;color:#687080;white-space:nowrap}",
+      ".acct-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}",
+      '.acct-pill.green{background:#EDFAF3;color:#1A7A48}.acct-pill.amber{background:#FFF8EB;color:#B45309}.acct-pill.blue{background:#EBF3FE;color:#1E40AF}.acct-pill.purple{background:#F3F0FD;color:#6D28D9}.acct-pill.red{background:#FEEDEA;color:#C13808}.acct-pill.gray{background:#F0F2F6;color:#687080}',
+      '.acct-order{background:#fff;border:1px solid #E5E8EF;border-radius:12px;margin-bottom:10px;overflow:hidden}',
+      '.acct-order-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;cursor:pointer}',
+      '.acct-order-top:hover{background:#FAFBFC}',
+      ".acct-order-num{font:800 14px 'Sora',sans-serif}",
+      '.acct-order-date{font-size:11.5px;color:#9EA6B4;margin-top:2px}',
+      '.acct-order-right{display:flex;align-items:center;gap:10px}',
+      ".acct-order-right strong{font:800 14px 'Sora',sans-serif}",
+      '.acct-order-detail{padding:4px 16px 16px;border-top:1px solid #F0F2F6}',
+      '.acct-timeline{display:flex;justify-content:space-between;margin:14px 0;position:relative}',
+      ".acct-timeline::before{content:'';position:absolute;top:6px;left:8%;right:8%;height:2px;background:#E5E8EF}",
+      '.acct-tl{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:1;flex:1}',
+      '.acct-tl-dot{width:13px;height:13px;border-radius:50%;background:#E5E8EF;border:2px solid #FAFAF7}',
+      '.acct-tl.done .acct-tl-dot{background:#1A9B5F}',
+      '.acct-tl-label{font-size:10px;color:#9EA6B4;font-weight:600;text-align:center}',
+      '.acct-tl.done .acct-tl-label{color:#1A7A48}',
+      '.acct-tracking{font-size:12px;color:#687080;margin:0 0 10px}',
+      '.acct-order-items{display:flex;flex-direction:column;gap:8px;padding:8px 0}',
+      '.acct-item{display:flex;align-items:center;gap:10px;font-size:13px}',
+      '.acct-item img,.acct-item-ph{width:38px;height:38px;border-radius:7px;background:#F4F5F8;border:1px solid #EEF0F4;object-fit:contain;padding:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#9EA6B4}',
+      '.acct-item-info{flex:1;min-width:0}',
+      '.acct-item-info span{display:block;font-size:11.5px;color:#9EA6B4}',
+      '.acct-item-tot{font-weight:700;font-size:13px}',
+      '.acct-order-addr{font-size:12px;color:#687080;padding-top:8px;border-top:1px solid #F0F2F6;margin-top:4px}',
+      '.acct-order-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}',
+      '.acct-card{background:#fff;border:1px solid #E5E8EF;border-radius:12px;padding:16px;margin-bottom:12px}',
+      ".acct-card h3{font:700 15px 'Sora',sans-serif;margin-bottom:12px}",
+      '.acct-field{margin-bottom:12px}',
+      '.acct-field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px}',
+      ".acct-field input,.acct-field select{width:100%;padding:10px 12px;border:1.5px solid #E4E8EF;border-radius:8px;background:#F9FAFB;font:14px 'Inter',sans-serif;outline:none}",
+      '.acct-field input:focus,.acct-field select:focus{border-color:#EC4815;background:#fff;box-shadow:0 0 0 3px rgba(236,72,21,.09)}',
+      '.acct-field input:disabled{color:#9EA6B4}',
+      '.acct-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}',
+      '.acct-empty,.acct-loading{text-align:center;color:#9EA6B4;padding:36px 16px}',
+      '.acct-empty strong{display:block;color:#15191F;font-size:15px;margin-bottom:6px}',
+      '.acct-empty p{margin-bottom:14px;font-size:13px}',
+      '.acct-note{font-size:12.5px;color:#687080;background:#F4F5F8;border-radius:8px;padding:10px 12px;margin-top:10px}',
+      '.acct-pix-modal{position:fixed;inset:0;z-index:1500;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(13,17,23,.55)}',
+      ".acct-pix-card{background:#fff;border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;font-family:'Inter',sans-serif}",
+      '.acct-pix-card img{width:200px;height:200px;border:1px solid #E5E8EF;border-radius:10px;padding:6px;object-fit:contain}'
+    ].join('');
+    document.head.appendChild(st);
+  }
+
+  function buildAccountDrawer() {
+    if (acctInited) return;
+    acctInited = true;
+    injectAccountStyles();
+    acctOverlayEl = document.createElement('div');
+    acctOverlayEl.className = 'acct-overlay';
+    acctDrawerEl = document.createElement('aside');
+    acctDrawerEl.className = 'acct-drawer';
+    acctDrawerEl.setAttribute('aria-label', 'Minha conta');
+    document.body.appendChild(acctOverlayEl);
+    document.body.appendChild(acctDrawerEl);
+    acctOverlayEl.addEventListener('click', closeAccountDrawer);
+    acctDrawerEl.addEventListener('click', onAccountDrawerClick);
+  }
+
+  function openAccountDrawer() {
+    buildAccountDrawer();
+    acctTab = 'orders';
+    acctDrawerEl.classList.add('is-open');
+    acctOverlayEl.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+    renderAccountShell();
+    if (!acctLoaded) loadAccountData();
+  }
+  function closeAccountDrawer() {
+    if (!acctDrawerEl) return;
+    acctDrawerEl.classList.remove('is-open');
+    acctOverlayEl.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+
+  async function loadAccountData() {
+    try {
+      var s = window.ChampionCustomers && window.ChampionCustomers.currentSession();
+      if (!s) return;
+      try { var full = await window.ChampionCustomers.findById(s.id); if (full) acctCurrent = full; } catch (e) {}
+      try { acctOrders = (await window.ChampionOrders.listByCustomer(s.id)) || []; } catch (e) { acctOrders = []; }
+    } finally {
+      acctLoaded = true;
+      if (acctDrawerEl && acctDrawerEl.classList.contains('is-open')) renderAccountShell();
+    }
+  }
+
+  function acctTabBtn(id, label) {
+    return '<button data-acct-tab="' + id + '" class="' + (acctTab === id ? 'is-active' : '') + '">' + label + '</button>';
+  }
+  function renderAccountShell() {
+    if (!acctDrawerEl) return;
+    var s = (window.ChampionCustomers && window.ChampionCustomers.currentSession()) || {};
+    var nm = (acctCurrent && acctCurrent.name) || s.name || s.email || 'Cliente';
+    var initial = (nm || '?').trim().charAt(0).toUpperCase() || '?';
+    acctDrawerEl.innerHTML = ''
+      + '<div class="acct-head"><div class="acct-id"><span class="acct-avatar">' + escape(initial) + '</span>'
+      + '<div class="acct-id-txt"><strong>' + escape((nm || '').split(' ')[0] || 'Conta') + '</strong><span>' + escape(s.email || '') + '</span></div></div>'
+      + '<button class="acct-x" data-acct-close aria-label="Fechar">&times;</button></div>'
+      + '<nav class="acct-nav">' + acctTabBtn('orders', 'Pedidos') + acctTabBtn('profile', 'Dados') + acctTabBtn('address', 'Endereço') + acctTabBtn('security', 'Segurança') + '</nav>'
+      + '<div class="acct-body" id="acctBody"></div>'
+      + '<div class="acct-foot"><button class="acct-btn ghost" data-acct-logout>Sair da conta</button></div>';
+    renderActiveSection();
+  }
+  function renderActiveSection() {
+    var body = document.getElementById('acctBody');
+    if (!body) return;
+    if (acctTab === 'profile') body.innerHTML = acctProfileHtml();
+    else if (acctTab === 'address') body.innerHTML = acctAddressHtml();
+    else if (acctTab === 'security') body.innerHTML = acctSecurityHtml();
+    else body.innerHTML = acctOrdersHtml();
+  }
+
+  function acctTimeline(o) {
+    if (['cancelled', 'refunded', 'failed', 'pending', 'processing'].indexOf(o.status) >= 0) return '';
+    var steps = ['paid', 'separating', 'shipped', 'delivered'];
+    var labels = { paid: 'Pago', separating: 'Separando', shipped: 'Em trânsito', delivered: 'Entregue' };
+    var cur = steps.indexOf(o.status);
+    return '<div class="acct-timeline">' + steps.map(function (st, i) {
+      return '<div class="acct-tl' + (i <= cur ? ' done' : '') + '"><span class="acct-tl-dot"></span><span class="acct-tl-label">' + labels[st] + '</span></div>';
+    }).join('') + '</div>' + (o.tracking ? '<div class="acct-tracking">Código de rastreio: <strong>' + escape(o.tracking) + '</strong></div>' : '');
+  }
+  function acctItemHtml(i) {
+    return '<div class="acct-item">'
+      + (i.image ? '<img src="' + escape(i.image) + '" alt="" />' : '<span class="acct-item-ph">' + escape((i.name || '?').charAt(0)) + '</span>')
+      + '<div class="acct-item-info"><div>' + escape(i.name || 'Produto') + '</div><span>' + (i.qty || 1) + '× · ' + fmtBRL(Number(i.price) || 0) + '</span></div>'
+      + '<div class="acct-item-tot">' + fmtBRL((Number(i.price) || 0) * (Number(i.qty) || 1)) + '</div></div>';
+  }
+  function acctOrdersHtml() {
+    if (!acctLoaded) return '<div class="acct-loading">Carregando pedidos…</div>';
+    if (!acctOrders.length) return '<div class="acct-empty"><strong>Nenhum pedido ainda</strong><p>Que tal começar pelos nossos produtos?</p><a class="acct-btn primary" href="produtos.html">Ver produtos</a></div>';
+    return acctOrders.map(function (o) {
+      var a = o.address || {};
+      var addr = (a.street || a.city) ? '<div class="acct-order-addr">Entrega: ' + escape([a.street, a.number].filter(Boolean).join(', ')) + (a.city ? ' — ' + escape(a.city) + '/' + escape(a.uf || '') : '') + '</div>' : '';
+      var pendingPix = o.status === 'pending' && (o.paymentMethod === 'pix');
+      var pendingBoleto = o.status === 'pending' && o.paymentMethod === 'boleto' && o.boleto;
+      return '<div class="acct-order">'
+        + '<div class="acct-order-top" data-acct-expand><div><div class="acct-order-num">#' + escape(o.number) + '</div><div class="acct-order-date">' + acctFmtDate(o.createdAt) + '</div></div>'
+        + '<div class="acct-order-right">' + acctStatusPill(o.status) + '<strong>' + fmtBRL(Number(o.total) || 0) + '</strong></div></div>'
+        + '<div class="acct-order-detail" hidden>'
+        + acctTimeline(o)
+        + '<div class="acct-order-items">' + (o.items || []).map(acctItemHtml).join('') + '</div>'
+        + addr
+        + '<div class="acct-order-actions">'
+        + (pendingPix ? '<button class="acct-btn primary" data-acct-paypix="' + escape(o.id) + '">Pagar agora</button>' : '')
+        + (pendingBoleto ? '<button class="acct-btn primary" data-acct-boleto="' + escape(o.id) + '">Ver boleto</button>' : '')
+        + '<button class="acct-btn" data-acct-reorder="' + escape(o.id) + '">Comprar novamente</button>'
+        + '</div></div></div>';
+    }).join('');
+  }
+  function acctProfileHtml() {
+    var c = acctCurrent || {};
+    function sel(v) { return c.profile === v ? ' selected' : ''; }
+    return '<div class="acct-card"><h3>Dados pessoais</h3>'
+      + '<div class="acct-field"><label>Nome completo</label><input id="acctName" type="text" value="' + escape(c.name || '') + '"></div>'
+      + '<div class="acct-row"><div class="acct-field"><label>Telefone / WhatsApp</label><input id="acctPhone" type="tel" value="' + escape(c.phone || '') + '"></div>'
+      + '<div class="acct-field"><label>CPF / CNPJ</label><input id="acctDoc" type="text" value="' + escape(c.cpfCnpj || '') + '"></div></div>'
+      + '<div class="acct-field"><label>E-mail</label><input type="email" value="' + escape(c.email || '') + '" disabled></div>'
+      + '<div class="acct-field"><label>Perfil</label><select id="acctProfile"><option value="pessoa-fisica"' + sel('pessoa-fisica') + '>Pessoa física</option><option value="pecuarista"' + sel('pecuarista') + '>Pecuarista / fazenda</option><option value="revenda"' + sel('revenda') + '>Revenda</option></select></div>'
+      + '<button class="acct-btn primary" data-acct-save-profile>Salvar alterações</button></div>';
+  }
+  function acctAddressHtml() {
+    var a = (acctCurrent && acctCurrent.address) || {};
+    return '<div class="acct-card"><h3>Endereço de entrega</h3>'
+      + '<div class="acct-row"><div class="acct-field"><label>CEP</label><input id="acctCep" type="text" value="' + escape(a.cep || '') + '"></div>'
+      + '<div class="acct-field"><label>UF</label><input id="acctUf" type="text" maxlength="2" value="' + escape(a.uf || '') + '"></div></div>'
+      + '<div class="acct-field"><label>Cidade</label><input id="acctCity" type="text" value="' + escape(a.city || '') + '"></div>'
+      + '<div class="acct-row"><div class="acct-field"><label>Endereço</label><input id="acctStreet" type="text" value="' + escape(a.street || '') + '"></div>'
+      + '<div class="acct-field"><label>Número</label><input id="acctNumber" type="text" value="' + escape(a.number || '') + '"></div></div>'
+      + '<div class="acct-row"><div class="acct-field"><label>Complemento</label><input id="acctCompl" type="text" value="' + escape(a.compl || '') + '"></div>'
+      + '<div class="acct-field"><label>Bairro</label><input id="acctNeigh" type="text" value="' + escape(a.neigh || '') + '"></div></div>'
+      + '<button class="acct-btn primary" data-acct-save-address>Salvar endereço</button></div>';
+  }
+  function acctSecurityHtml() {
+    var c = acctCurrent || {};
+    return '<div class="acct-card"><h3>Segurança</h3>'
+      + '<p style="font-size:13px;color:#687080;margin-bottom:12px">Para trocar sua senha, enviamos um link seguro de redefinição para o seu e-mail cadastrado.</p>'
+      + '<button class="acct-btn primary" data-acct-reset>Enviar link de redefinição</button>'
+      + '<p id="acctSecFb" style="font-size:13px;font-weight:600;min-height:16px;margin-top:10px"></p>'
+      + '<div class="acct-note"><strong>Última sessão:</strong> ' + acctFmtDate(c.lastLoginAt || c.createdAt) + '</div></div>';
+  }
+
+  function acctReorder(orderId) {
+    var o = acctOrders.find(function (x) { return x.id === orderId; });
+    if (!o) return;
+    (o.items || []).forEach(function (i) {
+      var ex = Cart.items.find(function (x) { return x.id === i.id; });
+      if (ex) ex.qty += Number(i.qty) || 1;
+      else Cart.items.push({ id: i.id, name: i.name, price: Number(i.price) || 0, image: i.image || '', qty: Number(i.qty) || 1 });
+    });
+    Cart.save(); Cart.render();
+    closeAccountDrawer();
+    Cart.open();
+    showToast('Itens adicionados ao carrinho');
+  }
+
+  function acctPayPix(orderId) {
+    var o = acctOrders.find(function (x) { return x.id === orderId; });
+    if (!o || !o.pix) { showToast('QR Code indisponível para este pedido.'); return; }
+    var expired = o.pix.expires_at && new Date(o.pix.expires_at).getTime() < Date.now();
+    var modal = document.createElement('div');
+    modal.className = 'acct-pix-modal';
+    if (expired) {
+      modal.innerHTML = '<div class="acct-pix-card"><h3 style="font-family:Sora,sans-serif;margin-bottom:8px">Código Pix expirado</h3>'
+        + '<p style="font-size:13px;color:#687080;margin-bottom:16px">O QR deste pedido expirou. Você pode refazer a compra com os mesmos itens.</p>'
+        + '<button class="acct-btn primary" id="acctPixRedo" style="width:100%;margin-bottom:8px">Refazer pedido</button>'
+        + '<button class="acct-btn" id="acctPixClose" style="width:100%">Fechar</button></div>';
+    } else {
+      modal.innerHTML = '<div class="acct-pix-card"><h3 style="font-family:Sora,sans-serif;margin-bottom:6px">Pagar com Pix</h3>'
+        + '<p style="font-size:12.5px;color:#687080;margin-bottom:12px">Escaneie o QR ou copie o código. A confirmação é automática.</p>'
+        + (o.pix.qr_code_url ? '<img src="' + escape(o.pix.qr_code_url) + '" alt="QR Code Pix" />' : '')
+        + '<div style="margin:14px 0"><button class="acct-btn" id="acctPixCopy">📋 Copiar código Pix</button></div>'
+        + '<p id="acctPixStatus" style="font-size:13px;font-weight:600;color:#687080;margin-bottom:12px">⏳ Aguardando pagamento…</p>'
+        + '<button class="acct-btn" id="acctPixClose" style="width:100%">Fechar</button></div>';
+    }
+    document.body.appendChild(modal);
+    var poll = null;
+    function done() { if (poll) clearInterval(poll); if (modal.parentNode) modal.parentNode.removeChild(modal); }
+    modal.addEventListener('click', function (e) { if (e.target === modal) done(); });
+    var cl = modal.querySelector('#acctPixClose'); if (cl) cl.onclick = done;
+    var redo = modal.querySelector('#acctPixRedo'); if (redo) redo.onclick = function () { done(); acctReorder(orderId); };
+    var cp = modal.querySelector('#acctPixCopy');
+    if (cp) cp.onclick = function () { navigator.clipboard.writeText(o.pix.qr_code || '').then(function () { cp.textContent = '✓ Copiado'; setTimeout(function () { cp.textContent = '📋 Copiar código Pix'; }, 2000); }); };
+    if (!expired) {
+      poll = setInterval(async function () {
+        try {
+          var fresh = await window.ChampionOrders.findById(orderId);
+          if (fresh && fresh.status === 'paid') {
+            clearInterval(poll);
+            var st = modal.querySelector('#acctPixStatus');
+            if (st) { st.style.color = '#1A7A48'; st.textContent = '✓ Pagamento confirmado!'; }
+            o.status = 'paid';
+            setTimeout(function () { done(); renderActiveSection(); }, 1600);
+          }
+        } catch (e) {}
+      }, 5000);
+    }
+  }
+
+  function acctShowBoleto(orderId) {
+    var o = acctOrders.find(function (x) { return x.id === orderId; });
+    if (!o || !o.boleto) { showToast('Boleto indisponível para este pedido.'); return; }
+    var b = o.boleto;
+    var modal = document.createElement('div');
+    modal.className = 'acct-pix-modal';
+    modal.innerHTML = '<div class="acct-pix-card"><h3 style="font-family:Sora,sans-serif;margin-bottom:8px">Boleto bancário</h3>'
+      + '<p style="font-size:12.5px;color:#687080;margin-bottom:12px">Pague em qualquer banco ou app até o vencimento. A confirmação é automática.</p>'
+      + '<div style="background:#F9FAFB;border:1px solid #E5E8EF;border-radius:8px;padding:10px;font-family:monospace;font-size:12px;word-break:break-all;margin-bottom:12px">' + escape(b.line || 'Use o PDF abaixo.') + '</div>'
+      + '<button class="acct-btn" id="acctBolCopy" style="width:100%;margin-bottom:8px">📋 Copiar linha digitável</button>'
+      + ((b.pdf || b.url) ? '<a class="acct-btn primary" href="' + escape(b.pdf || b.url) + '" target="_blank" rel="noopener" style="width:100%;margin-bottom:8px">Baixar boleto (PDF)</a>' : '')
+      + '<button class="acct-btn" id="acctBolClose" style="width:100%">Fechar</button></div>';
+    document.body.appendChild(modal);
+    function done() { if (modal.parentNode) modal.parentNode.removeChild(modal); }
+    modal.addEventListener('click', function (e) { if (e.target === modal) done(); });
+    modal.querySelector('#acctBolClose').onclick = done;
+    var cp = modal.querySelector('#acctBolCopy');
+    if (cp) cp.onclick = function () { navigator.clipboard.writeText(b.line || '').then(function () { cp.textContent = '✓ Copiado'; setTimeout(function () { cp.textContent = '📋 Copiar linha digitável'; }, 2000); }); };
+  }
+
+  async function acctSaveProfile(btn) {
+    var t = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Salvando…';
+    try {
+      var patch = { name: acctVal('acctName'), phone: acctVal('acctPhone'), cpfCnpj: acctVal('acctDoc'), profile: document.getElementById('acctProfile').value };
+      await window.ChampionCustomers.updateProfile(acctCurrent.id, patch);
+      Object.assign(acctCurrent, patch);
+      showToast('Dados salvos!');
+    } catch (e) { showToast('Erro: ' + (e.message || 'não foi possível salvar')); }
+    finally { btn.disabled = false; btn.textContent = t; }
+  }
+  async function acctSaveAddress(btn) {
+    var t = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Salvando…';
+    try {
+      var address = { cep: acctVal('acctCep'), uf: acctVal('acctUf').toUpperCase(), city: acctVal('acctCity'), street: acctVal('acctStreet'), number: acctVal('acctNumber'), compl: acctVal('acctCompl'), neigh: acctVal('acctNeigh') };
+      await window.ChampionCustomers.updateProfile(acctCurrent.id, { address: address });
+      acctCurrent.address = address;
+      showToast('Endereço salvo!');
+    } catch (e) { showToast('Erro: ' + (e.message || 'não foi possível salvar')); }
+    finally { btn.disabled = false; btn.textContent = t; }
+  }
+  async function acctReset() {
+    var fb = document.getElementById('acctSecFb');
+    if (fb) { fb.style.color = '#687080'; fb.textContent = 'Enviando…'; }
+    try {
+      await window.ChampionCustomers.resetPassword(acctCurrent.email);
+      if (fb) { fb.style.color = '#1A7A48'; fb.textContent = 'Link enviado para ' + acctCurrent.email + '. Confira a caixa de entrada e o spam.'; }
+    } catch (e) { if (fb) { fb.style.color = '#C13808'; fb.textContent = e.message || 'Não foi possível enviar agora.'; } }
+  }
+  async function acctLogout() {
+    try { await window.ChampionCustomers.logout(); } catch (e) {}
+    closeAccountDrawer();
+    window.location.href = 'index.html';
+  }
+
+  function onAccountDrawerClick(e) {
+    var t = e.target;
+    if (t.closest('[data-acct-close]')) { closeAccountDrawer(); return; }
+    if (t.closest('[data-acct-logout]')) { acctLogout(); return; }
+    var tab = t.closest('[data-acct-tab]');
+    if (tab) {
+      acctTab = tab.getAttribute('data-acct-tab');
+      acctDrawerEl.querySelectorAll('.acct-nav button').forEach(function (b) { b.classList.toggle('is-active', b === tab); });
+      renderActiveSection();
+      return;
+    }
+    var exp = t.closest('[data-acct-expand]');
+    if (exp) { var d = exp.parentElement.querySelector('.acct-order-detail'); if (d) d.hidden = !d.hidden; return; }
+    var ro = t.closest('[data-acct-reorder]'); if (ro) { acctReorder(ro.getAttribute('data-acct-reorder')); return; }
+    var pp = t.closest('[data-acct-paypix]'); if (pp) { acctPayPix(pp.getAttribute('data-acct-paypix')); return; }
+    var bo = t.closest('[data-acct-boleto]'); if (bo) { acctShowBoleto(bo.getAttribute('data-acct-boleto')); return; }
+    var sp = t.closest('[data-acct-save-profile]'); if (sp) { acctSaveProfile(sp); return; }
+    var sa = t.closest('[data-acct-save-address]'); if (sa) { acctSaveAddress(sa); return; }
+    if (t.closest('[data-acct-reset]')) { acctReset(); return; }
+  }
+  /* Expor para o handler do ícone de conta. */
+  window.ChampionAccountDrawer = { open: openAccountDrawer, close: closeAccountDrawer };
 
   // ------------------------------------------------------------
   // Product cards: photos, demo prices and cart actions
@@ -2105,9 +2655,10 @@
     trigger.classList.add('account-trigger');
     trigger.addEventListener('click', (event) => {
       event.preventDefault();
-      /* New auth flow: dedicated pages instead of modal. */
+      /* Logado: abre o drawer de conta in-site. Sem login: vai para a página de acesso. */
       var logged = window.ChampionCustomers && window.ChampionCustomers.isLogged();
-      window.location.href = logged ? 'minha-conta.html' : 'cliente-conta.html';
+      if (logged) openAccountDrawer();
+      else window.location.href = 'cliente-conta.html';
     });
   });
   updateAccountTriggers();

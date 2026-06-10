@@ -4,6 +4,7 @@ node_modules/
 
 # Build / cache
 dist/
+champion-site-hostinger.zip
 .cache/
 .parcel-cache/
 

@@ -300,15 +300,17 @@
       <section data-panel="security" hidden>
         <div class="card">
           <h2>Segurança</h2>
-          <p style="font-size:13px;color:#687080;margin-bottom:14px">Para alterar sua senha, entre em contato com a Champion. Em produção esse fluxo será automático via Firebase Auth.</p>
-          <div style="background:#F4F5F8;padding:12px 14px;border-radius:8px;font-size:13px;color:#687080"><strong>Última sessão:</strong> <span id="lastLogin">—</span></div>
+          <p style="font-size:13px;color:#687080;margin-bottom:14px">Para trocar sua senha, enviamos um link seguro de redefinição para o seu e-mail cadastrado.</p>
+          <button class="btn btn-primary" id="resetPwdBtn" type="button">Enviar link de redefinição de senha</button>
+          <p class="feedback" id="securityFeedback" style="font-size:13px;font-weight:600;min-height:18px;margin-top:12px"></p>
+          <div style="background:#F4F5F8;padding:12px 14px;border-radius:8px;font-size:13px;color:#687080;margin-top:4px"><strong>Última sessão:</strong> <span id="lastLogin">—</span></div>
         </div>
       </section>
     </div>
   </div>
 </div>
 
-<script src="js/customer-store.js"></script>
+<script src="js/customer-store.js?v=20260609-2"></script>
 <script src="js/order-store.js"></script>
 <script>
 (async function () {
@@ -457,6 +459,23 @@
 
   /* ── Security ── */
   document.getElementById('lastLogin').textContent = fmtDate(customer.lastLoginAt || customer.createdAt);
+  document.getElementById('resetPwdBtn').addEventListener('click', async function () {
+    var fb = document.getElementById('securityFeedback');
+    var btn = this;
+    fb.style.color = '#687080';
+    fb.textContent = 'Enviando…';
+    btn.disabled = true;
+    try {
+      await window.ChampionCustomers.resetPassword(customer.email);
+      fb.style.color = '#1A7A48';
+      fb.textContent = 'Link enviado para ' + customer.email + '. Confira sua caixa de entrada e o spam.';
+    } catch (err) {
+      fb.style.color = '#C13808';
+      fb.textContent = err.message || 'Não foi possível enviar agora. Tente novamente.';
+    } finally {
+      btn.disabled = false;
+    }
+  });
 })();
 </script>
 </body>
