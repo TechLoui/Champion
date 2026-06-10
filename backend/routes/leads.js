@@ -3,25 +3,9 @@
 const express = require('express');
 const router  = express.Router();
 
-let db   = null;
-let mail = null;
+const { getDb } = require('../lib/firebase');
 
-function getDb() {
-  if (db) return db;
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT) return null;
-  try {
-    const admin = require('firebase-admin');
-    if (!admin.apps.length) {
-      const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-      admin.initializeApp({ credential: admin.credential.cert(sa) });
-    }
-    db = admin.firestore();
-    return db;
-  } catch (err) {
-    console.error('[leads] Firebase Admin init falhou:', err.message);
-    return null;
-  }
-}
+let mail = null;
 
 function getMail() {
   if (mail) return mail;
