@@ -351,6 +351,7 @@
       text-decoration: none;
     }
     .bp-btn svg { width: 15px; height: 15px; }
+    .bp-btn:disabled { opacity: .58; cursor: wait; transform: none; box-shadow: none; }
     .bp-btn-ghost {
       background: transparent;
       color: #687080;
@@ -382,6 +383,7 @@
       overflow-y: auto;
       padding: 28px 32px;
     }
+    .bp-content > section { max-width: 1560px; margin: 0 auto; }
 
     /* ─── Panels ─── */
     [data-blog-panel] { display: block; }
@@ -614,12 +616,12 @@
     /* Editor: split-view (form + preview) */
     .bp-editor {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
+      grid-template-columns: minmax(460px, .9fr) minmax(520px, 1.1fr);
+      gap: 24px;
       align-items: start;
       margin-top: 0;
     }
-    @media (max-width: 1200px) { .bp-editor { grid-template-columns: 1fr; } }
+    @media (max-width: 1320px) { .bp-editor { grid-template-columns: 1fr; } }
 
     .bp-editor-header {
       display: flex;
@@ -627,6 +629,15 @@
       gap: 14px;
       margin-bottom: 18px;
       flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      padding: 12px 14px;
+      border: 1px solid rgba(221,226,234,.9);
+      border-radius: 12px;
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 10px 30px -26px rgba(17,24,39,.65);
+      backdrop-filter: blur(14px);
     }
     .bp-editor-header h2 {
       font-family: 'Sora',sans-serif;
@@ -750,12 +761,13 @@
 
     /* Preview pane */
     .bp-preview-card {
-      background: white;
-      border: 1px solid #E5E8EF;
-      border-radius: 14px;
+      background: #E9EDF3;
+      border: 1px solid #DDE2EA;
+      border-radius: 16px;
       overflow: hidden;
       position: sticky;
       top: 16px;
+      box-shadow: 0 18px 44px -30px rgba(17,24,39,.45);
     }
     .bp-preview-head {
       padding: 14px 18px;
@@ -810,12 +822,16 @@
     .bp-preview-body {
       max-height: calc(100vh - 200px);
       overflow-y: auto;
-      padding: 0;
+      padding: 18px;
     }
 
     /* Preview content (mimics blog.html style) */
     .bp-prev {
       padding: 0;
+      overflow: hidden;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(17,24,39,.08);
     }
     .bp-prev-hero {
       width: 100%;
@@ -832,7 +848,7 @@
       font-size: 13px;
       font-weight: 600;
     }
-    .bp-prev-body { padding: 24px 28px 28px; }
+    .bp-prev-body { padding: 32px clamp(24px, 5vw, 48px) 42px; }
     .bp-prev-kicker {
       font-size: 11px;
       font-weight: 700;
@@ -843,7 +859,7 @@
     }
     .bp-prev-title {
       font-family: 'Sora',sans-serif;
-      font-size: 22px;
+      font-size: clamp(24px, 3vw, 34px);
       font-weight: 800;
       color: #15191F;
       line-height: 1.2;
@@ -866,11 +882,18 @@
       border-left: 3px solid #EC4815;
     }
     .bp-prev-content {
-      font-size: 14.5px;
-      line-height: 1.75;
+      font-size: 15.5px;
+      line-height: 1.8;
       color: #2B2F36;
     }
     .bp-prev-content p { margin-bottom: 14px; }
+    .bp-prev-content h2 { margin: 30px 0 12px; padding-left: 14px; border-left: 4px solid #EC4815; color: #15191F; font: 800 22px/1.25 'Sora',sans-serif; }
+    .bp-prev-content h3 { margin: 24px 0 10px; color: #15191F; font: 750 18px/1.3 'Sora',sans-serif; }
+    .bp-prev-content ul { margin: 0 0 18px; padding-left: 22px; }
+    .bp-prev-content li { margin-bottom: 7px; }
+    .bp-prev-content li::marker { color: #EC4815; }
+    .bp-prev-content blockquote { margin: 24px 0; padding: 18px 20px; border-left: 4px solid #EC4815; border-radius: 0 10px 10px 0; background: #FFF6F2; color: #15191F; font: 600 16px/1.6 'Sora',sans-serif; }
+    .bp-prev-content a { color: #EC4815; font-weight: 700; }
     .bp-prev-secondary {
       margin: 22px 0;
       border-radius: 10px;
@@ -1034,6 +1057,13 @@
       color: #687080;
     }
     .bp-editor-status strong { color: #15191F; font-weight: 700; }
+
+    .bp-format-toolbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .bp-format-toolbar button { min-width: 34px; height: 32px; padding: 0 10px; border: 1px solid #E1E6ED; border-radius: 7px; background: #fff; color: #4B5563; font: 700 12px 'Inter',sans-serif; cursor: pointer; }
+    .bp-format-toolbar button:hover { color: #EC4815; border-color: #F3B6A1; background: #FFF8F5; }
+    .bp-format-help { display: block; margin-top: 8px; color: #8B95A5; font-size: 11.5px; line-height: 1.5; }
+    .bp-toast { position: fixed; right: 24px; bottom: 24px; z-index: 100; max-width: min(380px, calc(100vw - 32px)); padding: 13px 17px; border-radius: 10px; background: #15191F; color: #fff; box-shadow: 0 16px 36px rgba(0,0,0,.24); font-size: 13.5px; font-weight: 650; opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .bp-toast.is-visible { opacity: 1; transform: translateY(0); }
 
     /* Sections (collapsible) */
     .bp-section {
@@ -1369,10 +1399,25 @@
       .bp-editor-header { gap: 10px; }
       .bp-editor-header h2 { font-size: 18px; width: 100%; }
       .bp-editor-header-spacer { display: none; }
+      .bp-editor-header #blogPreviewToggle,
+      .bp-editor-header #blogPostSubmitBtn { flex: 1; justify-content: center; }
 
       /* Preview card sai do sticky no mobile */
       .bp-preview-card { position: relative; top: auto; }
       .bp-preview-body { max-height: none; }
+      .bp-preview-card { display: none; }
+      .bp-preview-card.is-mobile-preview {
+        display: block !important;
+        position: fixed;
+        inset: 76px 14px 14px;
+        z-index: 50;
+        border-color: #CDD4DE;
+        box-shadow: 0 24px 70px rgba(10,14,20,.32);
+      }
+      .bp-preview-card.is-mobile-preview .bp-preview-body {
+        max-height: calc(100vh - 142px);
+        overscroll-behavior: contain;
+      }
 
       /* Posts grid cards menores */
       .bp-posts-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
@@ -1659,7 +1704,16 @@
                 </div>
                 <div class="bp-section-body">
                   <div class="bp-form-field full">
-                    <textarea id="blogPostContent" name="content" class="tall" rows="8" placeholder="Escreva o conteúdo. Separe parágrafos com linhas em branco. Você pode usar HTML básico (h2, h3, strong, em, ul, blockquote)."></textarea>
+                    <div class="bp-format-toolbar" aria-label="Formatação do texto">
+                      <button type="button" data-format="heading" title="Título de seção">H2</button>
+                      <button type="button" data-format="bold" title="Negrito">B</button>
+                      <button type="button" data-format="italic" title="Itálico"><em>I</em></button>
+                      <button type="button" data-format="list" title="Lista">Lista</button>
+                      <button type="button" data-format="quote" title="Citação">Citação</button>
+                      <button type="button" data-format="link" title="Link">Link</button>
+                    </div>
+                    <textarea id="blogPostContent" name="content" class="tall" rows="12" placeholder="Escreva o artigo aqui. Use linhas em branco para separar os parágrafos."></textarea>
+                    <small class="bp-format-help">Selecione um trecho e use os botões acima. A prévia mostra como o texto será publicado.</small>
                   </div>
                 </div>
               </div>
@@ -1736,12 +1790,8 @@
             <!-- Preview (direita) -->
             <div class="bp-preview-card" id="blogPreviewCard">
               <div class="bp-preview-head">
-                <h3>Prévia em tempo real</h3>
-                <div class="bp-preview-template-switch" id="blogPreviewSwitch">
-                  <button type="button" data-prev-tpl="standard" class="is-active">Padrão</button>
-                  <button type="button" data-prev-tpl="gallery">Galeria</button>
-                  <button type="button" data-prev-tpl="tutorial">Tutorial</button>
-                </div>
+                <h3>Prévia da publicação</h3>
+                <span style="font-size:11px;font-weight:700;color:#687080">Atualização em tempo real</span>
               </div>
               <div class="bp-preview-body" id="blogPreviewBody">
                 <div class="bp-prev-empty">
@@ -1829,6 +1879,22 @@
 
   /* Mostra o app */
   if (appEl) appEl.removeAttribute('hidden');
+  var toastTimer = null;
+  window.ChampionToast = window.ChampionToast || function (message) {
+    var toast = document.getElementById('blogPanelToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'blogPanelToast';
+      toast.className = 'bp-toast';
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('is-visible'); }, 2800);
+  };
   var userEl   = document.getElementById('blogAdminUser');
   var avatarEl = document.getElementById('blogAdminAvatar');
   var resolvedEmail = session.user || 'admin@champion.com.br';
@@ -1857,6 +1923,11 @@
   document.querySelectorAll('[data-blog-tab]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var tab = btn.getAttribute('data-blog-tab');
+      if (window.__blogView === 'editor' && editorDirty) {
+        if (!window.confirm('Descartar as alterações que ainda não foram salvas?')) return;
+        setEditorDirty(false);
+      }
+      if (tab === 'posts' && window.__blogView === 'editor') showBlogView('list');
 
       /* Update nav active state */
       document.querySelectorAll('[data-blog-tab]').forEach(function (b) {
@@ -1876,6 +1947,16 @@
   });
 
   /* ── Template chooser + dynamic gallery/steps rows ────────────── */
+  var editorDirty = false;
+  function setEditorDirty(dirty) {
+    editorDirty = Boolean(dirty);
+    var status = document.getElementById('blogEditorAutoSave');
+    if (!status) return;
+    status.innerHTML = editorDirty
+      ? '<strong style="color:#C13808">Alterações não salvas</strong> · pressione Ctrl + S para salvar'
+      : '<span style="color:#1A9B5F;font-weight:700">Tudo salvo</span>';
+  }
+
   function applyTemplateUI(t) {
     var valid = ['standard', 'gallery', 'tutorial'];
     if (valid.indexOf(t) < 0) t = 'standard';
@@ -1894,6 +1975,7 @@
   document.querySelectorAll('.bp-template').forEach(function (card) {
     card.addEventListener('click', function () {
       applyTemplateUI(card.getAttribute('data-template'));
+      setEditorDirty(true);
     });
     card.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
@@ -1942,20 +2024,22 @@
     });
   }
 
-  document.getElementById('blogGalleryAdd')?.addEventListener('click', function () { addGalleryRow(); });
-  document.getElementById('blogStepsAdd')?.addEventListener('click', function () { addStepRow(); });
+  document.getElementById('blogGalleryAdd')?.addEventListener('click', function () { addGalleryRow(); setEditorDirty(true); });
+  document.getElementById('blogStepsAdd')?.addEventListener('click', function () { addStepRow(); setEditorDirty(true); });
 
   /* Delegated remove + start with one empty row when the section appears */
   document.getElementById('blogGalleryRows')?.addEventListener('click', function (e) {
     if (e.target && e.target.matches('[data-remove-gallery]')) {
       e.target.closest('[data-gallery-row]').remove();
       renumberRows('[data-gallery-row]', 'Foto');
+      setEditorDirty(true);
     }
   });
   document.getElementById('blogStepsRows')?.addEventListener('click', function (e) {
     if (e.target && e.target.matches('[data-remove-step]')) {
       e.target.closest('[data-step-row]').remove();
       renumberRows('[data-step-row]', 'Passo');
+      setEditorDirty(true);
     }
   });
 
@@ -1985,10 +2069,13 @@
     if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
     var authorInput = document.getElementById('blogPostAuthor');
     if (authorInput && !authorInput.value) authorInput.value = 'Equipe Champion';
+    setEditorDirty(false);
     showBlogView('editor');
     setTimeout(updatePreview, 30);
   });
   document.getElementById('blogEditorBack')?.addEventListener('click', function () {
+    if (editorDirty && !window.confirm('Descartar as alterações que ainda não foram salvas?')) return;
+    setEditorDirty(false);
     showBlogView('list');
   });
 
@@ -2023,12 +2110,17 @@
     var hiddenId = target === 'image' ? 'blogPostImage' : 'blogPostSecondaryImage';
     var infoId = target === 'image' ? 'blogHeroInfo' : null;
     var wrap = document.getElementById(wrapId);
+    var postForm = document.getElementById('blogPostForm');
+    var submitButton = document.getElementById('blogPostSubmitBtn');
+    if (postForm) postForm.dataset.uploading = 'true';
+    if (submitButton) submitButton.disabled = true;
 
     /* Show local preview first (base64) for fast feedback */
     var reader = new FileReader();
     reader.onload = function () {
       setHeroImage(reader.result, previewId, wrapId);
       document.getElementById(hiddenId).value = reader.result;
+      setEditorDirty(true);
       updatePreview();
     };
     reader.readAsDataURL(file);
@@ -2059,6 +2151,8 @@
         var p = wrap.querySelector('.bp-hero-progress');
         if (p) p.remove();
       }
+      if (postForm) delete postForm.dataset.uploading;
+      if (submitButton) submitButton.disabled = false;
     }
     updatePreview();
   }
@@ -2114,6 +2208,7 @@
       var previewId = target === 'image' ? 'blogHeroPreview' : 'blogSecondaryPreview';
       document.getElementById(hiddenId).value = '';
       setHeroImage('', previewId, wrapId);
+      setEditorDirty(true);
       updatePreview();
     });
   }
@@ -2128,11 +2223,24 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
   function renderContent(text) {
-    var safe = esc(text || '');
-    var paragraphs = safe.split(/\n\s*\n/).map(function (p) {
-      return p.trim() ? '<p>' + p.replace(/\n/g, '<br>') + '</p>' : '';
-    }).filter(Boolean);
-    return paragraphs.join('');
+    function inline(value) {
+      return esc(value)
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    }
+    return String(text || '').split(/\n{2,}/).map(function (block) {
+      block = block.trim();
+      if (!block) return '';
+      if (/^###\s+/.test(block)) return '<h3>' + inline(block.replace(/^###\s+/, '')) + '</h3>';
+      if (/^##\s+/.test(block)) return '<h2>' + inline(block.replace(/^##\s+/, '')) + '</h2>';
+      if (/^>\s+/.test(block)) return '<blockquote>' + inline(block.replace(/^>\s+/, '')) + '</blockquote>';
+      var lines = block.split('\n').map(function (line) { return line.trim(); }).filter(Boolean);
+      if (lines.length && lines.every(function (line) { return line.indexOf('- ') === 0; })) {
+        return '<ul>' + lines.map(function (line) { return '<li>' + inline(line.replace(/^-+\s*/, '')) + '</li>'; }).join('') + '</ul>';
+      }
+      return '<p>' + inline(block).replace(/\n/g, '<br>') + '</p>';
+    }).join('');
   }
 
   function updatePreview() {
@@ -2172,14 +2280,13 @@
     html += '<span>· ' + reading + ' min de leitura</span>';
     html += '</div>';
     html += excerpt ? '<div class="bp-prev-excerpt">' + esc(excerpt) + '</div>' : '';
-    html += '<div class="bp-prev-content">' + renderContent(content) + '</div>';
-
-    /* Imagem secundária (capítulo adicional) — aparece após o excerpt e antes do conteúdo principal */
+    /* Imagem secundária — aparece antes do texto, como na página publicada. */
     if (secondary) {
       html += '<figure class="bp-prev-secondary"><img src="' + esc(secondary) + '" alt="" />';
       if (secondaryCaption) html += '<figcaption>' + esc(secondaryCaption) + '</figcaption>';
       html += '</figure>';
     }
+    html += '<div class="bp-prev-content">' + renderContent(content) + '</div>';
 
     /* Gallery */
     if (tpl === 'gallery') {
@@ -2259,8 +2366,33 @@
   /* Auto-update on any form input */
   var form = document.getElementById('blogPostForm');
   if (form) {
-    form.addEventListener('input', updatePreview);
+    form.addEventListener('input', function () {
+      setEditorDirty(true);
+      updatePreview();
+    });
   }
+
+  /* Formatação simples e segura para o corpo do artigo. */
+  document.querySelector('.bp-format-toolbar')?.addEventListener('click', function (e) {
+    var button = e.target.closest('[data-format]');
+    var textarea = document.getElementById('blogPostContent');
+    if (!button || !textarea) return;
+    var start = textarea.selectionStart;
+    var end = textarea.selectionEnd;
+    var selected = textarea.value.slice(start, end);
+    var format = button.getAttribute('data-format');
+    var before = '', after = '', fallback = 'texto';
+    if (format === 'heading') { before = '## '; fallback = 'Título da seção'; }
+    if (format === 'bold') { before = '**'; after = '**'; fallback = 'texto em negrito'; }
+    if (format === 'italic') { before = '*'; after = '*'; fallback = 'texto em itálico'; }
+    if (format === 'list') { before = '- '; fallback = 'item da lista'; }
+    if (format === 'quote') { before = '> '; fallback = 'citação'; }
+    if (format === 'link') { before = '['; after = '](https://)'; fallback = 'texto do link'; }
+    var value = before + (selected || fallback) + after;
+    textarea.setRangeText(value, start, end, 'end');
+    textarea.focus();
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+  });
   document.addEventListener('input', function (e) {
     /* Galeria/steps inputs também */
     if (e.target.matches('[data-gallery-row] input, [data-step-row] input, [data-step-row] textarea')) {
@@ -2294,6 +2426,13 @@
     var card = document.getElementById('blogPreviewCard');
     var editor = document.getElementById('blogEditor');
     var label = document.getElementById('blogPreviewToggleLabel');
+    if (window.matchMedia('(max-width: 980px)').matches) {
+      var open = card.classList.toggle('is-mobile-preview');
+      document.body.style.overflow = open ? 'hidden' : '';
+      label.textContent = open ? 'Fechar prévia' : 'Mostrar prévia';
+      if (open) updatePreview();
+      return;
+    }
     var hidden = card.style.display === 'none';
     if (hidden) {
       card.style.display = '';
@@ -2305,6 +2444,21 @@
       label.textContent = 'Mostrar prévia';
     }
   });
+
+  function syncPreviewMode() {
+    var card = document.getElementById('blogPreviewCard');
+    var label = document.getElementById('blogPreviewToggleLabel');
+    if (!card || !label) return;
+    if (window.matchMedia('(max-width: 980px)').matches) {
+      card.style.display = '';
+      label.textContent = card.classList.contains('is-mobile-preview') ? 'Fechar prévia' : 'Mostrar prévia';
+      return;
+    }
+    card.classList.remove('is-mobile-preview');
+    document.body.style.overflow = '';
+    label.textContent = card.style.display === 'none' ? 'Mostrar prévia' : 'Ocultar prévia';
+  }
+  syncPreviewMode();
 
   /* Ctrl+S salva o post */
   document.addEventListener('keydown', function (e) {
@@ -2344,11 +2498,19 @@
       (post.steps || []).forEach(addStepRow);
       document.getElementById('blogEditorTitle').textContent = post.id ? 'Editar post' : 'Novo post';
       document.getElementById('blogPostSubmitLabel').textContent = post.id ? 'Salvar alterações' : 'Publicar';
+      setEditorDirty(false);
       showBlogView('editor');
       setTimeout(updatePreview, 30);
     },
-    updatePreview: updatePreview
+    updatePreview: updatePreview,
+    markSaved: function () { setEditorDirty(false); }
   };
+
+  window.addEventListener('beforeunload', function (e) {
+    if (!editorDirty) return;
+    e.preventDefault();
+    e.returnValue = '';
+  });
 
   /* Expose helpers for blog.js (module) to read current rows + write template UI. */
   window.ChampionBlogTemplates = {
@@ -2413,12 +2575,20 @@
   });
 
   document.addEventListener('keydown', function (e) {
+    var preview = document.getElementById('blogPreviewCard');
+    if (e.key === 'Escape' && preview?.classList.contains('is-mobile-preview')) {
+      preview.classList.remove('is-mobile-preview');
+      document.body.style.overflow = '';
+      var label = document.getElementById('blogPreviewToggleLabel');
+      if (label) label.textContent = 'Mostrar prévia';
+    }
     if (e.key === 'Escape' && bpSidebar && bpSidebar.classList.contains('is-mobile-open')) {
       closeBpSidebar();
     }
   });
 
   window.addEventListener('resize', function () {
+    syncPreviewMode();
     if (window.innerWidth > 980 && bpSidebar && bpSidebar.classList.contains('is-mobile-open')) {
       closeBpSidebar();
     }
@@ -2426,6 +2596,6 @@
 })();
 </script>
 <script src="js/admin-auth.js"></script>
-<script type="module" src="js/blog.js"></script>
+<script type="module" src="js/blog.js?v=20260706-1"></script>
 </body>
 </html>

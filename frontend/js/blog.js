@@ -165,25 +165,30 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       .map((block) => block.trim())
       .filter(Boolean);
 
+    const renderInline = (value) => escapeHtml(value)
+      .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
     return blocks.map((block) => {
       if (/^###\s+/.test(block)) {
-        return `<h3>${escapeHtml(block.replace(/^###\s+/, ''))}</h3>`;
+        return `<h3>${renderInline(block.replace(/^###\s+/, ''))}</h3>`;
       }
 
       if (/^##\s+/.test(block)) {
-        return `<h2>${escapeHtml(block.replace(/^##\s+/, ''))}</h2>`;
+        return `<h2>${renderInline(block.replace(/^##\s+/, ''))}</h2>`;
       }
 
       if (/^>\s+/.test(block)) {
-        return `<blockquote>${escapeHtml(block.replace(/^>\s+/, ''))}</blockquote>`;
+        return `<blockquote>${renderInline(block.replace(/^>\s+/, ''))}</blockquote>`;
       }
 
       const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
       if (lines.length && lines.every((line) => line.startsWith('- '))) {
-        return `<ul>${lines.map((line) => `<li>${escapeHtml(line.replace(/^-+\s*/, ''))}</li>`).join('')}</ul>`;
+        return `<ul>${lines.map((line) => `<li>${renderInline(line.replace(/^-+\s*/, ''))}</li>`).join('')}</ul>`;
       }
 
-      return `<p>${escapeHtml(block).replace(/\n/g, '<br>')}</p>`;
+      return `<p>${renderInline(block).replace(/\n/g, '<br>')}</p>`;
     }).join('');
   }
 
@@ -267,6 +272,8 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       this.auth = modules.auth;
       this.db = modules.db;
       this.api = modules.api;
+      this.storage = modules.storage;
+      this.storageApi = modules.storageApi;
       this.collections = Object.assign({}, CHAMPION_BLOG_FIREBASE);
     }
 
@@ -340,6 +347,16 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       await batch.commit();
     }
 
+    async uploadImage(file, folder = 'blog') {
+      if (!file || !this.storage || !this.storageApi) throw new Error('Arquivo de imagem inválido.');
+      const extension = String(file.name || 'imagem.webp').split('.').pop().toLowerCase().replace(/[^a-z0-9]/g, '') || 'webp';
+      const safeName = slugify(String(file.name || 'imagem').replace(/\.[^.]+$/, ''));
+      const path = `${folder}/${Date.now()}-${safeName}.${extension}`;
+      const fileRef = this.storageApi.ref(this.storage, path);
+      await this.storageApi.uploadBytes(fileRef, file, { contentType: file.type || 'image/webp' });
+      return this.storageApi.getDownloadURL(fileRef);
+    }
+
     async isAdminUser(user) {
       if (!user) return false;
       const snapshot = await this.api.getDoc(this.adminRef(user.uid));
@@ -379,20 +396,24 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     if (!isFirebaseConfigured(CHAMPION_FIREBASE_CONFIG)) return null;
 
     const version = CHAMPION_BLOG_FIREBASE.sdkVersion || '12.12.0';
-    const [appModule, authModule, firestoreModule] = await Promise.all([
+    const [appModule, authModule, firestoreModule, storageModule] = await Promise.all([
       import(`https://www.gstatic.com/firebasejs/${version}/firebase-app.js`),
       import(`https://www.gstatic.com/firebasejs/${version}/firebase-auth.js`),
-      import(`https://www.gstatic.com/firebasejs/${version}/firebase-firestore.js`)
+      import(`https://www.gstatic.com/firebasejs/${version}/firebase-firestore.js`),
+      import(`https://www.gstatic.com/firebasejs/${version}/firebase-storage.js`)
     ]);
 
     const app = appModule.getApps().length ? appModule.getApp() : appModule.initializeApp(CHAMPION_FIREBASE_CONFIG);
     const auth = authModule.getAuth(app);
     const db = firestoreModule.getFirestore(app);
+    const storage = storageModule.getStorage(app);
 
     return new FirebaseBlogStore({
       app,
       auth,
       db,
+      storage,
+      storageApi: storageModule,
       api: Object.assign({}, authModule, firestoreModule)
     });
   }
@@ -414,7 +435,8 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
   }
 
   function showBusy(form, busy, label = 'Salvando...') {
-    const button = form?.querySelector('button[type="submit"]');
+    const button = form?.querySelector('button[type="submit"]')
+      || (form?.id ? document.querySelector(`button[type="submit"][form="${form.id}"]`) : null);
     if (!button) return;
     if (busy) button.dataset.previousHtml = button.innerHTML;
     button.disabled = busy;
@@ -506,6 +528,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
   function renderBlogList(posts, config) {
     const listView = $('[data-blog-list-view]');
     const detailView = $('[data-blog-detail-view]');
+    const pageHero = $('.blog-hero');
     if (!listView) return;
 
     const params = new URLSearchParams(window.location.search);
@@ -523,6 +546,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     const count = $('#blogCount');
 
     if (detailView) detailView.hidden = true;
+    if (pageHero) pageHero.hidden = false;
     listView.hidden = false;
 
     const categories = Array.from(new Set(posts.map((post) => post.category))).sort((a, b) => a.localeCompare(b));
@@ -582,10 +606,12 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     const listView = $('[data-blog-list-view]');
     const detailView = $('[data-blog-detail-view]');
     const article = $('#blogArticle');
+    const pageHero = $('.blog-hero');
     if (!detailView || !article) return;
 
     const post = posts.find((item) => item.slug === slug);
     if (listView) listView.hidden = true;
+    if (pageHero) pageHero.hidden = true;
     detailView.hidden = false;
 
     if (!post) {
@@ -867,7 +893,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
           <div class="excerpt">${escapeHtml(post.excerpt || '')}</div>
         </div>
         <div class="bp-post-card-actions">
-          <a class="bp-icon-btn" href="blog.html?p=${encodeURIComponent(post.slug)}" target="_blank" rel="noopener" title="Ver no blog">
+          <a class="bp-icon-btn" href="blog.html?post=${encodeURIComponent(post.slug)}" target="_blank" rel="noopener" title="Ver no blog">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
             Ver
           </a>
@@ -1045,6 +1071,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         window.ChampionToast?.('Post salvo.');
         /* Return to list view after save */
         if (window.ChampionBlogEditor && typeof window.ChampionBlogEditor.showView === 'function') {
+          window.ChampionBlogEditor.markSaved?.();
           window.ChampionBlogEditor.showView('list');
         }
       } catch (error) {
