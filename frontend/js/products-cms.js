@@ -1,5 +1,6 @@
 import { getAdminStore } from './admin-store.js?v=20260522-2';
 import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayImage } from './product-data.js?v=20260522-2';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
 
 (async function () {
   'use strict';
@@ -46,6 +47,8 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayIm
       ? `Escolher variante de ${product.name}`
       : `Adicionar ${product.name} ao carrinho`);
     clone.addEventListener('click', (event) => {
+      /* Sem estoque: o "+" apenas leva à página do produto (não adiciona). */
+      if (product.available === false) return;
       /* Com variantes, o "+" leva pra página do produto pro cliente escolher. */
       if (hasVariants) return;
       if (!Number.isFinite(Number(product.price))) return;
@@ -57,13 +60,15 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayIm
         price: Number(product.price),
         qty: 1,
         image: product.image || '',
-        art: product.name.charAt(0)
+        art: product.name.charAt(0),
+        variantId: product.variantId || ''
       }, { open: false });
     });
     button.replaceWith(clone);
   }
 
   function cardPriceText(product) {
+    if (product.available === false) return 'Esgotado';
     const hasVariants = product.variants && product.variants.length > 0;
     const min = getMinPrice(product);
     if (!Number.isFinite(min)) return 'Sob consulta';
@@ -246,6 +251,15 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayIm
     const current = $('#addToCartBtn');
     if (!current) return;
     const clone = current.cloneNode(true);
+    /* Sem estoque: botão desabilitado com "Esgotado". */
+    if (product.available === false) {
+      clone.textContent = 'Esgotado';
+      clone.style.opacity = '0.55';
+      clone.style.pointerEvents = 'none';
+      clone.setAttribute('aria-disabled', 'true');
+      current.replaceWith(clone);
+      return;
+    }
     /* Se não há preço base nem nenhuma variante com preço, vira "orçamento" */
     const baseHasPrice = Number.isFinite(Number(product.price));
     const anyVariantHasPrice = (product.variants || []).some((v) => Number.isFinite(Number(v.price)));
@@ -275,7 +289,8 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayIm
         price: finalPrice,
         qty,
         image: getDisplayImage(product, variant),
-        art: product.name.charAt(0)
+        art: product.name.charAt(0),
+        variantId: (variant && variant.variantId) || product.variantId || ''
       });
     });
     current.replaceWith(clone);
@@ -816,20 +831,38 @@ import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayIm
     });
   }
 
-  try {
+  /* Fonte dos produtos: Shopify (quando configurado) ou o admin/Firestore atual.
+     A taxonomia dos filtros continua vindo do admin store (os slugs de
+     species/group/use dos metafields do Shopify usam o mesmo vocabulário). */
+  async function loadProducts() {
+    if (isShopifyEnabled()) {
+      try {
+        const prods = await getShopifyProducts();
+        /* Aplica o liga/desliga feito no painel admin (Modelo B): handle
+           desativado vira 'draft' e é filtrado da vitrine. */
+        let hidden = {};
+        try {
+          const store = await getAdminStore();
+          hidden = (await store.getCatalogVisibility()).hidden || {};
+        } catch (e) { /* sem visibilidade → todos visíveis */ }
+        return prods.map((p) => (hidden[p.id] ? Object.assign({}, p, { status: 'draft' }) : p));
+      } catch (err) {
+        console.error('Falha ao carregar produtos do Shopify, usando fonte local.', err);
+      }
+    }
     const store = await getAdminStore();
-
-    /* Carrega taxonomia primeiro para re-renderizar os filtros antes do catálogo */
     if (typeof store.getTaxonomy === 'function') {
       try {
-        const taxonomy = await store.getTaxonomy();
-        updateFilters(taxonomy);
+        updateFilters(await store.getTaxonomy());
       } catch (e) {
         console.warn('Taxonomia indisponível, usando filtros padrão.', e);
       }
     }
+    return store.getProducts({ includeDrafts: false });
+  }
 
-    const products = (await store.getProducts({ includeDrafts: false })).map(normalizeProduct);
+  try {
+    const products = (await loadProducts()).map(normalizeProduct);
     if (!products.length) return;
     updateCatalog(products);
     updateCatalogSeo(products);

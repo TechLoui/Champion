@@ -1,5 +1,7 @@
 import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260522-2';
 import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260522-2';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
+import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
 
 (async function () {
   'use strict';
@@ -8,6 +10,10 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
   const store = await getAdminStore();
+  /* Modelo B: com Shopify ligado, o catálogo vem do Shopify (somente leitura) e o
+     painel controla apenas o liga/desliga (visibilidade) de cada produto no site. */
+  const shopMode = isShopifyEnabled();
+  const shopDomain = CHAMPION_SHOPIFY_CONFIG.domain;
   let productsCache = [];
   let leadsCache = [];
   let bannersCache = [];
@@ -257,12 +263,44 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
       return;
     }
 
+    const eyeSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+    function cardStatus(product) {
+      if (shopMode) {
+        const label = product.active ? 'Ativo' : 'Inativo';
+        return `<span class="status-pill${product.active ? '' : ' is-draft'}">${label}</span>`;
+      }
+      return `<span class="status-pill${product.status === 'draft' ? ' is-draft' : ''}">${productStatusLabel(product)}</span>`;
+    }
+
+    function cardActions(product) {
+      if (shopMode) {
+        return `
+          <a class="icon-btn" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">${eyeSvg}Ver</a>
+          <button class="icon-btn ${product.active ? 'danger' : 'primary'}" type="button" data-toggle-active="${escapeHtml(product.id)}" title="${product.active ? 'Desativar do site' : 'Ativar no site'}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            ${product.active ? 'Desativar' : 'Ativar'}
+          </button>
+          <a class="icon-btn" href="https://${escapeHtml(shopDomain)}/admin/products" target="_blank" rel="noopener" title="Editar no Shopify">Editar no Shopify</a>`;
+      }
+      return `
+        <a class="icon-btn" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">${eyeSvg}Ver</a>
+        <button class="icon-btn primary" type="button" data-edit-product="${escapeHtml(product.id)}" title="Editar produto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Editar
+        </button>
+        <button class="icon-btn danger" type="button" data-delete-product="${escapeHtml(product.id)}" title="Excluir produto">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Excluir
+        </button>`;
+    }
+
     list.innerHTML = products.map((product) => `
       <article class="prod-card" data-status="${escapeHtml(product.status)}">
         <div class="prod-card-img">
           <img src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.style.opacity='0.3'" />
-          <span class="status-pill${product.status === 'draft' ? ' is-draft' : ''}">${productStatusLabel(product)}</span>
-          ${product.tag ? `<span class="tag-pill">${escapeHtml(product.tag)}</span>` : ''}
+          ${cardStatus(product)}
+          ${shopMode && product.available === false ? '<span class="tag-pill" style="background:#9EA6B4">Esgotado</span>' : (product.tag ? `<span class="tag-pill">${escapeHtml(product.tag)}</span>` : '')}
         </div>
         <div class="prod-card-body">
           <h4>${escapeHtml(product.name)}</h4>
@@ -270,18 +308,7 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
           <div class="${product.price ? 'price' : 'price empty'}">${formatBRL(product.price)}</div>
         </div>
         <div class="prod-card-actions">
-          <a class="icon-btn" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-            Ver
-          </a>
-          <button class="icon-btn primary" type="button" data-edit-product="${escapeHtml(product.id)}" title="Editar produto">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Editar
-          </button>
-          <button class="icon-btn danger" type="button" data-delete-product="${escapeHtml(product.id)}" title="Excluir produto">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-            Excluir
-          </button>
+          ${cardActions(product)}
         </div>
       </article>
     `).join('');
@@ -588,16 +615,38 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     });
   }
 
+  /* Fonte do catálogo no painel: Shopify (Modelo B) ou Firestore (modo atual).
+     No modo Shopify, cada produto recebe um flag `active` (do liga/desliga). */
+  async function loadCatalogCache() {
+    if (!shopMode) return store.getProducts();
+    const [prods, vis] = await Promise.all([
+      getShopifyProducts().catch((e) => { console.error('[admin] Shopify:', e.message); return []; }),
+      store.getCatalogVisibility().catch(() => ({ hidden: {} }))
+    ]);
+    const hidden = vis.hidden || {};
+    return prods.map((p) => Object.assign({}, p, {
+      active: !hidden[p.id],
+      status: hidden[p.id] ? 'draft' : 'published'
+    }));
+  }
+
   async function loadAdminData() {
+    /* No modo Shopify o catálogo é gerido lá — esconde criar/restaurar produto. */
+    if (shopMode) {
+      document.getElementById('adminNewProduct')?.style.setProperty('display', 'none');
+      document.getElementById('adminSeedProducts')?.style.setProperty('display', 'none');
+    }
+
     [productsCache, leadsCache, bannersCache] = await Promise.all([
-      store.getProducts(),
+      loadCatalogCache(),
       store.getLeads(),
       store.getBanners()
     ]);
 
     /* Auto-seed: se o catálogo está vazio, popula com os produtos do código.
-       Útil no primeiro login pra já trazer a linha Champion pra dentro do BD. */
-    if (productsCache.length === 0) {
+       Útil no primeiro login pra já trazer a linha Champion pra dentro do BD.
+       (Não roda no modo Shopify — lá o catálogo vem do Shopify.) */
+    if (!shopMode && productsCache.length === 0) {
       try {
         console.info('[admin] catálogo vazio, fazendo seed dos produtos padrão...');
         await store.seedProducts();
@@ -767,8 +816,27 @@ import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './produc
     });
 
     refs.productList?.addEventListener('click', async (event) => {
+      const toggle = event.target.closest('[data-toggle-active]');
       const edit = event.target.closest('[data-edit-product]');
       const del = event.target.closest('[data-delete-product]');
+      if (toggle) {
+        const handle = toggle.dataset.toggleActive;
+        const product = productsCache.find((p) => p.id === handle);
+        if (!product) return;
+        const next = !product.active;
+        toggle.disabled = true;
+        try {
+          await store.setProductActive(handle, next);
+          product.active = next;
+          product.status = next ? 'published' : 'draft';
+          renderProducts();
+          window.ChampionToast?.(next ? 'Produto ativado no site.' : 'Produto desativado do site.');
+        } catch (error) {
+          window.ChampionToast?.(friendlyAdminError(error));
+          toggle.disabled = false;
+        }
+        return;
+      }
       if (edit) {
         fillProductForm(productsCache.find((product) => product.id === edit.dataset.editProduct));
       }

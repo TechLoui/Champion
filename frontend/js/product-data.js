@@ -330,7 +330,9 @@ function normalizeVariant(variant = {}, index = 0) {
     id: slugify(variant.id || name) || `var-${index + 1}`,
     name,
     price: Number.isFinite(price) ? price : null,
-    image: String(variant.image || '').trim()
+    image: String(variant.image || '').trim(),
+    /* GID da variante no Shopify (usado no checkout). Vazio p/ produtos locais. */
+    variantId: String(variant.variantId || '').trim()
   };
 }
 
@@ -353,6 +355,8 @@ export function normalizeProduct(product = {}, index = 0) {
     id,
     name,
     status: product.status === 'draft' ? 'draft' : 'published',
+    /* Disponibilidade de estoque (Shopify). Produtos locais são sempre disponíveis. */
+    available: product.available !== false,
     tag: String(product.tag || '').trim(),
     category: String(product.category || 'Champion').trim(),
     species: String(product.species || '').trim(),
@@ -368,6 +372,8 @@ export function normalizeProduct(product = {}, index = 0) {
     presentations: String(product.presentations || 'Consultar embalagem').trim(),
     variants,
     faq,
+    /* GID da variante padrão no Shopify (produto sem variantes). Vazio p/ produtos locais. */
+    variantId: String(product.variantId || '').trim(),
     order: Number.isFinite(Number(product.order)) ? Number(product.order) : index + 1
   };
 }

@@ -112,19 +112,23 @@
     /* Headline & body */
     .login-brand h1 {
       font-family: 'Sora', sans-serif;
-      font-size: clamp(24px, 2.4vw, 32px);
+      font-size: clamp(28px, 2.7vw, 36px);
       font-weight: 800;
       color: white;
-      line-height: 1.2;
+      line-height: 1.14;
+      letter-spacing: -0.02em;
+      max-width: 340px;
+      text-wrap: balance;
       margin-bottom: 16px;
       position: relative;
       z-index: 1;
     }
     .login-brand-desc {
       font-size: 14.5px;
-      color: rgba(255,255,255,0.72);
+      color: rgba(255,255,255,0.74);
       line-height: 1.7;
-      max-width: 300px;
+      max-width: 330px;
+      text-wrap: pretty;
       position: relative;
       z-index: 1;
     }
@@ -341,6 +345,32 @@
     }
     .login-form-footer strong { color: #7A8290; font-weight: 600; }
 
+    /* Password reveal toggle */
+    .input-toggle {
+      position: absolute;
+      right: 7px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      border: none; background: transparent; cursor: pointer;
+      color: #A8B0BD; border-radius: 7px;
+      transition: color 0.18s, background 0.18s;
+    }
+    .input-toggle:hover { color: #EC4815; background: #F1F3F7; }
+    .input-toggle svg { width: 17px; height: 17px; }
+    .form-field input.has-toggle { padding-right: 44px; }
+
+    /* Button spinner */
+    .btn-spinner {
+      width: 16px; height: 16px;
+      border: 2.5px solid rgba(255,255,255,0.45);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: btn-spin 0.7s linear infinite;
+    }
+    @keyframes btn-spin { to { transform: rotate(360deg); } }
+
     /* ── Responsive ── */
     @media (max-width: 860px) {
       .login-wrap { flex-direction: column; }
@@ -376,8 +406,8 @@
       Administração do Blog
     </span>
 
-    <h1>Gerenciamento<br>do Blog<br>Champion</h1>
-    <p class="login-brand-desc">Publique artigos, gerencie posts e configure o blog Champion Saúde Animal com praticidade e segurança.</p>
+    <h1>Gerencie o blog da Champion num só lugar.</h1>
+    <p class="login-brand-desc">Publique artigos, organize os posts e configure o blog da Champion Saúde Animal com praticidade e segurança.</p>
 
     <hr class="login-brand-divider" />
 
@@ -438,7 +468,10 @@
           <label for="password">Senha</label>
           <div class="input-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+            <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" class="has-toggle" required />
+            <button type="button" class="input-toggle" id="togglePassword" aria-label="Mostrar senha" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           </div>
         </div>
 
@@ -472,12 +505,29 @@
   var form = document.querySelector('form');
   var errorBox = document.getElementById('loginError');
   var btn = form.querySelector('button[type="submit"]');
+  var originalBtnHTML = btn.innerHTML;
+
+  /* Mostrar / ocultar senha */
+  var pwd = document.getElementById('password');
+  var toggle = document.getElementById('togglePassword');
+  var eyeOpen = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var eyeOff = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  if (toggle && pwd) {
+    toggle.addEventListener('click', function () {
+      var show = pwd.type === 'password';
+      pwd.type = show ? 'text' : 'password';
+      toggle.innerHTML = show ? eyeOff : eyeOpen;
+      toggle.setAttribute('aria-pressed', String(show));
+      toggle.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+      pwd.focus();
+    });
+  }
 
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     errorBox.style.display = 'none';
     btn.disabled = true;
-    btn.innerHTML = 'Entrando...';
+    btn.innerHTML = '<span class="btn-spinner"></span> Entrando...';
 
     var email = form.querySelector('#email').value.trim().toLowerCase();
     var password = form.querySelector('#password').value.trim();
@@ -489,7 +539,7 @@
       errorBox.textContent = err.message || 'Erro ao entrar.';
       errorBox.style.display = 'block';
       btn.disabled = false;
-      btn.innerHTML = 'Entrar';
+      btn.innerHTML = originalBtnHTML;
     }
   });
 })();

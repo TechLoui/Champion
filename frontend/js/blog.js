@@ -18,6 +18,18 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
 
   const defaultPosts = [
     {
+      id: 'post-mineralizacao-rebanho',
+      slug: 'mineralizacao-do-rebanho-guia-pratico',
+      title: 'Mineralização do rebanho: o guia prático para acertar o ano todo',
+      category: 'Nutrição',
+      author: 'Equipe Champion',
+      date: '2026-07-26',
+      image: 'assets/img/hero/background-bovinos.jpg',
+      status: 'published',
+      excerpt: 'Sal mineral não é gasto, é investimento. Entenda como ajustar a mineralização à época do ano, ao consumo real e à categoria animal para transformar cocho em desempenho.',
+      content: 'A mineralização é uma das decisões de maior retorno na pecuária — e uma das mais negligenciadas. Minerais participam da reprodução, da imunidade, do ganho de peso e da conversão alimentar. Quando faltam, o prejuízo aparece devagar: prenhez mais baixa, animais mais suscetíveis a doenças e desempenho abaixo do potencial do pasto.\n\n## Por que o mineral é investimento, não custo\n\nO pasto tropical raramente entrega todos os minerais na quantidade certa, e o desequilíbrio muda ao longo do ano. Um bom programa de mineralização preenche essas lacunas e destrava a resposta da genética e da nutrição que você já paga.\n\n- Sustenta fertilidade e taxa de prenhez.\n- Fortalece imunidade e reduz perdas sanitárias.\n- Melhora o aproveitamento da forragem e do suplemento.\n- Dá previsibilidade ao desempenho do lote.\n\n## Águas e seca pedem estratégias diferentes\n\nNa estação das águas, o pasto cresce e o animal ganha peso — é hora de garantir o mineral que acompanha esse ritmo. Na seca, a forragem perde qualidade e a estratégia muda: o objetivo passa a ser manter condição corporal e evitar retrocesso.\n\nTrocar a formulação sem entender o objetivo da fase é um erro comum. Antes de mudar produto, confirme se o problema não está no manejo do cocho.\n\n## O consumo é o termômetro do programa\n\nDe nada adianta um mineral bem formulado se o consumo está errado. Consumo abaixo do indicado significa animal sem cobrir a exigência; muito acima é dinheiro desperdiçado.\n\n- Meça o consumo real por cabeça/dia e compare com o alvo do produto.\n- Ofereça cochos suficientes e bem distribuídos (evite disputa e superlotação).\n- Proteja o cocho da chuva e mantenha o sal limpo e seco.\n- Garanta água de qualidade perto do ponto de consumo.\n\n## Passo a passo para acertar na sua propriedade\n\nUm programa simples, acompanhado de perto, vale mais que a fórmula “perfeita” mal manejada.\n\n- Defina o objetivo da fase (cria, recria, engorda, reprodução).\n- Escolha o mineral adequado à categoria e à época do ano.\n- Ajuste número e posição dos cochos ao tamanho do lote.\n- Monitore consumo, sobra e umidade toda semana.\n- Reavalie a estratégia quando mudar o clima, o pasto ou o lote.\n\nMineralizar bem é rotina, não sorte. Com o produto certo no cocho certo e consumo acompanhado, o mineral deixa de ser linha de despesa e vira alavanca de produtividade. Em caso de dúvida sobre a formulação ideal para o seu rebanho, fale com a equipe técnica da Champion.'
+    },
+    {
       id: 'post-manejo-integrado',
       slug: 'manejo-integrado-para-um-rebanho-mais-produtivo',
       title: 'Manejo integrado para um rebanho mais produtivo',
@@ -418,11 +430,17 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     });
   }
 
+  /* Modo preview (?preview=1): usa os posts locais de exemplo, sem tocar o Firestore.
+     Serve para visualizar design/conteúdo localmente. Produção (sem o parâmetro)
+     continua lendo do Firebase normalmente. */
+  const isBlogPreview = new URLSearchParams(window.location.search).get('preview') === '1';
   let store = new LocalBlogStore();
-  try {
-    store = await createFirebaseStore() || store;
-  } catch (error) {
-    console.error('Firebase não inicializado. O blog continuará em modo local.', error);
+  if (!isBlogPreview) {
+    try {
+      store = await createFirebaseStore() || store;
+    } catch (error) {
+      console.error('Firebase não inicializado. O blog continuará em modo local.', error);
+    }
   }
 
   /* Expose o store para o painel inline (usado pelo upload do banner) */
@@ -602,6 +620,34 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     draw();
   }
 
+  /* Barra de progresso de leitura no topo (aparece só durante a leitura do artigo). */
+  function setupReadingProgress() {
+    let bar = document.getElementById('blogReadProgress');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'blogReadProgress';
+      bar.className = 'blog-read-progress';
+      bar.innerHTML = '<span></span>';
+      document.body.appendChild(bar);
+    }
+    const fill = bar.firstElementChild;
+    const article = document.getElementById('blogArticle');
+    function update() {
+      if (!article || article.offsetParent === null) { bar.classList.remove('is-visible'); return; }
+      const rect = article.getBoundingClientRect();
+      const total = Math.max(article.offsetHeight - window.innerHeight, 1);
+      const scrolled = Math.min(Math.max(-rect.top, 0), total);
+      fill.style.width = (scrolled / total) * 100 + '%';
+      bar.classList.toggle('is-visible', rect.top < 0 && rect.bottom > window.innerHeight * 0.4);
+    }
+    if (!bar.dataset.wired) {
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      bar.dataset.wired = '1';
+    }
+    update();
+  }
+
   function renderBlogDetail(slug, posts) {
     const listView = $('[data-blog-list-view]');
     const detailView = $('[data-blog-detail-view]');
@@ -628,21 +674,22 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
 
     document.title = `${post.title} · Blog Champion`;
     article.innerHTML = `
+      ${post.image ? `<div class="blog-article-hero" style="${heroStyleFor(post)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
       <div class="blog-article-head">
         <span class="blog-kicker">${escapeHtml(post.category)}</span>
+        <h1>${escapeHtml(post.title)}</h1>
+        <p>${escapeHtml(post.excerpt)}</p>
         <div class="blog-meta">
           <span>${escapeHtml(formatDate(post.date))}</span>
           <span>${escapeHtml(readingTime(post.content))}</span>
           <span>${escapeHtml(post.author)}</span>
         </div>
-        <h1>${escapeHtml(post.title)}</h1>
-        <p>${escapeHtml(post.excerpt)}</p>
       </div>
-      ${post.image ? `<div class="blog-article-hero" style="${heroStyleFor(post)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
       <div class="blog-article-content blog-template-${escapeHtml(post.template || 'standard')}">
         ${renderTemplate(post)}
       </div>
     `;
+    setupReadingProgress();
   }
 
   function heroStyleFor(post) {

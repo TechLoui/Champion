@@ -77,6 +77,7 @@ const LOCAL_PRODUCTS_KEY = 'champion-admin-products';
 const LOCAL_SETTINGS_KEY = 'champion-admin-settings';
 const LOCAL_LEADS_KEY = 'champion-admin-leads';
 const LOCAL_TAXONOMY_KEY = 'champion-admin-taxonomy';
+const LOCAL_CATALOG_VIS_KEY = 'champion-admin-catalog-visibility';
 
 const DEFAULT_TAXONOMY = {
   groups: [
@@ -301,6 +302,22 @@ class LocalAdminStore {
     return normalized;
   }
 
+  /* ── Visibilidade do catálogo (Modelo B): liga/desliga produtos do Shopify
+        no site. Guarda só os handles DESATIVADOS; ausente = ativo (visível). ── */
+  async getCatalogVisibility() {
+    const vis = readJson(LOCAL_CATALOG_VIS_KEY, { hidden: {} });
+    vis.hidden = vis.hidden && typeof vis.hidden === 'object' ? vis.hidden : {};
+    return vis;
+  }
+
+  async setProductActive(handle, active) {
+    const vis = await this.getCatalogVisibility();
+    if (active) delete vis.hidden[String(handle)];
+    else vis.hidden[String(handle)] = true;
+    writeJson(LOCAL_CATALOG_VIS_KEY, vis);
+    return vis;
+  }
+
   async getBlogStats() {
     const posts = readJson(LOCAL_BLOG_POSTS_KEY, []);
     const config = readJson(LOCAL_BLOG_CONFIG_KEY, {});
@@ -517,6 +534,34 @@ class FirebaseAdminStore {
       updatedAt: this.api.serverTimestamp()
     }), { merge: false });
     return normalized;
+  }
+
+  catalogVisibilityRef() {
+    return this.api.doc(this.db, 'siteSettings', 'catalogVisibility');
+  }
+
+  /* ── Visibilidade do catálogo (Modelo B): liga/desliga produtos do Shopify
+        no site. Guarda só os handles DESATIVADOS; ausente = ativo (visível). ── */
+  async getCatalogVisibility() {
+    try {
+      const snap = await this.api.getDoc(this.catalogVisibilityRef());
+      const hidden = snap.exists() && snap.data().hidden ? snap.data().hidden : {};
+      return { hidden };
+    } catch (err) {
+      console.warn('[admin-store] getCatalogVisibility:', err.message);
+      return { hidden: {} };
+    }
+  }
+
+  async setProductActive(handle, active) {
+    const { hidden } = await this.getCatalogVisibility();
+    if (active) delete hidden[String(handle)];
+    else hidden[String(handle)] = true;
+    await this.api.setDoc(this.catalogVisibilityRef(), {
+      hidden,
+      updatedAt: this.api.serverTimestamp()
+    }, { merge: false });
+    return { hidden };
   }
 }
 
