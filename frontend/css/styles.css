@@ -3757,7 +3757,7 @@ p { margin: 0; }
   width: min(420px, 100%);
   height: 100vh;
   background: white;
-  z-index: 200;
+  z-index: 10002;
   transform: translateX(100%);
   transition: transform 0.4s var(--ease);
   display: flex;
@@ -3772,10 +3772,11 @@ p { margin: 0; }
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;
-  z-index: 199;
+  z-index: 10001;
   backdrop-filter: blur(4px);
 }
 .cart-overlay.is-open { opacity: 1; pointer-events: auto; }
+.cart-empty-cta { margin-top: 20px; }
 .cart-head {
   display: flex; justify-content: space-between; align-items: center;
   padding: 22px 24px;

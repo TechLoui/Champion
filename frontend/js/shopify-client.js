@@ -66,7 +66,6 @@ const PRODUCTS_QUERY = `
         description
         productType
         availableForSale
-        totalInventory
         featuredImage { url altText }
         images(first: 8) { nodes { url } }
         priceRange { minVariantPrice { amount } }

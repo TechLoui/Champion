@@ -1006,7 +1006,11 @@
         body.innerHTML = `
           <div class="cart-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            <p>Seu carrinho está vazio.<br>Que tal adicionar um produto?</p>
+            <p>Seu carrinho está vazio.<br>Explore nossos produtos e comece agora.</p>
+            <a href="produtos.html" class="btn btn-primary cart-empty-cta">
+              Ver produtos
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
           </div>`;
         return;
       }
@@ -1088,12 +1092,9 @@
 
   document.getElementById('cartCheckout')?.addEventListener('click', () => {
     if (!Cart.items.length) { showToast('Seu carrinho está vazio.'); return; }
-    /* Login obrigatório só no checkout: sem sessão, manda entrar/cadastrar e volta. */
-    const logged = window.ChampionCustomers && window.ChampionCustomers.isLogged();
-    if (!logged) {
-      window.location.href = 'cliente-conta.html?redirect=checkout.html';
-      return;
-    }
+    /* A identificação é decidida no checkout: no fluxo Shopify o cliente compra como
+       visitante (identifica-se no checkout hospedado do Shopify); no fluxo legado
+       (Pagar.me) o próprio checkout.html exige login. Aqui não forçamos mais nada. */
     window.location.href = 'checkout.html';
   });
 

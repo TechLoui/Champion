@@ -9,9 +9,9 @@
 // preenchidos com dados reais, a vitrine passa automaticamente a puxar do Shopify.
 
 export const CHAMPION_SHOPIFY_CONFIG = {
-  domain: 'COLE_A_LOJA.myshopify.com',
-  storefrontToken: 'COLE_O_STOREFRONT_TOKEN',
-  apiVersion: '2025-01',
+  domain: '40455a-2.myshopify.com',
+  storefrontToken: '13cfcfd02757bc44f98363b0c9e0581a',
+  apiVersion: '2024-10',
 
   // Namespace dos metafields de conteúdo (ver tabela na doc). Não mudar sem alinhar
   // com o cadastro feito no Shopify.

@@ -51,7 +51,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       if (product.available === false) return;
       /* Com variantes, o "+" leva pra página do produto pro cliente escolher. */
       if (hasVariants) return;
-      if (!Number.isFinite(Number(product.price))) return;
+      /* Sem preço ou R$0 (atacado): leva à página do produto (botão de orçamento). */
+      if (!Number.isFinite(Number(product.price)) || Number(product.price) <= 0) return;
       event.preventDefault();
       event.stopPropagation();
       window.ChampionCart?.add({
@@ -71,7 +72,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     if (product.available === false) return 'Esgotado';
     const hasVariants = product.variants && product.variants.length > 0;
     const min = getMinPrice(product);
-    if (!Number.isFinite(min)) return 'Sob consulta';
+    if (!Number.isFinite(min) || min <= 0) return 'Sob consulta';
     return (hasVariants ? 'A partir de ' : '') + formatBRL(min);
   }
 
@@ -207,7 +208,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
   }
 
   function formatDetailPrice(value) {
-    if (!Number.isFinite(Number(value))) return null;
+    if (!Number.isFinite(Number(value)) || Number(value) <= 0) return null;
     const [reais, centavos] = Number(value).toLocaleString('pt-BR', {
       minimumFractionDigits: 2, maximumFractionDigits: 2
     }).split(',');
@@ -261,8 +262,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       return;
     }
     /* Se não há preço base nem nenhuma variante com preço, vira "orçamento" */
-    const baseHasPrice = Number.isFinite(Number(product.price));
-    const anyVariantHasPrice = (product.variants || []).some((v) => Number.isFinite(Number(v.price)));
+    const baseHasPrice = Number.isFinite(Number(product.price)) && Number(product.price) > 0;
+    const anyVariantHasPrice = (product.variants || []).some((v) => Number.isFinite(Number(v.price)) && Number(v.price) > 0);
     const sellable = baseHasPrice || anyVariantHasPrice;
     if (!sellable) {
       clone.innerHTML = `
@@ -277,9 +278,9 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       const finalPrice = variant && Number.isFinite(Number(variant.price))
         ? Number(variant.price)
         : Number(product.price);
-      if (!Number.isFinite(finalPrice)) {
-        const msg = encodeURIComponent(`Olá! Quero receber orçamento e orientação técnica para ${product.name}${optionLabel ? ' · ' + optionLabel : ''}.`);
-        window.open(`https://api.whatsapp.com/send/?phone=556240150742&type=phone_number&app_absent=0&text=${msg}`, '_blank');
+      if (!Number.isFinite(finalPrice) || finalPrice <= 0) {
+        const msg = encodeURIComponent(`Olá! Tenho interesse em ATACADO/REVENDA do produto ${product.name}${optionLabel ? ' · ' + optionLabel : ''}. Podem me passar condições e valores?`);
+        window.open(`https://api.whatsapp.com/send/?phone=5562981817915&type=phone_number&app_absent=0&text=${msg}`, '_blank');
         return;
       }
       const variantKey = variant ? variant.id : optionLabel;
