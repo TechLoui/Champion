@@ -862,10 +862,26 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     return store.getProducts({ includeDrafts: false });
   }
 
+  /* Home: atualiza os cards de "Destaques" (.product-grid) com dados REAIS do Shopify —
+     preço/variante/adicionar-ao-carrinho corretos, eliminando os dados fictícios do main.js.
+     Só atualiza cards existentes (não adiciona); esconde os que não existem no Shopify. */
+  function updateFeaturedGrid(products) {
+    const grid = $('.product-grid');
+    if (!grid) return;
+    const published = products.filter((product) => product.status === 'published');
+    $$('.product-card[data-product]', grid).forEach((card) => {
+      const product = findProduct(published, card.dataset.product);
+      if (!product) { card.hidden = true; return; }
+      card.hidden = false;
+      updateCard(card, product);
+    });
+  }
+
   try {
     const products = (await loadProducts()).map(normalizeProduct);
     if (!products.length) return;
     updateCatalog(products);
+    updateFeaturedGrid(products);
     updateCatalogSeo(products);
     updateDetail(products);
   } catch (error) {
