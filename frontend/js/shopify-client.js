@@ -115,6 +115,15 @@ function parseFaq(raw) {
   } catch (e) { return []; }
 }
 
+/* Resumo curto (p/ card e topo da página) a partir da descrição do Shopify. */
+function shortExcerpt(desc, max) {
+  const t = String(desc || '').replace(/\s+/g, ' ').trim();
+  const limit = max || 170;
+  if (!t) return '';
+  if (t.length <= limit) return t;
+  return t.slice(0, limit).replace(/\s+\S*$/, '').trim() + '…';
+}
+
 function slugify(value) {
   return String(value || '')
     .normalize('NFD').replace(/\p{Diacritic}/gu, '')
@@ -166,7 +175,7 @@ function mapProduct(node, index) {
     use: metaVal(node, 'use'),
     collections: collectionTitles,
     image: featured,
-    excerpt: metaVal(node, 'excerpt'),
+    excerpt: metaVal(node, 'excerpt') || shortExcerpt(node.description, 170),
     headline: metaVal(node, 'headline'),
     content: node.description || '',
     benefits: parseBenefits(metaVal(node, 'benefits')),

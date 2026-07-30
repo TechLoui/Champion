@@ -677,10 +677,16 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     /* Texto principal (descrição completa) */
     const textEl = $('#productContentText');
     if (textEl) {
-      const paragraphs = String(product.content || product.excerpt || '')
-        .split(/\n{2,}|\n/)
-        .map((p) => p.trim())
-        .filter(Boolean);
+      const raw = String(product.content || product.excerpt || '');
+      let paragraphs = raw.split(/\n{2,}|\n/).map((p) => p.trim()).filter(Boolean);
+      /* Descrição do Shopify costuma vir num bloco único gigante — quebra em
+         parágrafos legíveis (grupos de ~3 frases). */
+      if (paragraphs.length <= 1 && raw.length > 320) {
+        const sentences = raw.replace(/\s+/g, ' ').trim().match(/[^.!?]+[.!?]+(?:\s|$)|[^.!?]+$/g) || [raw];
+        paragraphs = [];
+        for (let i = 0; i < sentences.length; i += 3) paragraphs.push(sentences.slice(i, i + 3).join(' ').trim());
+        paragraphs = paragraphs.filter(Boolean);
+      }
       textEl.innerHTML = paragraphs.length
         ? paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join('')
         : `<p>${escapeHtml(product.excerpt || product.name)}</p>`;
@@ -783,7 +789,19 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     $('#crumbName').textContent = product.name;
     $('#detailName').textContent = product.name;
     $('#detailCat').textContent = product.category;
-    $('#detailDesc').innerHTML = `<strong style="color:var(--ink)">${escapeHtml(product.headline || product.excerpt)}</strong><br>${escapeHtml(product.content || product.excerpt)}`;
+    /* Topo: só o resumo curto (mantém os botões de compra visíveis).
+       A descrição completa fica na seção "Sobre", acessível pelo link. */
+    const shortDesc = product.excerpt || product.headline || product.content || '';
+    const hasMore = String(product.content || '').replace(/\s+/g, ' ').trim().length > String(shortDesc).trim().length + 20;
+    $('#detailDesc').innerHTML = escapeHtml(shortDesc)
+      + (hasMore ? ' <a href="#productContentTitle" class="detail-desc-more" id="detailDescMore">Ver descrição completa →</a>' : '');
+    const moreLink = $('#detailDescMore');
+    if (moreLink) {
+      moreLink.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        document.getElementById('productContentTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
 
     const selection = makeSelectionState(product);
     const initialPrice = selection.variant && Number.isFinite(Number(selection.variant.price))

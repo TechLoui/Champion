@@ -3553,6 +3553,15 @@ p { margin: 0; }
 .detail-info h1 { font-size: 44px; margin-bottom: 14px; letter-spacing: 0; }
 .detail-info .product-cat { margin-bottom: 8px; display: block; }
 .detail-info p { color: var(--steel); font-size: 16px; line-height: 1.7; margin-bottom: 24px; }
+.detail-desc-more {
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--orange);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.detail-desc-more:hover { color: var(--orange-deep); text-decoration: underline; }
 .detail-price-block {
   background: var(--bone);
   border-radius: var(--radius);
