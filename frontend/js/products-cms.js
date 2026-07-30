@@ -79,6 +79,9 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
   function updateCard(card, product) {
     card.hidden = false;
     card.dataset.product = product.id;
+    /* Expõe espécie/categoria pro motor de filtros (main.js). */
+    card.dataset.species = product.species || '';
+    card.dataset.cats = product.group || '';
 
     const title = $('.product-name', card);
     if (title) {
@@ -124,6 +127,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     const article = document.createElement('article');
     article.className = 'product-card is-visible';
     article.dataset.product = product.id;
+    article.dataset.species = product.species || '';
+    article.dataset.cats = product.group || '';
     article.innerHTML = `
       <div class="product-thumb has-photo">
         ${product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : ''}
@@ -864,6 +869,19 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     });
   }
 
+  /* Monta a taxonomia dos filtros (espécie/categoria) a partir das Coleções do
+     Shopify presentes nos produtos. */
+  function buildTaxonomyFromProducts(products) {
+    const SP = { bovinos: 'Bovinos', equinos: 'Equinos', suinos: 'Suínos', aves: 'Aves', caprinos: 'Caprinos', ovinos: 'Ovinos', minerais: 'Minerais' };
+    const GR = { larvicida: 'Larvicida', inseticida: 'Inseticidas', parasitario: 'Antiparasitário', mineralizacao: 'Mineralização', nutricao: 'Nutrição', suplemento: 'Suplemento', reproducao: 'Reprodução' };
+    const sp = new Map(), gr = new Map();
+    products.filter((p) => p.status === 'published').forEach((p) => {
+      if (p.species && !sp.has(p.species)) sp.set(p.species, { slug: p.species, name: SP[p.species] || p.species, order: sp.size + 1 });
+      if (p.group && !gr.has(p.group)) gr.set(p.group, { slug: p.group, name: GR[p.group] || p.group, order: gr.size + 1 });
+    });
+    return { species: [...sp.values()], groups: [...gr.values()], uses: [] };
+  }
+
   try {
     const products = (await loadProducts()).map(normalizeProduct);
     if (!products.length) return;
@@ -871,6 +889,9 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     updateFeaturedGrid(products);
     updateCatalogSeo(products);
     updateDetail(products);
+    /* Modo Shopify: reescreve os filtros com as coleções reais e reconstrói o
+       motor de filtros (main.js) já com os cards renderizados. */
+    if (isShopifyEnabled()) updateFilters(buildTaxonomyFromProducts(products));
   } catch (error) {
     console.error('Não foi possível carregar produtos do painel.', error);
   }

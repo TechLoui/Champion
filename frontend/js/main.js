@@ -1576,8 +1576,9 @@
     const priceMinInput = document.getElementById('priceMin');
     const priceMaxInput = document.getElementById('priceMax');
     const priceRadios = Array.from(shopSide.querySelectorAll('input[name="price"]'));
-    const checkInputs = Array.from(shopSide.querySelectorAll('input[data-cat], input[data-esp], input[data-use]'));
-    const allFilterInputs = [...checkInputs, ...priceRadios];
+    const queryCheckInputs = () => Array.from(shopSide.querySelectorAll('input[data-cat], input[data-esp], input[data-use]'));
+    let checkInputs = queryCheckInputs();
+    let allFilterInputs = [...checkInputs, ...priceRadios];
 
     const productCatalog = {
       'difly': {
@@ -1739,35 +1740,32 @@
       return clone.textContent.trim();
     };
 
-    const products = Array.from(shopList.querySelectorAll('.product-card[data-product]')).map((card, index) => {
-      const id = card.dataset.product;
-      const commerce = productCommerce[id] || {};
-      const meta = productCatalog[id] || {};
-      const name = commerce.name || card.querySelector('.product-name')?.textContent.trim() || id;
-      const price = typeof commerce.price === 'number' ? commerce.price : parseMoney(card.querySelector('.product-price')?.textContent) || 0;
-      const categoryText = card.querySelector('.product-cat')?.textContent || '';
-      const desc = card.querySelector('.product-desc')?.textContent || '';
-      const searchBlob = normalizeText([
-        name,
-        categoryText,
-        desc,
-        ...(meta.keywords || [])
-      ].join(' '));
-
-      return {
-        id,
-        card,
-        index,
-        name,
-        price,
-        searchBlob,
-        cats: meta.cats || [],
-        species: meta.species || [],
-        uses: meta.uses || [],
-        best: meta.best || 99,
-        launch: meta.launch || 0
-      };
-    });
+    const splitAttr = (v) => String(v || '').split(/[\s,]+/).filter(Boolean);
+    /* Reconstrói a lista de produtos a partir dos cards atuais no DOM.
+       Meta (cats/species/uses) vem do productCatalog hardcoded OU dos data-* do
+       card (produtos do Shopify), permitindo filtrar o catálogo dinâmico. */
+    function buildProducts() {
+      return Array.from(shopList.querySelectorAll('.product-card[data-product]')).map((card, index) => {
+        const id = card.dataset.product;
+        const commerce = productCommerce[id] || {};
+        const meta = productCatalog[id] || {};
+        const name = commerce.name || card.querySelector('.product-name')?.textContent.trim() || id;
+        const cardPrice = parseMoney(card.querySelector('.product-price')?.textContent);
+        const price = cardPrice !== null ? cardPrice : (typeof commerce.price === 'number' ? commerce.price : 0);
+        const categoryText = card.querySelector('.product-cat')?.textContent || '';
+        const desc = card.querySelector('.product-desc')?.textContent || '';
+        const searchBlob = normalizeText([name, categoryText, desc, ...(meta.keywords || [])].join(' '));
+        return {
+          id, card, index, name, price, searchBlob,
+          cats: (meta.cats && meta.cats.length) ? meta.cats : splitAttr(card.dataset.cats),
+          species: (meta.species && meta.species.length) ? meta.species : splitAttr(card.dataset.species),
+          uses: (meta.uses && meta.uses.length) ? meta.uses : splitAttr(card.dataset.use),
+          best: meta.best || 99,
+          launch: meta.launch || 0
+        };
+      });
+    }
+    let products = buildProducts();
 
     let shopEmpty = document.getElementById('shopEmpty');
     if (!shopEmpty) {
@@ -1912,7 +1910,13 @@
       renderChips(state);
     }
 
-    checkInputs.forEach(input => input.addEventListener('change', applyFilters));
+    function bindCheckInputs() {
+      checkInputs.forEach((input) => {
+        input.removeEventListener('change', applyFilters);
+        input.addEventListener('change', applyFilters);
+      });
+    }
+    bindCheckInputs();
 
     priceRadios.forEach(input => {
       input.addEventListener('change', () => {
@@ -1967,6 +1971,19 @@
       if (shopSearch) shopSearch.value = '';
       applyFilters();
     });
+
+    /* Exposto p/ o products-cms (modo Shopify): após rewrite dos filtros +
+       renderização dos cards do Shopify, reconstrói tudo e reaplica. */
+    window.ChampionCatalog = {
+      refreshFilters: function () {
+        checkInputs = queryCheckInputs();
+        allFilterInputs = [...checkInputs, ...priceRadios];
+        bindCheckInputs();
+        products = buildProducts();
+        updateCounts();
+        applyFilters();
+      }
+    };
 
     updateCounts();
     applyFilters();
