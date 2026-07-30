@@ -79,6 +79,7 @@ const PRODUCTS_QUERY = `
             image { url }
           }
         }
+        collections(first: 10) { nodes { title handle } }
         ${metafieldFragment()}
       }
     }
@@ -137,6 +138,21 @@ function mapProduct(node, index) {
      hideOutOfStock=false → continua aparecendo, marcado como "Esgotado". */
   const hidden = !available && CFG.hideOutOfStock !== false;
 
+  /* Categoria/espécie/grupo derivados das Coleções do Shopify. */
+  const collectionTitles = ((node.collections && node.collections.nodes) || []).map((c) => c.title).filter(Boolean);
+  const SPECIES_COL = { 'bovinos': 'bovinos', 'equinos': 'equinos', 'suínos': 'suinos', 'suinos': 'suinos', 'aves': 'aves', 'caprinos': 'caprinos', 'ovinos': 'ovinos' };
+  const GROUP_COL = { 'inseticidas': 'inseticida', 'larvicida oral': 'larvicida' };
+  let colSpecies = '', colGroup = '', colCategory = '';
+  collectionTitles.forEach((t) => {
+    const key = String(t).trim().toLowerCase();
+    if (SPECIES_COL[key] && !colSpecies) { colSpecies = SPECIES_COL[key]; colCategory = String(t).trim(); }
+    Object.keys(GROUP_COL).forEach((gk) => { if (key.indexOf(gk) === 0 && !colGroup) colGroup = GROUP_COL[gk]; });
+  });
+  if (!colCategory) {
+    const firstReal = collectionTitles.find((t) => !/p[áa]gina principal|principal/i.test(t));
+    if (firstReal) colCategory = String(firstReal).trim();
+  }
+
   const base = {
     id: node.handle,
     name: node.title,
@@ -144,10 +160,11 @@ function mapProduct(node, index) {
     available: available,
     inventory: Number.isFinite(node.totalInventory) ? node.totalInventory : null,
     tag: metaVal(node, 'badge'),
-    category: metaVal(node, 'category') || node.productType || 'Champion',
-    species: metaVal(node, 'species'),
-    group: metaVal(node, 'group'),
+    category: metaVal(node, 'category') || colCategory || node.productType || 'Champion',
+    species: metaVal(node, 'species') || colSpecies,
+    group: metaVal(node, 'group') || colGroup,
     use: metaVal(node, 'use'),
+    collections: collectionTitles,
     image: featured,
     excerpt: metaVal(node, 'excerpt'),
     headline: metaVal(node, 'headline'),
