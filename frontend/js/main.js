@@ -19,7 +19,7 @@
       name: 'Champion Saúde Animal',
       url: ORIGIN + '/',
       logo: ORIGIN + '/assets/img/brand/logo.png',
-      description: 'Champion Saúde Animal — referência há mais de 60 anos em larvicidas, mineralização, suplementos e nutrição para a pecuária brasileira.',
+      description: 'Champion Saúde Animal — referência com mais de 67 anos em larvicidas, mineralização, suplementos e nutrição para a pecuária brasileira.',
       foundingDate: '1964',
       areaServed: 'BR',
       contactPoint: {

@@ -704,28 +704,9 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       specs.innerHTML = rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join('');
     }
 
-    /* Guia relacionado (interlink produto → pilar de SEO), por grupo */
+    /* Guia relacionado — desativado (a seção de Guias foi removida do site). */
     const guideBox = $('#productGuideBox');
-    const guideLink = $('#productGuideLink');
-    if (guideBox && guideLink) {
-      const g = String(product.group || '').toLowerCase();
-      const cat = String(product.category || '').toLowerCase();
-      const has = (k) => g.includes(k) || cat.includes(k);
-      let guide = null;
-      if (has('larvicida') || has('parasitario') || has('inseticida') || /difly/i.test(product.name)) {
-        guide = { href: 'guias/controle-mosca-dos-chifres.html', label: 'Como controlar a mosca-dos-chifres no gado' };
-      } else if (has('vermifug') || /vermi/i.test(product.name)) {
-        guide = { href: 'guias/vermifugacao-bovinos.html', label: 'Vermifugação de bovinos: quando e como' };
-      } else if (has('mineraliza') || has('microminerais') || has('cálcio') || has('calcio') || has('nutri') || /núcleo|nucleo/i.test(product.name)) {
-        guide = { href: 'guias/sal-mineral-para-gado.html', label: 'Sal mineral para gado: guia completo' };
-      }
-      if (guide) {
-        guideLink.innerHTML = `<a href="${guide.href}">${escapeHtml(guide.label)} →</a>`;
-        guideBox.hidden = false;
-      } else {
-        guideBox.hidden = true;
-      }
-    }
+    if (guideBox) guideBox.hidden = true;
 
     /* CTA da ficha rápida rola de volta pro seletor de compra */
     const cta = $('#productContentCta');
