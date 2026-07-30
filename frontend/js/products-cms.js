@@ -32,6 +32,33 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       .filter(Boolean);
   }
 
+  /* ── Conformidade regulatória (MAPA): o site NÃO pode conter claims de
+     vermífugo / combate a vermes. Remove esses termos de todo texto renderizado,
+     mesmo que venham da descrição do produto no Shopify. ── */
+  const REGULATED_RX = /verm[íi]fug\w*|verminose\w*|vermes|nemat[óo]deo\w*|anti-?helm\w*|helm[íi]nt\w*|combate\s+(?:a\s+)?verm\w*/i;
+  function scrubSentences(text) {
+    if (!text) return text;
+    return String(text)
+      .split(/\n{2,}|\n/)
+      .map((para) => para.split(/(?<=[.!?])\s+/).filter((s) => !REGULATED_RX.test(s)).join(' ').trim())
+      .filter(Boolean)
+      .join('\n\n')
+      .trim();
+  }
+  function scrubLines(text) {
+    if (!text) return text;
+    return String(text).split(/\n|;/).map((s) => s.trim()).filter((s) => s && !REGULATED_RX.test(s)).join('\n');
+  }
+  function scrubRegulatedProduct(p) {
+    p.content = scrubSentences(p.content);
+    p.excerpt = REGULATED_RX.test(p.excerpt || '') ? scrubSentences(p.excerpt) : p.excerpt;
+    p.headline = REGULATED_RX.test(p.headline || '') ? '' : p.headline;
+    p.benefits = scrubLines(p.benefits);
+    p.usage = scrubSentences(p.usage);
+    if (Array.isArray(p.faq)) p.faq = p.faq.filter((f) => !REGULATED_RX.test((f.q || '') + ' ' + (f.a || '')));
+    return p;
+  }
+
   function findProduct(products, id) {
     const normalized = PRODUCT_ALIASES[id] || id;
     return products.find((product) => product.id === normalized || product.id === id);
@@ -114,7 +141,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     if (thumb && product.image) {
       const tag = product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '';
       thumb.className = 'product-thumb has-photo';
-      thumb.innerHTML = `${tag}<img class="product-photo" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" />`;
+      thumb.innerHTML = `${tag}<a class="product-thumb-link" href="produto.html?p=${encodeURIComponent(product.id)}" aria-label="Ver ${escapeHtml(product.name)}"><img class="product-photo" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" /></a>`;
     }
 
     const mediaLink = $('.blog-card-media, .product-thumb a', card);
@@ -132,7 +159,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     article.innerHTML = `
       <div class="product-thumb has-photo">
         ${product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : ''}
-        <img class="product-photo" src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" />
+        <a class="product-thumb-link" href="produto.html?p=${encodeURIComponent(product.id)}" aria-label="Ver ${escapeHtml(product.name)}"><img class="product-photo" src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" /></a>
       </div>
       <div class="product-body">
         <span class="product-cat">${escapeHtml(product.category)}</span>
@@ -530,13 +557,6 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
         { q: `Como aplicar o ${name} no ambiente?`, a: product.usage || `Siga a diluição e a forma de aplicação indicadas no rótulo do ${name}, conforme orientação técnica.` }
       );
     }
-    if (is('vermifug') || (is('mineraliza') && nameHas('vermi'))) {
-      out.push(
-        { q: `O ${name} é um bom vermífugo para gado?`, a: `O ${name} oferece vermifugação ${is('mineraliza') ? 'aliada à mineralização ' : ''}de forma prática no cocho. ${base}` },
-        { q: `Como vermifugar o gado sem manejo, direto no cocho?`, a: product.usage ? `${product.usage}` : `O ${name} é fornecido junto ao sal/ração, permitindo vermifugação contínua sem apartar o rebanho.` },
-        { q: `Com que frequência usar o ${name} no rebanho?`, a: `O uso contínuo no cocho mantém a proteção do rebanho. Consulte a orientação técnica da Champion para o protocolo ideal na sua propriedade.` }
-      );
-    }
     if (is('mineraliza') || is('microminerais') || is('cálcio') || is('calcio')) {
       out.push(
         { q: `Para que serve o ${name} na mineralização do rebanho?`, a: `O ${name} fornece minerais essenciais para o desempenho e a saúde do rebanho. ${base}` },
@@ -649,7 +669,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     auto.forEach((item) => {
       if (!combined.some((m) => m.q.toLowerCase() === item.q.toLowerCase())) combined.push(item);
     });
-    return combined;
+    /* Rede de segurança regulatória: descarta qualquer pergunta/resposta com termos vedados. */
+    return combined.filter((item) => !REGULATED_RX.test((item.q || '') + ' ' + (item.a || '')));
   }
 
   function renderProductContent(product) {
@@ -883,7 +904,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
   }
 
   try {
-    const products = (await loadProducts()).map(normalizeProduct);
+    const products = (await loadProducts()).map(normalizeProduct).map(scrubRegulatedProduct);
     if (!products.length) return;
     updateCatalog(products);
     updateFeaturedGrid(products);

@@ -13,7 +13,7 @@ const DEFAULT_BANNERS = [
     slides: [
       { image: 'assets/img/hero/hero-1.png', eyebrow: 'Linha Difly', title: 'Proteção completa para o gado', subtitle: 'Controle da mosca-dos-chifres direto na origem.', link: 'produtos.html', cta: 'Ver produtos' },
       { image: 'assets/img/hero/hero-2.png', eyebrow: 'Linha Núcleo', title: 'Mais lucratividade na sua propriedade', subtitle: 'Nutrição mineral completa para bovinos.', link: 'produtos.html', cta: 'Ver linha' },
-      { image: 'assets/img/hero/hero-3.png', eyebrow: 'VER-MI-SAL', title: 'Concentrado de microminerais', subtitle: 'Vermifugação contínua + mineralização no cocho.', link: 'produto.html?p=ver-mi-sal', cta: 'Conhecer' }
+      { image: 'assets/img/hero/hero-3.png', eyebrow: 'VER-MI-SAL', title: 'Concentrado de microminerais', subtitle: 'Mineralização contínua com microminerais no cocho.', link: 'produto.html?p=ver-mi-sal', cta: 'Conhecer' }
     ],
     status: 'published', order: 1
   }
@@ -83,7 +83,6 @@ const DEFAULT_TAXONOMY = {
   groups: [
     { slug: 'larvicida',     name: 'Larvicida',      order: 1 },
     { slug: 'inseticida',    name: 'Inseticida',     order: 2 },
-    { slug: 'vermifugo',     name: 'Vermífugo',      order: 3 },
     { slug: 'mineralizacao', name: 'Mineralização',  order: 4 },
     { slug: 'nutricao',      name: 'Nutrição',       order: 5 },
     { slug: 'reproducao',    name: 'Reprodução',     order: 6 },

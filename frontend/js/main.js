@@ -1598,10 +1598,10 @@
         launch: 13
       },
       'vermi-sal': {
-        cats: ['vermifugo', 'mineralizacao'],
+        cats: ['mineralizacao'],
         species: ['bovinos'],
         uses: ['sal-racao'],
-        keywords: ['vermes', 'nematodeos', 'antianemico', 'cocho'],
+        keywords: ['antianemico', 'cocho'],
         best: 3,
         launch: 8
       },
