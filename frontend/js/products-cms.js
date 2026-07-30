@@ -840,12 +840,18 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       try {
         const prods = await getShopifyProducts();
         /* Aplica o liga/desliga feito no painel admin (Modelo B): handle
-           desativado vira 'draft' e é filtrado da vitrine. */
+           desativado vira 'draft' e é filtrado da vitrine.
+           A leitura da visibilidade NÃO pode bloquear o catálogo — se o Firestore
+           demorar/travar, seguimos com todos os produtos visíveis (timeout). */
         let hidden = {};
         try {
           const store = await getAdminStore();
-          hidden = (await store.getCatalogVisibility()).hidden || {};
-        } catch (e) { /* sem visibilidade → todos visíveis */ }
+          const vis = await Promise.race([
+            store.getCatalogVisibility(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500))
+          ]);
+          hidden = (vis && vis.hidden) || {};
+        } catch (e) { /* visibilidade indisponível/lenta → todos visíveis */ }
         return prods.map((p) => (hidden[p.id] ? Object.assign({}, p, { status: 'draft' }) : p));
       } catch (err) {
         console.error('Falha ao carregar produtos do Shopify, usando fonte local.', err);
