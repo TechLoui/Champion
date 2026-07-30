@@ -398,8 +398,28 @@
       fb.className = 'feedback'; fb.textContent = '';
       btn.disabled = true; btn.textContent = 'Redirecionando…';
       try {
-        var lines = items.map(function (i) { return { variantId: i.variantId, qty: i.qty }; });
-        var url = await shopify.createShopifyCheckout(lines, email);
+        var lines = items.map(function (i) { return { variantId: i.variantId, qty: i.qty, id: i.id }; });
+        /* Blindagem contra carrinhos antigos (itens salvos antes do variantId):
+           resolve o GID pelo Shopify a partir do id do item (handle|variante). */
+        if (lines.some(function (l) { return !l.variantId; })) {
+          var prods = await shopify.getShopifyProducts();
+          var byHandle = {};
+          prods.forEach(function (p) { byHandle[p.id] = p; });
+          lines.forEach(function (l) {
+            if (l.variantId) return;
+            var parts = String(l.id || '').split('|');
+            var p = byHandle[parts[0]];
+            if (!p) return;
+            if (parts[1]) {
+              var v = (p.variants || []).find(function (x) { return x.id === parts[1]; });
+              if (v) l.variantId = v.variantId;
+            } else {
+              l.variantId = p.variantId;
+            }
+          });
+        }
+        var payload = lines.map(function (l) { return { variantId: l.variantId, qty: l.qty }; });
+        var url = await shopify.createShopifyCheckout(payload, email);
         try { localStorage.removeItem(CART_KEY); } catch (e) {}
         window.location.href = url;
       } catch (err) {
