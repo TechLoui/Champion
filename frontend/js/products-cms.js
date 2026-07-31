@@ -333,17 +333,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     const options = $('#detailOptions');
     if (!options) return;
     options.innerHTML = '';
-    const presentBlock = options.parentElement; /* bloco "Apresentação" (h5 + options) */
-    if (presentBlock) presentBlock.hidden = false;
+    if (options.parentElement) options.parentElement.hidden = false;
     const hasVariants = product.variants && product.variants.length > 0;
-    /* Variante única sem apresentações reais (só "Consultar embalagem") → esconde o bloco. */
-    if (!hasVariants) {
-      const opts = splitOptions(product.presentations);
-      if (opts.length <= 1 && /consultar embalagem/i.test(opts[0] || '')) {
-        if (presentBlock) presentBlock.hidden = true;
-        return;
-      }
-    }
     if (hasVariants) {
       options.classList.add('detail-options-rich');
       product.variants.forEach((variant, index) => {
@@ -824,12 +815,12 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     const features = $('.detail-features');
     if (features) {
       const icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
-      const rows = splitBenefits(product.benefits).map((benefit) => `<div>${icon}<div><strong>${escapeHtml(benefit)}</strong></div></div>`);
-      if (product.usage) rows.push(`<div>${icon}<div><strong>Modo de uso</strong>${escapeHtml(product.usage)}</div></div>`);
-      /* Sem benefícios/uso reais (ex.: produto do Shopify) → esconde a seção
-         em vez de mostrar texto genérico. */
-      if (rows.length) { features.innerHTML = rows.join(''); features.hidden = false; }
-      else { features.innerHTML = ''; features.hidden = true; }
+      features.hidden = false;
+      features.innerHTML = [
+        ...splitBenefits(product.benefits).map((benefit) => `<div>${icon}<div><strong>${escapeHtml(benefit)}</strong></div></div>`),
+        `<div>${icon}<div><strong>Modo de uso</strong>${escapeHtml(product.usage || 'Consulte a orientação técnica da Champion.')}</div></div>`,
+        `<div>${icon}<div><strong>Atendimento técnico</strong>Confirme embalagem, disponibilidade e recomendação de uso com a Champion.</div></div>`
+      ].join('');
     }
 
     replaceDetailCartButton(product, selection);
