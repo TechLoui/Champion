@@ -67,18 +67,17 @@ Páginas com o widget: `index`, `produtos`, `produto`, `sobre`, `blog`,
 
 ## Rodar localmente
 
-**1. Configure o `.env`** (em `backend/`, copiando de `.env.example`):
+**1. Configure o `.env`** (em `backend/`, copiando de `.env.example`).
+Só duas linhas são necessárias:
 
 ```
 LLM_API_KEY=<a chave da DeepSeek>
-LLM_BASE_URL=https://api.deepseek.com
-LLM_MODEL=deepseek-chat
-
-SHOPIFY_DOMAIN=40455a-2.myshopify.com
-SHOPIFY_STOREFRONT_TOKEN=<token da Storefront API>
-
 ALLOWED_ORIGINS=http://127.0.0.1:5500,http://localhost:5500
 ```
+
+Todo o resto (provedor, modelo, domínio e token do Shopify, versão da API) já
+tem o valor certo embutido no código — as variáveis existem só para trocar sem
+editar código. Ver `.env.example`.
 
 `.env` já está no `.gitignore` — a chave não vai para o repositório. Firebase é
 opcional no teste local: sem ele o chat funciona, só não grava o log.

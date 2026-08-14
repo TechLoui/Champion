@@ -9,8 +9,14 @@
  * apresentação e link de checkout que o agente diz vem daqui.
  */
 
-const DOMAIN = process.env.SHOPIFY_DOMAIN || '';
-const TOKEN = process.env.SHOPIFY_STOREFRONT_TOKEN || '';
+/* Os mesmos valores de frontend/js/shopify-config.js.
+   Ficam como padrão aqui de propósito: o token da Storefront API é público por
+   natureza (roda no navegador de qualquer visitante) e já está versionado no
+   frontend — exigir que fosse declarado de novo no Railway daria trabalho sem
+   ganhar segurança nenhuma. As variáveis de ambiente continuam funcionando e
+   têm prioridade, para quando a loja ou a versão da API mudar. */
+const DOMAIN = process.env.SHOPIFY_DOMAIN || '40455a-2.myshopify.com';
+const TOKEN = process.env.SHOPIFY_STOREFRONT_TOKEN || '13cfcfd02757bc44f98363b0c9e0581a';
 const API_VERSION = process.env.SHOPIFY_API_VERSION || '2024-10';
 const NS = process.env.SHOPIFY_METAFIELD_NAMESPACE || 'custom';
 
