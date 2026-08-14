@@ -387,7 +387,7 @@
     setTextByHref('produtos.html', copy.shop);
     setTextByHref('sobre.html', copy.about);
     setTextByHref('blog.html', copy.blog);
-    setTextByHref('pertinhodemim.com', copy.store);
+    setTextByHref('revendachampion.com.br', copy.store);
     setTextByHref('calculo-dose.html', copy.dose);
 
     const promo = document.querySelector('.topbar .pill');
@@ -1144,7 +1144,7 @@
       '@media(max-width:480px){.acct-drawer{width:100%}}',
       '.acct-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;background:#fff;border-bottom:1px solid #E5E8EF}',
       '.acct-id{display:flex;align-items:center;gap:12px;min-width:0}',
-      '.acct-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#EC4815,#C13808);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}',
+      '.acct-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#1E4C8F,#12315F);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;flex-shrink:0}',
       '.acct-id-txt{min-width:0}',
       ".acct-id-txt strong{display:block;font-family:'Sora',sans-serif;font-size:15px}",
       '.acct-id-txt span{display:block;font-size:12px;color:#9EA6B4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px}',
@@ -1153,16 +1153,16 @@
       '.acct-nav{display:flex;gap:4px;padding:10px 14px;background:#fff;border-bottom:1px solid #E5E8EF;overflow-x:auto}',
       ".acct-nav button{flex:0 0 auto;border:none;background:none;padding:8px 13px;border-radius:8px;font:600 13px 'Inter',sans-serif;color:#687080;cursor:pointer;white-space:nowrap}",
       '.acct-nav button:hover{background:#F4F5F8;color:#15191F}',
-      '.acct-nav button.is-active{background:#FFF0EB;color:#EC4815}',
+      '.acct-nav button.is-active{background:#FFF0EB;color:#1E4C8F}',
       '.acct-body{flex:1;overflow-y:auto;padding:16px}',
       '.acct-foot{padding:12px 16px;border-top:1px solid #E5E8EF;background:#fff}',
       ".acct-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 14px;border-radius:9px;border:1.5px solid #E4E8EF;background:#fff;color:#15191F;font:700 13px 'Inter',sans-serif;cursor:pointer;text-decoration:none}",
       '.acct-btn:hover{background:#F4F5F8}',
-      '.acct-btn.primary{background:linear-gradient(135deg,#FF6A33,#EC4815 60%,#C13808);color:#fff;border:none;box-shadow:0 6px 18px -6px rgba(236,72,21,.5)}',
-      '.acct-btn.ghost{width:100%;color:#C13808;border-color:#FAD0C6;background:#FFF5F3}',
+      '.acct-btn.primary{background:linear-gradient(135deg,#2F6BC4,#1E4C8F 60%,#12315F);color:#fff;border:none;box-shadow:0 6px 18px -6px rgba(30,76,143,.5)}',
+      '.acct-btn.ghost{width:100%;color:#12315F;border-color:#FAD0C6;background:#FFF5F3}',
       ".acct-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font:700 11px 'Inter',sans-serif;background:#F0F2F6;color:#687080;white-space:nowrap}",
       ".acct-pill::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}",
-      '.acct-pill.green{background:#EDFAF3;color:#1A7A48}.acct-pill.amber{background:#FFF8EB;color:#B45309}.acct-pill.blue{background:#EBF3FE;color:#1E40AF}.acct-pill.purple{background:#F3F0FD;color:#6D28D9}.acct-pill.red{background:#FEEDEA;color:#C13808}.acct-pill.gray{background:#F0F2F6;color:#687080}',
+      '.acct-pill.green{background:#EDFAF3;color:#1A7A48}.acct-pill.amber{background:#FFF8EB;color:#B45309}.acct-pill.blue{background:#EBF3FE;color:#1E40AF}.acct-pill.purple{background:#F3F0FD;color:#6D28D9}.acct-pill.red{background:#FEEDEA;color:#12315F}.acct-pill.gray{background:#F0F2F6;color:#687080}',
       '.acct-order{background:#fff;border:1px solid #E5E8EF;border-radius:12px;margin-bottom:10px;overflow:hidden}',
       '.acct-order-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;cursor:pointer}',
       '.acct-order-top:hover{background:#FAFBFC}',
@@ -1192,7 +1192,7 @@
       '.acct-field{margin-bottom:12px}',
       '.acct-field label{display:block;font-size:12px;font-weight:600;margin-bottom:5px}',
       ".acct-field input,.acct-field select{width:100%;padding:10px 12px;border:1.5px solid #E4E8EF;border-radius:8px;background:#F9FAFB;font:14px 'Inter',sans-serif;outline:none}",
-      '.acct-field input:focus,.acct-field select:focus{border-color:#EC4815;background:#fff;box-shadow:0 0 0 3px rgba(236,72,21,.09)}',
+      '.acct-field input:focus,.acct-field select:focus{border-color:#1E4C8F;background:#fff;box-shadow:0 0 0 3px rgba(30,76,143,.09)}',
       '.acct-field input:disabled{color:#9EA6B4}',
       '.acct-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}',
       '.acct-empty,.acct-loading{text-align:center;color:#9EA6B4;padding:36px 16px}',
@@ -1449,7 +1449,7 @@
     try {
       await window.ChampionCustomers.resetPassword(acctCurrent.email);
       if (fb) { fb.style.color = '#1A7A48'; fb.textContent = 'Link enviado para ' + acctCurrent.email + '. Confira a caixa de entrada e o spam.'; }
-    } catch (e) { if (fb) { fb.style.color = '#C13808'; fb.textContent = e.message || 'Não foi possível enviar agora.'; } }
+    } catch (e) { if (fb) { fb.style.color = '#12315F'; fb.textContent = e.message || 'Não foi possível enviar agora.'; } }
   }
   async function acctLogout() {
     try { await window.ChampionCustomers.logout(); } catch (e) {}

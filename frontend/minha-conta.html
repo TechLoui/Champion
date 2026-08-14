@@ -13,8 +13,8 @@
     [hidden] { display: none !important; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
-      background: #FAFAF7;
-      color: #15191F;
+      background: #F7F9FD;
+      color: #131F35;
       min-height: 100vh;
     }
     a { color: inherit; }
@@ -29,16 +29,16 @@
     .topbar img { width: 110px; }
     .topbar .nav { display: flex; gap: 14px; align-items: center; font-size: 13.5px; }
     .topbar .nav a { text-decoration: none; color: #687080; font-weight: 500; }
-    .topbar .nav a:hover { color: #15191F; }
+    .topbar .nav a:hover { color: #131F35; }
     .btn {
       padding: 9px 16px; border-radius: 8px; border: 1.5px solid #E4E8EF;
       background: white; color: #687080; font-weight: 600; font-size: 13px;
       cursor: pointer; font-family: inherit;
     }
-    .btn:hover { color: #15191F; background: #F4F5F8; }
-    .btn-primary { background: linear-gradient(135deg,#FF6A33,#EC4815 60%,#C13808); color: white; border: none; }
-    .btn-primary:hover { color: white; box-shadow: 0 6px 20px -4px rgba(236,72,21,.45); }
-    .btn-danger { color: #C13808; border-color: #FAD0C6; background: #FFF5F3; }
+    .btn:hover { color: #131F35; background: #F4F5F8; }
+    .btn-primary { background: linear-gradient(135deg,#2F6BC4,#1E4C8F 60%,#12315F); color: white; border: none; }
+    .btn-primary:hover { color: white; box-shadow: 0 6px 20px -4px rgba(30,76,143,.45); }
+    .btn-danger { color: #12315F; border-color: #FAD0C6; background: #FFF5F3; }
     .btn-danger:hover { background: #FCDDD8; }
 
     .wrap {
@@ -51,7 +51,7 @@
     }
     .avatar {
       width: 56px; height: 56px; border-radius: 50%;
-      background: linear-gradient(135deg, #EC4815, #C13808);
+      background: linear-gradient(135deg, #1E4C8F, #12315F);
       color: white; display: flex; align-items: center; justify-content: center;
       font-weight: 800; font-size: 22px;
     }
@@ -81,8 +81,8 @@
       transition: background .15s, color .15s;
       display: flex; align-items: center; gap: 10px;
     }
-    .nav-card button:hover { background: #F4F5F8; color: #15191F; }
-    .nav-card button.is-active { background: #FFF0EB; color: #EC4815; }
+    .nav-card button:hover { background: #F4F5F8; color: #131F35; }
+    .nav-card button.is-active { background: #E8F0FB; color: #1E4C8F; }
 
     .card {
       background: white;
@@ -106,8 +106,8 @@
       outline: none;
     }
     .field input:focus, .field select:focus {
-      border-color: #EC4815; background: white;
-      box-shadow: 0 0 0 3px rgba(236,72,21,.09);
+      border-color: #1E4C8F; background: white;
+      box-shadow: 0 0 0 3px rgba(30,76,143,.09);
     }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
@@ -163,7 +163,7 @@
       background: white; border: 1.5px dashed #E4E8EF; border-radius: 12px;
       color: #9EA6B4;
     }
-    .empty strong { display: block; color: #15191F; margin-bottom: 8px; font-size: 16px; }
+    .empty strong { display: block; color: #131F35; margin-bottom: 8px; font-size: 16px; }
 
     /* ===== Mobile polish ===== */
     @media (max-width: 720px) {
@@ -470,7 +470,7 @@
       fb.style.color = '#1A7A48';
       fb.textContent = 'Link enviado para ' + customer.email + '. Confira sua caixa de entrada e o spam.';
     } catch (err) {
-      fb.style.color = '#C13808';
+      fb.style.color = '#12315F';
       fb.textContent = err.message || 'Não foi possível enviar agora. Tente novamente.';
     } finally {
       btn.disabled = false;

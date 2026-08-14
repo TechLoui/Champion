@@ -737,10 +737,6 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
       specs.innerHTML = rows.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join('');
     }
 
-    /* Guia relacionado — desativado (a seção de Guias foi removida do site). */
-    const guideBox = $('#productGuideBox');
-    if (guideBox) guideBox.hidden = true;
-
     /* CTA da ficha rápida rola de volta pro seletor de compra */
     const cta = $('#productContentCta');
     if (cta) {

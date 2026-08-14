@@ -14,8 +14,8 @@
     html, body { min-height: 100%; }
     body {
       font-family: 'Inter', system-ui, sans-serif;
-      background: #FAFAF7;
-      color: #15191F;
+      background: #F7F9FD;
+      color: #131F35;
       -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; }
@@ -30,7 +30,7 @@
     }
     .topbar img { width: 110px; }
     .topbar .back { font-size: 13px; color: #687080; text-decoration: none; }
-    .topbar .back:hover { color: #15191F; }
+    .topbar .back:hover { color: #131F35; }
 
     .wrap {
       max-width: 1080px;
@@ -75,8 +75,8 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 12px; font-weight: 700;
     }
-    .step.is-active { border-color: #EC4815; color: #EC4815; background: #FFF9F7; }
-    .step.is-active .num { background: #EC4815; color: white; }
+    .step.is-active { border-color: #1E4C8F; color: #1E4C8F; background: #FFF9F7; }
+    .step.is-active .num { background: #1E4C8F; color: white; }
     .step.is-done { color: #1A7A48; border-color: #A8E6C6; background: #EDFAF3; }
     .step.is-done .num { background: #1A9B5F; color: white; }
 
@@ -106,8 +106,8 @@
       transition: border-color .18s, box-shadow .18s;
     }
     .field input:focus, .field select:focus, .field textarea:focus {
-      border-color: #EC4815; background: white;
-      box-shadow: 0 0 0 3px rgba(236,72,21,.09);
+      border-color: #1E4C8F; background: white;
+      box-shadow: 0 0 0 3px rgba(30,76,143,.09);
     }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .row3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
@@ -129,10 +129,10 @@
       font-weight: 600; font-size: 13.5px;
       display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .pay-options label:hover { border-color: #EC4815; }
+    .pay-options label:hover { border-color: #1E4C8F; }
     .pay-options input { display: none; }
-    .pay-options input:checked + span { color: #EC4815; }
-    .pay-options label:has(input:checked) { border-color: #EC4815; background: #FFF9F7; }
+    .pay-options input:checked + span { color: #1E4C8F; }
+    .pay-options label:has(input:checked) { border-color: #1E4C8F; background: #FFF9F7; }
 
     .btn {
       padding: 12px 22px; border-radius: 9px;
@@ -143,16 +143,16 @@
       text-decoration: none;
     }
     .btn-primary {
-      background: linear-gradient(135deg,#FF6A33,#EC4815 60%,#C13808);
+      background: linear-gradient(135deg,#2F6BC4,#1E4C8F 60%,#12315F);
       color: white;
-      box-shadow: 0 6px 20px -4px rgba(236,72,21,.5);
+      box-shadow: 0 6px 20px -4px rgba(30,76,143,.5);
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -4px rgba(236,72,21,.55); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px -4px rgba(30,76,143,.55); }
     .btn-ghost {
       background: transparent; color: #687080;
       border: 1.5px solid #E4E8EF;
     }
-    .btn-ghost:hover { background: #F4F5F8; color: #15191F; }
+    .btn-ghost:hover { background: #F4F5F8; color: #131F35; }
     .actions { display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 4px; }
 
     /* Summary */
@@ -189,7 +189,7 @@
     .summary-item-price { font-size: 13px; font-weight: 600; }
     .totals { padding-top: 12px; }
     .totals-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: #687080; }
-    .totals-row.total { font-size: 17px; font-weight: 800; color: #15191F; margin-top: 8px; padding-top: 10px; border-top: 1px solid #F0F2F6; font-family: 'Sora',sans-serif; }
+    .totals-row.total { font-size: 17px; font-weight: 800; color: #131F35; margin-top: 8px; padding-top: 10px; border-top: 1px solid #F0F2F6; font-family: 'Sora',sans-serif; }
     .empty {
       text-align: center; padding: 28px 12px;
       color: #9EA6B4; font-size: 13.5px;
@@ -200,7 +200,7 @@
     }
     .feedback.error {
       padding: 10px 12px; border-radius: 8px;
-      background: #FFF1EF; border: 1px solid #FAD0C6; color: #C13808;
+      background: #FFF1EF; border: 1px solid #FAD0C6; color: #12315F;
     }
 
     /* Mobile polish */
@@ -276,7 +276,7 @@
     .co-step-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
     .co-step-txt strong { font-size: 14.5px; font-weight: 600; }
     .co-step-txt span { font-size: 13px; color: #687080; line-height: 1.45; }
-    .co-step-txt span strong { color: #15191F; }
+    .co-step-txt span strong { color: #131F35; }
     .co-pay-btn {
       width: 100%; justify-content: center;
       padding: 16px 24px; font-size: 15.5px; margin-top: 2px;

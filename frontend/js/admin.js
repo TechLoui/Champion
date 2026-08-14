@@ -492,7 +492,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
       <div class="bp-row" data-slide-row="${i}" style="background:white;border:1px solid #E5E8EF;border-radius:10px;padding:14px">
         <div class="bp-row-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <strong style="font-size:13px;color:#15191F">Slide ${i + 1}</strong>
-          <button type="button" data-remove-slide="${i}" style="background:none;border:none;color:#C13808;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:5px">Remover</button>
+          <button type="button" data-remove-slide="${i}" style="background:none;border:none;color:#12315F;font-size:12px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:5px">Remover</button>
         </div>
         <div style="display:grid;grid-template-columns:minmax(120px,150px) minmax(120px,150px) minmax(0,1fr);gap:12px;align-items:start">
           <div>
@@ -506,7 +506,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
             <div style="aspect-ratio:9/16;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}" data-slide-target="imageMobile">
               ${s.imageMobile ? `<img src="${escapeHtml(s.imageMobile)}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Opcional<br>usa desktop</div>'}
             </div>
-            ${s.imageMobile ? `<button type="button" data-clear-slide-mobile="${i}" style="margin-top:6px;background:none;border:0;color:#C13808;font-size:11.5px;font-weight:600;cursor:pointer;padding:0">Remover mobile</button>` : ''}
+            ${s.imageMobile ? `<button type="button" data-clear-slide-mobile="${i}" style="margin-top:6px;background:none;border:0;color:#12315F;font-size:11.5px;font-weight:600;cursor:pointer;padding:0">Remover mobile</button>` : ''}
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <input type="text" data-slide-field="eyebrow" data-slide-idx="${i}" value="${escapeHtml(s.eyebrow || '')}" placeholder="Eyebrow (ex: Página Inicial)" style="padding:8px 10px;border:1.5px solid #E4E8EF;border-radius:7px;font-size:13px;background:#F9FAFB;outline:none" />
@@ -1104,7 +1104,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
       <div class="bp-row" data-tax-row="${type}-${i}" style="background:#FAFBFC;border:1px solid #E5E8EF;border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center;margin-bottom:6px">
         <input data-tax-field="name" data-tax-type="${type}" data-tax-idx="${i}" type="text" value="${escapeHtml(it.name)}" placeholder="Nome exibido" style="padding:7px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;background:white;outline:none" />
         <input data-tax-field="slug" data-tax-type="${type}" data-tax-idx="${i}" type="text" value="${escapeHtml(it.slug)}" placeholder="slug" style="padding:7px 10px;border:1.5px solid #E4E8EF;border-radius:6px;font-size:12.5px;background:white;outline:none;font-family:monospace" />
-        <button type="button" data-tax-remove="${type}-${i}" style="background:none;border:none;color:#C13808;font-size:18px;cursor:pointer;padding:0 8px;line-height:1">×</button>
+        <button type="button" data-tax-remove="${type}-${i}" style="background:none;border:none;color:#12315F;font-size:18px;cursor:pointer;padding:0 8px;line-height:1">×</button>
       </div>
     `).join('');
   }
@@ -1498,7 +1498,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
         <div data-dose-row="${escapeHtml(p.id)}" style="background:white;border:1px solid #E5E8EF;border-radius:10px;padding:14px 16px;${cfg.enabled ? '' : 'opacity:0.7'}">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:${cfg.enabled ? '12px' : '0'}">
             <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;flex:1">
-              <input type="checkbox" data-dose-enabled="${escapeHtml(p.id)}" ${checked} style="width:18px;height:18px;accent-color:#EC4815" />
+              <input type="checkbox" data-dose-enabled="${escapeHtml(p.id)}" ${checked} style="width:18px;height:18px;accent-color:#1E4C8F" />
               <img src="${escapeHtml(p.image || 'assets/img/brand/icon.png')}" alt="" style="width:42px;height:42px;border-radius:6px;object-fit:contain;background:#F4F5F8;border:1px solid #EEF0F4;padding:3px" />
               <div style="flex:1">
                 <div style="font-weight:600;font-size:13.5px;color:#15191F">${escapeHtml(p.name)}</div>

@@ -5,6 +5,7 @@ const cors      = require('cors');
 const rateLimit = require('express-rate-limit');
 
 const leadsRouter    = require('./routes/leads');
+const chatRouter     = require('./routes/chat');
 
 const PORT = process.env.PORT || 3000;
 
@@ -43,6 +44,19 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/leads', leadsLimiter, leadsRouter);
+
+/* Chat: limite mais alto que leads (é uma conversa, não um formulário), mas
+   ainda apertado — cada mensagem custa tokens, então a rota é um alvo óbvio
+   para abuso se ficar aberta. */
+const chatLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas mensagens seguidas. Aguarde um momento e tente de novo.' }
+});
+
+app.use('/api/chat', chatLimiter, chatRouter);
 /* Checkout e pagamento migraram para o Shopify (checkout hospedado).
    As rotas Pagar.me (checkout/webhook) foram removidas. */
 

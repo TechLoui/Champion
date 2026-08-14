@@ -35,7 +35,7 @@ function esc(str) {
 
 function buildEmailHtml(lead) {
   const row = (label, value) =>
-    value ? `<tr><td style="padding:6px 0;color:#687080;font-size:13px;min-width:90px;">${label}</td><td style="padding:6px 0;font-size:13px;color:#15191F;">${value}</td></tr>` : '';
+    value ? `<tr><td style="padding:6px 0;color:#64738C;font-size:13px;min-width:90px;">${label}</td><td style="padding:6px 0;font-size:13px;color:#131F35;">${value}</td></tr>` : '';
 
   const name    = esc(lead.name);
   const email   = esc(lead.email);
@@ -51,7 +51,7 @@ function buildEmailHtml(lead) {
     <tr><td align="center">
       <table width="560" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:14px;overflow:hidden;border:1px solid #E5E8EF;">
         <tr>
-          <td style="background:linear-gradient(135deg,#EC4815,#C13808);padding:24px 32px;">
+          <td style="background:linear-gradient(135deg,#2F6BC4,#12315F);padding:24px 32px;">
             <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,.65);">Champion Saúde Animal</p>
             <h1 style="margin:6px 0 0;font-size:22px;font-weight:800;color:#fff;">Novo contato recebido</h1>
           </td>
@@ -60,20 +60,20 @@ function buildEmailHtml(lead) {
           <td style="padding:28px 32px;">
             <table width="100%" cellpadding="0" cellspacing="0">
               ${row('Nome', name)}
-              ${row('E-mail', email ? `<a href="mailto:${email}" style="color:#EC4815;">${email}</a>` : '')}
+              ${row('E-mail', email ? `<a href="mailto:${email}" style="color:#1E4C8F;">${email}</a>` : '')}
               ${row('Telefone', phone)}
               ${row('Origem', source)}
             </table>
             ${message ? `
             <div style="margin-top:20px;padding:16px;background:#F9FAFB;border-radius:10px;border:1px solid #E5E8EF;">
               <p style="margin:0 0 6px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#9EA6B4;">Mensagem</p>
-              <p style="margin:0;font-size:14px;color:#15191F;line-height:1.6;">${message}</p>
+              <p style="margin:0;font-size:14px;color:#131F35;line-height:1.6;">${message}</p>
             </div>` : ''}
             <div style="margin-top:24px;">
-              <a href="https://champion.ind.br/admin.html" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#EC4815,#C13808);color:#fff;font-weight:700;font-size:14px;border-radius:8px;text-decoration:none;">
+              <a href="https://champion.ind.br/admin.html" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#2F6BC4,#12315F);color:#fff;font-weight:700;font-size:14px;border-radius:8px;text-decoration:none;">
                 Abrir painel administrativo
               </a>
-              ${email ? `<a href="mailto:${email}?subject=Champion%20—%20Retorno%20de%20contato" style="display:inline-block;margin-left:10px;padding:12px 24px;background:#fff;color:#15191F;font-weight:600;font-size:14px;border-radius:8px;text-decoration:none;border:1.5px solid #E5E8EF;">Responder</a>` : ''}
+              ${email ? `<a href="mailto:${email}?subject=Champion%20—%20Retorno%20de%20contato" style="display:inline-block;margin-left:10px;padding:12px 24px;background:#fff;color:#131F35;font-weight:600;font-size:14px;border-radius:8px;text-decoration:none;border:1.5px solid #E5E8EF;">Responder</a>` : ''}
             </div>
           </td>
         </tr>
