@@ -1573,7 +1573,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
       } else {
         writeDoseConfig(doseConfigCache);
       }
-      setFeedback(feedback, 'Configuração salva. A página /calculo-dose já reflete os produtos selecionados.', 'success');
+      setFeedback(feedback, 'Configuração salva.', 'success');
       window.ChampionToast?.('Cálculo de dose salvo.');
     } catch (err) {
       setFeedback(feedback, friendlyAdminError(err));
