@@ -142,18 +142,51 @@ const definitions = [
    resposta HTTP como dado estruturado, não como texto. É por ali que a foto
    do produto chega ao widget — o modelo não consegue "desenhar" uma imagem
    escrevendo uma URL no meio da frase. */
+/* Formato do card. Um lugar só, usado tanto por mostrar_produtos quanto pela
+   rede de segurança em deepseek.js. */
+function paraCard(p) {
+  return {
+    handle: p.handle,
+    nome: p.nome,
+    resumo: p.resumo,
+    foto: p.foto,
+    url: p.url,
+    /* Lista completa: o card monta um slide por apresentação, com nome e
+       preço. Sem isso o cliente vê um preço só e não percebe que existe
+       embalagem maior — que é justamente onde o custo por dose cai. */
+    apresentacoes: p.apresentacoes
+  };
+}
+
+/* Guarda tudo que o agente consultou nesta mensagem. Se ele terminar falando
+   de um produto sem ter chamado mostrar_produtos, o deepseek.js usa esta
+   lista para exibir o card assim mesmo — ver `cardsPorMencao`. */
+function lembrar(coletor, produtos) {
+  if (!coletor) return;
+  produtos.forEach((p) => {
+    if (p && p.handle && !coletor.vistos.some((v) => v.handle === p.handle)) {
+      coletor.vistos.push(paraCard(p));
+    }
+  });
+}
+
 const executors = {
-  async buscar_produtos(args) {
+  async buscar_produtos(args, coletor) {
     const produtos = await shopify.buscarProdutos(args.termo, args.limite);
     if (!produtos.length) {
       return { produtos: [], aviso: 'Nenhum produto encontrado para esse termo.' };
     }
-    return { produtos };
+    lembrar(coletor, produtos);
+    return {
+      produtos,
+      instrucao: 'Para o cliente VER estes produtos, chame mostrar_produtos com os handles. Sem isso ele não vê nada.'
+    };
   },
 
-  async detalhes_produto(args) {
+  async detalhes_produto(args, coletor) {
     const produto = await shopify.detalhesProduto(args.handle);
     if (!produto) return { erro: 'Produto não encontrado com esse handle.' };
+    lembrar(coletor, [produto]);
     return { produto };
   },
 
@@ -173,21 +206,11 @@ const executors = {
     }
 
     if (coletor) {
+      lembrar(coletor, produtos);
       produtos.forEach((p) => {
         /* Evita repetir o mesmo card se o modelo chamar duas vezes. */
         if (!coletor.cards.some((c) => c.handle === p.handle)) {
-          coletor.cards.push({
-            handle: p.handle,
-            nome: p.nome,
-            resumo: p.resumo,
-            foto: p.foto,
-            url: p.url,
-            /* Lista completa: o card monta um slide por apresentação, com
-               nome e preço. Sem isso o cliente vê um preço só e não percebe
-               que existe embalagem maior — que é justamente onde o custo por
-               dose cai e a venda cresce. */
-            apresentacoes: p.apresentacoes
-          });
+          coletor.cards.push(paraCard(p));
         }
       });
     }
@@ -229,4 +252,26 @@ async function execute(name, args, coletor) {
   }
 }
 
-module.exports = { definitions, execute };
+/**
+ * Rede de segurança para o modelo que fala de um produto mas esquece de
+ * chamar mostrar_produtos — o sintoma é "aí estão as três apresentações"
+ * seguido de nada na tela.
+ *
+ * Se a resposta final cita pelo nome um produto que ele consultou nesta
+ * mensagem, o card aparece assim mesmo. Determinístico: não depende de o
+ * modelo lembrar da regra.
+ */
+function cardsPorMencao(texto, vistos) {
+  const t = String(texto || '').toLowerCase();
+  if (!t || !Array.isArray(vistos)) return [];
+
+  return vistos
+    .filter((p) => {
+      const nome = String(p.nome || '').trim().toLowerCase();
+      /* Nomes muito curtos dariam falso positivo dentro de outra palavra. */
+      return nome.length >= 4 && t.includes(nome);
+    })
+    .slice(0, 4);
+}
+
+module.exports = { definitions, execute, cardsPorMencao };

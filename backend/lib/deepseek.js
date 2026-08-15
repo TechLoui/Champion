@@ -96,8 +96,11 @@ async function responder(historico, idiomaSite) {
 
   /* Canal lateral para dado estruturado. Cards de produto saem por aqui, não
      no texto — assim a foto chega ao widget como imagem de verdade em vez de
-     uma URL solta no meio da frase. */
-  const coletor = { cards: [] };
+     uma URL solta no meio da frase.
+
+     `vistos` guarda tudo que foi consultado; serve de rede de segurança para
+     quando o modelo fala do produto mas esquece de pedir o card. */
+  const coletor = { cards: [], vistos: [] };
 
   for (let i = 0; i < MAX_ITERACOES; i += 1) {
     const { message, usage } = await chamarModelo(messages);
@@ -111,9 +114,17 @@ async function responder(historico, idiomaSite) {
 
     const chamadas = message.tool_calls || [];
     if (!chamadas.length) {
+      const resposta = String(message.content || '').trim();
+
+      /* O modelo citou o produto e não pediu o card? Mostramos assim mesmo.
+         Sem isso o cliente lê "aí estão as três apresentações" e não vê nada. */
+      const cards = coletor.cards.length
+        ? coletor.cards
+        : tools.cardsPorMencao(resposta, coletor.vistos);
+
       return {
-        resposta: String(message.content || '').trim(),
-        cards: coletor.cards,
+        resposta,
+        cards,
         ferramentas: ferramentasUsadas,
         usage: usageTotal
       };

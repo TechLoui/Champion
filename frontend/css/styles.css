@@ -8155,3 +8155,21 @@ html.lang-ready .topbar .pill {
     transition: none !important;
   }
 }
+
+/* ---------------- Ajuste de leitura ----------------
+   Na captura do primeiro teste o texto ficou grande demais para a
+   largura do balão: pouca palavra por linha e a conversa empurrando o
+   campo de digitar para fora. Fonte e entrelinha um pouco menores
+   colocam mais contexto na tela sem apertar a leitura. */
+.chat-msg {
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px 14px;
+}
+.chat-msg strong { font-weight: 700; }
+.chat-msg em { font-style: italic; }
+
+@media (max-width: 560px) {
+  .chat-corpo { padding: 16px 12px; gap: 8px; }
+  .chat-msg { font-size: 14px; max-width: 86%; }
+}

@@ -176,13 +176,26 @@
       .replace(/'/g, '&#39;');
   }
 
+  /* O prompt pede formatação quase nenhuma, mas modelo de linguagem escorrega
+     em markdown de vez em quando. Renderizamos o básico em vez de deixar o
+     cliente ler "**Difly S3**" com os asteriscos à mostra.
+
+     Ordem importa: escapar primeiro (nada de HTML do modelo), depois links
+     (o regex para em "<", então não engole as tags que criamos), depois o
+     markdown, e por último as quebras de linha. */
   function formatar(texto) {
-    const seguro = escapar(texto);
-    /* Só http(s). Nada de javascript: ou data:. */
-    return seguro
+    return escapar(texto)
+      /* Só http(s). Nada de javascript: ou data:. */
       .replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]])/g, function (url) {
         return '<a href="' + url + '" target="_blank" rel="noopener nofollow">' + url + '</a>';
       })
+      /* Título vira uma linha em destaque — não temos hierarquia num balão. */
+      .replace(/^#{1,6}[ \t]+(.+)$/gm, '<strong>$1</strong>')
+      /* Marcador antes do itálico, senão "* item" viraria ênfase. */
+      .replace(/^[ \t]*[-*•][ \t]+/gm, '• ')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+      .replace(/(^|[\s(])\*([^*\n]+)\*(?=$|[\s.,;:!?)])/gm, '$1<em>$2</em>')
       .replace(/\n/g, '<br>');
   }
 
