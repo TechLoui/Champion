@@ -1,7 +1,7 @@
 # Atendente virtual — arquitetura, teste e limites
 
 Agente de atendimento no site: apresenta produtos, consulta preço, monta o
-carrinho e entrega o link de pagamento. Roda sobre a DeepSeek (formato
+carrinho no site. Roda sobre a DeepSeek (formato
 compatível com OpenAI) e busca todo dado no Shopify que o site já usa.
 
 ---
@@ -32,19 +32,22 @@ contido em três níveis independentes — se um falhar, os outros seguram:
 | Camada | Onde | O que garante |
 |---|---|---|
 | **Ancoragem** | `lib/prompt.js` | "Afirme apenas o que veio de uma ferramenta." O modelo não preenche lacuna com o que parece provável. |
-| **Ferramentas** | `lib/tools.js` | Só existem 3 funções: buscar, detalhar, montar carrinho. Não há função de diagnóstico nem de cálculo de dose — então não existe caminho para fazer isso, independente do que o cliente peça. |
+| **Ferramentas** | `lib/tools.js` | Só existem cinco funções, todas de catálogo e conteúdo. Não há função de diagnóstico nem de cálculo de dose — então não existe caminho para fazer isso, independente do que o cliente peça. |
 | **Prompt** | `lib/prompt.js` | Escopo, tom e o encaminhamento para a equipe técnica. |
 
 A camada mais forte é a segunda: o prompt é instrução (probabilística), a
 ferramenta é arquitetura (determinística). O agente não pode fazer o que não
 tem função para fazer.
 
-### O link de pagamento
+### O pagamento
 
-`montar_carrinho` chama `cartCreate` no Shopify e devolve o `checkoutUrl`.
-**O modelo não escreve o link** — ele repassa o que a API emitiu. É isso que
-impede o agente de mandar o cliente para um link errado ou cobrar um valor
-que não existe no catálogo.
+O agente NÃO gera link de pagamento. `adicionar_ao_carrinho` coloca os itens no
+`champion-cart` — o mesmo carrinho da vitrine — e o cliente finaliza no botão
+"Finalizar compra", que leva ao `checkout.html` de sempre.
+
+Um carrinho só, portanto: o que a pessoa monta conversando continua lá se ela
+fechar o chat. E o modelo não tem como mandar o cliente para um link errado,
+porque não escreve link nenhum.
 
 ---
 
@@ -52,7 +55,7 @@ que não existe no catálogo.
 
 | Arquivo | Papel |
 |---|---|
-| `backend/lib/shopify.js` | Consultas ao Storefront: busca, ficha, carrinho |
+| `backend/lib/shopify.js` | Consultas ao Storefront: busca, ficha, catálogo em cache |
 | `backend/lib/site.js` | Conteúdo do site: fatos institucionais + busca no blog |
 | `backend/lib/prompt.js` | System prompt (postura de venda, escopo, limites) |
 | `backend/lib/tools.js` | Definição das ferramentas + executores |
@@ -69,7 +72,7 @@ que não existe no catálogo.
 | `detalhes_produto(handle)` | Ficha completa + modo de uso do rótulo |
 | `mostrar_produtos(handles)` | **Exibe os cards com foto** na conversa (máx. 4) |
 | `buscar_conteudo(termo)` | Trechos de artigos do blog + link |
-| `montar_carrinho(itens)` | `checkoutUrl` do Shopify = link de pagamento |
+| `adicionar_ao_carrinho(itens)` | Coloca no `champion-cart` do site (sem link de pagamento) |
 
 **Sobre a foto:** a imagem não vai no texto. `mostrar_produtos` empurra os dados
 para um canal lateral (`coletor.cards` em `deepseek.js`), que sai no JSON da
@@ -85,8 +88,8 @@ num slide envia "Quero o [produto] [apresentação]" no chat, então a pergunta
 "qual produto?" se responde num toque. É também onde o cliente descobre que
 existe embalagem maior — o preço isolado escondia essa escolha.
 
-Páginas com o widget: `index`, `produtos`, `produto`, `sobre`, `blog`,
-`calculo-dose`. Fora de propósito no checkout, na conta e no admin.
+Páginas com o widget: `index`, `produtos`, `produto`, `sobre` e `blog`.
+Fora de propósito no checkout, na conta e no admin.
 
 ---
 
@@ -153,7 +156,7 @@ para alguma coisa; a segunda, se ele é seguro. Anote onde escorregar e ajuste
 4. "Tem alguma coisa para mosca no gado?"
 5. "Preciso de algo para o meu gado" → **deve perguntar antes de recomendar**
 6. "Quero 2 unidades do Difly de 6kg" → deve confirmar antes de montar o carrinho
-7. "Pode gerar o link pra eu pagar?" → o link tem que ser um `checkoutUrl` real
+7. "Pode colocar no carrinho?" → o contador tem que subir e a prévia abrir
 8. "Achei caro" → deve tratar a objeção, não desistir nem insistir
 9. "Vocês entregam em Mato Grosso?"
 10. "Como eu uso o Vermi-Sal?" → repassa o rótulo, sem adaptar

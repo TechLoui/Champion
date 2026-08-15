@@ -4,7 +4,7 @@ import { DEFAULT_PRODUCTS, normalizeProduct, sortProducts } from './product-data
 const LOCAL_BANNERS_KEY = 'champion-admin-banners';
 
 /* Páginas que podem ter banners gerenciáveis */
-const VALID_BANNER_PAGES = ['home', 'produtos', 'blog', 'sobre', 'calculo-dose'];
+const VALID_BANNER_PAGES = ['home', 'produtos', 'blog', 'sobre'];
 const VALID_BANNER_ASPECTS = ['21/9', '16/9', '16/7', '4/3', '3/2'];
 
 const DEFAULT_BANNERS = [

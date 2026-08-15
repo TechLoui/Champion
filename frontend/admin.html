@@ -2645,10 +2645,6 @@
       <!-- Categorias agora é gerenciada por um modal dentro do Catálogo,
            então o item do menu lateral foi removido para simplificar. -->
 
-      <button type="button" data-admin-tab="dose" aria-selected="false">
-        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
-        Cálculo de Dose
-      </button>
 
       <!-- Dropdown Relatórios -->
       <div class="ap-nav-group" id="reportsGroup">
@@ -3536,7 +3532,6 @@
             <option value="produtos">Produtos / Catálogo</option>
             <option value="blog">Blog</option>
             <option value="sobre">Quem somos</option>
-            <option value="calculo-dose">Cálculo de dose</option>
           </select>
         </div>
 
@@ -3571,7 +3566,6 @@
                     <option value="produtos">Produtos / Catálogo</option>
                     <option value="blog">Blog</option>
                     <option value="sobre">Quem somos</option>
-                    <option value="calculo-dose">Cálculo de dose</option>
                   </select>
                 </div>
                 <div class="ap-form-field">
@@ -3690,44 +3684,6 @@
       </section>
 
       <!-- ─── Cálculo de Dose ─── -->
-      <section data-admin-panel="dose" hidden>
-        <div class="ap-section-head">
-          <div>
-            <h2>Cálculo de Dose</h2>
-            <p>Defina quais produtos do catálogo aparecem na ferramenta e a fórmula de cálculo de cada um.</p>
-          </div>
-          <div class="ap-section-head-actions">
-            <button class="ap-btn ap-btn-primary" type="button" id="adminSaveDose">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
-              Salvar configuração
-            </button>
-          </div>
-        </div>
-
-        <div class="ap-feedback blog-admin-feedback" id="doseFeedback" aria-live="polite"></div>
-
-        <div class="dash-card">
-          <div class="dash-card-head">
-            <div>
-              <h3>Produtos disponíveis na ferramenta</h3>
-              <p>Marque os produtos cadastrados que devem aparecer no <a href="calculo-dose.html" target="_blank" style="color:#1E4C8F;font-weight:600">/calculo-dose</a> e configure a fórmula de cada um.</p>
-            </div>
-          </div>
-          <div id="doseProductList" style="display:flex;flex-direction:column;gap:12px"></div>
-        </div>
-
-        <div style="margin-top:18px;padding:16px;background:#EBF3FE;border:1px solid #BFDBFE;border-radius:10px;font-size:13px;color:#1E40AF">
-          <strong style="display:block;margin-bottom:8px">Como funciona a fórmula:</strong>
-          <p style="margin:0 0 6px 0">A fórmula é avaliada com as variáveis disponíveis. Use variáveis simples e operadores matemáticos:</p>
-          <ul style="margin:6px 0 0 18px;font-size:12.5px">
-            <li><code style="background:#fff;padding:2px 6px;border-radius:4px">peso</code> · peso médio do animal em kg</li>
-            <li><code style="background:#fff;padding:2px 6px;border-radius:4px">cabecas</code> · número de cabeças do rebanho</li>
-            <li><code style="background:#fff;padding:2px 6px;border-radius:4px">dias</code> · duração do tratamento em dias</li>
-            <li>Exemplo: <code style="background:#fff;padding:2px 6px;border-radius:4px">0.06 * cabecas * dias</code> (Difly: 60 mg por cabeça/dia)</li>
-            <li>Exemplo: <code style="background:#fff;padding:2px 6px;border-radius:4px">(275 / 25000) * (cabecas * 50)</code> (Vermi-Sal: 275 g por 25 kg de sal, 50 g/cab/dia)</li>
-          </ul>
-        </div>
-      </section>
 
       <!-- ─── Contatos ─── -->
       <section data-admin-panel="leads" hidden>

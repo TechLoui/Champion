@@ -32,7 +32,6 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
     if (path.includes('produtos')) return 'produtos';
     if (path.includes('blog')) return 'blog';
     if (path.includes('sobre')) return 'sobre';
-    if (path.includes('calculo-dose')) return 'calculo-dose';
     return null;
   }
 

@@ -34,9 +34,8 @@ Empresa genuinamente brasileira de saúde e nutrição animal, com mais de 67 an
 
 **Revenda:** quem quer revender Champion acessa revendachampion.com.br ou fala com o comercial pelo WhatsApp.
 
-**Ferramentas do site que você pode indicar:**
-- Calculadora de dose (calculo-dose.html) — calcula quanto produto o rebanho consome por peso e número de cabeças, a partir do rótulo.
-- Blog — conteúdo técnico sobre mineralização, manejo e sanidade.
+**Conteúdo do site que você pode indicar:**
+- Blog — material técnico sobre mineralização, manejo e sanidade.
 
 **Compra:** pelo site, com pagamento no checkout do Shopify (Pix, boleto ou cartão). Frete grátis acima de R$ 500. Entrega para todo o Brasil.`;
 

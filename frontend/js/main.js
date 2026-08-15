@@ -284,7 +284,6 @@
       about: 'Sobre a Champion',
       blog: 'Blog',
       store: 'Revenda',
-      dose: 'Cálculo de dose',
       promo: 'FRETE GRÁTIS para pedidos acima de R$ 500',
       search: 'Buscar',
       account: 'Conta',
@@ -302,7 +301,6 @@
       about: 'About Champion',
       blog: 'Blog',
       store: 'Resellers',
-      dose: 'Dose Calculator',
       promo: 'FREE SHIPPING on orders over R$ 500',
       search: 'Search',
       account: 'Account',
@@ -320,7 +318,6 @@
       about: 'Sobre Champion',
       blog: 'Blog',
       store: 'Distribuidores',
-      dose: 'Cálculo de dosis',
       promo: 'ENVÍO GRATIS en pedidos superiores a R$ 500',
       search: 'Buscar',
       account: 'Cuenta',
@@ -388,7 +385,6 @@
     setTextByHref('sobre.html', copy.about);
     setTextByHref('blog.html', copy.blog);
     setTextByHref('revendachampion.com.br', copy.store);
-    setTextByHref('calculo-dose.html', copy.dose);
 
     const promo = document.querySelector('.topbar .pill');
     if (promo) promo.textContent = copy.promo;

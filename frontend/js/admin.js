@@ -403,7 +403,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
 
   const PAGE_LABELS = {
     home: 'Página Inicial', produtos: 'Produtos', blog: 'Blog',
-    sobre: 'Quem Somos', 'calculo-dose': 'Cálculo de Dose'
+    sobre: 'Quem Somos'
   };
 
   function openBannerDrawer(title, subtitle) {
