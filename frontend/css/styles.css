@@ -8478,3 +8478,200 @@ body.chat-modal-aberto { overflow: hidden; }
     animation: none !important;
   }
 }
+
+/* ---------------- Botão de carrinho no chat ----------------
+   Ao lado do enviar. O contador é o mesmo do carrinho do site: o chat
+   não tem carrinho próprio, ele escreve no champion-cart. */
+.chat-cart-btn {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.chat-cart-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-tint);
+}
+.chat-cart-btn svg { width: 18px; height: 18px; }
+
+.chat-cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--red);
+  color: white;
+  border: 2px solid white;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 14px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------- Prévia do carrinho ----------------
+   Entre a conversa e o campo de digitar, como o seletor de quantidade.
+   Não é um segundo carrinho: lê e escreve o mesmo champion-cart que a
+   vitrine usa, então o que entra aqui já está lá no checkout. */
+.chat-carrinho {
+  flex-shrink: 0;
+  border-top: 1px solid var(--line);
+  background: white;
+  display: grid;
+  animation: chatIn 0.22s var(--ease);
+}
+.chat-carrinho-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px 8px;
+}
+.chat-carrinho-head strong {
+  font-family: var(--f-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.chat-carrinho-x {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.chat-carrinho-x:hover { background: rgba(22,41,77,0.07); color: var(--ink); }
+.chat-carrinho-x svg { width: 14px; height: 14px; }
+
+.chat-carrinho-itens {
+  max-height: 168px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 12px;
+  display: grid;
+  gap: 2px;
+}
+.chat-carrinho-vazio {
+  margin: 4px 0 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.chat-carrinho-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+.chat-carrinho-item:last-child { border-bottom: 0; }
+.chat-ci-qtd {
+  flex-shrink: 0;
+  min-width: 26px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--blue);
+  font-variant-numeric: tabular-nums;
+}
+.chat-ci-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-ci-preco {
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.chat-ci-x {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--mist);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.chat-ci-x:hover { background: rgba(216,53,42,0.1); color: var(--red); }
+.chat-ci-x svg { width: 12px; height: 12px; }
+
+.chat-carrinho-pe {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+}
+.chat-carrinho-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--muted);
+}
+.chat-carrinho-total strong {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+.chat-carrinho-ok {
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue-soft) 0%, var(--blue) 55%, var(--blue-deep) 100%);
+  color: white;
+  font-family: var(--f-body);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.chat-carrinho-ok:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px -8px rgba(30,76,143,0.65);
+}
+
+@media (max-width: 560px) {
+  .chat-carrinho-itens { max-height: 140px; }
+  .chat-cart-btn { width: 40px; height: 40px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-carrinho, .chat-carrinho-ok, .chat-cart-btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}

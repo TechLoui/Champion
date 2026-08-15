@@ -58,7 +58,13 @@
       mais: 'Aumentar quantidade',
       pedido: 'Quero {n} {u} do {p}',
       unidade: 'unidade',
-      unidades: 'unidades'
+      unidades: 'unidades',
+      carrinho: 'Seu carrinho',
+      carrinhoVazio: 'Carrinho vazio. Escolha um produto que eu adiciono aqui.',
+      total: 'Total',
+      finalizar: 'Finalizar compra',
+      remover: 'Remover',
+      verCarrinho: 'Ver carrinho'
     },
     en: {
       titulo: 'Champion Support',
@@ -87,7 +93,13 @@
       mais: 'Increase quantity',
       pedido: 'I want {n} {u} of {p}',
       unidade: 'unit',
-      unidades: 'units'
+      unidades: 'units',
+      carrinho: 'Your cart',
+      carrinhoVazio: 'Cart is empty. Pick a product and I will add it here.',
+      total: 'Total',
+      finalizar: 'Checkout',
+      remover: 'Remove',
+      verCarrinho: 'View cart'
     },
     es: {
       titulo: 'Atención Champion',
@@ -116,7 +128,13 @@
       mais: 'Aumentar cantidad',
       pedido: 'Quiero {n} {u} de {p}',
       unidade: 'unidad',
-      unidades: 'unidades'
+      unidades: 'unidades',
+      carrinho: 'Tu carrito',
+      carrinhoVazio: 'Carrito vacío. Elige un producto y lo agrego aquí.',
+      total: 'Total',
+      finalizar: 'Finalizar compra',
+      remover: 'Quitar',
+      verCarrinho: 'Ver carrito'
     }
   };
 
@@ -157,6 +175,13 @@
     els.qtdMenos.setAttribute('aria-label', t('menos'));
     els.qtdMais.setAttribute('aria-label', t('mais'));
     els.qtdCancelar.setAttribute('aria-label', t('cancelar'));
+    els.cartBtn.setAttribute('aria-label', t('verCarrinho'));
+    els.carrinhoFechar.setAttribute('aria-label', t('fechar'));
+    if (carrinhoVisivel()) {
+      els.carrinhoTitulo.textContent = t('carrinho');
+      els.finalizar.textContent = t('finalizar');
+      renderCarrinho();
+    }
   }
 
   /* ── Sessão ────────────────────────────────────────────── */
@@ -421,6 +446,11 @@
     els.qtdCancelar.onclick = fecharQuantidade;
     els.qtdOk.onclick = function () {
       fecharQuantidade();
+      /* Entra no carrinho do site na hora — a pessoa vê o contador subir sem
+         precisar esperar a resposta do agente. E avisa o agente por texto,
+         para ele saber o que foi escolhido e seguir o atendimento. */
+      adicionarAoCarrinho(produto, apresentacao, qtd);
+      atualizarBadge();
       enviar(frasePedido(qtd, produto.nome, apr));
     };
 
@@ -430,6 +460,117 @@
 
   function fecharQuantidade() {
     if (els.qtdBarra) els.qtdBarra.hidden = true;
+  }
+
+  /* ── Carrinho do site ──────────────────────────────────── */
+
+  /* O chat NÃO tem carrinho próprio. Ele escreve e lê o carrinho do site
+     (window.ChampionCart, localStorage 'champion-cart'), o mesmo que a
+     vitrine e a página de produto usam. Assim o que a pessoa monta
+     conversando já está lá quando ela fecha o chat e vai para o checkout —
+     e não existem dois estados para sincronizar. */
+  function carrinhoDisponivel() {
+    return Boolean(window.ChampionCart && typeof window.ChampionCart.add === 'function');
+  }
+
+  function moeda(n) {
+    const v = Number(n);
+    if (!Number.isFinite(v)) return '';
+    try {
+      return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    } catch (e) {
+      return 'R$ ' + v.toFixed(2);
+    }
+  }
+
+  function adicionarAoCarrinho(produto, apresentacao, qtd) {
+    if (!carrinhoDisponivel()) return false;
+
+    const apr = apresentacao.apresentacao || '';
+    const vid = apresentacao.variantId || '';
+
+    try {
+      window.ChampionCart.add({
+        /* Mesma convenção de id da vitrine (`produto|variante`), senão o
+           mesmo item entraria duas vezes no carrinho. */
+        id: vid ? produto.handle + '|' + vid : produto.handle,
+        name: produto.nome + (apr && apr !== 'Padrão' ? ' · ' + apr : ''),
+        price: Number(apresentacao.precoNum) || 0,
+        qty: qtd,
+        image: produto.foto || '',
+        art: String(produto.nome || '?').charAt(0),
+        variantId: vid
+      }, { open: false });   /* sem abrir a gaveta: a conversa continua aqui */
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function atualizarBadge() {
+    if (!els.cartBadge) return;
+    const n = carrinhoDisponivel() ? window.ChampionCart.count() : 0;
+    els.cartBadge.textContent = String(n);
+    els.cartBadge.hidden = n <= 0;
+    els.cartBtn.hidden = !carrinhoDisponivel();
+  }
+
+  function renderCarrinho() {
+    if (!els.carrinhoItens) return;
+
+    const itens = carrinhoDisponivel() ? window.ChampionCart.items() : [];
+    els.carrinhoItens.innerHTML = '';
+
+    if (!itens.length) {
+      const vazio = document.createElement('p');
+      vazio.className = 'chat-carrinho-vazio';
+      vazio.textContent = t('carrinhoVazio');
+      els.carrinhoItens.appendChild(vazio);
+      els.carrinhoPe.hidden = true;
+      return;
+    }
+
+    itens.forEach(function (i) {
+      const linha = document.createElement('div');
+      linha.className = 'chat-carrinho-item';
+      linha.innerHTML =
+        '<span class="chat-ci-qtd"></span>' +
+        '<span class="chat-ci-nome"></span>' +
+        '<span class="chat-ci-preco"></span>' +
+        '<button type="button" class="chat-ci-x" aria-label="' + escapar(t('remover')) + '">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</button>';
+
+      linha.querySelector('.chat-ci-qtd').textContent = i.qty + '×';
+      linha.querySelector('.chat-ci-nome').textContent = i.name || '';
+      linha.querySelector('.chat-ci-preco').textContent = moeda((Number(i.price) || 0) * (i.qty || 1));
+      linha.querySelector('.chat-ci-x').addEventListener('click', function () {
+        if (carrinhoDisponivel()) window.ChampionCart.remove(i.id);
+        renderCarrinho();
+      });
+
+      els.carrinhoItens.appendChild(linha);
+    });
+
+    els.carrinhoPe.hidden = false;
+    els.totalRotulo.textContent = t('total');
+    els.totalValor.textContent = moeda(window.ChampionCart.total());
+  }
+
+  function abrirCarrinho() {
+    fecharQuantidade();
+    els.carrinhoTitulo.textContent = t('carrinho');
+    els.finalizar.textContent = t('finalizar');
+    renderCarrinho();
+    els.carrinho.hidden = false;
+  }
+
+  function fecharCarrinho() {
+    if (els.carrinho) els.carrinho.hidden = true;
+  }
+
+  function carrinhoVisivel() {
+    return Boolean(els.carrinho && !els.carrinho.hidden);
   }
 
   /* "Quero 3 unidades do DIFLY S3 6 kg" — texto normal, porque quem interpreta
@@ -774,6 +915,7 @@
     pararTicker();
     fecharModal();
     fecharQuantidade();
+    fecharCarrinho();
     els.painel.classList.remove('is-open');
     els.fab.setAttribute('aria-expanded', 'false');
     els.fab.setAttribute('aria-label', t('abrir'));
@@ -826,8 +968,25 @@
       '      </button>',
       '    </div>',
       '  </div>',
+      '  <div class="chat-carrinho" id="chatCarrinho" hidden>',
+      '    <div class="chat-carrinho-head">',
+      '      <strong id="chatCarrinhoTitulo"></strong>',
+      '      <button type="button" class="chat-carrinho-x" id="chatCarrinhoFechar">',
+      '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      '      </button>',
+      '    </div>',
+      '    <div class="chat-carrinho-itens" id="chatCarrinhoItens"></div>',
+      '    <div class="chat-carrinho-pe" id="chatCarrinhoPe">',
+      '      <div class="chat-carrinho-total"><span id="chatTotalRotulo"></span><strong id="chatTotalValor"></strong></div>',
+      '      <button type="button" class="chat-carrinho-ok" id="chatFinalizar"></button>',
+      '    </div>',
+      '  </div>',
       '  <form class="chat-form" id="chatForm">',
       '    <textarea id="chatInput" rows="1" maxlength="1500"></textarea>',
+      '    <button type="button" class="chat-cart-btn" id="chatCartBtn">',
+      '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
+      '      <span class="chat-cart-badge" id="chatCartBadge" hidden>0</span>',
+      '    </button>',
       '    <button type="submit" id="chatEnviar">',
       '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
       '    </button>',
@@ -856,7 +1015,17 @@
       qtdMenos: document.getElementById('chatQtdMenos'),
       qtdMais: document.getElementById('chatQtdMais'),
       qtdOk: document.getElementById('chatQtdOk'),
-      qtdCancelar: document.getElementById('chatQtdCancelar')
+      qtdCancelar: document.getElementById('chatQtdCancelar'),
+      cartBtn: document.getElementById('chatCartBtn'),
+      cartBadge: document.getElementById('chatCartBadge'),
+      carrinho: document.getElementById('chatCarrinho'),
+      carrinhoTitulo: document.getElementById('chatCarrinhoTitulo'),
+      carrinhoItens: document.getElementById('chatCarrinhoItens'),
+      carrinhoFechar: document.getElementById('chatCarrinhoFechar'),
+      carrinhoPe: document.getElementById('chatCarrinhoPe'),
+      totalRotulo: document.getElementById('chatTotalRotulo'),
+      totalValor: document.getElementById('chatTotalValor'),
+      finalizar: document.getElementById('chatFinalizar')
     };
 
     historico = carregarHistorico();
@@ -864,6 +1033,23 @@
 
     els.fab.addEventListener('click', function () { aberto ? fechar() : abrir(); });
     els.fechar.addEventListener('click', fechar);
+
+    els.cartBtn.addEventListener('click', function () {
+      carrinhoVisivel() ? fecharCarrinho() : abrirCarrinho();
+    });
+    els.carrinhoFechar.addEventListener('click', fecharCarrinho);
+    els.finalizar.addEventListener('click', function () {
+      if (carrinhoDisponivel()) window.ChampionCart.checkout();
+    });
+
+    /* O carrinho pode mudar fora do chat (a pessoa adiciona pela vitrine numa
+       outra aba do mesmo site, ou pelo card de produto). O main.js dispara
+       este evento a cada save. */
+    document.addEventListener('champion:cart', function () {
+      atualizarBadge();
+      if (carrinhoVisivel()) renderCarrinho();
+    });
+    atualizarBadge();
 
     els.form.addEventListener('submit', function (ev) {
       ev.preventDefault();
@@ -890,6 +1076,7 @@
     document.addEventListener('keydown', function (ev) {
       if (ev.key !== 'Escape') return;
       if (modalAberto()) { fecharModal(); return; }
+      if (carrinhoVisivel()) { fecharCarrinho(); return; }
       if (els.qtdBarra && !els.qtdBarra.hidden) { fecharQuantidade(); return; }
       if (aberto) fechar();
     });

@@ -69,12 +69,18 @@ function brl(amount) {
 /* Achata um produto do Shopify no mínimo que o agente precisa dizer ao cliente.
    Menos campo = menos token e menos chance de o modelo se perder. */
 function mapProduct(node) {
-  const variants = ((node.variants && node.variants.nodes) || []).map((v) => ({
-    variantId: v.id,
-    apresentacao: v.title === 'Default Title' ? 'Padrão' : v.title,
-    preco: brl(v.price && v.price.amount),
-    disponivel: Boolean(v.availableForSale)
-  }));
+  const variants = ((node.variants && node.variants.nodes) || []).map((v) => {
+    const bruto = Number(v.price && v.price.amount);
+    return {
+      variantId: v.id,
+      apresentacao: v.title === 'Default Title' ? 'Padrão' : v.title,
+      preco: brl(bruto),
+      /* Numérico além do formatado: o widget precisa dele para somar no
+         carrinho do site, que guarda preço como número. */
+      precoNum: Number.isFinite(bruto) ? bruto : null,
+      disponivel: Boolean(v.availableForSale)
+    };
+  });
 
   return {
     handle: node.handle,

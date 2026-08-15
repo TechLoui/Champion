@@ -945,7 +945,17 @@
       try { this.items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
       catch { this.items = []; }
     },
-    save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items)); },
+    save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.items));
+      /* Avisa quem mais desenha o carrinho na tela — hoje o widget do chat.
+         Evento em vez de callback registrado para não acoplar os dois: o
+         chat pode não existir na página, e o carrinho não precisa saber. */
+      try {
+        document.dispatchEvent(new CustomEvent('champion:cart', {
+          detail: { count: this.count(), total: this.total() }
+        }));
+      } catch (e) { /* CustomEvent indisponível — carrinho segue normal */ }
+    },
     add(item, options = {}) {
       const existing = this.items.find(i => i.id === item.id);
       if (existing) existing.qty += item.qty || 1;
@@ -2727,7 +2737,15 @@
   window.ChampionCart = {
     add: (item, options) => Cart.add(item, options),
     open: () => Cart.open(),
-    close: () => Cart.close()
+    close: () => Cart.close(),
+    /* Leitura para quem quiser mostrar o carrinho em outro lugar (o widget
+       do chat). Cópia dos itens: quem lê não deve conseguir mutar o estado. */
+    items: () => Cart.items.map((i) => Object.assign({}, i)),
+    count: () => Cart.count(),
+    total: () => Cart.total(),
+    setQty: (id, q) => Cart.setQty(id, q),
+    remove: (id) => Cart.remove(id),
+    checkout: () => { window.location.href = 'checkout.html'; }
   };
   window.ChampionToast = showToast;
 
