@@ -118,9 +118,7 @@ async function responder(historico, idiomaSite) {
 
       /* O modelo citou o produto e não pediu o card? Mostramos assim mesmo.
          Sem isso o cliente lê "aí estão as três apresentações" e não vê nada. */
-      const cards = coletor.cards.length
-        ? coletor.cards
-        : tools.cardsPorMencao(resposta, coletor.vistos);
+      const cards = await tools.resolverCards(resposta, coletor);
 
       return {
         resposta,

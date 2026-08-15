@@ -323,4 +323,30 @@ function normalizar(v) {
     .trim();
 }
 
-module.exports = { definitions, execute, cardsPorMencao };
+/**
+ * Decide quais cards vão para a tela ao fim de uma mensagem.
+ *
+ * Três degraus, do mais confiável ao mais tolerante:
+ *  1. O que o agente pediu explicitamente com mostrar_produtos.
+ *  2. O que ele consultou nesta mensagem e citou pelo nome.
+ *  3. Qualquer produto do catálogo citado pelo nome — cobre o caso em que
+ *     ele responde de cabeça, com o que já sabia de mensagens anteriores,
+ *     sem chamar ferramenta nenhuma. Era exatamente o que acontecia quando
+ *     o cliente pedia "quero ver os produtos" no meio da conversa.
+ */
+async function resolverCards(texto, coletor) {
+  if (coletor.cards.length) return coletor.cards;
+
+  const doTurno = cardsPorMencao(texto, coletor.vistos);
+  if (doTurno.length) return doTurno;
+
+  try {
+    const todos = await shopify.catalogo();
+    return cardsPorMencao(texto, todos.map(paraCard));
+  } catch (err) {
+    console.error('[chat] resolverCards falhou:', err.message);
+    return [];
+  }
+}
+
+module.exports = { definitions, execute, cardsPorMencao, resolverCards };

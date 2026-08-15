@@ -219,4 +219,46 @@ async function montarCarrinho(itens) {
   };
 }
 
-module.exports = { isConfigured, buscarProdutos, detalhesProduto, montarCarrinho };
+/**
+ * Catálogo inteiro, em cache na memória do processo.
+ *
+ * Existe para a rede de segurança dos cards: quando o agente cita um produto
+ * numa mensagem em que não chamou ferramenta nenhuma (porque já sabia do
+ * histórico da conversa), não há o que comparar. Com o catálogo em mãos dá
+ * para reconhecer o nome no texto e mostrar o card assim mesmo.
+ *
+ * TTL curto o bastante para preço novo aparecer no mesmo dia, longo o
+ * bastante para não bater no Shopify a cada mensagem.
+ */
+const CATALOGO_TTL = 10 * 60 * 1000;
+let _catalogo = { em: 0, produtos: [] };
+
+async function catalogo() {
+  if (_catalogo.produtos.length && Date.now() - _catalogo.em < CATALOGO_TTL) {
+    return _catalogo.produtos;
+  }
+
+  const query = `
+    query ChampionCatalogo($first: Int!) {
+      products(first: $first, sortKey: TITLE) {
+        nodes {
+          ${PRODUCT_FIELDS}
+          ${metafieldFragment()}
+        }
+      }
+    }
+  `;
+
+  try {
+    const data = await gql(query, { first: 100 });
+    const produtos = ((data.products && data.products.nodes) || []).map(mapProduct);
+    if (produtos.length) _catalogo = { em: Date.now(), produtos };
+    return produtos;
+  } catch (err) {
+    console.error('[chat] catalogo falhou:', err.message);
+    /* Devolve o cache velho, se houver — melhor desatualizado que vazio. */
+    return _catalogo.produtos;
+  }
+}
+
+module.exports = { isConfigured, buscarProdutos, detalhesProduto, montarCarrinho, catalogo };
