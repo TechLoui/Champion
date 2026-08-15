@@ -47,10 +47,18 @@
       erroRede: 'Não consegui me conectar. Verifique sua internet ou chame a gente no WhatsApp.',
       erroGenerico: 'Não consegui responder agora. Tente novamente em instantes.',
       digitando: 'Digitando',
-      verProduto: 'Ver produto',
-      quero: 'Quero o',
-      aPartirDe: 'a partir de',
-      apresentacoes: 'apresentações'
+      verDetalhes: 'Ver detalhes',
+      verVariacoes: 'Ver variações',
+      verFoto: 'Ver foto',
+      escolher: 'Escolher',
+      esgotado: 'Esgotado',
+      adicionar: 'Adicionar',
+      cancelar: 'Cancelar',
+      menos: 'Diminuir quantidade',
+      mais: 'Aumentar quantidade',
+      pedido: 'Quero {n} {u} do {p}',
+      unidade: 'unidade',
+      unidades: 'unidades'
     },
     en: {
       titulo: 'Champion Support',
@@ -68,10 +76,18 @@
       erroRede: "I couldn't connect. Check your internet or reach us on WhatsApp.",
       erroGenerico: "I couldn't respond right now. Please try again in a moment.",
       digitando: 'Typing',
-      verProduto: 'View product',
-      quero: 'I want the',
-      aPartirDe: 'from',
-      apresentacoes: 'sizes'
+      verDetalhes: 'View details',
+      verVariacoes: 'View sizes',
+      verFoto: 'View photo',
+      escolher: 'Choose',
+      esgotado: 'Sold out',
+      adicionar: 'Add',
+      cancelar: 'Cancel',
+      menos: 'Decrease quantity',
+      mais: 'Increase quantity',
+      pedido: 'I want {n} {u} of {p}',
+      unidade: 'unit',
+      unidades: 'units'
     },
     es: {
       titulo: 'Atención Champion',
@@ -89,10 +105,18 @@
       erroRede: 'No pude conectarme. Revisa tu internet o escríbenos por WhatsApp.',
       erroGenerico: 'No pude responder ahora. Inténtalo de nuevo en un momento.',
       digitando: 'Escribiendo',
-      verProduto: 'Ver producto',
-      quero: 'Quiero el',
-      aPartirDe: 'desde',
-      apresentacoes: 'presentaciones'
+      verDetalhes: 'Ver detalles',
+      verVariacoes: 'Ver presentaciones',
+      verFoto: 'Ver foto',
+      escolher: 'Elegir',
+      esgotado: 'Agotado',
+      adicionar: 'Añadir',
+      cancelar: 'Cancelar',
+      menos: 'Disminuir cantidad',
+      mais: 'Aumentar cantidad',
+      pedido: 'Quiero {n} {u} de {p}',
+      unidade: 'unidad',
+      unidades: 'unidades'
     }
   };
 
@@ -129,6 +153,10 @@
     els.aviso.textContent = t('aviso');
     els.painel.setAttribute('aria-label', t('titulo'));
     els.fab.setAttribute('aria-label', aberto ? t('fechar') : t('abrir'));
+    els.qtdOk.textContent = t('adicionar');
+    els.qtdMenos.setAttribute('aria-label', t('menos'));
+    els.qtdMais.setAttribute('aria-label', t('mais'));
+    els.qtdCancelar.setAttribute('aria-label', t('cancelar'));
   }
 
   /* ── Sessão ────────────────────────────────────────────── */
@@ -199,8 +227,20 @@
       .replace(/\n/g, '<br>');
   }
 
-  function rolarFim() {
-    els.corpo.scrollTop = els.corpo.scrollHeight;
+  /* Perto do fim = o cliente está acompanhando a conversa. Se ele rolou para
+     cima para reler algo, não arrastamos a tela dele à força. */
+  function noFim() {
+    return els.corpo.scrollHeight - els.corpo.scrollTop - els.corpo.clientHeight < 90;
+  }
+
+  /* O scroll vai depois do próximo quadro: logo após um appendChild o layout
+     ainda não foi recalculado, e scrollHeight vem com o valor antigo — era o
+     que fazia o card parecer travado no lugar enquanto a conversa seguia. */
+  function rolarFim(forcar) {
+    if (!forcar && !noFim()) return;
+    requestAnimationFrame(function () {
+      els.corpo.scrollTop = els.corpo.scrollHeight;
+    });
   }
 
   function addBolha(papel, texto) {
@@ -217,7 +257,9 @@
 
     div.innerHTML = formatar(texto);
     els.corpo.appendChild(div);
-    rolarFim();
+    /* Mensagem nova sempre puxa a tela: quem acabou de escrever quer ver o
+       que veio. */
+    rolarFim(true);
     return div;
   }
 
@@ -276,7 +318,7 @@
           const preco = escapar(a.preco || '');
           partes.push(
             '<button type="button" class="chat-slide' + (i === 0 ? ' is-active' : '') + '"' +
-            ' data-pedido="' + escapar(p.nome + ' ' + (a.apresentacao || '')) + '"' +
+            ' data-i="' + i + '"' +
             ' tabindex="' + (i === 0 ? '0' : '-1') + '">' +
             (aprs.length > 1 ? '<span class="chat-slide-nome">' + rotulo + '</span>' : '') +
             '<span class="chat-slide-preco">' + preco + '</span>' +
@@ -297,21 +339,29 @@
         }
       }
 
+      /* Duas ações: a janela ampliada (foto grande + todas as variações de
+         uma vez) e a página completa do produto no site. */
+      partes.push('<div class="chat-card-acoes">');
+      partes.push(
+        '<button type="button" class="chat-card-cta chat-card-vars">' +
+        escapar(aprs.length > 1 ? t('verVariacoes') : t('verFoto')) + '</button>'
+      );
       if (link) {
         partes.push(
-          '<a class="chat-card-cta" href="' + link + '" target="_blank" rel="noopener">' +
-          escapar(t('verProduto')) + '</a>'
+          '<a class="chat-card-link" href="' + link + '" target="_blank" rel="noopener">' +
+          escapar(t('verDetalhes')) + '</a>'
         );
       }
+      partes.push('</div>');
 
       partes.push('</div>');
       card.innerHTML = partes.join('');
 
-      /* Tocar numa apresentação responde a pergunta "qual produto?" num toque,
-         em vez de obrigar o cliente a digitar o nome e a embalagem. */
+      /* Tocar numa apresentação abre o seletor de quantidade — não manda o
+         pedido direto, porque quantidade é decisão do cliente. */
       card.querySelectorAll('.chat-slide').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          enviar(t('quero') + ' ' + btn.dataset.pedido);
+          pedirQuantidade(p, aprs[Number(btn.dataset.i) || 0]);
         });
       });
 
@@ -321,11 +371,205 @@
         });
       });
 
+      /* Closure com o produto: nada de serializar objeto em atributo. */
+      card.querySelector('.chat-card-vars').addEventListener('click', function () {
+        abrirModal(p);
+      });
+
+      /* A foto entra depois do layout. Se o cliente estava acompanhando o fim
+         da conversa, reencosta no fim quando ela chega. */
+      const img = card.querySelector('.chat-card-foto img');
+      if (img) img.addEventListener('load', function () { rolarFim(); });
+
       grade.appendChild(card);
     });
 
     els.corpo.appendChild(grade);
-    rolarFim();
+    rolarFim(true);
+  }
+
+  /* ── Seletor de quantidade ─────────────────────────────── */
+
+  /* Aparece acima do campo de digitar depois que o cliente escolhe uma
+     apresentação. Fica fora do histórico de mensagens de propósito: é uma
+     ação pendente, não uma coisa que foi dita.
+
+     Só existe para o caminho do clique. Quem digita "quero 3 baldes de 6 kg"
+     não passa por aqui — o próprio agente entende e monta o carrinho. */
+  function pedirQuantidade(produto, apresentacao) {
+    if (!apresentacao) return;
+
+    const apr = apresentacao.apresentacao || '';
+    let qtd = 1;
+
+    els.qtdRotulo.textContent = (produto.nome || '') + (apr ? ' · ' + apr : '');
+    els.qtdPreco.textContent = apresentacao.preco || '';
+    els.qtdValor.textContent = '1';
+    els.qtdBarra.hidden = false;
+
+    function ajustar(delta) {
+      qtd = Math.min(Math.max(qtd + delta, 1), 99);
+      els.qtdValor.textContent = String(qtd);
+      els.qtdMenos.disabled = qtd <= 1;
+      els.qtdMais.disabled = qtd >= 99;
+    }
+
+    /* Atribuição em .onclick (e não addEventListener) de propósito: cada
+       abertura substitui o handler da anterior em vez de empilhar mais um. */
+    els.qtdMenos.onclick = function () { ajustar(-1); };
+    els.qtdMais.onclick = function () { ajustar(1); };
+    els.qtdCancelar.onclick = fecharQuantidade;
+    els.qtdOk.onclick = function () {
+      fecharQuantidade();
+      enviar(frasePedido(qtd, produto.nome, apr));
+    };
+
+    ajustar(0);
+    els.qtdMais.focus();
+  }
+
+  function fecharQuantidade() {
+    if (els.qtdBarra) els.qtdBarra.hidden = true;
+  }
+
+  /* "Quero 3 unidades do DIFLY S3 6 kg" — texto normal, porque quem interpreta
+     é o agente. Assim o caminho do clique e o do teclado chegam iguais nele. */
+  function frasePedido(n, nome, apr) {
+    return t('pedido')
+      .replace('{n}', String(n))
+      .replace('{u}', n === 1 ? t('unidade') : t('unidades'))
+      .replace('{p}', String(nome || '') + (apr ? ' ' + apr : ''));
+  }
+
+  /* ── Janela de variações ───────────────────────────────── */
+
+  /* Uma janela só, reaproveitada. Fica fora do painel do chat (direto no
+     body) para poder ser maior que ele — é o ponto do recurso: ver a foto
+     grande e todas as apresentações de uma vez, sem o slider. */
+  let modalEls = null;
+  let modalFoco = null;
+
+  function montarModal() {
+    if (modalEls) return modalEls;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-modal';
+    wrap.hidden = true;
+    wrap.innerHTML = [
+      '<div class="chat-modal-fundo" data-fechar></div>',
+      '<div class="chat-modal-box" role="dialog" aria-modal="true" aria-labelledby="chatModalNome">',
+      '  <button type="button" class="chat-modal-x" data-fechar aria-label="Fechar">',
+      '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      '  </button>',
+      '  <div class="chat-modal-foto" id="chatModalFoto"></div>',
+      '  <div class="chat-modal-info">',
+      '    <strong id="chatModalNome"></strong>',
+      '    <p id="chatModalResumo"></p>',
+      '    <div class="chat-modal-vars" id="chatModalVars"></div>',
+      '    <a class="chat-modal-link" id="chatModalLink" target="_blank" rel="noopener"></a>',
+      '  </div>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(wrap);
+
+    wrap.querySelectorAll('[data-fechar]').forEach(function (el) {
+      el.addEventListener('click', fecharModal);
+    });
+
+    modalEls = {
+      wrap: wrap,
+      foto: wrap.querySelector('#chatModalFoto'),
+      nome: wrap.querySelector('#chatModalNome'),
+      resumo: wrap.querySelector('#chatModalResumo'),
+      vars: wrap.querySelector('#chatModalVars'),
+      link: wrap.querySelector('#chatModalLink'),
+      x: wrap.querySelector('.chat-modal-x')
+    };
+    return modalEls;
+  }
+
+  function abrirModal(p) {
+    const m = montarModal();
+    const foto = urlSegura(p.foto);
+    const link = urlSegura(p.url);
+    const inicial = String(p.nome || '?').trim().charAt(0).toUpperCase();
+
+    modalFoco = document.activeElement;
+
+    m.foto.className = 'chat-modal-foto' + (foto ? '' : ' sem-foto');
+    m.foto.innerHTML = '';
+    if (foto) {
+      const img = document.createElement('img');
+      img.src = foto;
+      img.alt = String(p.nome || '');
+      img.addEventListener('error', function () {
+        m.foto.className = 'chat-modal-foto sem-foto';
+        m.foto.textContent = inicial;
+      });
+      m.foto.appendChild(img);
+    } else {
+      m.foto.textContent = inicial;
+    }
+
+    m.nome.textContent = p.nome || '';
+    m.resumo.textContent = p.resumo || '';
+    m.resumo.hidden = !p.resumo;
+
+    m.vars.innerHTML = '';
+    (Array.isArray(p.apresentacoes) ? p.apresentacoes : []).forEach(function (a) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chat-var' + (a.disponivel === false ? ' esgotado' : '');
+      b.innerHTML =
+        '<span class="chat-var-nome"></span>' +
+        '<span class="chat-var-preco"></span>' +
+        '<span class="chat-var-cta"></span>';
+      b.querySelector('.chat-var-nome').textContent = a.apresentacao || '';
+      b.querySelector('.chat-var-preco').textContent = a.preco || '';
+      b.querySelector('.chat-var-cta').textContent =
+        a.disponivel === false ? t('esgotado') : t('escolher');
+
+      if (a.disponivel === false) {
+        b.disabled = true;
+      } else {
+        b.addEventListener('click', function () {
+          fecharModal();
+          pedirQuantidade(p, a);
+        });
+      }
+      m.vars.appendChild(b);
+    });
+
+    if (link) {
+      m.link.href = link;
+      m.link.textContent = t('verDetalhes');
+      m.link.hidden = false;
+    } else {
+      m.link.hidden = true;
+    }
+
+    m.wrap.hidden = false;
+    document.body.classList.add('chat-modal-aberto');
+    requestAnimationFrame(function () {
+      m.wrap.classList.add('is-open');
+      m.x.focus();
+    });
+  }
+
+  function fecharModal() {
+    if (!modalEls || modalEls.wrap.hidden) return;
+    modalEls.wrap.classList.remove('is-open');
+    document.body.classList.remove('chat-modal-aberto');
+    setTimeout(function () {
+      if (modalEls && !modalEls.wrap.classList.contains('is-open')) modalEls.wrap.hidden = true;
+    }, 220);
+    if (modalFoco && modalFoco.focus) modalFoco.focus();
+    modalFoco = null;
+  }
+
+  function modalAberto() {
+    return Boolean(modalEls && !modalEls.wrap.hidden);
   }
 
   /* ── Alternância dos slides ────────────────────────────── */
@@ -388,6 +632,8 @@
   async function enviar(mensagem) {
     if (enviando || !mensagem.trim()) return;
     enviando = true;
+    /* Escolha pendente perde o sentido assim que a conversa anda. */
+    fecharQuantidade();
 
     const texto = mensagem.trim();
     addBolha('user', texto);
@@ -526,6 +772,8 @@
   function fechar() {
     aberto = false;
     pararTicker();
+    fecharModal();
+    fecharQuantidade();
     els.painel.classList.remove('is-open');
     els.fab.setAttribute('aria-expanded', 'false');
     els.fab.setAttribute('aria-label', t('abrir'));
@@ -561,6 +809,23 @@
       '    </button>',
       '  </header>',
       '  <div class="chat-corpo" id="chatCorpo" role="log" aria-live="polite" aria-atomic="false"></div>',
+      '  <div class="chat-qtd" id="chatQtd" hidden>',
+      '    <div class="chat-qtd-item">',
+      '      <span class="chat-qtd-rotulo" id="chatQtdRotulo"></span>',
+      '      <span class="chat-qtd-preco" id="chatQtdPreco"></span>',
+      '    </div>',
+      '    <div class="chat-qtd-linha">',
+      '      <div class="chat-stepper">',
+      '        <button type="button" id="chatQtdMenos">&minus;</button>',
+      '        <span id="chatQtdValor">1</span>',
+      '        <button type="button" id="chatQtdMais">+</button>',
+      '      </div>',
+      '      <button type="button" class="chat-qtd-ok" id="chatQtdOk"></button>',
+      '      <button type="button" class="chat-qtd-x" id="chatQtdCancelar" aria-label="Cancelar">',
+      '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      '      </button>',
+      '    </div>',
+      '  </div>',
       '  <form class="chat-form" id="chatForm">',
       '    <textarea id="chatInput" rows="1" maxlength="1500"></textarea>',
       '    <button type="submit" id="chatEnviar">',
@@ -583,7 +848,15 @@
       fechar: document.getElementById('chatClose'),
       titulo: document.getElementById('chatTitulo'),
       subtitulo: document.getElementById('chatSubtitulo'),
-      aviso: document.getElementById('chatAviso')
+      aviso: document.getElementById('chatAviso'),
+      qtdBarra: document.getElementById('chatQtd'),
+      qtdRotulo: document.getElementById('chatQtdRotulo'),
+      qtdPreco: document.getElementById('chatQtdPreco'),
+      qtdValor: document.getElementById('chatQtdValor'),
+      qtdMenos: document.getElementById('chatQtdMenos'),
+      qtdMais: document.getElementById('chatQtdMais'),
+      qtdOk: document.getElementById('chatQtdOk'),
+      qtdCancelar: document.getElementById('chatQtdCancelar')
     };
 
     historico = carregarHistorico();
@@ -612,8 +885,13 @@
       els.input.style.height = Math.min(els.input.scrollHeight, 120) + 'px';
     });
 
+    /* Esc fecha a camada mais interna primeiro: janela de variações, depois
+       o seletor de quantidade, e só então o chat. */
     document.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Escape' && aberto) fechar();
+      if (ev.key !== 'Escape') return;
+      if (modalAberto()) { fecharModal(); return; }
+      if (els.qtdBarra && !els.qtdBarra.hidden) { fecharQuantidade(); return; }
+      if (aberto) fechar();
     });
 
     /* O seletor de idioma do site troca data-lang sem recarregar a página. */

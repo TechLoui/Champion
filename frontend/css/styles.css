@@ -8118,24 +8118,6 @@ html.lang-ready .topbar .pill {
 .chat-dot.is-active { background: var(--blue); width: 22px; }
 .chat-dot:hover { background: var(--blue-soft); }
 
-.chat-card-cta {
-  align-self: flex-start;
-  margin-top: 8px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: var(--blue);
-  color: white;
-  font-size: 12.5px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-.chat-card-cta:hover {
-  background: var(--blue-deep);
-  color: white;
-  box-shadow: 0 4px 12px -5px rgba(30,76,143,0.6);
-}
-
 @media (max-width: 560px) {
   .chat-cards { max-width: 100%; }
   .chat-card { gap: 11px; padding: 10px; }
@@ -8182,4 +8164,317 @@ html.lang-ready .topbar .pill {
   color: var(--blue);
   opacity: 0.55;
   letter-spacing: -0.02em;
+}
+
+/* ---------------- Ações do card ---------------- */
+.chat-card-acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+.chat-card-cta {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: white;
+  font-family: var(--f-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.chat-card-cta:hover {
+  background: var(--blue-deep);
+  box-shadow: 0 4px 12px -5px rgba(30,76,143,0.6);
+}
+.chat-card-link {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(30,76,143,0.3);
+  transition: border-color 0.2s;
+}
+.chat-card-link:hover { color: var(--blue-deep); border-bottom-color: var(--blue); }
+
+/* ---------------- Seletor de quantidade ----------------
+   Fica entre a conversa e o campo de digitar: é uma ação pendente,
+   não uma mensagem. Some assim que a conversa anda. */
+.chat-qtd {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  background: var(--blue-tint);
+  display: grid;
+  gap: 8px;
+  animation: chatIn 0.22s var(--ease);
+}
+.chat-qtd-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.chat-qtd-rotulo {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-qtd-preco {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--blue);
+  white-space: nowrap;
+}
+.chat-qtd-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-stepper {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.chat-stepper button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: var(--blue);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.chat-stepper button:hover:not(:disabled) { background: var(--blue-tint); }
+.chat-stepper button:disabled { color: var(--mist); cursor: not-allowed; }
+.chat-stepper span {
+  min-width: 30px;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.chat-qtd-ok {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  color: white;
+  font-family: var(--f-body);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.chat-qtd-ok:hover { background: var(--blue-deep); }
+
+.chat-qtd-x {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.chat-qtd-x:hover { background: rgba(22,41,77,0.07); color: var(--ink); }
+.chat-qtd-x svg { width: 15px; height: 15px; }
+
+/* ---------------- Janela de variações ----------------
+   Mora no <body>, fora do painel, justamente para poder ser maior
+   que ele — o objetivo é a foto grande e todas as apresentações
+   visíveis de uma vez, sem depender do slider. */
+.chat-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;              /* acima do painel (9998) e dos FABs */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  transition: opacity 0.22s var(--ease);
+}
+.chat-modal.is-open { opacity: 1; }
+
+.chat-modal-fundo {
+  position: absolute;
+  inset: 0;
+  background: rgba(11,20,36,0.62);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.chat-modal-box {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: min(88dvh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 40px 80px -24px rgba(11,20,36,0.55);
+  transform: translateY(12px) scale(0.98);
+  transition: transform 0.24s var(--ease);
+}
+.chat-modal.is-open .chat-modal-box { transform: none; }
+
+.chat-modal-x {
+  position: absolute;
+  top: 12px; right: 12px;
+  z-index: 2;
+  width: 34px; height: 34px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px -2px rgba(16,32,64,0.28);
+  transition: background 0.2s;
+}
+.chat-modal-x:hover { background: white; }
+.chat-modal-x svg { width: 17px; height: 17px; }
+
+.chat-modal-foto {
+  height: 230px;
+  border-radius: 20px 20px 0 0;
+  background: linear-gradient(150deg, #F4F8FD 0%, var(--blue-tint) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.chat-modal-foto img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  padding: 18px;
+}
+.chat-modal-foto.sem-foto {
+  font-family: var(--f-display);
+  font-size: 76px;
+  font-weight: 800;
+  color: var(--blue);
+  opacity: 0.4;
+}
+
+.chat-modal-info { padding: 18px 20px 20px; }
+.chat-modal-info strong {
+  display: block;
+  font-family: var(--f-display);
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.chat-modal-info p {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.chat-modal-vars { display: grid; gap: 7px; margin-top: 16px; }
+.chat-var {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.18s, background 0.18s, transform 0.18s;
+}
+.chat-var:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+  transform: translateX(2px);
+}
+.chat-var-nome {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.chat-var-preco {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--blue);
+  white-space: nowrap;
+  letter-spacing: -0.015em;
+}
+.chat-var-cta {
+  flex-shrink: 0;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: white;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.chat-var.esgotado { opacity: 0.55; cursor: not-allowed; }
+.chat-var.esgotado .chat-var-cta { background: var(--steel); }
+
+.chat-modal-link {
+  display: inline-block;
+  margin-top: 15px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(30,76,143,0.3);
+}
+.chat-modal-link:hover { color: var(--blue-deep); border-bottom-color: var(--blue); }
+
+/* Trava a rolagem do site atrás da janela. */
+body.chat-modal-aberto { overflow: hidden; }
+
+@media (max-width: 560px) {
+  .chat-modal { padding: 12px; align-items: flex-end; }
+  .chat-modal-box { max-height: 90dvh; border-radius: 18px; }
+  .chat-modal-foto { height: 190px; }
+  .chat-modal-info { padding: 16px; }
+  .chat-qtd-ok { font-size: 12.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-modal, .chat-modal-box, .chat-var, .chat-qtd {
+    transition: none !important;
+    animation: none !important;
+  }
 }
