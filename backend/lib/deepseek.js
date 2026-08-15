@@ -17,9 +17,10 @@ const MODEL = process.env.LLM_MODEL || 'deepseek-chat';
 const API_KEY = process.env.LLM_API_KEY || '';
 
 /* Teto de idas e voltas com o modelo numa mesma mensagem do cliente.
-   Uma conversa normal usa 2 ou 3 (buscar → detalhar → responder). O limite
-   existe para um loop de ferramenta com defeito não queimar a fatura. */
-const MAX_ITERACOES = 6;
+   Um atendimento normal usa 3 ou 4 (buscar → detalhar → mostrar cards →
+   responder). O limite existe para um loop de ferramenta com defeito não
+   queimar a fatura. */
+const MAX_ITERACOES = 8;
 
 /* Quantas mensagens do histórico mandamos de volta. Atendimento não precisa de
    memória longa, e histórico curto = resposta mais barata e mais rápida. */
@@ -49,8 +50,10 @@ async function chamarModelo(messages) {
       messages,
       tools: tools.definitions,
       tool_choice: 'auto',
-      temperature: 0.3,
-      max_tokens: 1000
+      /* 0.4 dá naturalidade ao texto de atendimento sem soltar a mão do
+         modelo. Os números que importam vêm de ferramenta, não da amostragem. */
+      temperature: 0.4,
+      max_tokens: 1400
     }),
     signal: AbortSignal.timeout(45000)
   });
@@ -91,6 +94,11 @@ async function responder(historico, idiomaSite) {
   const ferramentasUsadas = [];
   const usageTotal = { prompt_tokens: 0, completion_tokens: 0 };
 
+  /* Canal lateral para dado estruturado. Cards de produto saem por aqui, não
+     no texto — assim a foto chega ao widget como imagem de verdade em vez de
+     uma URL solta no meio da frase. */
+  const coletor = { cards: [] };
+
   for (let i = 0; i < MAX_ITERACOES; i += 1) {
     const { message, usage } = await chamarModelo(messages);
 
@@ -105,6 +113,7 @@ async function responder(historico, idiomaSite) {
     if (!chamadas.length) {
       return {
         resposta: String(message.content || '').trim(),
+        cards: coletor.cards,
         ferramentas: ferramentasUsadas,
         usage: usageTotal
       };
@@ -122,7 +131,7 @@ async function responder(historico, idiomaSite) {
           return { call, saida: { erro: 'Argumentos inválidos (JSON malformado).' } };
         }
         ferramentasUsadas.push(nome);
-        return { call, saida: await tools.execute(nome, args) };
+        return { call, saida: await tools.execute(nome, args, coletor) };
       })
     );
 
@@ -139,6 +148,7 @@ async function responder(historico, idiomaSite) {
      Não devolve texto vazio para o cliente. */
   return {
     resposta: FALLBACK[idiomaSite] || FALLBACK.pt,
+    cards: coletor.cards,
     ferramentas: ferramentasUsadas,
     usage: usageTotal,
     truncado: true

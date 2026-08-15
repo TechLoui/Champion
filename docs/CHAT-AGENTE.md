@@ -53,12 +53,29 @@ que não existe no catálogo.
 | Arquivo | Papel |
 |---|---|
 | `backend/lib/shopify.js` | Consultas ao Storefront: busca, ficha, carrinho |
-| `backend/lib/prompt.js` | System prompt (regras de conduta) |
+| `backend/lib/site.js` | Conteúdo do site: fatos institucionais + busca no blog |
+| `backend/lib/prompt.js` | System prompt (postura de venda, escopo, limites) |
 | `backend/lib/tools.js` | Definição das ferramentas + executores |
 | `backend/lib/deepseek.js` | Cliente do modelo e loop de tool calling |
 | `backend/routes/chat.js` | Rota `/api/chat` + log no Firestore |
 | `frontend/js/chat-widget.js` | Widget flutuante (canto inferior esquerdo) |
-| `frontend/css/styles.css` | Estilos do widget (seção `CHAT`) |
+| `frontend/css/styles.css` | Estilos do widget e dos cards (seção `CHAT`) |
+
+### As cinco ferramentas
+
+| Ferramenta | Devolve |
+|---|---|
+| `buscar_produtos(termo)` | Lista com nome, resumo, preço por apresentação, `variantId` |
+| `detalhes_produto(handle)` | Ficha completa + modo de uso do rótulo |
+| `mostrar_produtos(handles)` | **Exibe os cards com foto** na conversa (máx. 4) |
+| `buscar_conteudo(termo)` | Trechos de artigos do blog + link |
+| `montar_carrinho(itens)` | `checkoutUrl` do Shopify = link de pagamento |
+
+**Sobre a foto:** a imagem não vai no texto. `mostrar_produtos` empurra os dados
+para um canal lateral (`coletor.cards` em `deepseek.js`), que sai no JSON da
+resposta como `produtos[]`, e o widget renderiza `<img>`. Se o modelo escrevesse
+a URL no meio da frase, o cliente veria só um link — que era exatamente o
+sintoma antes desta versão.
 
 Páginas com o widget: `index`, `produtos`, `produto`, `sobre`, `blog`,
 `calculo-dose`. Fora de propósito no checkout, na conta e no admin.
@@ -117,14 +134,19 @@ para alguma coisa; a segunda, se ele é seguro. Anote onde escorregar e ajuste
 
 ### A. Faz o trabalho? (deve responder bem)
 
-1. "Quais produtos vocês têm para bovinos?"
+1. "Quais produtos vocês têm para bovinos?" → **os cards com foto têm que aparecer**
 2. "Quanto custa o Difly?"
-3. "Qual a diferença entre o Difly e o Difly S3?"
+3. "Qual a diferença entre o Difly e o Difly S3?" → deve comparar, não listar
 4. "Tem alguma coisa para mosca no gado?"
-5. "Quero 2 unidades do Difly de 6kg" → **deve confirmar antes de montar o carrinho**
-6. "Pode gerar o link pra eu pagar?" → **o link tem que ser um `checkoutUrl` real do Shopify**
-7. "Vocês entregam em Mato Grosso?"
-8. "Como eu uso o Vermi-Sal?" → deve repassar o rótulo, sem adaptar
+5. "Preciso de algo para o meu gado" → **deve perguntar antes de recomendar**
+6. "Quero 2 unidades do Difly de 6kg" → deve confirmar antes de montar o carrinho
+7. "Pode gerar o link pra eu pagar?" → o link tem que ser um `checkoutUrl` real
+8. "Achei caro" → deve tratar a objeção, não desistir nem insistir
+9. "Vocês entregam em Mato Grosso?"
+10. "Como eu uso o Vermi-Sal?" → repassa o rótulo, sem adaptar
+11. "Há quanto tempo a Champion existe? Onde fica?" → institucional, sem inventar
+12. "Como faço para ser revenda?" → revendachampion.com.br
+13. "Vale a pena mineralizar na seca?" → deve consultar o blog e citar o artigo
 
 ### B. Aguenta pressão? (deve recusar e encaminhar)
 
@@ -151,8 +173,8 @@ regra de ancoragem.
 ## O que o agente não faz
 
 - **Não recebe foto do cliente.** Os modelos de texto da DeepSeek não enxergam
-  imagem. Mandar foto de produto funciona (é URL do Shopify); o cliente mandar
-  foto da embalagem ou do animal exigiria um modelo com visão.
+  imagem. Ele *envia* foto de produto normalmente (via `mostrar_produtos`); o
+  cliente mandar foto da embalagem ou do animal exigiria um modelo com visão.
 - **Não consulta estoque em tempo real** além do `availableForSale` do Shopify.
 - **Não acessa pedido do cliente** — não há ferramenta para isso.
 - **Não tem memória entre sessões.** O histórico vive no `sessionStorage` e

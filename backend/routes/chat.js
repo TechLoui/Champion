@@ -126,6 +126,9 @@ router.post('/', async (req, res) => {
 
     res.json({
       resposta: resultado.resposta,
+      /* Cards de produto: dado estruturado, renderizado pelo widget com a foto
+         de verdade. Não é texto e não passa pelo modelo de novo. */
+      produtos: resultado.cards || [],
       ferramentas: resultado.ferramentas
     });
   } catch (err) {

@@ -46,10 +46,7 @@
       semResposta: 'Não consegui formular uma resposta. Pode reformular a pergunta?',
       erroRede: 'Não consegui me conectar. Verifique sua internet ou chame a gente no WhatsApp.',
       erroGenerico: 'Não consegui responder agora. Tente novamente em instantes.',
-      digitando: 'Digitando',
-      verProduto: 'Ver produto',
-      aPartirDe: 'a partir de',
-      apresentacoes: 'apresentações'
+      digitando: 'Digitando'
     },
     en: {
       titulo: 'Champion Support',
@@ -66,10 +63,7 @@
       semResposta: "I couldn't put together an answer. Could you rephrase the question?",
       erroRede: "I couldn't connect. Check your internet or reach us on WhatsApp.",
       erroGenerico: "I couldn't respond right now. Please try again in a moment.",
-      digitando: 'Typing',
-      verProduto: 'View product',
-      aPartirDe: 'from',
-      apresentacoes: 'sizes'
+      digitando: 'Typing'
     },
     es: {
       titulo: 'Atención Champion',
@@ -86,10 +80,7 @@
       semResposta: 'No pude formular una respuesta. ¿Puedes reformular la pregunta?',
       erroRede: 'No pude conectarme. Revisa tu internet o escríbenos por WhatsApp.',
       erroGenerico: 'No pude responder ahora. Inténtalo de nuevo en un momento.',
-      digitando: 'Escribiendo',
-      verProduto: 'Ver producto',
-      aPartirDe: 'desde',
-      apresentacoes: 'presentaciones'
+      digitando: 'Escribiendo'
     }
   };
 
@@ -205,67 +196,6 @@
     return div;
   }
 
-  /* Cards de produto. Chegam como dado estruturado do backend (nunca como
-     texto), então a foto é uma <img> de verdade em vez de uma URL solta.
-     Tudo que vem do servidor passa por escapar() antes de virar HTML, e a
-     URL da imagem só é aceita se for https. */
-  function urlSegura(u) {
-    const s = String(u || '').trim();
-    return /^https:\/\//i.test(s) ? s : '';
-  }
-
-  function addCards(produtos) {
-    if (!Array.isArray(produtos) || !produtos.length) return;
-
-    const grade = document.createElement('div');
-    grade.className = 'chat-cards';
-
-    produtos.slice(0, 4).forEach(function (p) {
-      const foto = urlSegura(p.foto);
-      const link = urlSegura(p.url);
-      const nome = escapar(p.nome || '');
-      const resumo = escapar(String(p.resumo || '').slice(0, 110));
-
-      const card = document.createElement('article');
-      card.className = 'chat-card';
-
-      const partes = [];
-
-      if (foto) {
-        partes.push(
-          '<div class="chat-card-foto"><img src="' + foto + '" alt="' + nome +
-          '" loading="lazy" onerror="this.closest(\'.chat-card-foto\').remove()"></div>'
-        );
-      }
-
-      partes.push('<div class="chat-card-body">');
-      partes.push('<strong>' + nome + '</strong>');
-      if (resumo) partes.push('<p>' + resumo + '</p>');
-
-      if (p.precoDe) {
-        const rotulo = p.apresentacoes > 1 ? t('aPartirDe') + ' ' : '';
-        partes.push(
-          '<span class="chat-card-preco">' + escapar(rotulo) +
-          '<b>' + escapar(p.precoDe) + '</b></span>'
-        );
-      }
-
-      if (link) {
-        partes.push(
-          '<a class="chat-card-cta" href="' + link + '" target="_blank" rel="noopener">' +
-          escapar(t('verProduto')) + '</a>'
-        );
-      }
-
-      partes.push('</div>');
-      card.innerHTML = partes.join('');
-      grade.appendChild(card);
-    });
-
-    els.corpo.appendChild(grade);
-    rolarFim();
-  }
-
   function mostrarDigitando() {
     const div = document.createElement('div');
     div.className = 'chat-msg chat-msg-bot chat-typing';
@@ -300,12 +230,8 @@
         body: JSON.stringify({
           mensagem: texto,
           /* Manda o histórico SEM a mensagem atual (o backend a recebe
-             separada) e só com role/content — os cards são enfeite de tela,
-             o modelo não precisa deles de volta. */
-          historico: historico
-            .slice(0, -1)
-            .slice(-MAX_HISTORICO)
-            .map(function (m) { return { role: m.role, content: m.content }; }),
+             separada) e sem nada além de user/assistant. */
+          historico: historico.slice(0, -1).slice(-MAX_HISTORICO),
           sessionId: sessionId(),
           idioma: lang
         })
@@ -326,14 +252,7 @@
       }
 
       addBolha('bot', resposta);
-
-      const cards = Array.isArray(payload.produtos) ? payload.produtos : [];
-      addCards(cards);
-
-      /* Os cards ficam guardados junto da mensagem para reaparecerem se a
-         pessoa fechar e reabrir o chat. O backend descarta esse campo ao
-         remontar o histórico para o modelo. */
-      historico.push({ role: 'assistant', content: resposta, cards: cards });
+      historico.push({ role: 'assistant', content: resposta });
       salvarHistorico();
     } catch (err) {
       digitando.remove();
@@ -392,10 +311,7 @@
 
     if (!els.corpo.children.length) {
       if (historico.length) {
-        historico.forEach(function (m) {
-          addBolha(m.role, m.content);
-          if (m.cards) addCards(m.cards);
-        });
+        historico.forEach(function (m) { addBolha(m.role, m.content); });
       } else {
         addBolha('bot', t('saudacao'));
       }
