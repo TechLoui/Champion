@@ -182,8 +182,11 @@ const executors = {
             resumo: p.resumo,
             foto: p.foto,
             url: p.url,
-            precoDe: (p.apresentacoes[0] && p.apresentacoes[0].preco) || null,
-            apresentacoes: p.apresentacoes.length
+            /* Lista completa: o card monta um slide por apresentação, com
+               nome e preço. Sem isso o cliente vê um preço só e não percebe
+               que existe embalagem maior — que é justamente onde o custo por
+               dose cai e a venda cresce. */
+            apresentacoes: p.apresentacoes
           });
         }
       });

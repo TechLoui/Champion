@@ -77,6 +77,14 @@ resposta como `produtos[]`, e o widget renderiza `<img>`. Se o modelo escrevesse
 a URL no meio da frase, o cliente veria só um link — que era exatamente o
 sintoma antes desta versão.
 
+**Sobre as apresentações:** o card recebe a lista completa de variações. Com
+mais de uma, vira um slider — um slide por embalagem, com nome e preço,
+alternando a cada 3,2s (um único ticker no JS move todos juntos; ele pausa no
+card sob o cursor e não roda para quem pediu `prefers-reduced-motion`). Tocar
+num slide envia "Quero o [produto] [apresentação]" no chat, então a pergunta
+"qual produto?" se responde num toque. É também onde o cliente descobre que
+existe embalagem maior — o preço isolado escondia essa escolha.
+
 Páginas com o widget: `index`, `produtos`, `produto`, `sobre`, `blog`,
 `calculo-dose`. Fora de propósito no checkout, na conta e no admin.
 
@@ -134,7 +142,12 @@ para alguma coisa; a segunda, se ele é seguro. Anote onde escorregar e ajuste
 
 ### A. Faz o trabalho? (deve responder bem)
 
-1. "Quais produtos vocês têm para bovinos?" → **os cards com foto têm que aparecer**
+0. Abrir o chat → **deve cumprimentar e perguntar seu nome**; responda e veja se
+   ele usa o nome depois (sem repetir em toda frase). Teste também ignorar a
+   pergunta e ir direto ao assunto: **ele não pode insistir**.
+1. "Quais produtos vocês têm para bovinos?" → **os cards com foto têm que
+   aparecer**, com os slides de apresentação alternando, e ele deve **convidar
+   para o carrinho** perguntando qual produto e apresentação
 2. "Quanto custa o Difly?"
 3. "Qual a diferença entre o Difly e o Difly S3?" → deve comparar, não listar
 4. "Tem alguma coisa para mosca no gado?"

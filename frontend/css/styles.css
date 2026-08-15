@@ -7899,44 +7899,117 @@ html.lang-ready .topbar .pill {
   .chat-typing span { animation: none !important; opacity: 0.6; }
 }
 
+/* ---------------- Refino visual ----------------
+   Passada de elegância: sombras mais macias em camadas, cantos e
+   respiro ajustados, e uma marca no cabeçalho para o atendimento ter
+   rosto em vez de parecer um formulário. */
+.chat-painel {
+  border-radius: 20px;
+  box-shadow:
+    0 1px 2px rgba(16,32,64,0.06),
+    0 8px 20px -8px rgba(16,32,64,0.16),
+    0 32px 64px -24px rgba(16,32,64,0.34);
+}
+
+.chat-head { padding: 14px 16px; gap: 11px; }
+
+/* Monograma: sem depender de arquivo de imagem, então o widget continua
+   funcionando em qualquer página sem ajustar caminho de asset. */
+.chat-head-marca {
+  position: relative;
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #E4EDFA 100%);
+  color: var(--navy);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  box-shadow: 0 2px 8px -2px rgba(0,0,0,0.28);
+}
+/* Bolinha de "online" — sinal de que tem alguém do outro lado. */
+.chat-head-marca::after {
+  content: "";
+  position: absolute;
+  right: -1px; bottom: -1px;
+  width: 11px; height: 11px;
+  border-radius: 999px;
+  background: #2FBF71;
+  border: 2px solid var(--navy);
+}
+
+.chat-head-info strong { font-size: 14.5px; }
+.chat-head-info span { font-size: 12px; }
+
+.chat-corpo { padding: 20px 16px; gap: 9px; }
+
+.chat-msg {
+  padding: 11px 15px;
+  border-radius: 18px;
+  letter-spacing: 0.005em;
+}
+.chat-msg-bot {
+  border-bottom-left-radius: 6px;
+  box-shadow: 0 1px 2px rgba(16,32,64,0.05);
+}
+.chat-msg-user {
+  border-bottom-right-radius: 6px;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-deep) 100%);
+  box-shadow: 0 2px 8px -3px rgba(30,76,143,0.45);
+}
+.chat-msg-bot.is-seguida  { border-top-left-radius: 6px; }
+.chat-msg-user.is-seguida { border-top-right-radius: 6px; }
+
+.chat-form { padding: 11px 12px; gap: 9px; }
+.chat-form textarea { border-radius: 14px; }
+.chat-form button { border-radius: 14px; }
+.chat-form button:hover:not(:disabled) {
+  box-shadow: 0 4px 12px -4px rgba(30,76,143,0.55);
+}
+
 /* ---------------- Cards de produto ----------------
    Chegam como dado estruturado do backend (payload.produtos), não como
    texto. É o único jeito de a foto virar imagem de verdade: URL escrita
    no meio da frase pelo modelo seria só um link. */
 .chat-cards {
   display: grid;
-  gap: 8px;
-  margin-top: -2px;
+  gap: 9px;
+  margin-top: 1px;
   align-self: flex-start;
   width: 100%;
-  max-width: 92%;
-  animation: chatIn 0.28s var(--ease);
+  max-width: 94%;
+  animation: chatIn 0.3s var(--ease);
 }
 
 .chat-card {
   display: flex;
   align-items: stretch;
-  gap: 12px;
-  padding: 10px;
+  gap: 13px;
+  padding: 11px;
   background: white;
   border: 1px solid var(--line);
-  border-radius: 14px;
-  box-shadow: 0 2px 8px -4px rgba(16,32,64,0.10);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(16,32,64,0.05);
+  transition: border-color 0.22s var(--ease), box-shadow 0.22s var(--ease), transform 0.22s var(--ease);
 }
 .chat-card:hover {
-  border-color: rgba(30,76,143,0.32);
-  box-shadow: 0 10px 22px -12px rgba(16,32,64,0.28);
+  border-color: rgba(30,76,143,0.28);
+  box-shadow: 0 10px 24px -14px rgba(16,32,64,0.34);
   transform: translateY(-1px);
 }
 
 .chat-card-foto {
-  flex: 0 0 74px;
-  width: 74px;
-  height: 74px;
-  border-radius: 10px;
+  flex: 0 0 78px;
+  width: 78px;
+  height: 78px;
+  border-radius: 12px;
   overflow: hidden;
-  background: var(--blue-tint);
+  background: linear-gradient(150deg, #F4F8FD 0%, var(--blue-tint) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -7945,7 +8018,7 @@ html.lang-ready .topbar .pill {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  padding: 6px;
+  padding: 7px;
 }
 
 .chat-card-body {
@@ -7953,17 +8026,19 @@ html.lang-ready .topbar .pill {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   justify-content: center;
 }
 .chat-card-body strong {
+  font-family: var(--f-display);
   font-size: 14px;
   font-weight: 700;
   line-height: 1.25;
   color: var(--ink);
+  letter-spacing: -0.005em;
 }
 .chat-card-body p {
-  margin: 0;
+  margin: 1px 0 0;
   font-size: 12.5px;
   line-height: 1.4;
   color: var(--muted);
@@ -7973,38 +8048,110 @@ html.lang-ready .topbar .pill {
   overflow: hidden;
 }
 
-.chat-card-preco {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 2px;
+/* ---------------- Slides de apresentação ----------------
+   Um slide por embalagem, com nome e preço, alternando sozinhos. Um
+   ticker único no JS gira todos ao mesmo tempo; a pilha fica em grid
+   sobreposto para a altura não pular na troca. */
+.chat-slider {
+  display: grid;
+  margin-top: 7px;
+  min-height: 34px;
 }
-.chat-card-preco b {
+.chat-slide {
+  grid-area: 1 / 1;                 /* todos no mesmo lugar, um por cima do outro */
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease), border-color 0.2s, background 0.2s;
+}
+.chat-slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.chat-slide:hover {
+  border-color: rgba(30,76,143,0.35);
+  background: var(--blue-tint);
+}
+.chat-slide-nome {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--steel);
+  white-space: nowrap;
+}
+.chat-slide-preco {
+  margin-left: auto;
   font-size: 15px;
   font-weight: 800;
   color: var(--blue);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
 }
+
+.chat-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+}
+.chat-dot {
+  width: 15px;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--mist);
+  cursor: pointer;
+  transition: background 0.25s var(--ease), width 0.25s var(--ease);
+}
+.chat-dot.is-active { background: var(--blue); width: 22px; }
+.chat-dot:hover { background: var(--blue-soft); }
 
 .chat-card-cta {
   align-self: flex-start;
-  margin-top: 5px;
-  padding: 6px 13px;
+  margin-top: 8px;
+  padding: 6px 14px;
   border-radius: 999px;
   background: var(--blue);
   color: white;
   font-size: 12.5px;
   font-weight: 600;
   text-decoration: none;
-  transition: background 0.2s;
+  transition: background 0.2s, box-shadow 0.2s;
 }
-.chat-card-cta:hover { background: var(--blue-deep); color: white; }
+.chat-card-cta:hover {
+  background: var(--blue-deep);
+  color: white;
+  box-shadow: 0 4px 12px -5px rgba(30,76,143,0.6);
+}
 
 @media (max-width: 560px) {
   .chat-cards { max-width: 100%; }
-  .chat-card-foto { flex-basis: 66px; width: 66px; height: 66px; }
+  .chat-card { gap: 11px; padding: 10px; }
+  .chat-card-foto { flex-basis: 68px; width: 68px; height: 68px; }
   .chat-card-body strong { font-size: 13.5px; }
+  .chat-slide-preco { font-size: 14.5px; }
+  /* Alvo de toque maior no celular. */
+  .chat-slide { padding: 7px 10px; }
+  .chat-dot { height: 5px; }
 }
 
+/* Sem alternância automática para quem pediu menos movimento — os slides
+   continuam acessíveis pelos pontinhos. */
 @media (prefers-reduced-motion: reduce) {
-  .chat-cards, .chat-card { animation: none !important; transition: none !important; }
+  .chat-cards, .chat-card, .chat-slide, .chat-dot {
+    animation: none !important;
+    transition: none !important;
+  }
 }

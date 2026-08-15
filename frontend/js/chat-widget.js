@@ -40,14 +40,15 @@
       enviar: 'Enviar',
       campo: 'Sua mensagem',
       saudacao:
-        'Olá! Sou o atendente virtual da Champion. Posso ajudar a encontrar o ' +
-        'produto certo, consultar preço e montar seu pedido. O que você procura?',
+        'Olá! Sou o atendente da Champion. Posso ajudar a encontrar o produto certo, ' +
+        'ver preços e montar o seu pedido.\n\nPara começar, como posso te chamar?',
       aviso: 'Atendimento automatizado. Dúvida clínica ou de dose: fale com a equipe técnica.',
       semResposta: 'Não consegui formular uma resposta. Pode reformular a pergunta?',
       erroRede: 'Não consegui me conectar. Verifique sua internet ou chame a gente no WhatsApp.',
       erroGenerico: 'Não consegui responder agora. Tente novamente em instantes.',
       digitando: 'Digitando',
       verProduto: 'Ver produto',
+      quero: 'Quero o',
       aPartirDe: 'a partir de',
       apresentacoes: 'apresentações'
     },
@@ -60,14 +61,15 @@
       enviar: 'Send',
       campo: 'Your message',
       saudacao:
-        "Hello! I'm Champion's virtual assistant. I can help you find the right " +
-        'product, check prices and put your order together. What are you looking for?',
+        "Hello! I'm Champion's support agent. I can help you find the right product, " +
+        'check prices and put your order together.\n\nTo start — what should I call you?',
       aviso: 'Automated support. For clinical or dosage questions, talk to our technical team.',
       semResposta: "I couldn't put together an answer. Could you rephrase the question?",
       erroRede: "I couldn't connect. Check your internet or reach us on WhatsApp.",
       erroGenerico: "I couldn't respond right now. Please try again in a moment.",
       digitando: 'Typing',
       verProduto: 'View product',
+      quero: 'I want the',
       aPartirDe: 'from',
       apresentacoes: 'sizes'
     },
@@ -80,14 +82,15 @@
       enviar: 'Enviar',
       campo: 'Tu mensaje',
       saudacao:
-        '¡Hola! Soy el asistente virtual de Champion. Puedo ayudarte a encontrar el ' +
-        'producto adecuado, consultar precios y armar tu pedido. ¿Qué estás buscando?',
+        '¡Hola! Soy el asistente de Champion. Puedo ayudarte a encontrar el producto ' +
+        'adecuado, consultar precios y armar tu pedido.\n\nPara empezar, ¿cómo te llamas?',
       aviso: 'Atención automatizada. Para dudas clínicas o de dosis, habla con el equipo técnico.',
       semResposta: 'No pude formular una respuesta. ¿Puedes reformular la pregunta?',
       erroRede: 'No pude conectarme. Revisa tu internet o escríbenos por WhatsApp.',
       erroGenerico: 'No pude responder ahora. Inténtalo de nuevo en un momento.',
       digitando: 'Escribiendo',
       verProduto: 'Ver producto',
+      quero: 'Quiero el',
       aPartirDe: 'desde',
       apresentacoes: 'presentaciones'
     }
@@ -224,7 +227,8 @@
       const foto = urlSegura(p.foto);
       const link = urlSegura(p.url);
       const nome = escapar(p.nome || '');
-      const resumo = escapar(String(p.resumo || '').slice(0, 110));
+      const resumo = escapar(String(p.resumo || '').slice(0, 100));
+      const aprs = Array.isArray(p.apresentacoes) ? p.apresentacoes.slice(0, 6) : [];
 
       const card = document.createElement('article');
       card.className = 'chat-card';
@@ -242,12 +246,35 @@
       partes.push('<strong>' + nome + '</strong>');
       if (resumo) partes.push('<p>' + resumo + '</p>');
 
-      if (p.precoDe) {
-        const rotulo = p.apresentacoes > 1 ? t('aPartirDe') + ' ' : '';
-        partes.push(
-          '<span class="chat-card-preco">' + escapar(rotulo) +
-          '<b>' + escapar(p.precoDe) + '</b></span>'
-        );
+      /* Uma apresentação: preço fixo. Várias: slides que se alternam, cada um
+         com o nome da embalagem e o preço dela. É onde o cliente percebe que
+         existe embalagem maior — o preço isolado esconde essa escolha. */
+      if (aprs.length) {
+        partes.push('<div class="chat-slider" data-i="0">');
+        aprs.forEach(function (a, i) {
+          const rotulo = escapar(a.apresentacao || '');
+          const preco = escapar(a.preco || '');
+          partes.push(
+            '<button type="button" class="chat-slide' + (i === 0 ? ' is-active' : '') + '"' +
+            ' data-pedido="' + escapar(p.nome + ' ' + (a.apresentacao || '')) + '"' +
+            ' tabindex="' + (i === 0 ? '0' : '-1') + '">' +
+            (aprs.length > 1 ? '<span class="chat-slide-nome">' + rotulo + '</span>' : '') +
+            '<span class="chat-slide-preco">' + preco + '</span>' +
+            '</button>'
+          );
+        });
+        partes.push('</div>');
+
+        if (aprs.length > 1) {
+          partes.push('<div class="chat-dots">');
+          aprs.forEach(function (a, i) {
+            partes.push(
+              '<button type="button" class="chat-dot' + (i === 0 ? ' is-active' : '') +
+              '" data-ir="' + i + '" aria-label="' + escapar(a.apresentacao || '') + '"></button>'
+            );
+          });
+          partes.push('</div>');
+        }
       }
 
       if (link) {
@@ -259,11 +286,71 @@
 
       partes.push('</div>');
       card.innerHTML = partes.join('');
+
+      /* Tocar numa apresentação responde a pergunta "qual produto?" num toque,
+         em vez de obrigar o cliente a digitar o nome e a embalagem. */
+      card.querySelectorAll('.chat-slide').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          enviar(t('quero') + ' ' + btn.dataset.pedido);
+        });
+      });
+
+      card.querySelectorAll('.chat-dot').forEach(function (dot) {
+        dot.addEventListener('click', function () {
+          irPara(card.querySelector('.chat-slider'), Number(dot.dataset.ir));
+        });
+      });
+
       grade.appendChild(card);
     });
 
     els.corpo.appendChild(grade);
     rolarFim();
+  }
+
+  /* ── Alternância dos slides ────────────────────────────── */
+
+  /* Um único ticker para todos os cards da conversa. Um setInterval por card
+     vazaria conforme o histórico cresce, e sincronizados eles ficam mais
+     calmos visualmente do que cada um no seu tempo. */
+  let ticker = null;
+
+  function irPara(slider, indice) {
+    if (!slider) return;
+    const slides = slider.querySelectorAll('.chat-slide');
+    if (slides.length < 2) return;
+
+    const i = ((indice % slides.length) + slides.length) % slides.length;
+    slider.dataset.i = String(i);
+
+    slides.forEach(function (s, n) {
+      s.classList.toggle('is-active', n === i);
+      s.tabIndex = n === i ? 0 : -1;
+    });
+
+    const dots = slider.parentElement.querySelectorAll('.chat-dot');
+    dots.forEach(function (d, n) { d.classList.toggle('is-active', n === i); });
+  }
+
+  function iniciarTicker() {
+    if (ticker) return;
+    /* Quem pediu menos movimento não recebe alternância automática — os
+       slides continuam acessíveis pelos pontinhos. */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    ticker = setInterval(function () {
+      els.corpo.querySelectorAll('.chat-slider').forEach(function (slider) {
+        /* Não gira o que o cliente está olhando ou usando. */
+        if (slider.matches(':hover') || slider.contains(document.activeElement)) return;
+        irPara(slider, Number(slider.dataset.i || 0) + 1);
+      });
+    }, 3200);
+  }
+
+  function pararTicker() {
+    if (!ticker) return;
+    clearInterval(ticker);
+    ticker = null;
   }
 
   function mostrarDigitando() {
@@ -401,10 +488,12 @@
       }
     }
     rolarFim();
+    iniciarTicker();
   }
 
   function fechar() {
     aberto = false;
+    pararTicker();
     els.painel.classList.remove('is-open');
     els.fab.setAttribute('aria-expanded', 'false');
     els.fab.setAttribute('aria-label', t('abrir'));
@@ -430,6 +519,7 @@
       '</button>',
       '<section class="chat-painel" id="chatPainel" role="dialog" hidden>',
       '  <header class="chat-head">',
+      '    <span class="chat-head-marca" aria-hidden="true">C</span>',
       '    <div class="chat-head-info">',
       '      <strong id="chatTitulo"></strong>',
       '      <span id="chatSubtitulo"></span>',
