@@ -198,8 +198,27 @@ const executors = {
 
     if (!handles.length) return { erro: 'Nenhum handle informado.' };
 
-    const produtos = (await Promise.all(handles.map((h) => shopify.detalhesProduto(h))))
-      .filter(Boolean);
+    /* Resolve primeiro no que já foi consultado nesta mensagem. Além de
+       evitar uma ida à rede, isso salva o caso comum de o modelo inventar o
+       handle ("difly-s3") em vez de copiar o que veio da busca
+       ("difly-s3-champion") — antes disso o card simplesmente não aparecia. */
+    const vistos = (coletor && coletor.vistos) || [];
+
+    const produtos = (await Promise.all(handles.map(async (h) => {
+      const alvo = h.toLowerCase();
+
+      const cache = vistos.find((v) => {
+        const vh = String(v.handle || '').toLowerCase();
+        return vh === alvo || vh.includes(alvo) || alvo.includes(vh);
+      });
+      if (cache) return cache;
+
+      const buscado = await shopify.detalhesProduto(h);
+      if (buscado) return buscado;
+
+      /* Último recurso: o "handle" pode ser na verdade o nome do produto. */
+      return vistos.find((v) => String(v.nome || '').toLowerCase().includes(alvo)) || null;
+    }))).filter(Boolean);
 
     if (!produtos.length) {
       return { erro: 'Nenhum dos handles foi encontrado. Confira com buscar_produtos.' };
@@ -262,16 +281,46 @@ async function execute(name, args, coletor) {
  * modelo lembrar da regra.
  */
 function cardsPorMencao(texto, vistos) {
-  const t = String(texto || '').toLowerCase();
-  if (!t || !Array.isArray(vistos)) return [];
+  const t = normalizar(texto);
+  if (!t || !Array.isArray(vistos) || !vistos.length) return [];
+
+  /* Comparar o nome inteiro não serve: o título no Shopify costuma ser
+     "Difly S3 Champion 6kg" e o agente escreve só "Difly S3". Então batemos
+     token a token e exigimos que todos os termos distintivos do nome
+     apareçam no texto. */
+  const GENERICOS = ['champion', 'kg', 'ml', 'gr', 'litro', 'litros', 'para', 'com'];
 
   return vistos
-    .filter((p) => {
-      const nome = String(p.nome || '').trim().toLowerCase();
-      /* Nomes muito curtos dariam falso positivo dentro de outra palavra. */
-      return nome.length >= 4 && t.includes(nome);
+    .map((p) => {
+      const tokens = normalizar(p.nome)
+        .split(' ')
+        .filter((w) => w.length >= 2 && GENERICOS.indexOf(w) === -1);
+
+      if (!tokens.length) return null;
+
+      const achou = tokens.filter((w) => t.indexOf(w) !== -1).length;
+      /* Todos os termos presentes, e pelo menos um com mais de 3 letras
+         (senão "s3" sozinho casaria com qualquer coisa). */
+      const forte = tokens.some((w) => w.length > 3 && t.indexOf(w) !== -1);
+      return achou === tokens.length && forte ? { p, peso: tokens.length } : null;
     })
-    .slice(0, 4);
+    .filter(Boolean)
+    /* Nome mais específico primeiro: se o texto cita "Difly S3", o card do
+       S3 vem antes do card do "Difly". */
+    .sort((a, b) => b.peso - a.peso)
+    .slice(0, 4)
+    .map((x) => x.p);
+}
+
+/* Minúsculas, sem acento e sem pontuação — o agente escreve "Difly S3." e o
+   título vem "DIFLY S3"; sem normalizar, nada casa. */
+function normalizar(v) {
+  return String(v || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
 }
 
 module.exports = { definitions, execute, cardsPorMencao };

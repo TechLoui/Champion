@@ -124,11 +124,23 @@ router.post('/', async (req, res) => {
       truncado: resultado.truncado
     });
 
+    const cards = resultado.cards || [];
+
+    /* Linha de diagnóstico nos logs do Railway. O caminho "modelo esqueceu de
+       pedir o card" é silencioso por natureza — sem isso, a única evidência
+       seria o cliente reclamando que não viu foto. */
+    console.log(
+      '[chat] ferramentas=%s cards=%d semFoto=%d',
+      (resultado.ferramentas || []).join(',') || 'nenhuma',
+      cards.length,
+      cards.filter((c) => !c.foto).length
+    );
+
     res.json({
       resposta: resultado.resposta,
       /* Cards de produto: dado estruturado, renderizado pelo widget com a foto
          de verdade. Não é texto e não passa pelo modelo de novo. */
-      produtos: resultado.cards || [],
+      produtos: cards,
       ferramentas: resultado.ferramentas
     });
   } catch (err) {

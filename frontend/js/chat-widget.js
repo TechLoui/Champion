@@ -248,11 +248,18 @@
 
       const partes = [];
 
+      /* Sem foto cadastrada no Shopify (ou imagem quebrada) o card mostra a
+         inicial do produto em vez de um buraco — degrada em vez de parecer
+         defeito. */
+      const inicial = escapar(String(p.nome || '?').trim().charAt(0).toUpperCase());
       if (foto) {
         partes.push(
           '<div class="chat-card-foto"><img src="' + foto + '" alt="' + nome +
-          '" loading="lazy" onerror="this.closest(\'.chat-card-foto\').remove()"></div>'
+          '" loading="lazy" onerror="this.parentElement.classList.add(\'sem-foto\');' +
+          'this.parentElement.textContent=\'' + inicial + '\'"></div>'
         );
+      } else {
+        partes.push('<div class="chat-card-foto sem-foto">' + inicial + '</div>');
       }
 
       partes.push('<div class="chat-card-body">');
@@ -428,6 +435,18 @@
       addBolha('bot', resposta);
 
       const cards = Array.isArray(payload.produtos) ? payload.produtos : [];
+
+      /* Diagnóstico no console do navegador. Se o card não aparecer, esta
+         linha diz de imediato se o problema foi o backend não mandar nada ou
+         o produto vir sem foto cadastrada no Shopify. */
+      try {
+        console.info(
+          '[champion-chat] ferramentas:', (payload.ferramentas || []).join(', ') || 'nenhuma',
+          '| cards:', cards.length,
+          '| sem foto:', cards.filter(function (c) { return !c.foto; }).length
+        );
+      } catch (e) { /* console indisponível */ }
+
       addCards(cards);
 
       /* Os cards ficam guardados junto da mensagem para reaparecerem se a

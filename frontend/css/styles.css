@@ -8173,3 +8173,13 @@ html.lang-ready .topbar .pill {
   .chat-corpo { padding: 16px 12px; gap: 8px; }
   .chat-msg { font-size: 14px; max-width: 86%; }
 }
+
+/* Produto sem foto no Shopify: inicial no lugar do buraco. */
+.chat-card-foto.sem-foto {
+  font-family: var(--f-display);
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--blue);
+  opacity: 0.55;
+  letter-spacing: -0.02em;
+}
