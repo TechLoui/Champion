@@ -100,7 +100,7 @@ async function responder(historico, idiomaSite) {
 
      `vistos` guarda tudo que foi consultado; serve de rede de segurança para
      quando o modelo fala do produto mas esquece de pedir o card. */
-  const coletor = { cards: [], vistos: [] };
+  const coletor = { cards: [], vistos: [], carrinho: [] };
 
   for (let i = 0; i < MAX_ITERACOES; i += 1) {
     const { message, usage } = await chamarModelo(messages);
@@ -123,6 +123,10 @@ async function responder(historico, idiomaSite) {
       return {
         resposta,
         cards,
+        /* Itens que o agente mandou para o carrinho do site nesta mensagem.
+           O widget os adiciona ao champion-cart — não existe carrinho
+           paralelo nem link de pagamento solto na conversa. */
+        carrinho: coletor.carrinho,
         ferramentas: ferramentasUsadas,
         usage: usageTotal
       };
@@ -158,6 +162,7 @@ async function responder(historico, idiomaSite) {
   return {
     resposta: FALLBACK[idiomaSite] || FALLBACK.pt,
     cards: coletor.cards,
+    carrinho: coletor.carrinho,
     ferramentas: ferramentasUsadas,
     usage: usageTotal,
     truncado: true

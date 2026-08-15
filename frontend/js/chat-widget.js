@@ -836,6 +836,24 @@
 
       addCards(cards);
 
+      /* O agente fechou o pedido: os itens entram no carrinho do site e a
+         prévia abre com o botão "Finalizar compra" à vista. É isto que
+         substitui o link de pagamento colado no meio da conversa. */
+      const paraCarrinho = Array.isArray(payload.carrinho) ? payload.carrinho : [];
+      if (paraCarrinho.length) {
+        let entrou = 0;
+        paraCarrinho.forEach(function (i) {
+          const ok = adicionarAoCarrinho(
+            { handle: i.handle, nome: i.nome, foto: i.foto },
+            { apresentacao: i.apresentacao, variantId: i.variantId, precoNum: i.precoNum },
+            Math.min(Math.max(Number(i.quantidade) || 1, 1), 99)
+          );
+          if (ok) entrou += 1;
+        });
+        atualizarBadge();
+        if (entrou) abrirCarrinho();
+      }
+
       /* Os cards ficam guardados junto da mensagem para reaparecerem se a
          pessoa fechar e reabrir o chat. O backend descarta esse campo ao
          remontar o histórico para o modelo. */

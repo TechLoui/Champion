@@ -104,11 +104,13 @@ const definitions = [
   {
     type: 'function',
     function: {
-      name: 'montar_carrinho',
+      name: 'adicionar_ao_carrinho',
       description:
-        'Cria o carrinho no Shopify e devolve o link de pagamento oficial. ' +
+        'Coloca os itens no carrinho do site — o mesmo carrinho da vitrine, que o cliente ' +
+        'vê no botão de carrinho aqui do chat e no ícone do site. ' +
         'Só chame depois de confirmar com o cliente qual apresentação e quantas unidades. ' +
-        'Repasse o link exatamente como voltar.',
+        'Depois de chamar, diga que está no carrinho e aponte o botão "Finalizar compra"; ' +
+        'NÃO escreva link de pagamento — quem gera o pagamento é o checkout do site.',
       parameters: {
         type: 'object',
         properties: {
@@ -251,10 +253,84 @@ const executors = {
     return { artigos };
   },
 
-  async montar_carrinho(args) {
-    return await shopify.montarCarrinho(args.itens);
+  /* Não cria carrinho no Shopify. Devolve os itens resolvidos pelo canal
+     lateral, e o widget os coloca no carrinho do site (champion-cart) — o
+     mesmo da vitrine. Assim existe UM carrinho só, e o pagamento sai pelo
+     checkout do site em vez de um link solto no meio da conversa. */
+  async adicionar_ao_carrinho(args, coletor) {
+    const pedidos = (Array.isArray(args.itens) ? args.itens : [])
+      .map((i) => ({
+        variantId: String((i && i.variantId) || '').trim(),
+        quantidade: Math.min(Math.max(Number(i && i.quantidade) || 1, 1), 99)
+      }))
+      .filter((i) => i.variantId)
+      .slice(0, 10);
+
+    if (!pedidos.length) {
+      return { erro: 'Nenhuma apresentação informada. Use o variantId vindo de buscar_produtos.' };
+    }
+
+    /* Procura primeiro no que já foi consultado; depois no catálogo. O modelo
+       às vezes devolve o variantId de uma mensagem anterior. */
+    const universo = ((coletor && coletor.vistos) || []).slice();
+    let catalogo = null;
+
+    const resolvidos = [];
+    for (const pedido of pedidos) {
+      let achado = encontrarPorVariante(universo, pedido.variantId);
+
+      if (!achado) {
+        if (!catalogo) catalogo = (await shopify.catalogo()).map(paraCard);
+        achado = encontrarPorVariante(catalogo, pedido.variantId);
+      }
+      if (achado) resolvidos.push({ produto: achado.produto, apr: achado.apr, qtd: pedido.quantidade });
+    }
+
+    if (!resolvidos.length) {
+      return {
+        erro: 'Nenhuma apresentação encontrada com esses variantId.',
+        instrucao: 'Chame buscar_produtos de novo e use o variantId exato que voltar.'
+      };
+    }
+
+    if (coletor) {
+      resolvidos.forEach((r) => {
+        coletor.carrinho.push({
+          handle: r.produto.handle,
+          nome: r.produto.nome,
+          foto: r.produto.foto,
+          variantId: r.apr.variantId,
+          apresentacao: r.apr.apresentacao,
+          preco: r.apr.preco,
+          precoNum: r.apr.precoNum,
+          quantidade: r.qtd
+        });
+      });
+    }
+
+    return {
+      adicionados: resolvidos.map((r) => ({
+        produto: r.produto.nome,
+        apresentacao: r.apr.apresentacao,
+        quantidade: r.qtd,
+        preco: r.apr.preco
+      })),
+      instrucao:
+        'Já entrou no carrinho do site e o cliente está vendo. Confirme em uma frase, ' +
+        'diga que é só tocar em "Finalizar compra" no carrinho aqui do chat, e pergunte ' +
+        'se ele quer incluir mais alguma coisa. NÃO escreva link de pagamento.'
+    };
   }
 };
+
+/* Localiza o produto e a apresentação a partir do variantId. */
+function encontrarPorVariante(lista, variantId) {
+  for (const produto of lista || []) {
+    const apr = (produto.apresentacoes || []).find((a) => a.variantId === variantId);
+    if (apr) return { produto, apr };
+  }
+  return null;
+}
 
 async function execute(name, args, coletor) {
   const fn = executors[name];

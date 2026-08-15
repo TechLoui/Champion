@@ -6,7 +6,8 @@
  * O frontend já fala com o Storefront pelo js/shopify-client.js, mas o agente
  * NÃO pode depender disso: quem responde ao cliente é o backend, e as respostas
  * precisam sair de uma fonte que o modelo não consegue inventar. Todo preço,
- * apresentação e link de checkout que o agente diz vem daqui.
+ * apresentação e ficha que o agente diz vem daqui. O pagamento em si sai pelo
+ * checkout do site (checkout.html), nao por link montado aqui.
  */
 
 /* Os mesmos valores de frontend/js/shopify-config.js.
@@ -160,70 +161,6 @@ async function detalhesProduto(handle) {
   });
 }
 
-/**
- * Cria um carrinho no Shopify e devolve o checkoutUrl.
- *
- * Este é o link de pagamento. Ele é emitido pelo Shopify, não escrito pelo
- * modelo — por isso não há como o agente mandar o cliente para um link errado
- * nem cobrar um valor que não existe no catálogo.
- */
-async function montarCarrinho(itens) {
-  const lines = (Array.isArray(itens) ? itens : [])
-    .map((i) => ({
-      merchandiseId: String(i.variantId || '').trim(),
-      quantity: Math.min(Math.max(Number(i.quantidade) || 1, 1), 99)
-    }))
-    .filter((l) => l.merchandiseId.startsWith('gid://shopify/ProductVariant/'));
-
-  if (!lines.length) {
-    throw new Error('Nenhuma apresentação válida foi informada.');
-  }
-
-  const mutation = `
-    mutation ChampionCarrinho($lines: [CartLineInput!]!) {
-      cartCreate(input: { lines: $lines }) {
-        cart {
-          checkoutUrl
-          cost { totalAmount { amount } }
-          lines(first: 25) {
-            nodes {
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  title
-                  price { amount }
-                  product { title }
-                }
-              }
-            }
-          }
-        }
-        userErrors { message }
-      }
-    }
-  `;
-
-  const data = await gql(mutation, { lines });
-  const result = data.cartCreate || {};
-
-  if (result.userErrors && result.userErrors.length) {
-    throw new Error(result.userErrors.map((e) => e.message).join('; '));
-  }
-  if (!result.cart || !result.cart.checkoutUrl) {
-    throw new Error('O Shopify não devolveu um link de checkout.');
-  }
-
-  return {
-    link_pagamento: result.cart.checkoutUrl,
-    total: brl(result.cart.cost && result.cart.cost.totalAmount && result.cart.cost.totalAmount.amount),
-    itens: ((result.cart.lines && result.cart.lines.nodes) || []).map((n) => ({
-      produto: n.merchandise && n.merchandise.product && n.merchandise.product.title,
-      apresentacao: n.merchandise && n.merchandise.title,
-      quantidade: n.quantity,
-      preco_unitario: brl(n.merchandise && n.merchandise.price && n.merchandise.price.amount)
-    }))
-  };
-}
 
 /**
  * Catálogo inteiro, em cache na memória do processo.
@@ -267,4 +204,4 @@ async function catalogo() {
   }
 }
 
-module.exports = { isConfigured, buscarProdutos, detalhesProduto, montarCarrinho, catalogo };
+module.exports = { isConfigured, buscarProdutos, detalhesProduto, catalogo };
