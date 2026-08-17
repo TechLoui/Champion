@@ -8675,3 +8675,22 @@ body.chat-modal-aberto { overflow: hidden; }
     transition: none !important;
   }
 }
+
+/* ---------------- Chat aberto no mobile: some com os FABs ----------------
+   O WhatsApp declara z-index 10000 e o carrinho traz 9999 inline no HTML —
+   os dois acima do painel do chat (9998). No desktop isso não aparece porque
+   ficam em lados opostos da tela; no mobile o painel ocupa a largura toda e
+   eles pousam por cima da conversa.
+
+   Escondê-los é melhor que subir o z-index do painel: com o chat aberto em
+   tela cheia esses botões são redundantes (o próprio chat já tem carrinho) e
+   só roubariam área de leitura. `!important` é necessário porque o carrinho
+   traz o posicionamento em atributo style. */
+@media (max-width: 560px) {
+  body.chat-aberto .whatsapp-float,
+  body.chat-aberto .cart-float,
+  body.chat-aberto .mobile-menu-fab,
+  body.chat-aberto .scroll-top-btn {
+    display: none !important;
+  }
+}
