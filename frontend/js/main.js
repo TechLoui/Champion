@@ -410,6 +410,10 @@
     safeStorage.set(LANGUAGE_KEY, nextLang);
     document.documentElement.dataset.lang = nextLang;
     applyHeaderLanguage(nextLang);
+    /* Conteudo da pagina (js/i18n.js). Fica separado do cabecalho porque o
+       dicionario e grande e muda com frequencia — main.js nao precisa crescer
+       junto. Se o arquivo nao carregar, o site segue em portugues. */
+    if (window.ChampionI18n) window.ChampionI18n.apply(nextLang);
     document.documentElement.classList.add('lang-ready');
     if (announce && typeof showToast === 'function') showToast(languageCopy[nextLang].changed);
   }
