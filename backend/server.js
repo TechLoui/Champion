@@ -16,19 +16,35 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
 
 const app = express();
 
+/* O Railway serve atrás de um proxy, então o IP real do visitante vem no
+   X-Forwarded-For. Sem isto o express-rate-limit avisa no log e, pior,
+   passa a contar TODO MUNDO no mesmo balde (o IP do proxy) — o limite de
+   30 mensagens viraria 30 para o site inteiro, não por pessoa.
+
+   `1` e não `true`: confiar em toda a cadeia deixaria qualquer um forjar
+   o cabeçalho e escapar do limite. Confiamos só no primeiro salto. */
+app.set('trust proxy', 1);
+
+/* Considera www.exemplo.com e exemplo.com a mesma origem: é o mesmo site,
+   e sem isso quem entra pelo www leva erro de CORS enquanto quem entra sem
+   o www funciona. Não amplia nada — só normaliza o que já foi liberado. */
+function origemPermitida(origin) {
+  if (allowedOrigins.length === 0) return true;
+  if (allowedOrigins.includes(origin)) return true;
+  const semWww = origin.replace('://www.', '://');
+  return allowedOrigins.includes(semWww);
+}
+
 app.use(cors({
   origin(origin, callback) {
     if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+    if (origemPermitida(origin)) return callback(null, true);
     callback(new Error(`CORS bloqueado para origem: ${origin}`));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400
 }));
-
 app.use(express.json({ limit: '64kb' }));
 
 const leadsLimiter = rateLimit({

@@ -19,7 +19,19 @@ function buildCredential(admin) {
     });
   }
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    return admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT));
+    const conta = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    /* A quebra de linha da chave costuma chegar escapada duas vezes, porque
+       o painel do Railway escapa de novo o que já vinha escapado no JSON.
+       O JSON.parse então devolve a barra invertida literal em vez da quebra,
+       o PEM fica inválido e o Admin SDK falha com "DECODER routines::
+       unsupported" — que era exatamente o erro no log de produção.
+
+       Normalizar aqui é inofensivo: numa chave já correta não sobra barra
+       invertida literal para trocar. */
+    if (typeof conta.private_key === 'string') {
+      conta.private_key = conta.private_key.replace(/\\n/g, '\n');
+    }
+    return admin.credential.cert(conta);
   }
   return null;
 }
