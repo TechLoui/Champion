@@ -45,29 +45,36 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
      para duas <img> alternadas por CSS — assim a arte mobile continua sendo
      usada, em vez de o celular receber a versão de desktop. Custa o download
      das duas, mas só nesse caso. */
-  function montarArte(desktop, mobile, alt) {
+  /* `primeiro` marca o slide visível na abertura. As artes do banner pesam
+     ~2 MB cada; sem essa distinção o navegador baixa os quatro slides ao
+     mesmo tempo e eles disputam banda. No wifi ninguém nota, mas no 4G o
+     visitante fica olhando o fundo escuro até o primeiro chegar.
+
+     Com prioridade alta no primeiro e lazy nos demais, a arte de abertura
+     ganha a banda inteira e aparece antes; o resto carrega enquanto ele lê. */
+  function montarArte(desktop, mobile, alt, primeiro) {
     const a = esc(alt || '');
     const m = mobile || desktop || '';
+    const carga = primeiro
+      ? 'fetchpriority="high" decoding="async"'
+      : 'loading="lazy" decoding="async"';
 
     if (!m || m === desktop) {
-      return `<picture><img src="${esc(desktop || '')}" alt="${a}" /></picture>`;
+      return `<picture><img src="${esc(desktop || '')}" alt="${a}" ${carga} /></picture>`;
     }
 
-    /* Caminho normal: o navegador escolhe e baixa só a imagem certa. */
     if (serveEmSrcset(m)) {
       return `<picture>
           <source media="(max-width: 720px)" srcset="${escSrcset(m)}" />
-          <img src="${esc(desktop || '')}" alt="${a}" />
+          <img src="${esc(desktop || '')}" alt="${a}" ${carga} />
         </picture>`;
     }
 
     /* Arte que não serve em srcset (data URL): escolhemos aqui e entregamos
-       um <img> só. Mantém a mesma estrutura <picture> > <img> que o CSS do
-       hero posiciona — duas <img> soltas ficariam sem o posicionamento
-       absoluto do mobile. Em troca, não reavalia ao girar a tela; aceitável
-       porque este caminho é exceção. */
+       um <img> só, mantendo a estrutura <picture> > <img> que o CSS do hero
+       posiciona. Não reavalia ao girar a tela — aceitável, é exceção. */
     const usarMobile = window.matchMedia('(max-width: 720px)').matches;
-    return `<picture><img src="${esc(usarMobile ? m : (desktop || ''))}" alt="${a}" /></picture>`;
+    return `<picture><img src="${esc(usarMobile ? m : (desktop || ''))}" alt="${a}" ${carga} /></picture>`;
   }
 
   function detectPage() {
@@ -100,7 +107,7 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
         </div>` : '';
       /* Sem esc() aqui: montarArte escapa por dentro. */
       const altText = s.title || s.eyebrow || '';
-      const img = montarArte(s.image, s.imageMobile, altText);
+      const img = montarArte(s.image, s.imageMobile, altText, i === 0);
       const inner = s.link
         ? `<a href="${esc(s.link)}" aria-label="${esc(s.title || s.eyebrow || 'Banner')}">${img}${overlay}</a>`
         : `<div class="hero-slide-static">${img}${overlay}</div>`;
@@ -140,7 +147,7 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
               ${s.subtitle ? `<p class="cms-banner-subtitle">${esc(s.subtitle)}</p>` : ''}
               ${s.cta && s.link ? `<a class="cms-banner-cta" href="${esc(s.link)}">${esc(s.cta)} →</a>` : ''}
             </div>` : '';
-          const img = montarArte(s.image, s.imageMobile, s.title || s.eyebrow || '');
+          const img = montarArte(s.image, s.imageMobile, s.title || s.eyebrow || '', i === 0);
           const inner = s.link && !s.cta
             ? `<a href="${esc(s.link)}" class="cms-banner-link" aria-label="${esc(s.title || 'Banner')}">${img}${overlay}</a>`
             : `<div class="cms-banner-static">${img}${overlay}</div>`;
