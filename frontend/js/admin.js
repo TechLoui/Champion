@@ -1,6 +1,6 @@
 import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260522-2';
 import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260522-2';
-import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260818-2';
 import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
 
 (async function () {
