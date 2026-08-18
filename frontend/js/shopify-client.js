@@ -249,39 +249,6 @@ const CART_CREATE = `
   }
 `;
 
-/* O Shopify monta a checkoutUrl no dominio principal cadastrado na loja.
-   Se esse dominio for o mesmo do site (que mora na Hostinger, nao no
-   Shopify), o cliente e mandado para um host que nao tem a rota /cart/ e
-   cujo certificado pode nem cobrir o www — o que aparece como "sua conexao
-   nao e particular" bem na hora de pagar.
-
-   Nesse caso trocamos o host pelo dominio .myshopify.com, que sempre
-   responde. O token do carrinho nao depende do dominio.
-
-   A condicao e proposital: se o dominio da loja for um host proprio do
-   Shopify (ex.: loja.champion.ind.br apontando para la), nada e reescrito
-   e o cliente segue vendo a marca no checkout. Ou seja, isto sai de cena
-   sozinho quando a configuracao for arrumada. */
-function corrigirHostCheckout(url) {
-  try {
-    const alvo = new URL(url);
-    if (typeof window === 'undefined') return url;
-
-    const daLoja = alvo.hostname.replace(/^www\./, '');
-    const doSite = window.location.hostname.replace(/^www\./, '');
-    if (daLoja !== doSite) return url;   /* dominio proprio: nao mexe */
-
-    alvo.hostname = CFG.domain;
-    console.warn(
-      '[shopify] O dominio principal da loja e o mesmo do site, que nao roda no Shopify. ' +
-      'Checkout redirecionado para ' + CFG.domain + '. Ajuste o dominio da loja no admin do Shopify.'
-    );
-    return alvo.toString();
-  } catch (e) {
-    return url;
-  }
-}
-
 export async function createShopifyCheckout(items, email) {
   if (!isShopifyEnabled()) throw new Error('Shopify não configurado.');
   const lines = (items || [])
@@ -299,7 +266,7 @@ export async function createShopifyCheckout(items, email) {
   }
   const url = result.cart && result.cart.checkoutUrl;
   if (!url) throw new Error('Shopify não retornou a URL de checkout.');
-  return corrigirHostCheckout(url);
+  return url;
 }
 
 /* Publica no escopo global para scripts não-módulo (ex.: checkout). */

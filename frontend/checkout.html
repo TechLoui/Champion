@@ -431,7 +431,7 @@
   }
 
   try {
-    var shopifyMod = await import('./js/shopify-client.js');
+    var shopifyMod = await import('./js/shopify-client.js?v=20260818-2');
     if (shopifyMod.isShopifyEnabled()) {
       renderShopifyCheckout(cart, shopifyMod);
       return;
