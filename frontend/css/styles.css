@@ -8695,16 +8695,3 @@ body.chat-modal-aberto { overflow: hidden; }
   }
 }
 
-/* ---------------- Banner: arte alternativa por CSS ----------------
-   Usado só quando a arte mobile não serve em <source srcset> — o caso
-   das data URLs, que trazem vírgula e a vírgula separa candidatos no
-   srcset. Aí o banners-cms.js emite duas <img> e a troca acontece aqui.
-
-   O caminho normal continua sendo <picture>, que baixa só uma imagem.
-   Estas regras nunca entram em jogo nele. */
-.arte-mobile { display: none; }
-
-@media (max-width: 720px) {
-  .arte-desktop { display: none; }
-  .arte-mobile { display: block; }
-}

@@ -46,21 +46,28 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
      usada, em vez de o celular receber a versão de desktop. Custa o download
      das duas, mas só nesse caso. */
   function montarArte(desktop, mobile, alt) {
-    const d = esc(desktop || '');
     const a = esc(alt || '');
     const m = mobile || desktop || '';
 
     if (!m || m === desktop) {
-      return `<picture><img src="${d}" alt="${a}" /></picture>`;
+      return `<picture><img src="${esc(desktop || '')}" alt="${a}" /></picture>`;
     }
+
+    /* Caminho normal: o navegador escolhe e baixa só a imagem certa. */
     if (serveEmSrcset(m)) {
       return `<picture>
           <source media="(max-width: 720px)" srcset="${escSrcset(m)}" />
-          <img src="${d}" alt="${a}" />
+          <img src="${esc(desktop || '')}" alt="${a}" />
         </picture>`;
     }
-    return `<img class="arte-desktop" src="${d}" alt="${a}" />
-        <img class="arte-mobile" src="${esc(m)}" alt="${a}" />`;
+
+    /* Arte que não serve em srcset (data URL): escolhemos aqui e entregamos
+       um <img> só. Mantém a mesma estrutura <picture> > <img> que o CSS do
+       hero posiciona — duas <img> soltas ficariam sem o posicionamento
+       absoluto do mobile. Em troca, não reavalia ao girar a tela; aceitável
+       porque este caminho é exceção. */
+    const usarMobile = window.matchMedia('(max-width: 720px)').matches;
+    return `<picture><img src="${esc(usarMobile ? m : (desktop || ''))}" alt="${a}" /></picture>`;
   }
 
   function detectPage() {
