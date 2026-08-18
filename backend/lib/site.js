@@ -82,7 +82,7 @@ async function buscarConteudo(termo, limite) {
     .sort((a, b) => b.score - a.score)
     .slice(0, max);
 
-  const base = process.env.SITE_URL || 'https://ofertaschampion.com.br';
+  const base = process.env.SITE_URL || 'https://champion.ind.br';
 
   return pontuados.map(({ p }) => ({
     titulo: p.titulo,

@@ -25,6 +25,44 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
     return esc(String(v || '').replace(/\s+/g, '%20'));
   }
 
+  /* Em srcset a VÍRGULA separa candidatos — e toda data URL tem uma
+     ("data:image/png;base64,..."). Codificá-la quebraria a própria data URL,
+     então não existe forma de usar esse valor num <source srcset>.
+
+     Isso importa porque o <picture> não é tolerante: se a media query casa
+     mas o srcset é inutilizável, o navegador NÃO volta para o <img> — fica
+     sem imagem nenhuma. Era o motivo de o banner sumir no celular e aparecer
+     no desktop, que usa <img src> e engole data URL sem reclamar. */
+  function serveEmSrcset(v) {
+    const s = String(v || '');
+    return Boolean(s) && s.indexOf(',') === -1;
+  }
+
+  /* Monta a arte de um slide, escolhendo o melhor mecanismo disponível.
+
+     Caminho normal: <picture> + <source>, que faz o navegador baixar só a
+     imagem certa. Quando a arte mobile não serve em srcset (data URL), cai
+     para duas <img> alternadas por CSS — assim a arte mobile continua sendo
+     usada, em vez de o celular receber a versão de desktop. Custa o download
+     das duas, mas só nesse caso. */
+  function montarArte(desktop, mobile, alt) {
+    const d = esc(desktop || '');
+    const a = esc(alt || '');
+    const m = mobile || desktop || '';
+
+    if (!m || m === desktop) {
+      return `<picture><img src="${d}" alt="${a}" /></picture>`;
+    }
+    if (serveEmSrcset(m)) {
+      return `<picture>
+          <source media="(max-width: 720px)" srcset="${escSrcset(m)}" />
+          <img src="${d}" alt="${a}" />
+        </picture>`;
+    }
+    return `<img class="arte-desktop" src="${d}" alt="${a}" />
+        <img class="arte-mobile" src="${esc(m)}" alt="${a}" />`;
+  }
+
   function detectPage() {
     /* tenta inferir a página atual pelo path */
     const path = (window.location.pathname || '').toLowerCase();
@@ -53,14 +91,9 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
           ${s.subtitle ? `<p class="hero-slide-subtitle">${esc(s.subtitle)}</p>` : ''}
           ${s.cta && s.link ? `<a class="hero-slide-cta" href="${esc(s.link)}">${esc(s.cta)}</a>` : ''}
         </div>` : '';
-      const altText = esc(s.title || s.eyebrow || '');
-      const desktopSrc = esc(s.image || '');
-      const mobileSrc = escSrcset(s.imageMobile || s.image || '');
-      const img = `
-        <picture>
-          <source media="(max-width: 720px)" srcset="${mobileSrc}" />
-          <img src="${desktopSrc}" alt="${altText}" />
-        </picture>`;
+      /* Sem esc() aqui: montarArte escapa por dentro. */
+      const altText = s.title || s.eyebrow || '';
+      const img = montarArte(s.image, s.imageMobile, altText);
       const inner = s.link
         ? `<a href="${esc(s.link)}" aria-label="${esc(s.title || s.eyebrow || 'Banner')}">${img}${overlay}</a>`
         : `<div class="hero-slide-static">${img}${overlay}</div>`;
@@ -100,13 +133,7 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
               ${s.subtitle ? `<p class="cms-banner-subtitle">${esc(s.subtitle)}</p>` : ''}
               ${s.cta && s.link ? `<a class="cms-banner-cta" href="${esc(s.link)}">${esc(s.cta)} →</a>` : ''}
             </div>` : '';
-          const desktopSrc = esc(s.image || '');
-          const mobileSrc = escSrcset(s.imageMobile || s.image || '');
-          const img = `
-            <picture>
-              <source media="(max-width: 720px)" srcset="${mobileSrc}" />
-              <img src="${desktopSrc}" alt="${esc(s.title || s.eyebrow || '')}" />
-            </picture>`;
+          const img = montarArte(s.image, s.imageMobile, s.title || s.eyebrow || '');
           const inner = s.link && !s.cta
             ? `<a href="${esc(s.link)}" class="cms-banner-link" aria-label="${esc(s.title || 'Banner')}">${img}${overlay}</a>`
             : `<div class="cms-banner-static">${img}${overlay}</div>`;

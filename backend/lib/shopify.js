@@ -92,7 +92,7 @@ function mapProduct(node) {
     disponivel: Boolean(node.availableForSale),
     apresentacoes: variants,
     /* Página do produto no site — o agente manda esse link, nunca inventa URL. */
-    url: `${process.env.SITE_URL || 'https://ofertaschampion.com.br'}/produto.html?p=${node.handle}`
+    url: `${process.env.SITE_URL || 'https://champion.ind.br'}/produto.html?p=${node.handle}`
   };
 }
 

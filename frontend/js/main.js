@@ -12,7 +12,7 @@
   // ------------------------------------------------------------
   (function injectOrganizationSchema() {
     if (document.head.querySelector('script[data-jsonld="organization"]')) return;
-    const ORIGIN = 'https://ofertaschampion.com.br';
+    const ORIGIN = 'https://champion.ind.br';
     const data = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
@@ -79,7 +79,7 @@
   // ------------------------------------------------------------
   (function injectOrganizationSchema() {
     if (document.head.querySelector('script[data-jsonld="organization"]')) return;
-    const SITE = 'https://ofertaschampion.com.br';
+    const SITE = 'https://champion.ind.br';
     const data = {
       '@context': 'https://schema.org',
       '@type': 'Organization',

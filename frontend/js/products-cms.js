@@ -376,7 +376,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js';
     }
   }
 
-  const SITE_ORIGIN = 'https://ofertaschampion.com.br';
+  const SITE_ORIGIN = 'https://champion.ind.br';
 
   function setMeta(selector, attr, value) {
     let el = document.head.querySelector(selector);
