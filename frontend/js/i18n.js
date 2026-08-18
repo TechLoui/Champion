@@ -30,6 +30,9 @@
     en: {
       'FRETE GRÁTIS para pedidos acima de R$ 500': 'FREE SHIPPING on orders over R$ 500',
 
+      /* H1 invisivel da home — existe para leitor de tela e para o Google. */
+      'Champion Saúde Animal — produtos para saúde, sanidade e nutrição do rebanho em todo o Brasil: larvicidas, vermífugos, sal mineral, suplementos e núcleos para bovinos, equinos, suínos e aves.': 'Champion Animal Health — products for the health, sanitation and nutrition of livestock across Brazil: larvicides, dewormers, mineral salt, supplements and premixes for cattle, horses, swine and poultry.',
+
       '+67 anos': '+67 years',
       'de tradição na pecuária': 'of tradition in livestock farming',
       '+150 produtos': '+150 products',
@@ -64,6 +67,7 @@
       'Ação ampla': 'Broad action',
 
       'no agro': 'in agribusiness',
+      'brasileiro': 'in Brazil',
       '3 gerações': '3 generations',
       'de evolução': 'of evolution',
       'Presença nacional': 'National presence',
@@ -109,6 +113,7 @@
       'no campo.': 'in the field.',
       'A maior pecuária comercial do mundo confia na Champion há': 'The largest commercial livestock industry in the world has trusted Champion for',
       'mais de 67 anos': 'over 67 years',
+      '. São': '. There are',
       '6 motivos': '6 reasons',
       'que fazem do nosso portfólio referência nacional em saúde e nutrição animal.': 'that make our portfolio a national benchmark in animal health and nutrition.',
       'Garantia Champion': 'Champion guarantee',
@@ -196,6 +201,9 @@
     es: {
       'FRETE GRÁTIS para pedidos acima de R$ 500': 'ENVÍO GRATIS en pedidos superiores a R$ 500',
 
+      /* H1 invisible de la home — para lector de pantalla y para Google. */
+      'Champion Saúde Animal — produtos para saúde, sanidade e nutrição do rebanho em todo o Brasil: larvicidas, vermífugos, sal mineral, suplementos e núcleos para bovinos, equinos, suínos e aves.': 'Champion Salud Animal — productos para la salud, sanidad y nutrición del rebaño en todo Brasil: larvicidas, antiparasitarios, sal mineral, suplementos y núcleos para bovinos, equinos, porcinos y aves.',
+
       '+67 anos': '+67 años',
       'de tradição na pecuária': 'de tradición en la ganadería',
       '+150 produtos': '+150 productos',
@@ -230,6 +238,7 @@
       'Ação ampla': 'Acción amplia',
 
       'no agro': 'en el agro',
+      'brasileiro': 'brasileño',
       '3 gerações': '3 generaciones',
       'de evolução': 'de evolución',
       'Presença nacional': 'Presencia nacional',
@@ -275,6 +284,7 @@
       'no campo.': 'en el campo.',
       'A maior pecuária comercial do mundo confia na Champion há': 'La mayor ganadería comercial del mundo confía en Champion desde hace',
       'mais de 67 anos': 'más de 67 años',
+      '. São': '. Son',
       '6 motivos': '6 motivos',
       'que fazem do nosso portfólio referência nacional em saúde e nutrição animal.': 'que hacen de nuestro portafolio una referencia nacional en salud y nutrición animal.',
       'Garantia Champion': 'Garantía Champion',
