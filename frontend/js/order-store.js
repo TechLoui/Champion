@@ -171,7 +171,7 @@
 
   async function tryInitFirebase() {
     try {
-      var cfgModule = await import('./firebase-config.js');
+      var cfgModule = await import('./firebase-config.js?v=20260818-3');
       var cfg = cfgModule.CHAMPION_FIREBASE_CONFIG;
       if (!isFirebaseConfigured(cfg)) return;
       var v = SDK_VERSION;

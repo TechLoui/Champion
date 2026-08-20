@@ -7,7 +7,7 @@
  * Para cada página que tiver um <div data-banner-page="<key>"> a gente
  * popula com o banner publicado correspondente.
  */
-import { getAdminStore } from './admin-store.js?v=20260522-2';
+import { getAdminStore } from './admin-store.js?v=20260819-1';
 
 (async function () {
   'use strict';
@@ -177,7 +177,9 @@ import { getAdminStore } from './admin-store.js?v=20260522-2';
 
   try {
     const store = await getAdminStore();
-    const all = await store.getBanners();
+    /* `includeDrafts: false` é obrigatório aqui: sem o filtro na query o
+       Firestore nega a leitura para quem não é admin (ver getBanners). */
+    const all = await store.getBanners({ includeDrafts: false });
     const published = all.filter((b) => b.status === 'published');
     if (!published.length) return;
 

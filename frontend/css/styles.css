@@ -685,7 +685,12 @@ p { margin: 0; }
 }
 .stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* minmax(0, 1fr) e não 1fr: o mínimo implícito de `1fr` é o tamanho do
+     conteúdo, então quando o texto de um card não cabe em 1/4 da largura a
+     coluna se recusa a encolher e a faixa inteira transborda para a direita —
+     era o quarto card saindo da tela no notebook. Com mínimo 0 as colunas
+     cedem e o texto quebra em duas linhas, que é o comportamento desejado. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 24px;
 }
 .stat-item {
@@ -700,6 +705,8 @@ p { margin: 0; }
 }
 .stat-icon {
   width: 44px; height: 44px;
+  /* Dentro de um flex o ícone encolheria junto com o card e viraria um oval. */
+  flex: 0 0 44px;
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(30,76,143,0.2), rgba(30,76,143,0.05));
   border: 1px solid rgba(30,76,143,0.3);
@@ -707,8 +714,24 @@ p { margin: 0; }
   display: inline-flex; align-items: center; justify-content: center;
 }
 .stat-icon svg { width: 22px; height: 22px; }
+/* Item de flex tem min-width automático = min-content, o que impede o bloco de
+   texto de encolher e recria o transbordamento por dentro do card. */
+.stat-item > div { min-width: 0; }
 .stat-item h4 { font-size: 22px; font-weight: 800; color: white; letter-spacing: 0; }
 .stat-item p { font-size: 13px; color: rgba(255,255,255,0.65); }
+
+/* Notebook: acima de 1024px o layout ainda é de 4 colunas, mas numa tela de
+   1366 com escala de 125% do Windows sobram ~1093px de CSS — cada card fica
+   com ~240px e "+150 produtos" a 22px não cabe. Aqui as 4 colunas continuam
+   (é o desenho pretendido), só mais compactas. */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .stat-grid { gap: 14px; }
+  .stat-item { padding: 12px 13px; gap: 10px; min-height: 68px; }
+  .stat-icon { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 10px; }
+  .stat-icon svg { width: 19px; height: 19px; }
+  .stat-item h4 { font-size: 18px; line-height: 1.15; }
+  .stat-item p { font-size: 12px; line-height: 1.3; }
+}
 
 /* ================================================================
    SECTIONS
@@ -6320,7 +6343,7 @@ html.lang-ready .topbar .pill {
   .page-hero h1, .story-title, .hero-title { font-size: 44px; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
   .cat-rail { grid-template-columns: repeat(4, 1fr); }
-  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
   .product-grid, .product-list { grid-template-columns: repeat(2, 1fr); }
   .culture-grid { grid-template-columns: repeat(2, 1fr); }
   .manifesto-grid { grid-template-columns: 1fr; gap: 40px; }
@@ -6497,7 +6520,7 @@ html.lang-ready .topbar .pill {
 }
 
 @media (max-width: 480px) {
-  .stat-grid { grid-template-columns: 1fr; }
+  .stat-grid { grid-template-columns: minmax(0, 1fr); }
   .story-stats { grid-template-columns: repeat(2, 1fr); gap: 20px; }
   .cat-card { padding: 22px 12px; }
   .cat-icon { width: 58px; height: 58px; }
@@ -6833,7 +6856,7 @@ html.lang-ready .topbar .pill {
 
   /* ---------- Stat strip ---------- */
   .stat-strip { padding: 18px 0; }
-  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .stat-item {
     padding: 12px 12px;
     min-height: 64px;
@@ -7325,7 +7348,7 @@ html.lang-ready .topbar .pill {
   .cat-card p { font-size: 11px; }
 
   /* Stats: 1 coluna */
-  .stat-grid { grid-template-columns: 1fr; gap: 8px; }
+  .stat-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .stat-item { min-height: 56px; }
 
   /* Section title menor */

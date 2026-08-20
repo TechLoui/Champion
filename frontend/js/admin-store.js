@@ -261,9 +261,12 @@ class LocalAdminStore {
     writeJson(LOCAL_LEADS_KEY, leads.filter((lead) => lead.id !== id));
   }
 
-  async getBanners() {
+  /* Mesma assinatura da versão Firestore, para que quem chama não precise
+     saber qual store está ativo. */
+  async getBanners({ includeDrafts = true } = {}) {
     const stored = readJson(LOCAL_BANNERS_KEY, null);
-    return (stored || DEFAULT_BANNERS).map(normalizeBanner).sort((a, b) => a.order - b.order);
+    const todos = (stored || DEFAULT_BANNERS).map(normalizeBanner).sort((a, b) => a.order - b.order);
+    return includeDrafts ? todos : todos.filter((b) => b.status === 'published');
   }
 
   async saveBanner(banner) {
@@ -466,8 +469,18 @@ class FirebaseAdminStore {
     return this.api.doc(this.db, this.collections.bannersCollection, id);
   }
 
-  async getBanners() {
-    const snapshot = await this.api.getDocs(this.api.collection(this.db, this.collections.bannersCollection));
+  /* `includeDrafts` não é só filtro de conveniência: a regra do Firestore é
+     `allow list: if resource.data.status == 'published' || isBlogAdmin()`, e
+     numa consulta de coleção o Firestore só libera quando a própria query
+     prova que todo documento retornado atende à condição. Sem o `where`, o
+     visitante anônimo leva PERMISSION_DENIED na coleção inteira — enquanto o
+     admin passa pelo `isBlogAdmin()` e não percebe nada. Era por isso que o
+     banner aparecia só na máquina de quem estava logado. */
+  async getBanners({ includeDrafts = true } = {}) {
+    const colecao = this.api.collection(this.db, this.collections.bannersCollection);
+    const snapshot = includeDrafts
+      ? await this.api.getDocs(colecao)
+      : await this.api.getDocs(this.api.query(colecao, this.api.where('status', '==', 'published')));
     if (snapshot.empty) return DEFAULT_BANNERS.map(normalizeBanner);
     return snapshot.docs
       .map((item, i) => normalizeBanner(Object.assign({ id: item.id }, item.data()), i))

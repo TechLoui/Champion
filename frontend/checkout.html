@@ -295,6 +295,8 @@
       .co-pay-btn { padding: 15px 20px; font-size: 15px; }
     }
   </style>
+  <!-- Meta Pixel: código base + PageView. O evento de compra fica na Shopify (ver js/meta-pixel.js). -->
+  <script src="js/meta-pixel.js?v=20260819-1"></script>
 </head>
 <body>
 
@@ -319,7 +321,7 @@
 
 
 <script src="js/customer-store.js?v=20260609-2"></script>
-<script src="js/order-store.js"></script>
+<script src="js/order-store.js?v=20260818-3"></script>
 <script>
 (async function () {
   var CART_KEY = 'champion-cart';
@@ -420,6 +422,15 @@
         }
         var payload = lines.map(function (l) { return { variantId: l.variantId, qty: l.qty }; });
         var url = await shopify.createShopifyCheckout(payload, email);
+        /* InitiateCheckout: último evento que este site consegue observar — daqui
+           o cliente sai para o domínio da Shopify. O Purchase é disparado lá, pelo
+           canal Facebook e Instagram, e não pode ser repetido aqui. */
+        if (window.ChampionPixel) {
+          window.ChampionPixel.track('InitiateCheckout', {
+            currency: 'BRL',
+            num_items: payload.reduce(function (s, i) { return s + (Number(i.qty) || 1); }, 0)
+          });
+        }
         try { localStorage.removeItem(CART_KEY); } catch (e) {}
         window.location.href = url;
       } catch (err) {
