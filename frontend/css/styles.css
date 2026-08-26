@@ -206,6 +206,50 @@ p { margin: 0; }
 .brand img { height: 44px; width: auto; }
 
 .nav { display: flex; align-items: center; gap: 2px; }
+
+/* ── "Ao Vivo" no header ─────────────────────────────────────────
+   A bolinha pulsa para chamar atenção; a prévia em hover é montada pelo
+   js/ao-vivo.js e vive presa ao body, não aqui dentro. */
+.nav a.nav-live { display: inline-flex; align-items: center; gap: 8px; }
+.nav-live-dot {
+  width: 8px; height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #16A34A;
+  animation: aoVivoPulso 1.9s ease-out infinite;
+}
+@keyframes aoVivoPulso {
+  0%   { box-shadow: 0 0 0 0 rgba(22,163,74,0.7); }
+  70%  { box-shadow: 0 0 0 7px rgba(22,163,74,0); }
+  100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+}
+/* Quem pediu menos movimento no sistema não deve levar um ponto piscando
+   permanentemente no campo de visão. A cor sozinha já sinaliza. */
+@media (prefers-reduced-motion: reduce) {
+  .nav-live-dot { animation: none; }
+}
+.nav-live-preview {
+  position: fixed;
+  z-index: 9000;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 26px 52px -14px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  pointer-events: none;   /* nunca rouba o clique do link */
+}
+.nav-live-preview.is-on { opacity: 1; transform: translateY(0); }
+.nav-live-preview iframe {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
 .nav a {
   position: relative;
   font-size: 14px;
@@ -1789,14 +1833,19 @@ p { margin: 0; }
 }
 .video-lightbox-close {
   position: absolute;
-  top: -52px;
-  right: 0;
+  /* Dentro do painel, não acima dele: o painel tem overflow:hidden para
+     arredondar o vídeo, então qualquer top negativo aqui recorta o botão e o
+     X simplesmente não aparece. O mobile já fazia certo; o desktop não. */
+  top: 14px;
+  right: 14px;
   width: 44px;
   height: 44px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.12);
+  /* Fundo escuro em vez de branco translúcido: o botão fica sobre o vídeo e
+     precisa ser legível tanto num quadro claro quanto num escuro. */
+  background: rgba(0,0,0,0.58);
+  border: 1px solid rgba(255,255,255,0.22);
   color: white;
-  border: 0;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -3860,6 +3909,36 @@ p { margin: 0; }
 }
 .qty input::-webkit-outer-spin-button, .qty input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .detail-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 30px; align-items: center; }
+
+/* Botão "Como usar" (vídeo), dentro da linha de ações. O .btn declara
+   display:inline-flex, que vence o comportamento padrão do atributo hidden —
+   sem esta regra o botão apareceria em todo produto, inclusive nos sem vídeo. */
+.detail-howto[hidden] { display: none; }
+.detail-howto {
+  /* Fundo azul claro em vez de transparente: precisa de presença ao lado do
+     CTA principal, sem competir com ele (que é sólido e com sombra). */
+  background: var(--blue-tint);
+  color: var(--blue-deep);
+  border: 1.5px solid rgba(30, 76, 143, 0.28);
+  font-weight: 700;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease),
+              color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.detail-howto:hover {
+  background: #fff;
+  border-color: var(--blue);
+  color: var(--blue);
+  transform: translateY(-2px);
+}
+/* Play vermelho: é o acento da marca e é o sinal universal de vídeo. Dá o
+   destaque sem precisar pintar o botão inteiro. */
+.detail-howto svg { width: 20px; height: 20px; color: var(--red); }
+
+@media (max-width: 560px) {
+  /* Numa linha só ele fica espremido ao lado do carrinho: ocupa a largura
+     inteira ao quebrar. */
+  .detail-howto { flex: 1 0 100%; justify-content: center; }
+}
 .detail-features {
   display: grid;
   gap: 14px;
@@ -4066,7 +4145,7 @@ p { margin: 0; }
 }
 
 /* ================================================================
-   BENEFITS V2 · "Por que Champion" (novo layout split)
+   BENEFITS V2 · História do campo (layout split)
    ================================================================ */
 .benefits-band.benefits-v2 {
   background: linear-gradient(180deg, #F7F9FD 0%, #EDF2F9 100%);
@@ -4082,6 +4161,10 @@ p { margin: 0; }
     radial-gradient(circle at 82% 78%, rgba(37,99,184,0.04), transparent 45%);
   pointer-events: none;
 }
+.benefits-band.benefits-v2--rubens {
+  background: linear-gradient(180deg, #FFFFFF 0%, #F7F9FD 100%);
+  border-top: 1px solid rgba(16,32,64,0.05);
+}
 .benefits-v2 .container { position: relative; }
 
 .benefits-v2-grid {
@@ -4096,11 +4179,25 @@ p { margin: 0; }
     gap: 32px;
   }
 }
+@media (min-width: 981px) {
+  .benefits-v2-grid--reverse {
+    grid-template-columns: 1.15fr minmax(280px, 0.85fr);
+  }
+  .benefits-v2-grid--reverse .benefits-v2-media {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .benefits-v2-grid--reverse .benefits-v2-content {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
 
 /* Media (image column) */
 .benefits-v2-media {
   position: sticky;
   top: 100px;
+  margin: 0;
 }
 @media (max-width: 980px) { .benefits-v2-media { position: relative; top: auto; } }
 
@@ -4108,7 +4205,7 @@ p { margin: 0; }
   position: relative;
   border-radius: 24px;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 10 / 11;
   background: var(--mist);
   box-shadow: 0 30px 80px -20px rgba(16,32,64,0.18), 0 6px 18px -6px rgba(16,32,64,0.08);
   isolation: isolate;
@@ -4117,77 +4214,10 @@ p { margin: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(1.08);
+  object-position: center;
   transition: transform 1.2s var(--ease);
 }
 .benefits-v2-frame:hover img { transform: scale(1.04); }
-.benefits-v2-frame-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(155deg, rgba(13,27,51,0.15) 0%, transparent 38%),
-    linear-gradient(0deg, rgba(13,27,51,0.65) 0%, rgba(13,27,51,0.1) 45%, transparent 65%);
-  pointer-events: none;
-}
-
-/* Badge "60+ anos" no canto superior esquerdo */
-.benefits-v2-badge {
-  position: absolute;
-  top: 22px; left: 22px;
-  background: linear-gradient(135deg, #2F6BC4, #1E4C8F 60%, #12315F);
-  color: white;
-  border-radius: 16px;
-  padding: 14px 18px;
-  box-shadow: 0 10px 30px -6px rgba(30,76,143,0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  z-index: 2;
-}
-.benefits-v2-badge strong {
-  font-family: var(--f-display);
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-.benefits-v2-badge span {
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 4px;
-  opacity: 0.92;
-}
-
-/* Citação na parte inferior da imagem */
-.benefits-v2-quote {
-  position: absolute;
-  left: 22px; right: 22px; bottom: 22px;
-  background: rgba(255,255,255,0.96);
-  backdrop-filter: blur(10px);
-  border-radius: 14px;
-  padding: 18px 20px;
-  z-index: 2;
-  box-shadow: 0 6px 24px -6px rgba(0,0,0,0.18);
-}
-.benefits-v2-quote p {
-  font-family: var(--f-display);
-  font-size: 15px;
-  line-height: 1.45;
-  font-weight: 600;
-  color: var(--ink);
-  margin: 0;
-}
-.benefits-v2-quote small {
-  display: block;
-  margin-top: 8px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--orange);
-  letter-spacing: 0.04em;
-}
 
 /* Content (right column) */
 .benefits-v2-content {
@@ -7047,7 +7077,7 @@ html.lang-ready .topbar .pill {
 
   /* ---------- Benefits v2 ---------- */
   .benefits-v2-grid { gap: 24px; }
-  .benefits-v2-media { aspect-ratio: 4/5; }
+  .benefits-v2-media { aspect-ratio: 10/11; }
 
   /* ---------- Awards / Trust pills ---------- */
   .awards-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -8717,4 +8747,3 @@ body.chat-modal-aberto { overflow: hidden; }
     display: none !important;
   }
 }
-

@@ -135,6 +135,31 @@
       'Compromisso com o agro': 'Committed to agribusiness',
       'Soluções que geram produtividade com responsabilidade.': 'Solutions that deliver productivity, responsibly.',
 
+      'Projeto': 'Project',
+      'Jaqueline Paim Ceretta segurando um balde de DIFLY MOSCA na Agropecuária Ceretta': 'Jaqueline Paim Ceretta holding a bucket of DIFLY MOSCA at Agropecuária Ceretta',
+      'Histórias do campo': 'Stories from the field',
+      'voz feminina': "women's voice",
+      'no agro.': 'in agribusiness.',
+      'À frente da Agropecuária Ceretta, em Ijuí/RS, Jaqueline Paim Ceretta criou o LeiteDeBatom: um projeto e movimento digital que usa vídeos nas redes sociais para valorizar o trabalho das mulheres no agronegócio e mostrar a rotina da produção de leite. Jaqueline usa e recomenda DIFLY MOSCA.': 'At the helm of Agropecuária Ceretta in Ijuí, Rio Grande do Sul, Jaqueline Paim Ceretta created LeiteDeBatom: a digital project and movement that uses social-media videos to celebrate the work of women in agribusiness and show the day-to-day reality of milk production. Jaqueline uses and recommends DIFLY MOSCA.',
+      'Jaqueline está à frente da produção leiteira em Ijuí/RS.': 'Jaqueline leads dairy production in Ijuí, Rio Grande do Sul.',
+      'Projeto e movimento digital que mostra a rotina da produção de leite nas redes sociais.': 'A digital project and movement that shows the routine of milk production on social media.',
+      'Mulheres no agro': 'Women in agribusiness',
+      'Vídeos que valorizam o trabalho das mulheres no agronegócio.': 'Videos that celebrate the work of women in agribusiness.',
+      'Jaqueline usa e recomenda DIFLY MOSCA.': 'Jaqueline uses and recommends DIFLY MOSCA.',
+
+      'Rubens Gazini em uma fazenda de pecuária, com o selo Cliente Satisfeito Champion': 'Rubens Gazini at a livestock farm, with the Champion Satisfied Customer seal',
+      'Cliente satisfeito': 'Satisfied customer',
+      'o homem da pecuária nacional.': 'a leading figure in Brazilian livestock farming.',
+      'A Champion Saúde Animal tem a honra de contar um pouco da história de Rubens Gazini, um dos nomes mais fortes da produção nacional. Há décadas, ele utiliza os produtos Champion em suas fazendas.': 'Champion Animal Health is honored to share part of the story of Rubens Gazini, one of the leading names in Brazilian production. He has used Champion products on his farms for decades.',
+      'Trajetória': 'Track record',
+      'Um dos nomes mais fortes da produção nacional.': 'One of the leading names in Brazilian production.',
+      'Experiência': 'Experience',
+      'Há décadas utilizando produtos Champion.': 'Decades of experience using Champion products.',
+      'No campo': 'In the field',
+      'Produtos Champion presentes em suas fazendas.': 'Champion products are present on his farms.',
+      'Confiança': 'Trust',
+      'Rubens Gazini usa e recomenda Champion.': 'Rubens Gazini uses and recommends Champion.',
+
       'Revenda Champion': 'Champion resellers',
       'Venda Champion na': 'Sell Champion in',
       'sua região': 'your region',
@@ -195,7 +220,8 @@
       'Conheça a Champion': 'Get to know Champion',
       'Sobre a Champion': 'About Champion',
       'Blog Champion': 'Champion blog',
-      'Página Inicial': 'Home'
+      'Página Inicial': 'Home',
+      'Ao Vivo': 'Live'
     },
 
     es: {
@@ -306,6 +332,31 @@
       'Compromisso com o agro': 'Compromiso con el agro',
       'Soluções que geram produtividade com responsabilidade.': 'Soluciones que generan productividad con responsabilidad.',
 
+      'Projeto': 'Proyecto',
+      'Jaqueline Paim Ceretta segurando um balde de DIFLY MOSCA na Agropecuária Ceretta': 'Jaqueline Paim Ceretta sosteniendo un balde de DIFLY MOSCA en Agropecuária Ceretta',
+      'Histórias do campo': 'Historias del campo',
+      'voz feminina': 'voz femenina',
+      'no agro.': 'en el agro.',
+      'À frente da Agropecuária Ceretta, em Ijuí/RS, Jaqueline Paim Ceretta criou o LeiteDeBatom: um projeto e movimento digital que usa vídeos nas redes sociais para valorizar o trabalho das mulheres no agronegócio e mostrar a rotina da produção de leite. Jaqueline usa e recomenda DIFLY MOSCA.': 'Al frente de Agropecuária Ceretta, en Ijuí, Rio Grande do Sul, Jaqueline Paim Ceretta creó LeiteDeBatom: un proyecto y movimiento digital que utiliza videos en las redes sociales para valorar el trabajo de las mujeres en el agronegocio y mostrar la rutina de la producción de leche. Jaqueline usa y recomienda DIFLY MOSCA.',
+      'Jaqueline está à frente da produção leiteira em Ijuí/RS.': 'Jaqueline está al frente de la producción lechera en Ijuí, Rio Grande do Sul.',
+      'Projeto e movimento digital que mostra a rotina da produção de leite nas redes sociais.': 'Proyecto y movimiento digital que muestra la rutina de la producción de leche en las redes sociales.',
+      'Mulheres no agro': 'Mujeres en el agro',
+      'Vídeos que valorizam o trabalho das mulheres no agronegócio.': 'Videos que valoran el trabajo de las mujeres en el agronegocio.',
+      'Jaqueline usa e recomenda DIFLY MOSCA.': 'Jaqueline usa y recomienda DIFLY MOSCA.',
+
+      'Rubens Gazini em uma fazenda de pecuária, com o selo Cliente Satisfeito Champion': 'Rubens Gazini en una hacienda ganadera, con el sello Cliente Satisfecho Champion',
+      'Cliente satisfeito': 'Cliente satisfecho',
+      'o homem da pecuária nacional.': 'el hombre de la ganadería nacional.',
+      'A Champion Saúde Animal tem a honra de contar um pouco da história de Rubens Gazini, um dos nomes mais fortes da produção nacional. Há décadas, ele utiliza os produtos Champion em suas fazendas.': 'Champion Salud Animal tiene el honor de compartir parte de la historia de Rubens Gazini, uno de los nombres más fuertes de la producción nacional. Desde hace décadas utiliza productos Champion en sus haciendas.',
+      'Trajetória': 'Trayectoria',
+      'Um dos nomes mais fortes da produção nacional.': 'Uno de los nombres más fuertes de la producción nacional.',
+      'Experiência': 'Experiencia',
+      'Há décadas utilizando produtos Champion.': 'Décadas de experiencia utilizando productos Champion.',
+      'No campo': 'En el campo',
+      'Produtos Champion presentes em suas fazendas.': 'Productos Champion presentes en sus haciendas.',
+      'Confiança': 'Confianza',
+      'Rubens Gazini usa e recomenda Champion.': 'Rubens Gazini usa y recomienda Champion.',
+
       'Revenda Champion': 'Distribuidores Champion',
       'Venda Champion na': 'Vende Champion en',
       'sua região': 'tu región',
@@ -365,7 +416,8 @@
       'Conheça a Champion': 'Conoce Champion',
       'Sobre a Champion': 'Sobre Champion',
       'Blog Champion': 'Blog Champion',
-      'Página Inicial': 'Inicio'
+      'Página Inicial': 'Inicio',
+      'Ao Vivo': 'En Vivo'
     }
   };
 
@@ -430,6 +482,14 @@
       if (!campo.dataset.phOriginal) campo.dataset.phOriginal = campo.placeholder;
       const base = campo.dataset.phOriginal;
       campo.placeholder = (dic && dic[base.trim()]) || base;
+    });
+
+    /* Texto alternativo também acompanha o idioma ativo. */
+    document.querySelectorAll('img[alt]').forEach(function (imagem) {
+      if (imagem.closest(IGNORAR)) return;
+      if (!imagem.dataset.altOriginal) imagem.dataset.altOriginal = imagem.alt;
+      const base = imagem.dataset.altOriginal;
+      imagem.alt = (dic && dic[base.trim()]) || base;
     });
   }
 
