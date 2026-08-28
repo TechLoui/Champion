@@ -24,6 +24,17 @@ function sanitize(value, maxLength = 500) {
   return String(value || '').trim().slice(0, maxLength);
 }
 
+/* Campos de múltipla escolha do formulário de interesse chegam como array.
+   Guardar como array (e não string concatenada) é o que permite filtrar leads
+   por espécie ou por necessidade no painel depois. */
+function sanitizeList(value, maxItems = 12, maxLength = 80) {
+  const bruto = Array.isArray(value) ? value : (value ? [value] : []);
+  return bruto
+    .map((v) => sanitize(v, maxLength))
+    .filter(Boolean)
+    .slice(0, maxItems);
+}
+
 function esc(str) {
   return String(str || '')
     .replace(/&/g, '&amp;')
@@ -63,6 +74,12 @@ function buildEmailHtml(lead) {
               ${row('E-mail', email ? `<a href="mailto:${email}" style="color:#1E4C8F;">${email}</a>` : '')}
               ${row('Telefone', phone)}
               ${row('Origem', source)}
+              ${row('Cidade', esc(lead.cidade))}
+              ${row('Perfil', esc(lead.perfil))}
+              ${row('Espécie', esc((lead.especie || []).join(', ')))}
+              ${row('Rebanho', esc(lead.rebanho))}
+              ${row('Interesse', esc((lead.interesse || []).join(', ')))}
+              ${row('Momento', esc(lead.momento))}
             </table>
             ${message ? `
             <div style="margin-top:20px;padding:16px;background:#F9FAFB;border-radius:10px;border:1px solid #E5E8EF;">
@@ -99,9 +116,19 @@ router.post('/', async (req, res) => {
   if (!name) return res.status(422).json({ error: 'O campo nome é obrigatório.' });
   if (!email && !phone) return res.status(422).json({ error: 'Informe ao menos e-mail ou telefone.' });
 
+  /* Qualificação do formulário de interesse. Opcionais: o formulário de contato
+     simples continua funcionando sem mandar nada disso. */
+  const cidade    = sanitize(req.body?.cidade, 120);
+  const perfil    = sanitize(req.body?.perfil, 60);
+  const rebanho   = sanitize(req.body?.rebanho, 60);
+  const momento   = sanitize(req.body?.momento, 60);
+  const especie   = sanitizeList(req.body?.especie);
+  const interesse = sanitizeList(req.body?.interesse);
+
   const lead = {
     id: `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     name, email, phone, message, source,
+    cidade, perfil, rebanho, momento, especie, interesse,
     status: 'open',
     createdAt: new Date().toISOString()
   };

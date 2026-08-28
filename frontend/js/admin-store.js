@@ -1,5 +1,5 @@
 import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-config.js';
-import { DEFAULT_PRODUCTS, normalizeProduct, sortProducts } from './product-data.js?v=20260522-2';
+import { DEFAULT_PRODUCTS, normalizeProduct, sortProducts } from './product-data.js?v=20260828-6';
 
 const LOCAL_BANNERS_KEY = 'champion-admin-banners';
 
@@ -11,9 +11,9 @@ const DEFAULT_BANNERS = [
   {
     id: 'banner-home-1', page: 'home', aspect: '21/9', transitionMs: 6000,
     slides: [
-      { image: 'assets/img/hero/hero-1.png', eyebrow: 'Linha Difly', title: 'Proteção completa para o gado', subtitle: 'Controle da mosca-dos-chifres direto na origem.', link: 'produtos.html', cta: 'Ver produtos' },
-      { image: 'assets/img/hero/hero-2.png', eyebrow: 'Linha Núcleo', title: 'Mais lucratividade na sua propriedade', subtitle: 'Nutrição mineral completa para bovinos.', link: 'produtos.html', cta: 'Ver linha' },
-      { image: 'assets/img/hero/hero-3.png', eyebrow: 'VER-MI-SAL', title: 'Concentrado de microminerais', subtitle: 'Mineralização contínua com microminerais no cocho.', link: 'produto.html?p=ver-mi-sal', cta: 'Conhecer' }
+      { image: '/assets/img/hero/hero-1.png', eyebrow: 'Linha Difly', title: 'Proteção completa para o gado', subtitle: 'Controle da mosca-dos-chifres direto na origem.', link: '/produtos', cta: 'Ver produtos' },
+      { image: '/assets/img/hero/hero-2.png', eyebrow: 'Linha Núcleo', title: 'Mais lucratividade na sua propriedade', subtitle: 'Nutrição mineral completa para bovinos.', link: '/produtos', cta: 'Ver linha' },
+      { image: '/assets/img/hero/hero-3.png', eyebrow: 'VER-MI-SAL', title: 'Concentrado de microminerais', subtitle: 'Mineralização contínua com microminerais no cocho.', link: '/produto?p=ver-mi-sal', cta: 'Conhecer' }
     ],
     status: 'published', order: 1
   }
@@ -229,7 +229,7 @@ class LocalAdminStore {
   }
 
   async seedProducts() {
-    writeJson(LOCAL_PRODUCTS_KEY, clone(DEFAULT_PRODUCTS));
+    /* Não semeia mais: produto vem da Shopify, não daqui. */
   }
 
   async getSettings() {
@@ -426,13 +426,8 @@ class FirebaseAdminStore {
   }
 
   async seedProducts() {
-    const batch = this.api.writeBatch(this.db);
-    DEFAULT_PRODUCTS.map(normalizeProduct).forEach((product) => {
-      batch.set(this.productRef(product.id), Object.assign({}, product, {
-        updatedAt: this.api.serverTimestamp()
-      }), { merge: true });
-    });
-    await batch.commit();
+    /* Semear o Firestore com catálogo local não faz mais sentido: a vitrine
+       lê da Shopify e nada lê a coleção de produtos do Firestore. */
   }
 
   async getSettings() {

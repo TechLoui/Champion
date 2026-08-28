@@ -159,7 +159,7 @@
 
     // Brand logo
     const brandImg = document.querySelector('.site-header .brand img');
-    const brandSrc = brandImg ? brandImg.getAttribute('src') : 'assets/img/brand/logo.png';
+    const brandSrc = brandImg ? brandImg.getAttribute('src') : '/assets/img/brand/logo.png';
 
     // Build FAB — bola branca com ícone Champion no centro
     const fab = document.createElement('button');
@@ -170,7 +170,7 @@
     fab.setAttribute('aria-controls', 'mobilePanel');
     // Resolve caminho da logo Champion (relativo à página)
     const iconPath = (document.querySelector('.site-header .brand img')?.getAttribute('src') || '')
-      .replace(/logo\.png$/i, 'icon.png') || 'assets/img/brand/icon.png';
+      .replace(/logo\.png$/i, 'icon.png') || '/assets/img/brand/icon.png';
     fab.innerHTML = `<img src="${iconPath}" alt="" class="mobile-menu-fab-icon" />`;
 
     // Build panel
@@ -246,7 +246,7 @@
         setOpen(false);
         const trigger = document.querySelector('.account-trigger') || document.querySelector('[data-account-trigger]');
         if (trigger) setTimeout(() => trigger.click(), 200);
-        else window.location.href = 'cliente-conta.html';
+        else window.location.href = '/cliente-conta';
       });
     }
     document.addEventListener('keydown', (e) => {
@@ -257,7 +257,7 @@
       searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           const q = searchInput.value.trim();
-          if (q) window.location.href = 'produtos.html?q=' + encodeURIComponent(q);
+          if (q) window.location.href = '/produtos?q=' + encodeURIComponent(q);
         }
       });
     }
@@ -363,8 +363,17 @@
     });
   }
 
+  /* Casamento por substring — só para links externos, identificados pelo domínio. */
   function setTextByHref(hrefPart, text) {
     document.querySelectorAll(`#primaryNav a[href*="${hrefPart}"]`).forEach(link => {
+      link.textContent = text;
+    });
+  }
+
+  /* Rotas internas agora são absolutas ("/", "/produtos"). Com substring, "/"
+     casaria com todos os itens do menu — aqui o casamento é exato. */
+  function setTextByRoute(route, text) {
+    document.querySelectorAll(`#primaryNav a[href="${route}"]`).forEach(link => {
       link.textContent = text;
     });
   }
@@ -380,10 +389,10 @@
       select.closest('.lang-switch')?.setAttribute('title', copy.label);
     }
 
-    setTextByHref('index.html', copy.home);
-    setTextByHref('produtos.html', copy.shop);
-    setTextByHref('sobre.html', copy.about);
-    setTextByHref('blog.html', copy.blog);
+    setTextByRoute('/', copy.home);
+    setTextByRoute('/produtos', copy.shop);
+    setTextByRoute('/sobre', copy.about);
+    setTextByRoute('/blog', copy.blog);
     setTextByHref('revendachampion.com.br', copy.store);
 
     const promo = document.querySelector('.topbar .pill');
@@ -899,33 +908,12 @@
 
   const fmtBRL = (n) => 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const cartProductPhotos = {
-    'difly': { src: 'assets/img/products/difly.png', alt: 'Difly' },
-    'difly-s3': { src: 'assets/img/products/difly-s3.png', alt: 'Difly S3' },
-    'vermi-sal': { src: 'assets/img/products/vermi-sal.png', alt: 'Vermi-Sal' },
-    'ver-mi-sal': { src: 'assets/img/products/vermi-sal.png', alt: 'Vermi-Sal' },
-    'ade-po': { src: 'assets/img/products/ade-po.png', alt: 'A.D.E. Pó' },
-    'diazinon': { src: 'assets/img/products/diazinon.png', alt: 'Diazinon' },
-    'nucleo-supera': { src: 'assets/img/products/nucleo-premium.png', alt: 'Núcleo Supera' },
-    'nucleo': { src: 'assets/img/products/nucleo-premium.png', alt: 'Núcleo Supera' },
-    'nucleo-tm-force': { src: 'assets/img/products/select.png', alt: 'Núcleo TM Force' },
-    'iatf-boost': { src: 'assets/img/products/iatf-boost.png', alt: 'IATF Boost' },
-    'andro-boost': { src: 'assets/img/products/andro-boost.png', alt: 'Andro Boost' },
-    'propoxur-1': { src: 'assets/img/products/propoxur.png', alt: 'Propoxur 1%' },
-    'domifly-s3': { src: 'assets/img/products/domifly.png', alt: 'Domifly S3' },
-    'datropa': { src: 'assets/img/products/datropa.png', alt: 'Datropa' },
-    'avecal': { src: 'assets/img/products/avecal.png', alt: 'Avecal' },
-    'suino-nobre': { src: 'assets/img/products/suino-nobre.png', alt: 'Suíno Nobre' },
-    'farinha-calcio': { src: 'assets/img/products/farinha-calcio.png', alt: 'Farinha de Cálcio' },
-    'farinha-calcio-fosfatada': { src: 'assets/img/products/farinha-calcio.png', alt: 'Farinha de Cálcio Fosfatada' },
-    'farinha-calcio-b12': { src: 'assets/img/products/farinha-calcio.png', alt: 'Farinha de Cálcio + B12' }
-  };
-
+  /* O mapa de fotos cravado do carrinho saiu junto com o resto do catálogo
+     local. A imagem vem do próprio item, que o products-cms.js monta a partir
+     da Shopify; sem imagem, o carrinho cai no monograma. */
   function getCartPhoto(item) {
-    const rawId = String(item.id || '');
-    const baseId = rawId.split('|')[0];
     if (item.image) return { src: item.image, alt: item.name };
-    return cartProductPhotos[baseId] || cartProductPhotos[rawId] || null;
+    return null;
   }
 
   function renderCartThumb(item) {
@@ -1017,7 +1005,7 @@
           <div class="cart-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
             <p>Seu carrinho está vazio.<br>Explore nossos produtos e comece agora.</p>
-            <a href="produtos.html" class="btn btn-primary cart-empty-cta">
+            <a href="/produtos" class="btn btn-primary cart-empty-cta">
               Ver produtos
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </a>
@@ -1069,7 +1057,7 @@
     if (title) {
       title.outerHTML = `
         <div class="cart-brand">
-          <img src="assets/img/brand/logo.png" alt="Champion" />
+          <img src="/assets/img/brand/logo.png" alt="Champion" />
           <div>
             <span>Champion</span>
             <strong>Seu carrinho</strong>
@@ -1105,7 +1093,7 @@
     /* A identificação é decidida no checkout: no fluxo Shopify o cliente compra como
        visitante (identifica-se no checkout hospedado do Shopify); no fluxo legado
        (Pagar.me) o próprio checkout.html exige login. Aqui não forçamos mais nada. */
-    window.location.href = 'checkout.html';
+    window.location.href = '/checkout';
   });
 
   // Esc to close
@@ -1302,7 +1290,7 @@
   }
   function acctOrdersHtml() {
     if (!acctLoaded) return '<div class="acct-loading">Carregando pedidos…</div>';
-    if (!acctOrders.length) return '<div class="acct-empty"><strong>Nenhum pedido ainda</strong><p>Que tal começar pelos nossos produtos?</p><a class="acct-btn primary" href="produtos.html">Ver produtos</a></div>';
+    if (!acctOrders.length) return '<div class="acct-empty"><strong>Nenhum pedido ainda</strong><p>Que tal começar pelos nossos produtos?</p><a class="acct-btn primary" href="/produtos">Ver produtos</a></div>';
     return acctOrders.map(function (o) {
       var a = o.address || {};
       var addr = (a.street || a.city) ? '<div class="acct-order-addr">Entrega: ' + escape([a.street, a.number].filter(Boolean).join(', ')) + (a.city ? ' — ' + escape(a.city) + '/' + escape(a.uf || '') : '') + '</div>' : '';
@@ -1464,7 +1452,7 @@
   async function acctLogout() {
     try { await window.ChampionCustomers.logout(); } catch (e) {}
     closeAccountDrawer();
-    window.location.href = 'index.html';
+    window.location.href = '/';
   }
 
   function onAccountDrawerClick(e) {
@@ -1490,84 +1478,12 @@
   /* Expor para o handler do ícone de conta. */
   window.ChampionAccountDrawer = { open: openAccountDrawer, close: closeAccountDrawer };
 
-  // ------------------------------------------------------------
-  // Product cards: photos, demo prices and cart actions
-  // ------------------------------------------------------------
-  const productPhotos = {
-    'difly': { src: 'assets/img/products/difly.png', alt: 'Difly' },
-    'difly-s3': { src: 'assets/img/products/difly-s3.png', alt: 'Difly S3' },
-    'vermi-sal': { src: 'assets/img/products/vermi-sal.png', alt: 'Vermi-Sal' },
-    'ver-mi-sal': { src: 'assets/img/products/vermi-sal.png', alt: 'Vermi-Sal' },
-    'ade-po': { src: 'assets/img/products/ade-po.png', alt: 'A.D.E. Pó' },
-    'diazinon': { src: 'assets/img/products/diazinon.png', alt: 'Diazinon' },
-    'nucleo-supera': { src: 'assets/img/products/nucleo-premium.png', alt: 'Núcleo Supera' },
-    'nucleo': { src: 'assets/img/products/nucleo-premium.png', alt: 'Núcleo Supera' },
-    'nucleo-tm-force': { src: 'assets/img/products/select.png', alt: 'Núcleo TM Force' },
-    'iatf-boost': { src: 'assets/img/products/iatf-boost.png', alt: 'IATF Boost' },
-    'andro-boost': { src: 'assets/img/products/andro-boost.png', alt: 'Andro Boost' },
-    'propoxur-1': { src: 'assets/img/products/propoxur.png', alt: 'Propoxur 1%' },
-    'domifly-s3': { src: 'assets/img/products/domifly.png', alt: 'Domifly S3' },
-    'datropa': { src: 'assets/img/products/datropa.png', alt: 'Datropa' },
-    'avecal': { src: 'assets/img/products/avecal.png', alt: 'Avecal' },
-    'suino-nobre': { src: 'assets/img/products/suino-nobre.png', alt: 'Suíno Nobre' },
-    'farinha-calcio': { src: 'assets/img/products/farinha-calcio.png', alt: 'Farinha de Cálcio' },
-    'farinha-calcio-fosfatada': { src: 'assets/img/products/farinha-calcio.png', alt: 'Farinha de Cálcio Fosfatada' },
-    'farinha-calcio-b12': { src: 'assets/img/products/farinha-calcio.png', alt: 'Farinha de Cálcio + B12' }
-  };
-
-  const productCommerce = {
-    'difly': { name: 'Difly', price: 129.90, art: 'D' },
-    'difly-s3': { name: 'Difly S3', price: 189.90, art: 'S' },
-    'vermi-sal': { name: 'Vermi-Sal', price: 149.90, art: 'V' },
-    'ver-mi-sal': { name: 'Vermi-Sal', price: 149.90, art: 'V' },
-    'ade-po': { name: 'A.D.E. Pó', price: 79.90, art: 'A' },
-    'diazinon': { name: 'Diazinon', price: 64.90, art: 'D' },
-    'nucleo-supera': { name: 'Núcleo Supera', price: 219.90, art: 'N' },
-    'nucleo': { name: 'Núcleo Supera', price: 219.90, art: 'N' },
-    'nucleo-tm-force': { name: 'Núcleo TM Force', price: 249.90, art: 'T' },
-    'iatf-boost': { name: 'IATF Boost', price: 179.90, art: 'I' },
-    'andro-boost': { name: 'Andro Boost', price: 169.90, art: 'A' },
-    'propoxur-1': { name: 'Propoxur 1%', price: 49.90, art: 'P' },
-    'domifly-s3': { name: 'Domifly S3', price: 89.90, art: 'D' },
-    'datropa': { name: 'Datropa', price: 139.90, art: 'D' },
-    'avecal': { name: 'Avecal', price: 59.90, art: 'A' },
-    'suino-nobre': { name: 'Suíno Nobre', price: 159.90, art: 'S' },
-    'farinha-calcio': { name: 'Farinha de Cálcio', price: 39.90, art: 'C' },
-    'farinha-calcio-fosfatada': { name: 'Farinha de Cálcio Fosfatada', price: 54.90, art: 'F' },
-    'farinha-calcio-b12': { name: 'Farinha de Cálcio + B12', price: 69.90, art: 'B' }
-  };
-
-  document.querySelectorAll('.product-card[data-product]').forEach(card => {
-    const id = card.dataset.product;
-    const photo = productPhotos[id];
-    const thumb = card.querySelector('.product-thumb');
-    if (photo && thumb) {
-      const tag = thumb.querySelector('.product-tag')?.outerHTML || '';
-      thumb.className = 'product-thumb has-photo';
-      thumb.innerHTML = `${tag}<img class="product-photo" src="${photo.src}" alt="${photo.alt}" loading="lazy" />`;
-    }
-
-    const commerce = productCommerce[id];
-    if (!commerce) return;
-
-    const labelEl = card.querySelector('.product-price-label');
-    const priceEl = card.querySelector('.product-price');
-    if (labelEl) labelEl.textContent = 'Preço fictício';
-    if (priceEl) {
-      priceEl.classList.remove('product-price-consult');
-      priceEl.textContent = fmtBRL(commerce.price);
-    }
-
-    const addBtn = card.querySelector('.product-add');
-    if (addBtn) {
-      addBtn.setAttribute('aria-label', `Adicionar ${commerce.name} ao carrinho`);
-      addBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        Cart.add({ id: id, ...commerce, qty: 1 }, { open: false });
-      });
-    }
-  });
+    // ------------------------------------------------------------
+    // Cards de produto: quem preenche é o products-cms.js, a partir da Shopify.
+    // Havia aqui um catálogo cravado (fotos, nomes e preços de 17 produtos) que
+    // sobrescrevia os cards antes do dado real chegar — o Difly, por exemplo,
+    // piscava R$ 129,90 antes de virar o preço verdadeiro.
+    // ------------------------------------------------------------
 
   // ------------------------------------------------------------
   // Shop filters, search, sorting and view mode
@@ -1590,144 +1506,8 @@
     let checkInputs = queryCheckInputs();
     let allFilterInputs = [...checkInputs, ...priceRadios];
 
-    const productCatalog = {
-      'difly': {
-        cats: ['larvicida', 'parasitario'],
-        species: ['bovinos'],
-        uses: ['sal-racao'],
-        keywords: ['mosca', 'mosca-dos-chifres', 'larvas', 'cocho', 'origem'],
-        best: 1,
-        launch: 12
-      },
-      'difly-s3': {
-        cats: ['larvicida', 'parasitario'],
-        species: ['bovinos'],
-        uses: ['sal-racao'],
-        keywords: ['moscas', 'carrapatos', 'pragas', 'infestacoes'],
-        best: 2,
-        launch: 13
-      },
-      'vermi-sal': {
-        cats: ['mineralizacao'],
-        species: ['bovinos'],
-        uses: ['sal-racao'],
-        keywords: ['antianemico', 'cocho'],
-        best: 3,
-        launch: 8
-      },
-      'ade-po': {
-        cats: ['suplemento'],
-        species: ['bovinos'],
-        uses: ['sal-racao'],
-        keywords: ['vitaminas', 'imunidade', 'fertilidade', 'seca', 'recria'],
-        best: 6,
-        launch: 9
-      },
-      'diazinon': {
-        cats: ['inseticida'],
-        species: ['ambientes'],
-        uses: ['pulverizacao'],
-        keywords: ['currais', 'estabulos', 'moscas', 'pulgas', 'instalacoes', 'epi'],
-        best: 10,
-        launch: 4
-      },
-      'nucleo-supera': {
-        cats: ['nutricao'],
-        species: ['bovinos'],
-        uses: ['sal-racao', 'dieta-premix'],
-        keywords: ['ganho de peso', 'dieta', 'pre-mix', 'custos', 'producao'],
-        best: 4,
-        launch: 10
-      },
-      'nucleo-tm-force': {
-        cats: ['nutricao'],
-        species: ['bovinos'],
-        uses: ['sal-racao', 'dieta-premix'],
-        keywords: ['performance', 'alto desempenho', 'ganho intensivo', 'dieta'],
-        best: 5,
-        launch: 14
-      },
-      'iatf-boost': {
-        cats: ['suplemento', 'reproducao'],
-        species: ['bovinos'],
-        uses: ['sal-racao'],
-        keywords: ['prenhez', 'ovarios', 'fertilidade', 'reproducao'],
-        best: 7,
-        launch: 15
-      },
-      'andro-boost': {
-        cats: ['suplemento', 'reproducao'],
-        species: ['bovinos'],
-        uses: ['sal-racao'],
-        keywords: ['touros', 'semen', 'motilidade', 'fertilidade'],
-        best: 8,
-        launch: 16
-      },
-      'propoxur-1': {
-        cats: ['inseticida', 'parasitario'],
-        species: ['veterinario'],
-        uses: ['po-topico'],
-        keywords: ['pulgas', 'carrapatos', 'piolhos', 'ectoparasitas', 'po'],
-        best: 11,
-        launch: 5
-      },
-      'domifly-s3': {
-        cats: ['larvicida', 'inseticida'],
-        species: ['ambientes'],
-        uses: ['agua-parada'],
-        keywords: ['dengue', 'mosquito', 'larvicida liquido', 'agua parada'],
-        best: 9,
-        launch: 17
-      },
-      'datropa': {
-        cats: ['nutricao', 'suplemento'],
-        species: ['equinos'],
-        uses: ['sal-racao'],
-        keywords: ['equinos', 'ossos', 'desempenho', 'palatabilidade'],
-        best: 12,
-        launch: 7
-      },
-      'avecal': {
-        cats: ['mineralizacao', 'nutricao'],
-        species: ['aves'],
-        uses: ['sal-racao'],
-        keywords: ['aves', 'calcio', 'crescimento', 'producao'],
-        best: 13,
-        launch: 6
-      },
-      'suino-nobre': {
-        cats: ['nutricao', 'suplemento'],
-        species: ['suinos'],
-        uses: ['sal-racao'],
-        keywords: ['suinos', 'ganho de peso', 'conversao alimentar'],
-        best: 14,
-        launch: 11
-      },
-      'farinha-calcio': {
-        cats: ['mineralizacao', 'nutricao'],
-        species: ['minerais'],
-        uses: ['dieta-premix'],
-        keywords: ['calcio', 'ossos', 'base nutricional'],
-        best: 15,
-        launch: 1
-      },
-      'farinha-calcio-fosfatada': {
-        cats: ['mineralizacao', 'nutricao'],
-        species: ['minerais'],
-        uses: ['dieta-premix'],
-        keywords: ['calcio', 'fosforo', 'fosfatada', 'formulacao'],
-        best: 16,
-        launch: 2
-      },
-      'farinha-calcio-b12': {
-        cats: ['mineralizacao', 'suplemento'],
-        species: ['minerais'],
-        uses: ['dieta-premix'],
-        keywords: ['calcio', 'b12', 'vitaminas', 'suporte vitaminico'],
-        best: 17,
-        launch: 3
-      }
-    };
+    /* O productCatalog cravado saiu: espécie, categoria e uso agora vêm dos
+       data-* que o products-cms.js grava no card a partir da Shopify. */
 
     const normalizeText = (value) => String(value || '')
       .normalize('NFD')
@@ -1757,21 +1537,19 @@
     function buildProducts() {
       return Array.from(shopList.querySelectorAll('.product-card[data-product]')).map((card, index) => {
         const id = card.dataset.product;
-        const commerce = productCommerce[id] || {};
-        const meta = productCatalog[id] || {};
-        const name = commerce.name || card.querySelector('.product-name')?.textContent.trim() || id;
+        const name = card.querySelector('.product-name')?.textContent.trim() || id;
         const cardPrice = parseMoney(card.querySelector('.product-price')?.textContent);
-        const price = cardPrice !== null ? cardPrice : (typeof commerce.price === 'number' ? commerce.price : 0);
+        const price = cardPrice !== null ? cardPrice : 0;
         const categoryText = card.querySelector('.product-cat')?.textContent || '';
         const desc = card.querySelector('.product-desc')?.textContent || '';
-        const searchBlob = normalizeText([name, categoryText, desc, ...(meta.keywords || [])].join(' '));
+        const searchBlob = normalizeText([name, categoryText, desc].join(' '));
         return {
           id, card, index, name, price, searchBlob,
-          cats: (meta.cats && meta.cats.length) ? meta.cats : splitAttr(card.dataset.cats),
-          species: (meta.species && meta.species.length) ? meta.species : splitAttr(card.dataset.species),
-          uses: (meta.uses && meta.uses.length) ? meta.uses : splitAttr(card.dataset.use),
-          best: meta.best || 99,
-          launch: meta.launch || 0
+          cats: splitAttr(card.dataset.cats),
+          species: splitAttr(card.dataset.species),
+          uses: splitAttr(card.dataset.use),
+          best: Number(card.dataset.best) || 99,
+          launch: Number(card.dataset.launch) || 0
         };
       });
     }
@@ -2686,7 +2464,7 @@
       /* Logado: abre o drawer de conta in-site. Sem login: vai para a página de acesso. */
       var logged = window.ChampionCustomers && window.ChampionCustomers.isLogged();
       if (logged) openAccountDrawer();
-      else window.location.href = 'cliente-conta.html';
+      else window.location.href = '/cliente-conta';
     });
   });
   updateAccountTriggers();
@@ -2745,7 +2523,7 @@
     total: () => Cart.total(),
     setQty: (id, q) => Cart.setQty(id, q),
     remove: (id) => Cart.remove(id),
-    checkout: () => { window.location.href = 'checkout.html'; }
+    checkout: () => { window.location.href = '/checkout'; }
   };
   window.ChampionToast = showToast;
 

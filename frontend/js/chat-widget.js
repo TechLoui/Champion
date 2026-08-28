@@ -35,13 +35,17 @@
       titulo: 'Atendimento Champion',
       subtitulo: 'Produtos, preços e pedidos',
       abrir: 'Abrir atendimento',
+      convite: 'Compre aqui',
+      atalhos: ['Ver produtos', 'Preços e embalagens', 'Falar com a equipe'],
+      conviteSub: 'Tire dúvidas e monte seu pedido',
+      conviteFechar: 'Dispensar convite',
       fechar: 'Fechar atendimento',
       placeholder: 'Escreva sua mensagem...',
       enviar: 'Enviar',
       campo: 'Sua mensagem',
       saudacao:
         'Olá! Sou o atendente da Champion. Posso ajudar a encontrar o produto certo, ' +
-        'ver preços e montar o seu pedido.\n\nPara começar, como posso te chamar?',
+        'ver preços e montar o seu pedido.\n\nMe diga o que você procura — ou escolha uma opção abaixo.',
       aviso: 'Atendimento automatizado. Dúvida clínica ou de dose: fale com a equipe técnica.',
       semResposta: 'Não consegui formular uma resposta. Pode reformular a pergunta?',
       erroRede: 'Não consegui me conectar. Verifique sua internet ou chame a gente no WhatsApp.',
@@ -70,13 +74,17 @@
       titulo: 'Champion Support',
       subtitulo: 'Products, prices and orders',
       abrir: 'Open support chat',
+      convite: 'Buy here',
+      atalhos: ['See products', 'Prices and sizes', 'Talk to the team'],
+      conviteSub: 'Ask questions and build your order',
+      conviteFechar: 'Dismiss',
       fechar: 'Close support chat',
       placeholder: 'Type your message...',
       enviar: 'Send',
       campo: 'Your message',
       saudacao:
         "Hello! I'm Champion's support agent. I can help you find the right product, " +
-        'check prices and put your order together.\n\nTo start — what should I call you?',
+        'check prices and put your order together.\n\nTell me what you are looking for — or pick an option below.',
       aviso: 'Automated support. For clinical or dosage questions, talk to our technical team.',
       semResposta: "I couldn't put together an answer. Could you rephrase the question?",
       erroRede: "I couldn't connect. Check your internet or reach us on WhatsApp.",
@@ -105,13 +113,17 @@
       titulo: 'Atención Champion',
       subtitulo: 'Productos, precios y pedidos',
       abrir: 'Abrir atención',
+      convite: 'Compre aquí',
+      atalhos: ['Ver productos', 'Precios y tamaños', 'Hablar con el equipo'],
+      conviteSub: 'Resuelve dudas y arma tu pedido',
+      conviteFechar: 'Descartar',
       fechar: 'Cerrar atención',
       placeholder: 'Escribe tu mensaje...',
       enviar: 'Enviar',
       campo: 'Tu mensaje',
       saudacao:
         '¡Hola! Soy el asistente de Champion. Puedo ayudarte a encontrar el producto ' +
-        'adecuado, consultar precios y armar tu pedido.\n\nPara empezar, ¿cómo te llamas?',
+        'adecuado, consultar precios y armar tu pedido.\n\nDime qué buscas — o elige una opción abajo.',
       aviso: 'Atención automatizada. Para dudas clínicas o de dosis, habla con el equipo técnico.',
       semResposta: 'No pude formular una respuesta. ¿Puedes reformular la pregunta?',
       erroRede: 'No pude conectarme. Revisa tu internet o escríbenos por WhatsApp.',
@@ -266,6 +278,33 @@
     requestAnimationFrame(function () {
       els.corpo.scrollTop = els.corpo.scrollHeight;
     });
+  }
+
+  /* Atalhos de partida. Existem porque o chat abria com um campo vazio: quem
+     não sabia o que perguntar simplesmente fechava. Somem no primeiro uso —
+     são um empurrão inicial, não um menu permanente. */
+  function addAtalhos() {
+    const opcoes = t('atalhos') || [];
+    if (!opcoes.length) return;
+
+    const caixa = document.createElement('div');
+    caixa.className = 'chat-atalhos';
+
+    opcoes.forEach(function (texto) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chat-atalho';
+      b.textContent = texto;
+      b.addEventListener('click', function () { enviar(texto); });
+      caixa.appendChild(b);
+    });
+
+    els.corpo.appendChild(caixa);
+  }
+
+  function limparAtalhos() {
+    const caixa = els.corpo && els.corpo.querySelector('.chat-atalhos');
+    if (caixa) caixa.remove();
   }
 
   function addBolha(papel, texto) {
@@ -773,6 +812,7 @@
   async function enviar(mensagem) {
     if (enviando || !mensagem.trim()) return;
     enviando = true;
+    limparAtalhos();
     /* Escolha pendente perde o sentido assim que a conversa anda. */
     fecharQuantidade();
 
@@ -892,8 +932,52 @@
 
   /* ── Abrir / fechar ────────────────────────────────────── */
 
+  /* ── Convite "Compre aqui" ────────────────────────────────────────────
+     A bolinha do chat sozinha não diz o que há dentro: o visitante não
+     imagina que dali saem preço e pedido. O balão diz.
+
+     Regras para não virar praga: só aparece depois que a pessoa teve tempo
+     de olhar a página, some no primeiro clique, e quem dispensar ou já
+     tiver usado o chat não vê de novo por uma semana. ── */
+  const CONVITE_CHAVE = 'champion-chat-convite';
+  const CONVITE_ATRASO = 12000;   /* ms de leitura antes de convidar */
+  const CONVITE_SILENCIO = 7 * 24 * 60 * 60 * 1000;
+  let conviteTimer = null;
+
+  function conviteSilenciado() {
+    try {
+      const quando = Number(localStorage.getItem(CONVITE_CHAVE) || 0);
+      return Boolean(quando) && (Date.now() - quando) < CONVITE_SILENCIO;
+    } catch (e) { return false; }   /* sem localStorage: mostra, não quebra */
+  }
+
+  function silenciarConvite() {
+    try { localStorage.setItem(CONVITE_CHAVE, String(Date.now())); } catch (e) {}
+  }
+
+  function esconderConvite() {
+    if (conviteTimer) { clearTimeout(conviteTimer); conviteTimer = null; }
+    if (els.convite && !els.convite.hidden) {
+      els.convite.classList.remove('is-on');
+      els.convite.hidden = true;
+    }
+  }
+
+  function agendarConvite() {
+    if (!els.convite || aberto || conviteSilenciado()) return;
+    conviteTimer = setTimeout(function () {
+      if (aberto) return;
+      els.conviteTitulo.textContent = t('convite');
+      els.conviteSub.textContent = t('conviteSub');
+      els.conviteFechar.setAttribute('aria-label', t('conviteFechar'));
+      els.convite.hidden = false;
+      requestAnimationFrame(function () { els.convite.classList.add('is-on'); });
+    }, CONVITE_ATRASO);
+  }
+
   function abrir() {
     aberto = true;
+    esconderConvite();
     aplicarIdioma();
     els.painel.hidden = false;
     els.fab.setAttribute('aria-expanded', 'true');
@@ -922,6 +1006,7 @@
         });
       } else {
         addBolha('bot', t('saudacao'));
+        addAtalhos();
       }
     }
     rolarFim();
@@ -953,6 +1038,15 @@
     wrap.id = 'championChat';
     wrap.className = 'chat-widget';
     wrap.innerHTML = [
+      '<div class="chat-convite" id="chatConvite" hidden>',
+      '  <button type="button" class="chat-convite-corpo" id="chatConviteAbrir">',
+      '    <strong id="chatConviteTitulo"></strong>',
+      '    <span id="chatConviteSub"></span>',
+      '  </button>',
+      '  <button type="button" class="chat-convite-x" id="chatConviteFechar">',
+      '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      '  </button>',
+      '</div>',
       '<button type="button" class="chat-fab" id="chatFab" aria-expanded="false" aria-controls="chatPainel">',
       '  <svg class="chat-fab-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
       '  <svg class="chat-fab-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
@@ -1017,6 +1111,11 @@
 
     els = {
       fab: document.getElementById('chatFab'),
+      convite: document.getElementById('chatConvite'),
+      conviteAbrir: document.getElementById('chatConviteAbrir'),
+      conviteTitulo: document.getElementById('chatConviteTitulo'),
+      conviteSub: document.getElementById('chatConviteSub'),
+      conviteFechar: document.getElementById('chatConviteFechar'),
       painel: document.getElementById('chatPainel'),
       corpo: document.getElementById('chatCorpo'),
       form: document.getElementById('chatForm'),
@@ -1048,6 +1147,17 @@
 
     historico = carregarHistorico();
     aplicarIdioma();
+
+    els.conviteAbrir?.addEventListener('click', function () {
+      /* Clicou no convite: silencia e abre — foi o que ele pediu. */
+      silenciarConvite();
+      abrir();
+    });
+    els.conviteFechar?.addEventListener('click', function () {
+      silenciarConvite();
+      esconderConvite();
+    });
+    agendarConvite();
 
     els.fab.addEventListener('click', function () { aberto ? fechar() : abrir(); });
     els.fechar.addEventListener('click', fechar);

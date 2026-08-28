@@ -3,6 +3,29 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  # Força domínio sem www (301) — precisa vir antes das demais regras
+  #
+  # EXCEÇÃO TEMPORÁRIA — rede da Champion (201.48.81.157)
+  #
+  # O domínio do Active Directory tem o mesmo nome do domínio público, e os
+  # controladores registram o próprio IP no apex da zona. Por isso, dentro do
+  # escritório, champion.ind.br (sem www) resolve para servidores internos, não
+  # para o site. Já www.champion.ind.br resolve corretamente para cá.
+  #
+  # Sem esta exceção, o redirect de www para o apex devolveria o visitante
+  # interno justamente ao nome sequestrado — ele sairia do site e cairia no
+  # painel interno.
+  #
+  # Não afeta SEO: o Googlebot nunca acessa por este IP, e todas as páginas
+  # declaram a canônica no apex independentemente do host que as serviu.
+  #
+  # REMOVER quando o DNS interno for corrigido (procedimento em
+  # docs/DEPLOY-CHECK.md). Se o IP de saída do escritório mudar, esta linha
+  # deixa de valer silenciosamente e o sintoma volta.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteCond %{REMOTE_ADDR} !^201\.48\.81\.157$
+  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+
   # Home: /index e /index.html → /
   RewriteCond %{THE_REQUEST} \s/+index(\.html)?[\s?] [NC]
   RewriteRule ^ / [R=301,L]
@@ -12,7 +35,23 @@
   RewriteRule ^ /%1 [R=301,L]
 
   # Caso especial: /guias coexiste com a pasta guias/ → serve o índice guias.html
+  # ATENÇÃO: guias.html e a pasta guias/ existem só no servidor, não neste
+  # repositório. Um deploy que apague o que não está aqui derruba essa rota.
   RewriteRule ^guias/?$ guias.html [L]
+
+  # Catálogo: /produtos agora coexiste com a pasta produtos/ (páginas geradas).
+  # Sem esta linha, a regra genérica lá embaixo vê um diretório, desiste, e o
+  # Apache tenta listar a pasta em vez de servir o catálogo.
+  RewriteRule ^produtos/?$ produtos.html [L]
+
+  # Produto por caminho: /produtos/<slug>
+  # Quando existe a página gerada (tools/gerar-produtos.js), a regra genérica lá
+  # embaixo a serve direto — HTML real, com título e texto do produto no fonte.
+  # Esta regra é o plano B para handle sem página gerada: cai no produto.html,
+  # que monta tudo por JavaScript.
+  # Precisa vir ANTES da regra genérica (senão devolve 500).
+  RewriteCond %{DOCUMENT_ROOT}/produtos/$1.html !-f
+  RewriteRule ^produtos/([a-z0-9-]+)/?$ produto.html?p=$1 [L,QSA]
 
   # Serve internamente o .html correspondente à URL sem extensão
   RewriteCond %{REQUEST_FILENAME} !-f
@@ -41,4 +80,10 @@
 </IfModule>
 
 DirectoryIndex index.html
-ErrorDocument 404 /index.html
+
+# Página de erro própria, devolvida com status 404 de verdade.
+# Antes isto era /index.html: qualquer endereço inválido — inclusive um CSS que
+# não existe — recebia a home com status 200. Foi o que transformou "arquivo não
+# encontrado" em "página sem estilo", sem nenhum erro visível no console, e o que
+# fazia o Google enxergar a home duplicada em toda URL inválida do site.
+ErrorDocument 404 /404.html

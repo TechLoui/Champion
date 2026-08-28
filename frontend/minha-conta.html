@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <link rel="icon" type="image/png" href="/assets/img/brand/icon.png" />
   <style>
     *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
@@ -220,17 +220,18 @@
     }
   </style>
   <!-- Meta Pixel: código base + PageView. O evento de compra fica na Shopify (ver js/meta-pixel.js). -->
-  <script src="js/meta-pixel.js?v=20260819-1"></script>
+  <script src="/js/meta-pixel.js?v=20260828-6"></script>
   <!-- Google Ads (gtag.js). A conversão de compra fica na Shopify (ver js/google-ads.js). -->
-  <script src="js/google-ads.js?v=20260820-1"></script>
+  <script src="/js/google-ads.js?v=20260828-6"></script>
+  <meta name="robots" content="noindex, nofollow" />
 </head>
 <body>
 
 <div class="topbar">
-  <a href="index.html"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
+  <a href="/"><img src="/assets/img/brand/logo.png" alt="Champion" /></a>
   <div class="nav">
-    <a href="produtos.html">Produtos</a>
-    <a href="blog.html">Blog</a>
+    <a href="/produtos">Produtos</a>
+    <a href="/blog">Blog</a>
     <button class="btn btn-danger" id="logoutBtn">Sair</button>
   </div>
 </div>
@@ -314,8 +315,8 @@
   </div>
 </div>
 
-<script src="js/customer-store.js?v=20260609-2"></script>
-<script src="js/order-store.js?v=20260818-3"></script>
+<script src="/js/customer-store.js?v=20260828-6"></script>
+<script src="/js/order-store.js?v=20260828-6"></script>
 <script>
 (async function () {
   /* Auth guard */
@@ -391,7 +392,7 @@
   var orders = await window.ChampionOrders.listByCustomer(customer.id);
   var ordersHtml = '';
   if (orders.length === 0) {
-    ordersHtml = '<div class="empty"><strong>Nenhum pedido por aqui ainda</strong>Que tal começar pelos nossos produtos?<div style="margin-top:16px"><a class="btn btn-primary" href="produtos.html">Ver produtos</a></div></div>';
+    ordersHtml = '<div class="empty"><strong>Nenhum pedido por aqui ainda</strong>Que tal começar pelos nossos produtos?<div style="margin-top:16px"><a class="btn btn-primary" href="/produtos">Ver produtos</a></div></div>';
   } else {
     ordersHtml = orders.map(function (o) {
       return '<div class="order">'

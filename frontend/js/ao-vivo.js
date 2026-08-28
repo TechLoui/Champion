@@ -19,7 +19,7 @@
 (function () {
   'use strict';
 
-  var VIDEO = 'cL1XbWIhNrI';
+  var VIDEO = 'rEnr_Ryomdk';
   var ATRASO = 350;   /* ms de hover antes de carregar o player */
   var LARGURA = 320;  /* px; a altura sai do 16/9 no CSS */
 

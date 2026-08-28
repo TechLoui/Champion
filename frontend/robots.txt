@@ -1,11 +1,22 @@
 User-agent: *
 Allow: /
+
+# O servidor serve URLs limpas (o .htaccess remove o .html), entao cada area
+# privada precisa das DUAS formas. Bloquear so "/admin.html" nao impedia nada:
+# o Google chegava por "/admin", que responde 200.
+Disallow: /admin
 Disallow: /admin.html
+Disallow: /painel-blog
 Disallow: /painel-blog.html
+Disallow: /login-admin
 Disallow: /login-admin.html
+Disallow: /login-blog
 Disallow: /login-blog.html
+Disallow: /checkout
 Disallow: /checkout.html
+Disallow: /minha-conta
 Disallow: /minha-conta.html
+Disallow: /cliente-conta
 Disallow: /cliente-conta.html
 
 Sitemap: https://champion.ind.br/sitemap.xml

@@ -1,4 +1,5 @@
 import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-config.js';
+import { assetUrl } from './asset-url.js?v=20260828-6';
 
 (async function () {
   'use strict';
@@ -12,7 +13,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
   const defaultConfig = {
     title: 'Blog Champion',
     subtitle: 'Conteúdos técnicos, manejo e novidades para quem vive a rotina da pecuária brasileira.',
-    heroImage: 'assets/img/about/pecuarista.jpg',
+    heroImage: '/assets/img/about/pecuarista.jpg',
     featuredSlug: 'manejo-integrado-para-um-rebanho-mais-produtivo'
   };
 
@@ -24,7 +25,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       category: 'Nutrição',
       author: 'Equipe Champion',
       date: '2026-07-26',
-      image: 'assets/img/hero/background-bovinos.jpg',
+      image: '/assets/img/hero/background-bovinos.jpg',
       status: 'published',
       excerpt: 'Sal mineral não é gasto, é investimento. Entenda como ajustar a mineralização à época do ano, ao consumo real e à categoria animal para transformar cocho em desempenho.',
       content: 'A mineralização é uma das decisões de maior retorno na pecuária — e uma das mais negligenciadas. Minerais participam da reprodução, da imunidade, do ganho de peso e da conversão alimentar. Quando faltam, o prejuízo aparece devagar: prenhez mais baixa, animais mais suscetíveis a doenças e desempenho abaixo do potencial do pasto.\n\n## Por que o mineral é investimento, não custo\n\nO pasto tropical raramente entrega todos os minerais na quantidade certa, e o desequilíbrio muda ao longo do ano. Um bom programa de mineralização preenche essas lacunas e destrava a resposta da genética e da nutrição que você já paga.\n\n- Sustenta fertilidade e taxa de prenhez.\n- Fortalece imunidade e reduz perdas sanitárias.\n- Melhora o aproveitamento da forragem e do suplemento.\n- Dá previsibilidade ao desempenho do lote.\n\n## Águas e seca pedem estratégias diferentes\n\nNa estação das águas, o pasto cresce e o animal ganha peso — é hora de garantir o mineral que acompanha esse ritmo. Na seca, a forragem perde qualidade e a estratégia muda: o objetivo passa a ser manter condição corporal e evitar retrocesso.\n\nTrocar a formulação sem entender o objetivo da fase é um erro comum. Antes de mudar produto, confirme se o problema não está no manejo do cocho.\n\n## O consumo é o termômetro do programa\n\nDe nada adianta um mineral bem formulado se o consumo está errado. Consumo abaixo do indicado significa animal sem cobrir a exigência; muito acima é dinheiro desperdiçado.\n\n- Meça o consumo real por cabeça/dia e compare com o alvo do produto.\n- Ofereça cochos suficientes e bem distribuídos (evite disputa e superlotação).\n- Proteja o cocho da chuva e mantenha o sal limpo e seco.\n- Garanta água de qualidade perto do ponto de consumo.\n\n## Passo a passo para acertar na sua propriedade\n\nUm programa simples, acompanhado de perto, vale mais que a fórmula “perfeita” mal manejada.\n\n- Defina o objetivo da fase (cria, recria, engorda, reprodução).\n- Escolha o mineral adequado à categoria e à época do ano.\n- Ajuste número e posição dos cochos ao tamanho do lote.\n- Monitore consumo, sobra e umidade toda semana.\n- Reavalie a estratégia quando mudar o clima, o pasto ou o lote.\n\nMineralizar bem é rotina, não sorte. Com o produto certo no cocho certo e consumo acompanhado, o mineral deixa de ser linha de despesa e vira alavanca de produtividade. Em caso de dúvida sobre a formulação ideal para o seu rebanho, fale com a equipe técnica da Champion.'
@@ -36,7 +37,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       category: 'Manejo',
       author: 'Equipe Champion',
       date: '2026-05-01',
-      image: 'assets/img/about/pecuarista.jpg',
+      image: '/assets/img/about/pecuarista.jpg',
       status: 'published',
       excerpt: 'Sanidade, nutrição e rotina de campo caminham juntas quando o objetivo é reduzir perdas e melhorar o desempenho do rebanho.',
       content: 'A produtividade no campo nasce de uma rotina bem acompanhada. Quando calendário sanitário, suplementação e observação diária trabalham juntos, o produtor identifica desvios mais cedo e toma decisões com mais segurança.\n\n## Rotina que protege resultado\n\nO primeiro passo é manter registros simples: lote, idade, peso aproximado, produto utilizado e data de aplicação. Esses dados ajudam a comparar ciclos, corrigir falhas e planejar compras com mais previsibilidade.\n\n- Acompanhe consumo e comportamento dos animais.\n- Organize o calendário de manejo por categoria.\n- Revise cochos, água, sombra e lotação.\n- Consulte suporte técnico quando houver queda de desempenho.\n\nCom consistência, pequenas melhorias de rotina aparecem no ganho de peso, na sanidade e na tranquilidade operacional da propriedade.'
@@ -48,7 +49,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       category: 'Nutrição',
       author: 'Equipe Champion',
       date: '2026-04-24',
-      image: 'assets/img/hero/background-bovinos.jpg',
+      image: '/assets/img/hero/background-bovinos.jpg',
       status: 'published',
       excerpt: 'A seca muda a disponibilidade de pasto e exige mais atenção ao consumo mineral, ao acesso aos cochos e ao planejamento do lote.',
       content: 'Na estação seca, o pasto perde qualidade e a suplementação mineral ganha ainda mais importância. A estratégia correta depende do objetivo produtivo, da categoria animal e da disponibilidade de forragem.\n\n## Ajustes práticos\n\nAntes de trocar produtos ou aumentar oferta, observe consumo real, distribuição dos cochos e acesso à água. Muitas respostas ruins no campo estão ligadas a manejo, não apenas à formulação.\n\n- Posicione cochos em locais secos e acessíveis.\n- Evite superlotação em pontos de consumo.\n- Monitore sobra, umidade e contaminação.\n- Reavalie a estratégia quando mudar o lote ou o clima.\n\nUm plano simples, acompanhado semanalmente, reduz desperdício e ajuda a manter o rebanho em melhor condição corporal.'
@@ -60,7 +61,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
       category: 'Sanidade',
       author: 'Equipe Champion',
       date: '2026-04-16',
-      image: 'assets/img/hero/background-suinos.jpg',
+      image: '/assets/img/hero/background-suinos.jpg',
       status: 'published',
       excerpt: 'O controle eficiente considera ambiente, fase larval e rotina de aplicação, evitando que o problema avance antes de ser percebido.',
       content: 'Moscas afetam bem-estar, produtividade e rotina da fazenda. O controle mais eficiente combina limpeza, acompanhamento dos pontos críticos e uso correto das soluções indicadas.\n\n## Onde observar\n\nCurrais, esterqueiras, áreas úmidas e locais com matéria orgânica acumulada merecem atenção especial. Atuar cedo reduz pressão de infestação e melhora a eficiência das aplicações.\n\n- Mapeie pontos de maior incidência.\n- Mantenha frequência de monitoramento.\n- Siga as orientações de dose e intervalo.\n- Integre manejo ambiental e produto adequado.\n\nConstância é o que transforma o controle de moscas em rotina previsível, e não em resposta emergencial.'
@@ -168,7 +169,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
   }
 
   function postUrl(post) {
-    return `blog.html?post=${encodeURIComponent(post.slug)}`;
+    return `/blog?post=${encodeURIComponent(post.slug)}`;
   }
 
   function renderContent(raw) {
@@ -473,7 +474,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     if (!post || !target) return;
     target.innerHTML = `
       <div class="blog-featured-media">
-        ${post.image ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />` : ''}
+        ${post.image ? `<img src="${escapeHtml(assetUrl(post.image))}" alt="${escapeHtml(post.title)}" loading="lazy" />` : ''}
       </div>
       <div class="blog-featured-body">
         <span class="blog-kicker">${escapeHtml(post.category)}</span>
@@ -492,7 +493,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     return `
       <article class="blog-card">
         <a class="blog-card-media" href="${postUrl(post)}" aria-label="${escapeHtml(post.title)}">
-          ${post.image ? `<img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" />` : ''}
+          ${post.image ? `<img src="${escapeHtml(assetUrl(post.image))}" alt="${escapeHtml(post.title)}" loading="lazy" />` : ''}
         </a>
         <div class="blog-card-body">
           <span class="blog-tag">${escapeHtml(post.category)}</span>
@@ -535,7 +536,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         return acc;
       }, {});
       categories.innerHTML = Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0])).map(([name, count]) => `
-        <a href="blog.html?categoria=${encodeURIComponent(name)}">
+        <a href="/blog?categoria=${encodeURIComponent(name)}">
           <strong>${escapeHtml(name)}</strong>
           <p>${count} artigo${count === 1 ? '' : 's'}</p>
         </a>
@@ -666,7 +667,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
           <span class="blog-kicker">Blog</span>
           <h1>Artigo não encontrado</h1>
           <p>O conteúdo pode ter sido removido ou ainda estar como rascunho.</p>
-          <a class="blog-card-link" href="blog.html">Voltar para o blog ${arrowIcon()}</a>
+          <a class="blog-card-link" href="/blog">Voltar para o blog ${arrowIcon()}</a>
         </div>
       `;
       return;
@@ -674,7 +675,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
 
     document.title = `${post.title} · Blog Champion`;
     article.innerHTML = `
-      ${post.image ? `<div class="blog-article-hero" style="${heroStyleFor(post)}"><img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
+      ${post.image ? `<div class="blog-article-hero" style="${heroStyleFor(post)}"><img src="${escapeHtml(assetUrl(post.image))}" alt="${escapeHtml(post.title)}" loading="lazy" /></div>` : ''}
       <div class="blog-article-head">
         <span class="blog-kicker">${escapeHtml(post.category)}</span>
         <h1>${escapeHtml(post.title)}</h1>
@@ -702,7 +703,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     if (!post.secondaryImage) return '';
     return `
       <figure class="blog-secondary-image">
-        <img src="${escapeHtml(post.secondaryImage)}" alt="${escapeHtml(post.secondaryCaption || '')}" loading="lazy" />
+        <img src="${escapeHtml(assetUrl(post.secondaryImage))}" alt="${escapeHtml(post.secondaryCaption || '')}" loading="lazy" />
         ${post.secondaryCaption ? `<figcaption>${escapeHtml(post.secondaryCaption)}</figcaption>` : ''}
       </figure>
     `;
@@ -717,7 +718,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
         <div class="blog-gallery">
           ${post.gallery.map((g) => `
             <figure class="blog-gallery-item">
-              <img src="${escapeHtml(g.image)}" alt="${escapeHtml(g.caption || '')}" loading="lazy" />
+              <img src="${escapeHtml(assetUrl(g.image))}" alt="${escapeHtml(g.caption || '')}" loading="lazy" />
               ${g.caption ? `<figcaption>${escapeHtml(g.caption)}</figcaption>` : ''}
             </figure>
           `).join('')}
@@ -734,7 +735,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
               <div class="blog-step-num">${i + 1}</div>
               <div class="blog-step-body">
                 ${s.title ? `<h3>${escapeHtml(s.title)}</h3>` : ''}
-                ${s.image ? `<img src="${escapeHtml(s.image)}" alt="${escapeHtml(s.title || '')}" loading="lazy" />` : ''}
+                ${s.image ? `<img src="${escapeHtml(assetUrl(s.image))}" alt="${escapeHtml(s.title || '')}" loading="lazy" />` : ''}
                 ${s.description ? `<p>${escapeHtml(s.description).replace(/\n/g, '<br>')}</p>` : ''}
               </div>
             </li>
@@ -930,7 +931,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
     list.innerHTML = posts.map((post) => `
       <article class="bp-post-card">
         <div class="bp-post-card-img">
-          <img src="${escapeHtml(post.image)}" alt="${escapeHtml(post.title)}" loading="lazy" onerror="this.style.display='none'" />
+          <img src="${escapeHtml(assetUrl(post.image))}" alt="${escapeHtml(post.title)}" loading="lazy" onerror="this.style.display='none'" />
           <span class="pill${post.status === 'draft' ? ' is-draft' : ''}">${post.status === 'draft' ? 'Rascunho' : 'Publicado'}</span>
           <span class="tpl-badge">${templateLabel[post.template] || 'Padrão'}</span>
         </div>
@@ -940,7 +941,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
           <div class="excerpt">${escapeHtml(post.excerpt || '')}</div>
         </div>
         <div class="bp-post-card-actions">
-          <a class="bp-icon-btn" href="blog.html?post=${encodeURIComponent(post.slug)}" target="_blank" rel="noopener" title="Ver no blog">
+          <a class="bp-icon-btn" href="/blog?post=${encodeURIComponent(post.slug)}" target="_blank" rel="noopener" title="Ver no blog">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
             Ver
           </a>
@@ -978,7 +979,7 @@ import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-con
   async function syncAdminAuth(isLogged = store.isAdminLogged()) {
     if (!isLogged) {
       if (blogAppEverLoaded) {
-        window.location.replace('login-blog.html');
+        window.location.replace('/login-blog');
         return;
       }
       const login = $('[data-blog-admin-login]');

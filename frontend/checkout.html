@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
+  <link rel="icon" type="image/png" href="/assets/img/brand/icon.png" />
   <style>
     *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
     [hidden] { display: none !important; }
@@ -296,15 +296,16 @@
     }
   </style>
   <!-- Meta Pixel: código base + PageView. O evento de compra fica na Shopify (ver js/meta-pixel.js). -->
-  <script src="js/meta-pixel.js?v=20260819-1"></script>
+  <script src="/js/meta-pixel.js?v=20260828-6"></script>
   <!-- Google Ads (gtag.js). A conversão de compra fica na Shopify (ver js/google-ads.js). -->
-  <script src="js/google-ads.js?v=20260820-1"></script>
+  <script src="/js/google-ads.js?v=20260828-6"></script>
+  <meta name="robots" content="noindex, nofollow" />
 </head>
 <body>
 
 <div class="topbar">
-  <a href="index.html"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
-  <a class="back" href="index.html">← Continuar comprando</a>
+  <a href="/"><img src="/assets/img/brand/logo.png" alt="Champion" /></a>
+  <a class="back" href="/">← Continuar comprando</a>
 </div>
 
 <!-- ─── Checkout (steps 1-3) ─── -->
@@ -322,8 +323,8 @@
 </div>
 
 
-<script src="js/customer-store.js?v=20260609-2"></script>
-<script src="js/order-store.js?v=20260818-3"></script>
+<script src="/js/customer-store.js?v=20260828-6"></script>
+<script src="/js/order-store.js?v=20260828-6"></script>
 <script>
 (async function () {
   var CART_KEY = 'champion-cart';
@@ -344,7 +345,7 @@
 
   /* If cart empty, send back to index */
   if (!cart.length) {
-    document.getElementById('checkoutWrap').innerHTML = '<div class="card" style="margin:auto;max-width:520px;text-align:center"><h2>Carrinho vazio</h2><p style="margin:12px 0 18px;color:#687080">Adicione produtos antes de finalizar a compra.</p><a class="btn btn-primary" href="produtos.html">Ver produtos</a></div>';
+    document.getElementById('checkoutWrap').innerHTML = '<div class="card" style="margin:auto;max-width:520px;text-align:center"><h2>Carrinho vazio</h2><p style="margin:12px 0 18px;color:#687080">Adicione produtos antes de finalizar a compra.</p><a class="btn btn-primary" href="/produtos">Ver produtos</a></div>';
     return;
   }
 
@@ -433,8 +434,35 @@
             num_items: payload.reduce(function (s, i) { return s + (Number(i.qty) || 1); }, 0)
           });
         }
+        /* Mesmo momento, lado do Google. O id do item vai sem o sufixo de
+           variante ("handle|variante" -> "handle") porque é o handle que existe
+           no feed do Merchant Center; com a chave composta o remarketing
+           dinâmico não encontraria o produto. */
+        if (window.ChampionTracking) {
+          window.ChampionTracking.beginCheckout({
+            total: items.reduce(function (s, i) {
+              return s + (Number(i.price) || 0) * (Number(i.qty) || 1);
+            }, 0),
+            items: items.map(function (i) {
+              return {
+                id: String(i.id || '').split('|')[0],
+                name: i.name,
+                price: Number(i.price) || 0,
+                qty: Number(i.qty) || 1
+              };
+            })
+          });
+        }
         try { localStorage.removeItem(CART_KEY); } catch (e) {}
-        window.location.href = url;
+        /* Saída pelo linker do Google, não por location.href direto: o salto
+           para lojachampion.com.br precisa levar o _gl, senão o gclid do
+           anúncio morre aqui e a compra na Shopify vira venda sem origem.
+           Se o tracking não tiver carregado, cai no comportamento antigo. */
+        if (window.ChampionTracking && window.ChampionTracking.irPara) {
+          window.ChampionTracking.irPara(url);
+        } else {
+          window.location.href = url;
+        }
       } catch (err) {
         fb.className = 'feedback error';
         fb.textContent = (err && err.message) || 'Não foi possível iniciar o checkout.';
@@ -444,7 +472,7 @@
   }
 
   try {
-    var shopifyMod = await import('./js/shopify-client.js?v=20260818-2');
+    var shopifyMod = await import('./js/shopify-client.js?v=20260828-6');
     if (shopifyMod.isShopifyEnabled()) {
       renderShopifyCheckout(cart, shopifyMod);
       return;
@@ -457,7 +485,7 @@
     '<div class="card" style="margin:auto;max-width:520px;text-align:center">'
     + '<h2>Checkout indisponivel no momento</h2>'
     + '<p style="margin:12px 0 18px;color:#687080">Nao foi possivel iniciar o pagamento. Tente novamente em instantes.</p>'
-    + '<a class="btn btn-primary" href="produtos.html">Voltar a loja</a></div>';
+    + '<a class="btn btn-primary" href="/produtos">Voltar a loja</a></div>';
 
 })();
 </script>

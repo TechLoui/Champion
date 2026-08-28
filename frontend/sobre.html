@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sobre a Champion — 67 anos em saúde e nutrição animal no Brasil</title>
   <meta name="description" content="Conheça a história da Champion: empresa brasileira com mais de 67 anos, sediada em Anápolis-GO. Tradição, qualidade, inovação e resultado." />
-  <link rel="canonical" href="https://champion.ind.br/sobre.html" />
+  <link rel="canonical" href="https://champion.ind.br/sobre" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://champion.ind.br/sobre.html" />
   <meta property="og:title" content="Sobre a Champion — 67 anos em saúde e nutrição animal" />
@@ -17,18 +17,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20260820-4" />
+  <link rel="stylesheet" href="/css/styles.css?v=20260828-6" />
   <script data-champion-lang-init>(function(){try{var l=localStorage.getItem("champion-language")||"pt";document.documentElement.dataset.lang=l;if(l!=="pt")document.documentElement.lang=l;}catch(e){}})();</script>
-  <link rel="icon" type="image/png" href="assets/img/brand/icon.png" />
-  <link rel="apple-touch-icon" href="assets/img/brand/icon.png" />
+  <link rel="icon" type="image/png" href="/assets/img/brand/icon.png" />
+  <link rel="apple-touch-icon" href="/assets/img/brand/icon.png" />
   <!-- Meta Pixel: código base + PageView. O evento de compra fica na Shopify (ver js/meta-pixel.js). -->
-  <script src="js/meta-pixel.js?v=20260819-1"></script>
+  <script src="/js/meta-pixel.js?v=20260828-6"></script>
   <!-- Google Ads (gtag.js). A conversão de compra fica na Shopify (ver js/google-ads.js). -->
-  <script src="js/google-ads.js?v=20260820-1"></script>
+  <script src="/js/google-ads.js?v=20260828-6"></script>
 </head>
 <body class="site-intro-active">
 <div class="site-intro" id="siteIntro" role="status" aria-label="Carregando o site Champion">
-  <img src="assets/img/misc/intro.gif" alt="" />
+  <img src="/assets/img/misc/intro.gif" alt="" />
 </div>
 
 <!-- TOP BAR -->
@@ -50,12 +50,12 @@
 <!-- HEADER -->
 <header class="site-header" id="siteHeader">
   <div class="header-inner">
-    <a href="index.html" class="brand"><img src="assets/img/brand/logo.png" alt="Champion" /></a>
+    <a href="/" class="brand"><img src="/assets/img/brand/logo.png" alt="Champion" /></a>
     <nav class="nav" id="primaryNav">
-      <a href="index.html">Página Inicial</a>
-      <a href="produtos.html">Produtos</a>
-      <a href="sobre.html" class="active">Sobre a Champion</a>
-      <a href="blog.html">Blog</a>
+      <a href="/">Página Inicial</a>
+      <a href="/produtos">Produtos</a>
+      <a href="/sobre" class="active">Sobre a Champion</a>
+      <a href="/blog">Blog</a>
       <a href="https://revendachampion.com.br" target="_blank" rel="noopener">Revenda</a>
       <a href="https://www.youtube.com/@CanalChampionSaudeAnimal/live" class="nav-live" id="navLive" target="_blank" rel="noopener"><span class="nav-live-dot" aria-hidden="true"></span>Ao Vivo</a>
     </nav>
@@ -70,7 +70,7 @@
 
 <!-- PAGE HERO -->
 <section class="page-hero page-hero-about">
-  <img src="assets/img/hero/hero-sobre.png" alt="Champion - Saúde Animal" />
+  <img src="/assets/img/hero/hero-sobre.png" alt="Champion - Saúde Animal" />
 </section>
 
 <!-- HISTÓRICO -->
@@ -78,11 +78,14 @@
   <div class="container">
     <div class="about-history-grid">
       <div class="feature-image reveal">
-        <img src="assets/img/misc/intro.gif" alt="Champion - Tradição e qualidade" />
+        <img src="/assets/img/misc/intro.gif" alt="Champion - Tradição e qualidade" />
       </div>
       <div class="reveal reveal-delay-2">
         <span class="section-eyebrow">Nossa história</span>
-        <h2 class="section-title">Empresa <em>genuinamente brasileira</em>, com mais de 67 anos de história.</h2>
+        <!-- h1 e não h2: é o título principal da página, e sobre.html era a
+             única página pública sem h1. Mesmo padrão do produtos.html; o
+             .section-title é seletor de classe, então o visual não muda. -->
+        <h1 class="section-title">Empresa <em>genuinamente brasileira</em>, com mais de 67 anos de história.</h1>
         <p class="section-sub">Com sede em Anápolis-GO (a 50 km da capital goiana), a Champion vem aprimorando suas técnicas de tratamento bovino, permitindo lucratividade a quem se dedica à criação animal.</p>
         <p class="section-sub" style="margin-top:18px">A busca incansável pela excelência se traduz em milhares de produtores rurais satisfeitos que produzem mais e melhor — além do reconhecimento do mercado na forma de prêmios que comprovam o empenho e o compromisso da empresa com a pecuária brasileira e seus colaboradores.</p>
         <p class="section-sub" style="margin-top:18px"><strong style="color:var(--ink)">Quatro vezes a melhor empresa</strong> de produtos veterinários do Brasil pelo Serasa Experian em parceria com a revista Globo Rural — e três títulos consecutivos como <strong style="color:var(--ink)">uma das Melhores Empresas para Você Trabalhar</strong>, concedido pela revista Você S/A.</p>
@@ -93,7 +96,7 @@
             <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
             Assistir documentário
           </button>
-          <a href="produtos.html" class="btn btn-outline">Conhecer produtos</a>
+          <a href="/produtos" class="btn btn-outline">Conhecer produtos</a>
         </div>
       </div>
     </div>
@@ -208,7 +211,7 @@
     </div>
 
     <div class="mvv-actions reveal">
-      <a href="produtos.html" class="btn btn-primary btn-lg mvv-btn-primary">
+      <a href="/produtos" class="btn btn-primary btn-lg mvv-btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         Conheça nossas soluções para o seu rebanho
       </a>
@@ -362,7 +365,7 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <img src="assets/img/brand/logo.png" alt="Champion" />
+        <img src="/assets/img/brand/logo.png" alt="Champion" />
         <p>Empresa genuinamente brasileira com mais de 67 anos entrega resultados reais para a maior pecuária comercial do mundo.</p>
         <div class="footer-social">
           <a href="https://www.instagram.com/championsaudeanimal/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
@@ -373,22 +376,22 @@
       <div class="footer-col">
         <h5>Empresa</h5>
         <ul>
-          <li><a href="sobre.html">Sobre a Champion</a></li>
-          <li><a href="sobre.html#missao">Missão e Valores</a></li>
-          <li><a href="sobre.html#cultura">Jeito Champion</a></li>
+          <li><a href="/sobre">Sobre a Champion</a></li>
+          <li><a href="/sobre#missao">Missão e Valores</a></li>
+          <li><a href="/sobre#cultura">Jeito Champion</a></li>
           <li><a href="#">Trabalhe Conosco</a></li>
-          <li><a href="blog.html">Blog</a></li>
+          <li><a href="/blog">Blog</a></li>
           <li><a href="https://revendachampion.com.br" target="_blank" rel="noopener">Revenda</a></li>
         </ul>
       </div>
       <div class="footer-col">
         <h5>Produtos</h5>
         <ul>
-          <li><a href="produtos.html?cat=bovinos">Bovinos</a></li>
-          <li><a href="produtos.html?cat=mineralizacao">Mineralização</a></li>
-          <li><a href="produto.html?p=difly">Difly</a></li>
-          <li><a href="produto.html?p=difly-s3">Difly S3</a></li>
-          <li><a href="produto.html?p=ver-mi-sal">VER-MI-SAL</a></li>
+          <li><a href="/produtos?cat=bovinos">Bovinos</a></li>
+          <li><a href="/produtos?cat=mineralizacao">Mineralização</a></li>
+          <li><a href="/produto?p=difly">Difly</a></li>
+          <li><a href="/produto?p=difly-s3">Difly S3</a></li>
+          <li><a href="/produto?p=ver-mi-sal">VER-MI-SAL</a></li>
         </ul>
       </div>
       <div class="footer-col">
@@ -436,12 +439,12 @@
   <span id="toastMsg">Adicionado ao carrinho</span>
 </div>
 
-<script src="js/customer-store.js?v=20260609-2"></script>
-<script src="js/order-store.js?v=20260818-3"></script>
-<script src="js/i18n.js?v=20260820-3"></script>
-<script src="js/main.js?v=20260817-4"></script>
-<script src="js/ao-vivo.js?v=20260820-1"></script>
-<script type="module" src="js/site-settings.js?v=20260818-3"></script>
-<script src="js/chat-widget.js?v=20260817-2"></script>
+<script src="/js/customer-store.js?v=20260828-6"></script>
+<script src="/js/order-store.js?v=20260828-6"></script>
+<script src="/js/i18n.js?v=20260828-6"></script>
+<script src="/js/main.js?v=20260828-6"></script>
+<script src="/js/ao-vivo.js?v=20260828-6"></script>
+<script type="module" src="/js/site-settings.js?v=20260828-6"></script>
+<script src="/js/chat-widget.js?v=20260828-6"></script>
 </body>
 </html>

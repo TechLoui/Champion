@@ -1,7 +1,8 @@
-import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260819-1';
-import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260522-2';
-import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260818-2';
+import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260828-6';
+import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260828-6';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-6';
 import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
+import { assetUrl } from './asset-url.js?v=20260828-6';
 
 (async function () {
   'use strict';
@@ -276,7 +277,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
     function cardActions(product) {
       if (shopMode) {
         return `
-          <a class="icon-btn" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">${eyeSvg}Ver</a>
+          <a class="icon-btn" href="/produto?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">${eyeSvg}Ver</a>
           <button class="icon-btn ${product.active ? 'danger' : 'primary'}" type="button" data-toggle-active="${escapeHtml(product.id)}" title="${product.active ? 'Desativar do site' : 'Ativar no site'}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
             ${product.active ? 'Desativar' : 'Ativar'}
@@ -284,7 +285,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
           <a class="icon-btn" href="https://${escapeHtml(shopDomain)}/admin/products" target="_blank" rel="noopener" title="Editar no Shopify">Editar no Shopify</a>`;
       }
       return `
-        <a class="icon-btn" href="produto.html?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">${eyeSvg}Ver</a>
+        <a class="icon-btn" href="/produto?p=${encodeURIComponent(product.id)}" target="_blank" rel="noopener" title="Ver no site">${eyeSvg}Ver</a>
         <button class="icon-btn primary" type="button" data-edit-product="${escapeHtml(product.id)}" title="Editar produto">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Editar
@@ -298,7 +299,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
     list.innerHTML = products.map((product) => `
       <article class="prod-card" data-status="${escapeHtml(product.status)}">
         <div class="prod-card-img">
-          <img src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.style.opacity='0.3'" />
+          <img src="${escapeHtml(assetUrl(product.image || '/assets/img/brand/icon.png'))}" alt="${escapeHtml(product.name)}" loading="lazy" onerror="this.style.opacity='0.3'" />
           ${cardStatus(product)}
           ${shopMode && product.available === false ? '<span class="tag-pill" style="background:#9EA6B4">Esgotado</span>' : (product.tag ? `<span class="tag-pill">${escapeHtml(product.tag)}</span>` : '')}
         </div>
@@ -321,6 +322,23 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
     } catch { return iso; }
   }
 
+  /* Qualificação do formulário de interesse. Vem em campo próprio desde que o
+     backend foi estendido; leads antigos só têm isso dentro de message, e aí
+     estes tags simplesmente não aparecem. */
+  function leadTags(lead) {
+    const tags = []
+      .concat(lead.cidade ? [lead.cidade] : [])
+      .concat(lead.perfil ? [lead.perfil] : [])
+      .concat(Array.isArray(lead.especie) ? lead.especie : [])
+      .concat(lead.rebanho ? [lead.rebanho] : [])
+      .concat(Array.isArray(lead.interesse) ? lead.interesse : [])
+      .concat(lead.momento ? [lead.momento] : []);
+    if (!tags.length) return '';
+    return '<p class="admin-lead-tags">'
+      + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join('')
+      + '</p>';
+  }
+
   function renderLeads() {
     const list = refs.leadsList;
     if (!list) return;
@@ -334,7 +352,10 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
       if (filter === 'open' && lead.status !== 'open') return false;
       if (filter === 'done' && lead.status !== 'done') return false;
       if (term) {
-        const hay = `${lead.name} ${lead.email} ${lead.phone} ${lead.message} ${lead.source}`.toLowerCase();
+        const hay = [lead.name, lead.email, lead.phone, lead.message, lead.source,
+          lead.cidade, lead.perfil, lead.rebanho, lead.momento,
+          (lead.especie || []).join(" "), (lead.interesse || []).join(" ")
+        ].filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(term)) return false;
       }
       return true;
@@ -354,12 +375,17 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
             <span class="blog-admin-status${lead.status === 'done' ? '' : ' is-draft'}">${lead.status === 'done' ? 'Resolvido' : 'Aberto'}</span>
           </div>
           <p class="admin-row-lead-contact">${escapeHtml([lead.email, lead.phone].filter(Boolean).join(' · '))}${lead.source ? ` <span class="admin-row-lead-source">${escapeHtml(lead.source)}</span>` : ''}</p>
+          ${leadTags(lead)}
           ${lead.message ? `<p class="admin-row-lead-msg">${escapeHtml(lead.message)}</p>` : ''}
           <small class="admin-row-lead-date">${formatLeadDate(lead.createdAt)}</small>
         </div>
         <div class="admin-row-actions">
           ${lead.email ? `<a class="blog-admin-mini" href="mailto:${escapeHtml(lead.email)}?subject=Champion%20-%20Retorno%20de%20contato" title="Responder por e-mail">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>` : ''}
+          ${lead.phone ? `<a class="blog-admin-mini" target="_blank" rel="noopener" title="Responder no WhatsApp"
+            href="https://api.whatsapp.com/send/?phone=55${String(lead.phone).replace(/\D/g, '')}&type=phone_number&app_absent=0">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20zm4.4-5.8c-.2-.1-1.4-.7-1.6-.8s-.4-.1-.5.1-.6.8-.7 1-.3.2-.5.1a6.5 6.5 0 0 1-1.9-1.2 7.3 7.3 0 0 1-1.4-1.7c-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.9 11.9 0 0 0 4.6 4 5.3 5.3 0 0 0 3.2.7 2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.2-.2-.4-.3z"/></svg>
           </a>` : ''}
           <button class="blog-admin-mini" type="button" data-lead-toggle="${escapeHtml(lead.id)}" title="${lead.status === 'done' ? 'Reabrir' : 'Marcar como resolvido'}">
             ${lead.status === 'done'
@@ -376,11 +402,19 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
 
   function exportLeadsCSV() {
     if (!leadsCache.length) return;
-    const header = ['Nome', 'E-mail', 'Telefone', 'Mensagem', 'Origem', 'Status', 'Data'];
+    /* Colunas de qualificação vêm depois das antigas, e não no meio: quem já tem
+       planilha ou relatório montado em cima deste CSV continua funcionando. */
+    const header = ['Nome', 'E-mail', 'Telefone', 'Mensagem', 'Origem', 'Status', 'Data',
+      'Cidade', 'Perfil', 'Espécie', 'Rebanho', 'Interesse', 'Momento'];
     const rows = leadsCache.map((l) => [
       l.name, l.email, l.phone, l.message, l.source,
       l.status === 'done' ? 'Resolvido' : 'Aberto',
-      l.createdAt ? new Date(l.createdAt).toLocaleString('pt-BR') : ''
+      l.createdAt ? new Date(l.createdAt).toLocaleString('pt-BR') : '',
+      l.cidade, l.perfil,
+      Array.isArray(l.especie) ? l.especie.join(' / ') : l.especie,
+      l.rebanho,
+      Array.isArray(l.interesse) ? l.interesse.join(' / ') : l.interesse,
+      l.momento
     ].map((v) => `"${String(v || '').replace(/"/g, '""')}"`));
     const csv = [header, ...rows].map((r) => r.join(',')).join('\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -498,13 +532,13 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
           <div>
             <label style="display:block;font-size:11px;font-weight:700;color:#687080;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Desktop</label>
             <div style="aspect-ratio:16/9;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}" data-slide-target="image">
-              ${s.image ? `<img src="${escapeHtml(s.image)}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Clique<br>p/ upload</div>'}
+              ${s.image ? `<img src="${escapeHtml(assetUrl(s.image))}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Clique<br>p/ upload</div>'}
             </div>
           </div>
           <div>
             <label style="display:block;font-size:11px;font-weight:700;color:#687080;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Mobile</label>
             <div style="aspect-ratio:9/16;background:#F4F5F8;border:1.5px dashed #E4E8EF;border-radius:7px;overflow:hidden;cursor:pointer;position:relative" data-slide-upload="${i}" data-slide-target="imageMobile">
-              ${s.imageMobile ? `<img src="${escapeHtml(s.imageMobile)}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Opcional<br>usa desktop</div>'}
+              ${s.imageMobile ? `<img src="${escapeHtml(assetUrl(s.imageMobile))}" style="width:100%;height:100%;object-fit:cover" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:11px;text-align:center;padding:6px">Opcional<br>usa desktop</div>'}
             </div>
             ${s.imageMobile ? `<button type="button" data-clear-slide-mobile="${i}" style="margin-top:6px;background:none;border:0;color:#12315F;font-size:11.5px;font-weight:600;cursor:pointer;padding:0">Remover mobile</button>` : ''}
           </div>
@@ -583,7 +617,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
       return `
         <article class="prod-card">
           <div class="prod-card-img" style="aspect-ratio:${b.aspect || '16/9'}">
-            ${imgSrc ? `<img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(b.alt || '')}" loading="lazy" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:12px">Sem imagem</div>'}
+            ${imgSrc ? `<img src="${escapeHtml(assetUrl(imgSrc))}" alt="${escapeHtml(b.alt || '')}" loading="lazy" />` : '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#9EA6B4;font-size:12px">Sem imagem</div>'}
             <span class="status-pill${b.status === 'draft' ? ' is-draft' : ''}">${b.status === 'draft' ? 'Rascunho' : 'Publicado'}</span>
             <span class="tag-pill">${escapeHtml(PAGE_LABELS[b.page] || b.page || 'Home')}</span>
           </div>
@@ -1073,7 +1107,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
         if (refs.app) refs.app.hidden = true;
         return;
       }
-      window.location.replace('login-admin.html?expired=1');
+      window.location.replace('/login-admin?expired=1');
       return;
     }
     appEverLoaded = true;
@@ -1318,7 +1352,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
     row.innerHTML = `
       <div class="variant-thumb" data-variant-thumb tabindex="0" aria-label="Selecionar foto da variante">
         ${v.image
-          ? `<img src="${escapeHtml(v.image)}" alt="" />`
+          ? `<img src="${escapeHtml(assetUrl(v.image))}" alt="" />`
           : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'}
         <input type="file" accept="image/jpeg,image/png,image/webp" hidden />
       </div>
@@ -1401,7 +1435,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
       const url = await store.uploadImage(file, 'products');
       const hidden = row.querySelector('[data-variant-field="image"]');
       if (hidden) hidden.value = url;
-      thumb.innerHTML = `<img src="${escapeHtml(url)}" alt="" />` +
+      thumb.innerHTML = `<img src="${escapeHtml(assetUrl(url))}" alt="" />` +
         '<input type="file" accept="image/jpeg,image/png,image/webp" hidden />';
     } catch (err) {
       console.error('[admin] upload variant:', err);
@@ -1499,7 +1533,7 @@ import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:${cfg.enabled ? '12px' : '0'}">
             <label style="display:inline-flex;align-items:center;gap:8px;cursor:pointer;flex:1">
               <input type="checkbox" data-dose-enabled="${escapeHtml(p.id)}" ${checked} style="width:18px;height:18px;accent-color:#1E4C8F" />
-              <img src="${escapeHtml(p.image || 'assets/img/brand/icon.png')}" alt="" style="width:42px;height:42px;border-radius:6px;object-fit:contain;background:#F4F5F8;border:1px solid #EEF0F4;padding:3px" />
+              <img src="${escapeHtml(assetUrl(p.image || '/assets/img/brand/icon.png'))}" alt="" style="width:42px;height:42px;border-radius:6px;object-fit:contain;background:#F4F5F8;border:1px solid #EEF0F4;padding:3px" />
               <div style="flex:1">
                 <div style="font-weight:600;font-size:13.5px;color:#15191F">${escapeHtml(p.name)}</div>
                 <div style="font-size:11.5px;color:#9EA6B4">${escapeHtml(p.category)}</div>

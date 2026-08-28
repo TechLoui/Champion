@@ -46,7 +46,10 @@ async function gql(query, variables) {
    A ordem/valores devem casar com o cadastro feito no Shopify (ver doc). */
 const META_KEYS = [
   'headline', 'excerpt', 'benefits', 'usage',
-  'presentations', 'faq', 'badge', 'species', 'group', 'use', 'category'
+  'presentations', 'faq', 'badge', 'species', 'group', 'use', 'category',
+  /* Agrupamento de apresentacoes: produtos da mesma 'familia' viram opcoes
+     selecionaveis na pagina de produto. 'apresentacao' e o rotulo do botao. */
+  'familia', 'apresentacao'
 ];
 
 function metafieldFragment() {
@@ -173,6 +176,8 @@ function mapProduct(node, index) {
     species: metaVal(node, 'species') || colSpecies,
     group: metaVal(node, 'group') || colGroup,
     use: metaVal(node, 'use'),
+    family: metaVal(node, 'familia'),
+    presentation: metaVal(node, 'apresentacao'),
     collections: collectionTitles,
     image: featured,
     excerpt: metaVal(node, 'excerpt') || shortExcerpt(node.description, 170),

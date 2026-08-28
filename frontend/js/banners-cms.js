@@ -7,7 +7,8 @@
  * Para cada página que tiver um <div data-banner-page="<key>"> a gente
  * popula com o banner publicado correspondente.
  */
-import { getAdminStore } from './admin-store.js?v=20260819-1';
+import { getAdminStore } from './admin-store.js?v=20260828-6';
+import { assetUrl } from './asset-url.js?v=20260828-6';
 
 (async function () {
   'use strict';
@@ -60,13 +61,13 @@ import { getAdminStore } from './admin-store.js?v=20260819-1';
       : 'loading="lazy" decoding="async"';
 
     if (!m || m === desktop) {
-      return `<picture><img src="${esc(desktop || '')}" alt="${a}" ${carga} /></picture>`;
+      return `<picture><img src="${esc(assetUrl(desktop || ''))}" alt="${a}" ${carga} /></picture>`;
     }
 
     if (serveEmSrcset(m)) {
       return `<picture>
-          <source media="(max-width: 720px)" srcset="${escSrcset(m)}" />
-          <img src="${esc(desktop || '')}" alt="${a}" ${carga} />
+          <source media="(max-width: 720px)" srcset="${escSrcset(assetUrl(m))}" />
+          <img src="${esc(assetUrl(desktop || ''))}" alt="${a}" ${carga} />
         </picture>`;
     }
 
@@ -74,16 +75,18 @@ import { getAdminStore } from './admin-store.js?v=20260819-1';
        um <img> só, mantendo a estrutura <picture> > <img> que o CSS do hero
        posiciona. Não reavalia ao girar a tela — aceitável, é exceção. */
     const usarMobile = window.matchMedia('(max-width: 720px)').matches;
-    return `<picture><img src="${esc(usarMobile ? m : (desktop || ''))}" alt="${a}" ${carga} /></picture>`;
+    return `<picture><img src="${esc(assetUrl(usarMobile ? m : (desktop || '')))}" alt="${a}" ${carga} /></picture>`;
   }
 
   function detectPage() {
-    /* tenta inferir a página atual pelo path */
-    const path = (window.location.pathname || '').toLowerCase();
-    if (path.endsWith('/') || path.endsWith('index.html')) return 'home';
-    if (path.includes('produtos')) return 'produtos';
-    if (path.includes('blog')) return 'blog';
-    if (path.includes('sobre')) return 'sobre';
+    /* Rotas limpas: "/", "/produtos", "/blog", "/sobre". O casamento é exato de
+       propósito: "/produtos/<slug>" é página de produto, não o catálogo — com
+       includes() ela recebia o banner do catálogo. */
+    const path = ((window.location.pathname || '').toLowerCase().replace(/\/+$/, '')) || '/';
+    if (path === '/' || path === '/index' || path === '/index.html') return 'home';
+    if (path === '/produtos' || path === '/produtos.html') return 'produtos';
+    if (path === '/blog' || path === '/blog.html') return 'blog';
+    if (path === '/sobre' || path === '/sobre.html') return 'sobre';
     return null;
   }
 

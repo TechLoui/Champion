@@ -1,6 +1,6 @@
-import { getAdminStore } from './admin-store.js?v=20260819-1';
-import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayImage } from './product-data.js?v=20260522-2';
-import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260818-2';
+import { getAdminStore } from './admin-store.js?v=20260828-6';
+import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayImage } from './product-data.js?v=20260828-6';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-6';
 
 (async function () {
   'use strict';
@@ -49,13 +49,45 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     if (!text) return text;
     return String(text).split(/\n|;/).map((s) => s.trim()).filter((s) => s && !REGULATED_RX.test(s)).join('\n');
   }
+  /* category e tag são rótulos curtos ("Bovinos · Vermífugo mineral"), não frases —
+     o scrub por sentença não os alcançava, e era por aí que o termo continuava
+     aparecendo no card e no topo da página. Remove o segmento problemático e
+     mantém o resto do rótulo. */
+  function scrubLabel(text, fallback) {
+    const kept = String(text || '')
+      .split('·')
+      .map((part) => part.trim())
+      .filter((part) => part && !REGULATED_RX.test(part));
+    return kept.length ? kept.join(' · ') : (fallback || '');
+  }
+
+  function primeiraFrase(text) {
+    const t = String(text || '').trim();
+    if (!t) return '';
+    const m = t.match(/^[^.!?\n]+[.!?]?/);
+    return (m ? m[0] : t).trim();
+  }
+
   function scrubRegulatedProduct(p) {
+    p.category = scrubLabel(p.category, 'Champion');
+    p.tag = scrubLabel(p.tag, '');
     p.content = scrubSentences(p.content);
     p.excerpt = REGULATED_RX.test(p.excerpt || '') ? scrubSentences(p.excerpt) : p.excerpt;
     p.headline = REGULATED_RX.test(p.headline || '') ? '' : p.headline;
     p.benefits = scrubLines(p.benefits);
     p.usage = scrubSentences(p.usage);
     if (Array.isArray(p.faq)) p.faq = p.faq.filter((f) => !REGULATED_RX.test((f.q || '') + ' ' + (f.a || '')));
+
+    /* Em produtos como o Vermi-Sal, headline e excerpt são de uma frase só — e a
+       frase é justamente o claim regulado. O scrub tira a frase e não sobra nada,
+       deixando a página sem nenhuma linha descritiva.
+
+       O texto já passou pelo scrub, então reaproveitar o começo dele é seguro:
+       o conteúdo é compatível por construção. Melhor uma descrição mais curta
+       do que um campo vazio. */
+    if (!p.excerpt) p.excerpt = primeiraFrase(p.content);
+    if (!p.headline) p.headline = p.excerpt || primeiraFrase(p.content);
+
     return p;
   }
 
@@ -64,11 +96,11 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     return products.find((product) => product.id === normalized || product.id === id);
   }
 
-  function setProductButton(card, product) {
+  function setProductButton(card, product, ehFamilia) {
     const button = $('.product-add', card);
     if (!button) return;
     const clone = button.cloneNode(true);
-    clone.href = `produto.html?p=${encodeURIComponent(product.id)}`;
+    clone.href = `/produto?p=${encodeURIComponent(product.id)}`;
     const hasVariants = product.variants && product.variants.length > 0;
     clone.setAttribute('aria-label', hasVariants
       ? `Escolher variante de ${product.name}`
@@ -76,8 +108,9 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     clone.addEventListener('click', (event) => {
       /* Sem estoque: o "+" apenas leva à página do produto (não adiciona). */
       if (product.available === false) return;
-      /* Com variantes, o "+" leva pra página do produto pro cliente escolher. */
-      if (hasVariants) return;
+      /* Com variantes OU com apresentações irmãs, o "+" leva pra página do
+         produto: o cliente precisa escolher, não dá pra adivinhar o tamanho. */
+      if (hasVariants || ehFamilia) return;
       /* Sem preço ou R$0 (atacado): leva à página do produto (botão de orçamento). */
       if (!Number.isFinite(Number(product.price)) || Number(product.price) <= 0) return;
       event.preventDefault();
@@ -95,15 +128,31 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     button.replaceWith(clone);
   }
 
-  function cardPriceText(product) {
-    if (product.available === false) return 'Esgotado';
+  /* Uma família ocupa UM card no catálogo, representada pela apresentação mais
+     barata — é ela que sustenta o "a partir de". As demais não viram card. */
+  function collapseFamilies(published) {
+    const vistas = new Set();
+    const saida = [];
+    for (const p of published) {
+      const fam = String(p.family || '').trim().toLowerCase();
+      if (!fam) { saida.push(p); continue; }
+      if (vistas.has(fam)) continue;
+      vistas.add(fam);
+      const grupo = siblingsOf(p, published);
+      saida.push(grupo.length ? grupo[0] : p);
+    }
+    return saida;
+  }
+
+  function cardPriceText(product, ehFamilia) {
+    if (!ehFamilia && product.available === false) return 'Esgotado';
     const hasVariants = product.variants && product.variants.length > 0;
     const min = getMinPrice(product);
     if (!Number.isFinite(min) || min <= 0) return 'Sob consulta';
-    return (hasVariants ? 'A partir de ' : '') + formatBRL(min);
+    return (hasVariants || ehFamilia ? 'A partir de ' : '') + formatBRL(min);
   }
 
-  function updateCard(card, product) {
+  function updateCard(card, product, ehFamilia) {
     card.hidden = false;
     card.dataset.product = product.id;
     /* Expõe espécie/categoria pro motor de filtros (main.js). */
@@ -115,7 +164,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
       const link = $('a', title);
       if (link) {
         link.textContent = product.name;
-        link.href = `produto.html?p=${encodeURIComponent(product.id)}`;
+        link.href = `/produto?p=${encodeURIComponent(product.id)}`;
       } else {
         title.textContent = product.name;
       }
@@ -134,23 +183,23 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     if (price) {
       const min = getMinPrice(product);
       price.classList.toggle('product-price-consult', !Number.isFinite(min));
-      price.textContent = cardPriceText(product);
+      price.textContent = cardPriceText(product, ehFamilia);
     }
 
     const thumb = $('.product-thumb', card);
     if (thumb && product.image) {
       const tag = product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : '';
       thumb.className = 'product-thumb has-photo';
-      thumb.innerHTML = `${tag}<a class="product-thumb-link" href="produto.html?p=${encodeURIComponent(product.id)}" aria-label="Ver ${escapeHtml(product.name)}"><img class="product-photo" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" /></a>`;
+      thumb.innerHTML = `${tag}<a class="product-thumb-link" href="/produto?p=${encodeURIComponent(product.id)}" aria-label="Ver ${escapeHtml(product.name)}"><img class="product-photo" src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy" /></a>`;
     }
 
     const mediaLink = $('.blog-card-media, .product-thumb a', card);
-    if (mediaLink) mediaLink.href = `produto.html?p=${encodeURIComponent(product.id)}`;
+    if (mediaLink) mediaLink.href = `/produto?p=${encodeURIComponent(product.id)}`;
 
-    setProductButton(card, product);
+    setProductButton(card, product, ehFamilia);
   }
 
-  function createCard(product) {
+  function createCard(product, ehFamilia) {
     const article = document.createElement('article');
     article.className = 'product-card is-visible';
     article.dataset.product = product.id;
@@ -159,18 +208,18 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     article.innerHTML = `
       <div class="product-thumb has-photo">
         ${product.tag ? `<span class="product-tag">${escapeHtml(product.tag)}</span>` : ''}
-        <a class="product-thumb-link" href="produto.html?p=${encodeURIComponent(product.id)}" aria-label="Ver ${escapeHtml(product.name)}"><img class="product-photo" src="${escapeHtml(product.image || 'assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" /></a>
+        <a class="product-thumb-link" href="/produto?p=${encodeURIComponent(product.id)}" aria-label="Ver ${escapeHtml(product.name)}"><img class="product-photo" src="${escapeHtml(product.image || '/assets/img/brand/icon.png')}" alt="${escapeHtml(product.name)}" loading="lazy" /></a>
       </div>
       <div class="product-body">
         <span class="product-cat">${escapeHtml(product.category)}</span>
-        <h3 class="product-name"><a href="produto.html?p=${encodeURIComponent(product.id)}">${escapeHtml(product.name)}</a></h3>
+        <h3 class="product-name"><a href="/produto?p=${encodeURIComponent(product.id)}">${escapeHtml(product.name)}</a></h3>
         <p class="product-desc">${escapeHtml(product.excerpt)}</p>
         <div class="product-foot">
           <div class="product-price-block">
             <span class="product-price-label"></span>
-            <span class="product-price">${escapeHtml(cardPriceText(product))}</span>
+            <span class="product-price">${escapeHtml(cardPriceText(product, ehFamilia))}</span>
           </div>
-          <a href="produto.html?p=${encodeURIComponent(product.id)}" class="product-add" aria-label="Adicionar ${escapeHtml(product.name)} ao carrinho">
+          <a href="/produto?p=${encodeURIComponent(product.id)}" class="product-add" aria-label="Adicionar ${escapeHtml(product.name)} ao carrinho">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </a>
         </div>
@@ -216,27 +265,32 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     if (!list || !products.length) return;
 
     const published = products.filter((product) => product.status === 'published');
-    const byId = new Map(published.map((product) => [product.id, product]));
+    /* Uma família ocupa um card só, representada pela apresentação mais barata —
+       é o que sustenta o "A partir de". Os outros tamanhos não viram card; eles
+       aparecem como opção dentro da página do produto. */
+    const vitrine = collapseFamilies(published);
+    const naVitrine = new Set(vitrine.map((p) => p.id));
+    const temIrmaos = new Map(vitrine.map((p) => [p.id, siblingsOf(p, published).length > 0]));
     const seen = new Set();
 
     $$('.product-card[data-product]', list).forEach((card) => {
       const product = findProduct(published, card.dataset.product);
-      if (!product) {
+      /* Card estático de um tamanho que agora é opção de outro: sai da vitrine. */
+      if (!product || !naVitrine.has(product.id)) {
         card.hidden = true;
         return;
       }
       seen.add(product.id);
-      updateCard(card, product);
+      updateCard(card, product, temIrmaos.get(product.id));
     });
 
-    published.forEach((product) => {
+    vitrine.forEach((product) => {
       if (seen.has(product.id)) return;
-      list.appendChild(createCard(product));
-      byId.set(product.id, product);
+      list.appendChild(createCard(product, temIrmaos.get(product.id)));
     });
 
     const total = $('#shopTotal');
-    if (total) total.textContent = String(published.length);
+    if (total) total.textContent = String(vitrine.length);
   }
 
   function formatDetailPrice(value) {
@@ -271,21 +325,71 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
 
   /* Devolve o "estado atual" da seleção: variante (se houver) ou nada.
      Closure compartilhada entre o seletor e o botão de adicionar. */
-  function makeSelectionState(product) {
+  function makeSelectionState(product, irmaos) {
     let currentVariant = null;
-    if (product.variants && product.variants.length) currentVariant = product.variants[0];
+    let currentSibling = null;
+    const temIrmaos = Boolean(irmaos && irmaos.length);
+    const quantasVariantes = (product.variants && product.variants.length) || 0;
+    /* Só é escolha quando há mais de uma. */
+    const temVariantes = quantasVariantes > 1;
+
+    /* NADA vem pré-selecionado quando existe mais de uma apresentação — seja
+       variante do Shopify, seja produto irmão. São preços e embalagens
+       diferentes; escolher pelo cliente é como ele acaba levando o tamanho
+       errado.
+
+       Variante única é exceção: não há o que escolher, então ela já vem
+       marcada. Sem isso o cliente teria de clicar numa opção só para liberar a
+       compra, e o carrinho perderia o GID da variante. */
+    if (!temIrmaos && quantasVariantes === 1) {
+      currentVariant = product.variants[0];
+    }
     return {
       get variant() { return currentVariant; },
-      set(v) { currentVariant = v; }
+      set(v) { currentVariant = v; },
+      get sibling() { return currentSibling; },
+      setSibling(p) { currentSibling = p; },
+      get needsChoice() {
+        if (temIrmaos) return !currentSibling;
+        if (temVariantes) return !currentVariant;
+        return false;
+      }
     };
   }
 
-  function replaceDetailCartButton(product, selection) {
+  /* Enquanto falta escolher, o botão diz o que falta em vez de convidar a
+     comprar, e as apresentações pulsam para puxar o olho pra decisão. */
+  function atualizarEstadoEscolha(selection) {
+    const falta = selection.needsChoice;
+
+    const options = $('#detailOptions');
+    if (options) options.classList.toggle('aguardando-escolha', falta);
+
+    const btn = $('#addToCartBtn');
+    if (!btn) return;
+    btn.classList.toggle('is-aguardando', falta);
+    const rotulo = $('.add-cart-label', btn);
+    if (rotulo) {
+      rotulo.textContent = falta ? 'Escolha o tamanho' : 'Adicionar ao carrinho';
+    }
+  }
+
+  function replaceDetailCartButton(product, selection, irmaos) {
+    const temIrmaos = Boolean(irmaos && irmaos.length);
     const current = $('#addToCartBtn');
     if (!current) return;
     const clone = current.cloneNode(true);
-    /* Sem estoque: botão desabilitado com "Esgotado". */
-    if (product.available === false) {
+    /* Envolve o texto num span para poder trocar o rotulo depois sem recriar o
+       botao (e sem perder os listeners). */
+    if (!$('.add-cart-label', clone)) {
+      const icone = clone.querySelector('svg');
+      clone.innerHTML = (icone ? icone.outerHTML : '')
+        + '<span class="add-cart-label">Adicionar ao carrinho</span>';
+    }
+    /* Sem estoque: botão desabilitado com "Esgotado". Numa família isso não vale
+       na abertura — o estoque é de cada apresentação, e o cliente ainda não
+       escolheu; a checagem passa para o clique. */
+    if (!temIrmaos && product.available === false) {
       clone.textContent = 'Esgotado';
       clone.style.opacity = '0.55';
       clone.style.pointerEvents = 'none';
@@ -296,7 +400,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     /* Se não há preço base nem nenhuma variante com preço, vira "orçamento" */
     const baseHasPrice = Number.isFinite(Number(product.price)) && Number(product.price) > 0;
     const anyVariantHasPrice = (product.variants || []).some((v) => Number.isFinite(Number(v.price)) && Number(v.price) > 0);
-    const sellable = baseHasPrice || anyVariantHasPrice;
+    const anySiblingHasPrice = menorPrecoDe(irmaos || []) !== null;
+    const sellable = baseHasPrice || anyVariantHasPrice || anySiblingHasPrice;
     if (!sellable) {
       clone.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
@@ -304,43 +409,131 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
       `;
     }
     clone.addEventListener('click', () => {
+      /* Família sem apresentação escolhida: não adivinha o tamanho. */
+      if (selection.needsChoice) {
+        pedirEscolha();
+        return;
+      }
       const qty = Math.max(1, Number($('#qtyInput')?.value || 1));
-      const variant = selection.variant;
-      const optionLabel = variant ? variant.name : ($('.detail-option.active')?.textContent || '');
+      /* Apresentação escolhida é um produto Shopify inteiro; variante é uma
+         opção dentro do produto. Nunca ocorrem juntas. */
+      const irmao = selection.sibling;
+      const alvo = irmao || product;
+      if (alvo.available === false) { pedirEscolha(); const h=document.getElementById("detailChoiceHint"); if(h) h.textContent="Este tamanho está esgotado. Escolha outro."; return; }
+      const variant = irmao ? null : selection.variant;
+      const optionLabel = irmao
+        ? (irmao.presentation || '')
+        : (variant ? variant.name : ($('.detail-option.active')?.textContent || ''));
       const finalPrice = variant && Number.isFinite(Number(variant.price))
         ? Number(variant.price)
-        : Number(product.price);
+        : Number(getMinPrice(alvo));
       if (!Number.isFinite(finalPrice) || finalPrice <= 0) {
-        const msg = encodeURIComponent(`Olá! Tenho interesse em ATACADO/REVENDA do produto ${product.name}${optionLabel ? ' · ' + optionLabel : ''}. Podem me passar condições e valores?`);
+        const msg = encodeURIComponent(`Olá! Tenho interesse em ATACADO/REVENDA do produto ${alvo.name}${!irmao && optionLabel ? ' · ' + optionLabel : ''}. Podem me passar condições e valores?`);
         window.open(`https://api.whatsapp.com/send/?phone=5562981817915&type=phone_number&app_absent=0&text=${msg}`, '_blank');
         return;
       }
-      const variantKey = variant ? variant.id : optionLabel;
+      /* Apresentação irmã já é um produto distinto — entra no carrinho com o
+         próprio handle. Variante é subdivisão, então vira chave composta. */
+      const cartId = irmao
+        ? alvo.id
+        : (variant ? `${product.id}|${variant.id}` : (optionLabel ? `${product.id}|${optionLabel}` : product.id));
       window.ChampionCart?.add({
-        id: variantKey ? `${product.id}|${variantKey}` : product.id,
-        name: product.name + (optionLabel ? ` · ${optionLabel}` : ''),
+        id: cartId,
+        /* O nome do irmão já diz o tamanho; só a variante precisa do sufixo. */
+        name: irmao ? alvo.name : product.name + (optionLabel ? ` · ${optionLabel}` : ''),
         price: finalPrice,
         qty,
-        image: getDisplayImage(product, variant),
-        art: product.name.charAt(0),
-        variantId: (variant && variant.variantId) || product.variantId || ''
+        image: getDisplayImage(alvo, variant),
+        art: alvo.name.charAt(0),
+        variantId: (variant && variant.variantId) || alvo.variantId || ''
+      });
+      /* Remarketing de carrinho abandonado depende deste evento. O `id` tem de
+         ser o mesmo do feed do Merchant Center, senão o anúncio não casa com o
+         produto — por isso vai o handle, não a chave composta do carrinho. */
+      window.ChampionTracking?.addToCart({
+        id: alvo.id,
+        name: alvo.name,
+        variant: optionLabel || undefined,
+        category: alvo.category,
+        price: finalPrice,
+        qty
       });
     });
     current.replaceWith(clone);
   }
 
-  function renderVariantSelector(product, selection) {
+  /* Produtos da mesma "família" são apresentações do mesmo item — Difly balde
+     6 kg e Difly sachê 20 g, por exemplo. No Shopify eles são produtos
+     separados, cada um com handle e GID de checkout próprios; aqui viram
+     opções na mesma página.
+
+     O agrupamento vem do metafield `familia`, nunca do nome do produto: por
+     nome, "Difly S3" seria lido como um tamanho do Difly, e é outra
+     formulação. Quem decide o que agrupa é o cadastro, não uma heurística. */
+  function siblingsOf(product, products) {
+    const fam = String(product.family || '').trim().toLowerCase();
+    if (!fam) return [];
+    const grupo = (products || []).filter((p) =>
+      p.status === 'published' && String(p.family || '').trim().toLowerCase() === fam);
+    if (grupo.length < 2) return [];
+    return grupo.slice().sort((a, b) => {
+      const pa = Number(getMinPrice(a)), pb = Number(getMinPrice(b));
+      if (Number.isFinite(pa) && Number.isFinite(pb) && pa !== pb) return pa - pb;
+      return String(a.presentation || a.name).localeCompare(String(b.presentation || b.name), 'pt-BR');
+    });
+  }
+
+  /* Rótulo acima do preço ("A partir de", enquanto nada foi escolhido). */
+  function setPriceLabel(text) {
+    const el = $('.detail-price-block .product-price-label') || $('.product-price-label');
+    if (el) el.textContent = text || '';
+  }
+
+  function limparAvisoEscolha() {
+    const hint = $('#detailChoiceHint');
+    if (hint) hint.remove();
+  }
+
+  /* Clicou em adicionar sem escolher a apresentação: em vez de adivinhar um
+     tamanho, leva o cliente até o seletor e diz o que falta. */
+  function pedirEscolha() {
+    const options = $('#detailOptions');
+    if (!options) return;
+    let hint = $('#detailChoiceHint');
+    if (!hint) {
+      hint = document.createElement('p');
+      hint.id = 'detailChoiceHint';
+      hint.setAttribute('role', 'alert');
+      hint.style.cssText = 'margin:10px 0 0;font-size:13px;font-weight:600;color:#D8352A';
+      options.insertAdjacentElement('afterend', hint);
+    }
+    hint.textContent = 'Escolha o tamanho antes de adicionar ao carrinho.';
+    options.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  /* Menor preço entre as apresentações da família. */
+  function menorPrecoDe(lista) {
+    const precos = lista
+      .map((p) => Number(getMinPrice(p)))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    return precos.length ? Math.min(...precos) : null;
+  }
+
+  function renderVariantSelector(product, selection, irmaos) {
     const options = $('#detailOptions');
     if (!options) return;
     options.innerHTML = '';
+    limparAvisoEscolha();
     if (options.parentElement) options.parentElement.hidden = false;
     const hasVariants = product.variants && product.variants.length > 0;
+    irmaos = irmaos || [];
     if (hasVariants) {
       options.classList.add('detail-options-rich');
-      product.variants.forEach((variant, index) => {
+      product.variants.forEach((variant) => {
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = `detail-option detail-option-variant${index === 0 ? ' active' : ''}`;
+        /* Sem 'active' no primeiro: a escolha e do cliente. */
+        button.className = 'detail-option detail-option-variant';
         const priceLabel = Number.isFinite(Number(variant.price))
           ? `R$ ${Number(variant.price).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
           : 'sob consulta';
@@ -355,14 +548,58 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
           $$('.detail-option', options).forEach((item) => item.classList.remove('active'));
           button.classList.add('active');
           selection.set(variant);
+          setPriceLabel('');
           updateDetailPriceEl(variant.price);
           updateDetailImageEl(product, variant);
+          limparAvisoEscolha();
+          atualizarEstadoEscolha(selection);
+        });
+        options.appendChild(button);
+      });
+    } else if (irmaos.length) {
+      /* Cada apresentação é um produto próprio no Shopify (handle e GID de
+         checkout próprios), mas aqui se comporta como variante: escolher troca
+         preço e imagem sem sair da página. Nenhum botão nasce ativo. */
+      options.classList.add('detail-options-rich');
+      irmaos.forEach((irmao) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'detail-option detail-option-variant';
+        const preco = Number(getMinPrice(irmao));
+        const priceLabel = Number.isFinite(preco) && preco > 0 ? formatBRL(preco) : 'sob consulta';
+        button.innerHTML = `
+          ${irmao.image ? `<span class="detail-option-thumb"><img src="${escapeHtml(irmao.image)}" alt="" loading="lazy" /></span>` : ''}
+          <span class="detail-option-text">
+            <span class="detail-option-name">${escapeHtml(irmao.presentation || irmao.name)}</span>
+            <span class="detail-option-price">${escapeHtml(priceLabel)}</span>
+          </span>
+        `;
+        button.addEventListener('click', () => {
+          $$('.detail-option', options).forEach((item) => item.classList.remove('active'));
+          button.classList.add('active');
+          selection.setSibling(irmao);
+          setPriceLabel('');
+          updateDetailPriceEl(getMinPrice(irmao));
+          updateDetailImageEl(irmao, null);
+          limparAvisoEscolha();
+          atualizarEstadoEscolha(selection);
         });
         options.appendChild(button);
       });
     } else {
       options.classList.remove('detail-options-rich');
-      splitOptions(product.presentations).forEach((option, index) => {
+      const lista = splitOptions(product.presentations);
+      /* Uma opção só não é escolha. Renderizada como botão, ela convida a um
+         clique que não faz nada — foi assim que "Consultar embalagem" virou
+         reclamação de cliente. Vira rótulo. */
+      if (lista.length < 2) {
+        const rotulo = document.createElement('span');
+        rotulo.className = 'detail-option detail-option-static';
+        rotulo.textContent = lista[0] || 'Consultar embalagem';
+        options.appendChild(rotulo);
+        return;
+      }
+      lista.forEach((option, index) => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = `detail-option${index === 0 ? ' active' : ''}`;
@@ -377,6 +614,17 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
   }
 
   const SITE_ORIGIN = 'https://champion.ind.br';
+
+  /* URL canônica do produto.
+     As duas rotas respondem: /produto?p=<slug> (a que está no ar e para onde os
+     anúncios apontam) e /produtos/<slug>. Os links internos seguem usando a
+     primeira; o canonical e os dados estruturados apontam para /produtos/<slug>,
+     que é a forma que vai ser adotada quando os anúncios migrarem.
+     normalizeProduct() passa o id por slugify(), então ele já casa com o
+     [a-z0-9-]+ esperado pela regra de rewrite. */
+  function productUrl(product) {
+    return `${SITE_ORIGIN}/produtos/${encodeURIComponent(product.id)}`;
+  }
 
   function setMeta(selector, attr, value) {
     let el = document.head.querySelector(selector);
@@ -445,7 +693,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
   }
 
   function buildProductSchema(product) {
-    const url = `${SITE_ORIGIN}/produto.html?p=${encodeURIComponent(product.id)}`;
+    const url = productUrl(product);
     const image = product.image ? [SITE_ORIGIN + '/' + product.image.replace(/^\/+/, '')] : [];
     const description = (product.headline || product.excerpt || product.content || product.name).slice(0, 5000);
     const hasVariants = product.variants && product.variants.length > 0;
@@ -493,14 +741,14 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Início', item: SITE_ORIGIN + '/' },
-        { '@type': 'ListItem', position: 2, name: 'Produtos', item: SITE_ORIGIN + '/produtos.html' },
-        { '@type': 'ListItem', position: 3, name: product.name, item: `${SITE_ORIGIN}/produto.html?p=${encodeURIComponent(product.id)}` }
+        { '@type': 'ListItem', position: 2, name: 'Produtos', item: SITE_ORIGIN + '/produtos' },
+        { '@type': 'ListItem', position: 3, name: product.name, item: productUrl(product) }
       ]
     };
   }
 
   function hydrateProductMeta(product) {
-    const url = `${SITE_ORIGIN}/produto.html?p=${encodeURIComponent(product.id)}`;
+    const url = productUrl(product);
     const titleSuffix = product.category ? ` — ${product.category}` : '';
     const title = `${product.name}${titleSuffix} | Champion Saúde Animal`;
     const desc = (product.excerpt || product.headline || product.content || '')
@@ -776,12 +1024,33 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
 
   function updateDetail(products) {
     if (!$('#detailName')) return;
-    const requested = new URLSearchParams(window.location.search).get('p') || 'difly';
+    const requested = (window.championProductSlug ? window.championProductSlug() : new URLSearchParams(window.location.search).get('p')) || 'difly';
     const product = findProduct(products.filter((item) => item.status === 'published'), requested);
-    if (!product) return;
+    if (!product) {
+      /* A regra de rewrite aceita /produtos/<qualquer-coisa> e devolve 200, então
+         um slug inexistente renderiza o conteúdo de exemplo do HTML — um soft 404.
+         Hospedagem estática não permite mudar o status daqui, mas dá para impedir
+         que o Google indexe essas páginas. */
+      setMeta('meta[name="robots"]', 'content', 'noindex, follow');
+      return;
+    }
 
+    renderDetailFor(product, products);
+  }
+
+  /* Monta a página inteira para um produto. Separado de updateDetail porque o
+     seletor de apresentação chama isso de novo, sem recarregar a página. */
+  function renderDetailFor(product, products) {
     hydrateProductMeta(product);
     renderProductContent(product);
+
+    /* view_item: alimenta o remarketing dinâmico e o funil do GA4. */
+    window.ChampionTracking?.viewItem({
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      price: product.price
+    });
 
     $('#crumbName').textContent = product.name;
     $('#detailName').textContent = product.name;
@@ -800,13 +1069,27 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
       });
     }
 
-    const selection = makeSelectionState(product);
-    const initialPrice = selection.variant && Number.isFinite(Number(selection.variant.price))
-      ? selection.variant.price
-      : product.price;
-    updateDetailPriceEl(initialPrice);
+    const irmaos = (product.variants && product.variants.length)
+      ? []
+      : siblingsOf(product, products);
+    const selection = makeSelectionState(product, irmaos);
+
+    if (irmaos.length) {
+      /* Nada escolhido ainda: mostra o piso da família, como no card. */
+      const menor = menorPrecoDe(irmaos);
+      setPriceLabel(menor === null ? '' : 'A partir de');
+      updateDetailPriceEl(menor);
+    } else if (product.variants && product.variants.length) {
+      /* Variantes do Shopify, nenhuma escolhida ainda: mostra o piso, igual ao card. */
+      const menor = getMinPrice(product);
+      setPriceLabel(Number.isFinite(Number(menor)) && Number(menor) > 0 ? 'A partir de' : '');
+      updateDetailPriceEl(menor);
+    } else {
+      setPriceLabel('');
+      updateDetailPriceEl(product.price);
+    }
     updateDetailImageEl(product, selection.variant);
-    renderVariantSelector(product, selection);
+    renderVariantSelector(product, selection, irmaos);
 
     const features = $('.detail-features');
     if (features) {
@@ -819,7 +1102,8 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
       ].join('');
     }
 
-    replaceDetailCartButton(product, selection);
+    replaceDetailCartButton(product, selection, irmaos);
+    atualizarEstadoEscolha(selection);
   }
 
   /* Otimiza a página de catálogo (produtos.html): canonical, OG e ItemList.
@@ -829,7 +1113,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
     const list = $('.product-list');
     if (!list) return; /* não é o catálogo */
 
-    const url = `${SITE_ORIGIN}/produtos.html`;
+    const url = `${SITE_ORIGIN}/produtos`;
     const title = 'Produtos Champion — Saúde e nutrição animal para todo o Brasil';
     const desc = 'Catálogo Champion: larvicidas, vermífugos, mineralização, suplementos e nutrição para bovinos, equinos, suínos e aves. Compra protegida e entrega nacional.';
     document.title = title;
@@ -849,7 +1133,7 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
       itemListElement: published.map((p, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `${SITE_ORIGIN}/produto.html?p=${encodeURIComponent(p.id)}`,
+        url: productUrl(p),
         name: p.name
       }))
     });
@@ -880,15 +1164,14 @@ import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=2026
         console.error('Falha ao carregar produtos do Shopify, usando fonte local.', err);
       }
     }
-    const store = await getAdminStore();
-    if (typeof store.getTaxonomy === 'function') {
-      try {
-        updateFilters(await store.getTaxonomy());
-      } catch (e) {
-        console.warn('Taxonomia indisponível, usando filtros padrão.', e);
-      }
-    }
-    return store.getProducts({ includeDrafts: false });
+    /* Sem fallback para catálogo local: a Shopify é a única fonte de produto.
+       O catálogo do Firestore foi retirado — tinha 17 produtos com preço cravado,
+       dos quais 14 nem existiam mais na loja, e mascarava falha da Shopify
+       servindo dado velho como se fosse bom.
+
+       Se a Shopify falhar, a vitrine volta vazia e o HTML gerado por
+       tools/gerar-produtos.js segura o conteúdo indexável. */
+    return [];
   }
 
   /* Home: atualiza os cards de "Destaques" (.product-grid) com dados REAIS do Shopify —

@@ -3750,6 +3750,17 @@ p { margin: 0; }
   background: rgba(30,76,143,0.08);
   color: var(--orange);
 }
+/* Apresentação única: não há o que escolher. Fica com cara de informação, não
+   de botão — antes convidava a um clique que não fazia nada. */
+.detail-option-static,
+.detail-option-static:hover {
+  cursor: default;
+  border-style: dashed;
+  border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-weight: 500;
+}
 /* ── Seção de conteúdo SEO do produto ── */
 .product-content-grid {
   display: grid;
@@ -8746,4 +8757,335 @@ body.chat-modal-aberto { overflow: hidden; }
   body.chat-aberto .scroll-top-btn {
     display: none !important;
   }
+}
+
+/* ── Aguardando a escolha da apresentação ────────────────────────────────────
+   Enquanto o cliente não escolhe tamanho, três coisas mudam: as opções pulsam
+   para puxar o olho, o botão diz o que falta em vez de convidar a comprar, e
+   ele perde o peso visual de CTA principal. Tudo volta ao normal no clique.
+
+   Motivo: com o primeiro tamanho pré-marcado, o cliente adicionava a embalagem
+   errada sem perceber. Nada vem marcado agora, então a interface precisa
+   deixar a pendência óbvia. */
+@keyframes champion-pulso-escolha {
+  0%, 100% { border-color: var(--line-strong); box-shadow: 0 0 0 0 rgba(30,76,143,0); }
+  50%      { border-color: var(--orange);      box-shadow: 0 0 0 4px rgba(30,76,143,0.15); }
+}
+
+.detail-options.aguardando-escolha .detail-option-variant {
+  animation: champion-pulso-escolha 1.6s ease-in-out infinite;
+}
+/* Escalonado: pulsar em uníssono lê como alarme; em cascata, como convite. */
+.detail-options.aguardando-escolha .detail-option-variant:nth-child(2)   { animation-delay: 0.18s; }
+.detail-options.aguardando-escolha .detail-option-variant:nth-child(3)   { animation-delay: 0.36s; }
+.detail-options.aguardando-escolha .detail-option-variant:nth-child(n+4) { animation-delay: 0.54s; }
+/* Passar o mouse já é intenção de escolher — o pulso daquele item para. */
+.detail-options.aguardando-escolha .detail-option-variant:hover { animation: none; }
+
+/* O botão continua clicável (leva ao seletor), mas não se apresenta como a
+   ação principal enquanto a escolha não foi feita. */
+#addToCartBtn.is-aguardando {
+  background: var(--steel);
+  box-shadow: none;
+}
+#addToCartBtn.is-aguardando:hover {
+  background: var(--graphite);
+  box-shadow: none;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-options.aguardando-escolha .detail-option-variant {
+    animation: none;
+    border-color: var(--orange);
+  }
+}
+
+/* ── Convite "Compre aqui" na bolinha do chat ────────────────────────────────
+   A bolinha sozinha não comunica que dali saem preço e pedido — muita gente
+   trata como suporte e passa direto. O balão diz o que tem dentro.
+
+   Fica à direita da bolinha porque o widget é ancorado embaixo à esquerda; em
+   tela estreita sobe para cima dela, senão colidiria com o carrinho e o
+   WhatsApp, que moram no canto oposto. */
+.chat-convite {
+  position: absolute;
+  left: calc(var(--fab-size, 56px) + 12px);
+  bottom: 4px;
+  display: flex;
+  align-items: stretch;
+  max-width: min(16rem, calc(100vw - var(--fab-size, 56px) - 48px));
+  background: var(--paper, #fff);
+  border: 1px solid var(--line, rgba(22,41,77,0.10));
+  border-radius: 14px;
+  box-shadow: 0 14px 34px -10px rgba(22,41,77,0.32);
+  opacity: 0;
+  transform: translateX(-8px) scale(0.96);
+  transform-origin: left bottom;
+  transition: opacity 0.28s var(--ease, ease), transform 0.28s var(--ease, ease);
+  pointer-events: none;
+}
+.chat-convite.is-on { opacity: 1; transform: none; pointer-events: auto; }
+
+/* Bico apontando para a bolinha. */
+.chat-convite::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  bottom: 20px;
+  width: 10px;
+  height: 10px;
+  background: var(--paper, #fff);
+  border-left: 1px solid var(--line, rgba(22,41,77,0.10));
+  border-bottom: 1px solid var(--line, rgba(22,41,77,0.10));
+  transform: rotate(45deg);
+}
+
+.chat-convite-corpo {
+  flex: 1;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 11px 4px 11px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font: inherit;
+  color: inherit;
+  border-radius: 14px 0 0 14px;
+}
+.chat-convite-corpo strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue, #1E4C8F);
+  line-height: 1.2;
+}
+.chat-convite-corpo span {
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted, #64738C);
+}
+.chat-convite-corpo:hover strong { text-decoration: underline; }
+
+.chat-convite-x {
+  border: 0;
+  background: none;
+  cursor: pointer;
+  padding: 0 10px 0 6px;
+  color: var(--muted, #64738C);
+  display: flex;
+  align-items: flex-start;
+  padding-top: 10px;
+  border-radius: 0 14px 14px 0;
+}
+.chat-convite-x svg { width: 13px; height: 13px; }
+.chat-convite-x:hover { color: var(--ink, #131F35); }
+
+/* Tela estreita: o balão sobe para cima da bolinha. */
+@media (max-width: 560px) {
+  .chat-convite {
+    left: 0;
+    bottom: calc(var(--fab-size, 56px) + 12px);
+    max-width: min(15rem, calc(100vw - 36px));
+    transform: translateY(8px) scale(0.96);
+    transform-origin: left bottom;
+  }
+  .chat-convite::before {
+    left: 20px;
+    bottom: -6px;
+    border-left: 0;
+    border-bottom: 0;
+    border-right: 1px solid var(--line, rgba(22,41,77,0.10));
+    border-top: 0;
+    box-shadow: 1px 1px 0 0 var(--line, rgba(22,41,77,0.10));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chat-convite { transition: none; }
+  .chat-convite.is-on { transform: none; }
+}
+
+/* ── Atalhos de partida do chat ──────────────────────────────────────────────
+   O chat abria com um campo de texto vazio: quem não sabia o que perguntar
+   fechava. Estes botões dão o primeiro passo pronto. Somem no primeiro uso —
+   são empurrão inicial, não menu permanente. */
+.chat-atalhos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 2px;
+  padding-left: 2px;
+}
+.chat-atalho {
+  border: 1px solid var(--blue, #1E4C8F);
+  background: transparent;
+  color: var(--blue, #1E4C8F);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.18s var(--ease, ease), color 0.18s var(--ease, ease);
+}
+.chat-atalho:hover,
+.chat-atalho:focus-visible {
+  background: var(--blue, #1E4C8F);
+  color: #fff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chat-atalho { transition: none; }
+}
+
+/* ── Formulário de interesse ─────────────────────────────────────────────────
+   Em passos porque dez campos numa tela só são abandonados. O primeiro passo
+   pede só contato: se a pessoa desistir depois, o lead já está de pé. */
+.lead-box {
+  background: var(--paper, #fff);
+  border: 1px solid var(--line, rgba(22,41,77,0.10));
+  border-radius: 18px;
+  padding: clamp(20px, 4vw, 36px);
+  box-shadow: 0 20px 46px -22px rgba(22,41,77,0.28);
+  max-width: 44rem;
+  margin: 0 auto;
+}
+.lead-cabeca { margin-bottom: 22px; }
+.lead-eyebrow {
+  display: inline-block;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--blue, #1E4C8F); background: var(--blue-tint, #EAF1FA);
+  border-radius: 999px; padding: 5px 12px; margin-bottom: 12px;
+}
+.lead-cabeca h2 { margin: 0 0 6px; font-size: clamp(21px, 3.2vw, 27px); line-height: 1.2; }
+.lead-cabeca p { margin: 0; color: var(--muted, #64738C); font-size: 15px; line-height: 1.55; }
+
+/* Trilha de passos */
+.lead-trilha {
+  display: flex; gap: 6px; list-style: none; margin: 0 0 22px; padding: 0;
+  counter-reset: passo;
+}
+.lead-trilha li {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--muted, #64738C); position: relative;
+}
+.lead-trilha li span {
+  width: 30px; height: 30px; border-radius: 999px;
+  display: grid; place-items: center;
+  border: 2px solid var(--line-strong, rgba(22,41,77,0.18));
+  font-size: 13px; background: var(--paper, #fff);
+}
+.lead-trilha li.is-on { color: var(--blue, #1E4C8F); }
+.lead-trilha li.is-on span { border-color: var(--blue, #1E4C8F); color: var(--blue, #1E4C8F); }
+.lead-trilha li.is-feito span {
+  background: var(--blue, #1E4C8F); border-color: var(--blue, #1E4C8F); color: #fff;
+}
+/* Linha ligando os passos, atrás das bolinhas. */
+.lead-trilha li:not(:first-child)::before {
+  content: ''; position: absolute; top: 15px; right: 50%; left: -50%;
+  height: 2px; background: var(--line, rgba(22,41,77,0.10)); z-index: 0;
+}
+.lead-trilha li span { position: relative; z-index: 1; }
+
+.lead-tela h3 { margin: 0 0 4px; font-size: 17px; }
+.lead-ajuda { margin: 0 0 16px; font-size: 13px; color: var(--muted, #64738C); }
+
+.lead-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lead-grade-1 { grid-template-columns: 1fr; }
+@media (max-width: 560px) { .lead-grade { grid-template-columns: 1fr; } }
+
+.lead-campo { display: flex; flex-direction: column; gap: 5px; }
+.lead-rotulo {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--steel, #5A6A85);
+}
+.lead-rotulo-solto { display: block; margin: 18px 0 8px; }
+.lead-campo input,
+.lead-campo select,
+.lead-campo textarea {
+  width: 100%; font: inherit; font-size: 15px;
+  padding: 11px 13px;
+  border: 1.5px solid var(--line-strong, rgba(22,41,77,0.18));
+  border-radius: 10px;
+  background: var(--paper, #fff); color: var(--ink, #131F35);
+  transition: border-color 0.18s ease;
+}
+.lead-campo textarea { resize: vertical; min-height: 74px; }
+.lead-campo input:focus,
+.lead-campo select:focus,
+.lead-campo textarea:focus {
+  outline: none; border-color: var(--blue, #1E4C8F);
+}
+
+.lead-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.lead-chip {
+  border: 1.5px solid var(--line-strong, rgba(22,41,77,0.18));
+  background: transparent; color: var(--ink, #131F35);
+  border-radius: 999px; padding: 9px 15px;
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+.lead-chip:hover { border-color: var(--blue, #1E4C8F); }
+.lead-chip.is-on {
+  background: var(--blue, #1E4C8F); border-color: var(--blue, #1E4C8F); color: #fff;
+}
+
+.lead-aviso { margin: 14px 0 0; font-size: 13px; font-weight: 600; }
+.lead-aviso[data-tipo="erro"] { color: #D8352A; }
+
+.lead-pe { display: flex; align-items: center; gap: 10px; margin-top: 22px; }
+.lead-btn {
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+  border-radius: 10px; padding: 12px 22px; border: 1.5px solid transparent;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.lead-btn-voltar {
+  background: transparent; color: var(--muted, #64738C);
+  border-color: var(--line-strong, rgba(22,41,77,0.18));
+}
+.lead-btn-voltar:hover { color: var(--ink, #131F35); }
+.lead-btn-avancar,
+.lead-btn-enviar {
+  margin-left: auto; background: var(--blue, #1E4C8F); color: #fff;
+  text-decoration: none; display: inline-block;
+}
+.lead-btn-avancar:hover,
+.lead-btn-enviar:hover { background: var(--blue-deep, #12315F); }
+.lead-btn-enviar:disabled { opacity: 0.6; cursor: default; }
+
+.lead-selos {
+  display: flex; flex-wrap: wrap; gap: 6px 18px;
+  list-style: none; margin: 20px 0 0; padding: 18px 0 0;
+  border-top: 1px solid var(--line, rgba(22,41,77,0.10));
+  font-size: 12px; color: var(--muted, #64738C);
+}
+.lead-selos li::before { content: '✓ '; color: var(--blue, #1E4C8F); font-weight: 700; }
+
+.lead-pronto { text-align: center; padding: 12px 0; }
+.lead-pronto strong { display: block; font-size: 19px; margin-bottom: 8px; }
+.lead-pronto p {
+  margin: 0 auto 18px; max-width: 30rem;
+  color: var(--muted, #64738C); font-size: 15px; line-height: 1.55;
+}
+.lead-pronto .lead-btn { margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lead-campo input, .lead-campo select, .lead-campo textarea,
+  .lead-chip, .lead-btn { transition: none; }
+}
+
+/* Tags de qualificação na linha do lead (painel admin). */
+.admin-lead-tags {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin: 6px 0 0; padding: 0;
+}
+.admin-lead-tags span {
+  font-size: 11px; font-weight: 600; line-height: 1;
+  padding: 4px 9px; border-radius: 999px;
+  background: var(--blue-tint, #EAF1FA);
+  color: var(--blue, #1E4C8F);
+  white-space: nowrap;
 }

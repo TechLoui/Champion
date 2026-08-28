@@ -39,7 +39,7 @@
     if (!botao) return;
 
     /* Mesmo padrão do products-cms: sem ?p= a página mostra o Difly. */
-    var handle = new URLSearchParams(window.location.search).get('p') || 'difly';
+    var handle = (window.championProductSlug ? window.championProductSlug() : new URLSearchParams(window.location.search).get('p')) || 'difly';
     var video = VIDEOS[handle];
     if (!video) return;
 
