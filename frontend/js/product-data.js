@@ -1,4 +1,4 @@
-import { assetUrl } from './asset-url.js?v=20260828-7';
+import { assetUrl } from './asset-url.js?v=20260828-8';
 
 export { assetUrl };
 

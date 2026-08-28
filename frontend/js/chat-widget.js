@@ -273,6 +273,17 @@
   /* O scroll vai depois do próximo quadro: logo após um appendChild o layout
      ainda não foi recalculado, e scrollHeight vem com o valor antigo — era o
      que fazia o card parecer travado no lugar enquanto a conversa seguia. */
+  /* Alinha o TOPO da resposta com o topo da janela, em vez de rolar até o fim.
+     Com cards de produto, rolar até o fim empurrava o texto do atendente para
+     fora da área visível: o cliente via só os produtos e não a resposta.
+     scrollTop se auto-limita, então em resposta curta isso não faz nada. */
+  function rolarParaTopo(el) {
+    if (!el) return;
+    requestAnimationFrame(function () {
+      els.corpo.scrollTop = Math.max(0, el.offsetTop - 8);
+    });
+  }
+
   function rolarFim(forcar) {
     if (!forcar && !noFim()) return;
     requestAnimationFrame(function () {
@@ -342,7 +353,9 @@
     const grade = document.createElement('div');
     grade.className = 'chat-cards';
 
-    produtos.slice(0, 4).forEach(function (p) {
+    /* Três, não quatro: com quatro, o último fica sempre fora da tela e o
+       cliente nem sabe que existe. */
+    produtos.slice(0, 3).forEach(function (p) {
       const foto = urlSegura(p.foto);
       const link = urlSegura(p.url);
       const nome = escapar(p.nome || '');
@@ -859,7 +872,7 @@
         return;
       }
 
-      addBolha('bot', resposta);
+      const bolhaResposta = addBolha('bot', resposta);
 
       const cards = Array.isArray(payload.produtos) ? payload.produtos : [];
 
@@ -875,6 +888,7 @@
       } catch (e) { /* console indisponível */ }
 
       addCards(cards);
+      rolarParaTopo(bolhaResposta);
 
       /* O agente fechou o pedido: os itens entram no carrinho do site e a
          prévia abre com o botão "Finalizar compra" à vista. É isto que

@@ -284,7 +284,7 @@
   async function tryInitFirebase() {
     try {
       /* Dynamic import of firebase-config (ES module). Fails on file:// — falls back to local. */
-      var cfgModule = await import('./firebase-config.js?v=20260828-7');
+      var cfgModule = await import('./firebase-config.js?v=20260828-8');
       var cfg = cfgModule.CHAMPION_FIREBASE_CONFIG;
       if (!isFirebaseConfigured(cfg)) return;
 

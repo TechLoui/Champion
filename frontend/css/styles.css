@@ -9129,3 +9129,39 @@ body.chat-modal-aberto { overflow: hidden; }
 .conta-tag.is-ok { background: #E6F4EA; color: #1B7A3D; }
 .conta-pedido-itens { margin: 0 0 6px; font-size: 13px; }
 .conta-pedido-total { margin: 0; font-weight: 700; font-size: 15px; color: var(--ink, #131F35); }
+
+/* ── Cards do chat: compactação ──────────────────────────────────────────────
+   A janela do chat é estreita e alta. Com card grande, dois produtos já ocupam
+   a tela inteira e empurram a resposta do atendente para fora — o cliente via
+   produto e não via o que o bot respondeu.
+
+   Aqui só reduzimos a altura de cada card. A outra metade da correção está no
+   JS: a rolagem agora ancora no TOPO da resposta, não no fim da lista. */
+.chat-cards { gap: 8px; }
+
+.chat-card {
+  gap: 10px;
+  padding: 9px;
+  border-radius: 13px;
+}
+.chat-card-foto {
+  flex: 0 0 58px;
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
+}
+/* A descrição vira apoio, não leitura: duas linhas e corta. Quem quiser o
+   texto completo clica em "Ver detalhes". */
+.chat-card-body p {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 6px;
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.chat-card-body strong { font-size: 14px; }
+.chat-card-acoes { gap: 6px; margin-top: 6px; }
+.chat-card-cta { padding: 7px 13px; font-size: 12.5px; }
