@@ -244,7 +244,10 @@ Criar um app de **Customer Account API** (headless) e anotar:
 
 - **Shop ID** — o número que aparece nas URLs de autenticação
 - **Client ID**
-- **Client secret** (opcional: sem ele o app é público e o PKCE responde sozinho)
+- **Client secret** — obrigatório. O documento de descoberta desta loja lista
+  `token_endpoint_auth_methods_supported: client_secret_basic, client_secret_post`,
+  sem `none`: o endpoint de token não aceita cliente público, e PKCE sozinho
+  não basta.
 
 Registrar como **redirect URI** autorizada:
 
@@ -256,9 +259,9 @@ https://<seu-backend>/api/conta/callback
 
 | variável | exemplo |
 |---|---|
-| `SHOPIFY_SHOP_ID` | `12345678` |
+| `SHOPIFY_SHOP_ID` | `57535168647` |
 | `SHOPIFY_CUSTOMER_CLIENT_ID` | `shp_xxxxxxxx-...` |
-| `SHOPIFY_CUSTOMER_CLIENT_SECRET` | *(opcional)* |
+| `SHOPIFY_CUSTOMER_CLIENT_SECRET` | **obrigatório** |
 | `BACKEND_URL` | `https://api.champion.ind.br` |
 | `SITE_URL` | `https://champion.ind.br` |
 | `ALLOWED_ORIGINS` | `https://champion.ind.br,https://www.champion.ind.br` |
@@ -299,3 +302,38 @@ A query de pedidos em `/api/conta/pedidos` foi escrita contra o schema
 documentado da Customer Account API, mas não foi possível executá-la sem as
 credenciais. Se algum nome de campo divergir, o erro do GraphQL sai **cru no log
 do Railway** de propósito — é o que permite corrigir sem adivinhação.
+
+## Os dois apps não se misturam
+
+A loja tem **dois** apps, com credenciais diferentes e não intercambiáveis:
+
+| app | serve para | credencial |
+|---|---|---|
+| App personalizado (já existia) | catálogo, carrinho, checkout — token da Storefront | `shpss_…` |
+| Customer Account API (criar) | login do cliente e status do pedido | `shp_…` + secret próprio |
+
+`SHOPIFY_CUSTOMER_CLIENT_ID` e `SHOPIFY_CUSTOMER_CLIENT_SECRET` são **do
+segundo**. Usar as credenciais do primeiro devolve erro de cliente inválido no
+`/oauth/token`, sem dizer por quê.
+
+## Endpoints — confirmados no documento de descoberta
+
+Não precisa perguntar a ninguém: a própria loja publica.
+
+```
+https://shopify.com/authentication/57535168647/.well-known/openid-configuration
+```
+
+O que ele devolve, e que o código já usa:
+
+```
+authorization_endpoint  https://shopify.com/authentication/57535168647/oauth/authorize
+token_endpoint          https://shopify.com/authentication/57535168647/oauth/token
+end_session_endpoint    https://shopify.com/authentication/57535168647/logout
+scopes_supported        openid, email, customer-account-api:full
+code_challenge_methods  S256
+auth methods            client_secret_basic, client_secret_post   ← sem "none"
+```
+
+Se um dia o login parar de funcionar sem motivo aparente, esse endereço é o
+primeiro lugar a olhar: ele mostra o que a loja realmente aceita hoje.

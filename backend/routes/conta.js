@@ -17,12 +17,16 @@
  * O token NUNCA vai para o navegador. O que vai é um id de sessão em cookie
  * httpOnly; o token fica no Firestore, associado a esse id.
  *
- * Variáveis de ambiente necessárias (Railway):
- *   SHOPIFY_SHOP_ID              id numérico da loja (aparece nas URLs de auth)
- *   SHOPIFY_CUSTOMER_CLIENT_ID   client id do app de Customer Account API
- *   SHOPIFY_CUSTOMER_CLIENT_SECRET  (opcional — só para client confidencial)
- *   BACKEND_URL                  ex.: https://api.champion.ind.br
- *   SITE_URL                     ex.: https://champion.ind.br
+ * Variáveis de ambiente necessárias (Railway) — TODAS obrigatórias:
+ *   SHOPIFY_SHOP_ID                 id numérico da loja (ex.: 57535168647)
+ *   SHOPIFY_CUSTOMER_CLIENT_ID      client id do app de Customer Account API
+ *   SHOPIFY_CUSTOMER_CLIENT_SECRET  secret DESSE app
+ *   BACKEND_URL                     ex.: https://api.champion.ind.br
+ *   SITE_URL                        ex.: https://champion.ind.br
+ *
+ * Atenção: o app de Customer Account API é OUTRO app, diferente do app
+ * personalizado que fornece o token da Storefront. As credenciais não são
+ * intercambiáveis — usar as do app errado devolve erro de cliente inválido.
  */
 
 const express = require('express');
@@ -42,7 +46,21 @@ const COOKIE_SESSAO = 'champion_conta';
 const COOKIE_FLUXO = 'champion_oauth';
 const SESSAO_DIAS = 30;
 
-const configurado = () => Boolean(SHOP_ID && CLIENT_ID && BACKEND_URL);
+/* O secret é obrigatório, não opcional: o documento de descoberta desta loja
+   lista token_endpoint_auth_methods_supported = client_secret_basic,
+   client_secret_post — sem "none". Ou seja, o endpoint de token não aceita
+   cliente público, e PKCE sozinho não basta.
+   Conferir em: https://shopify.com/authentication/<SHOP_ID>/.well-known/openid-configuration */
+const configurado = () => Boolean(SHOP_ID && CLIENT_ID && CLIENT_SECRET && BACKEND_URL);
+
+function faltando() {
+  return [
+    !SHOP_ID && 'SHOPIFY_SHOP_ID',
+    !CLIENT_ID && 'SHOPIFY_CUSTOMER_CLIENT_ID',
+    !CLIENT_SECRET && 'SHOPIFY_CUSTOMER_CLIENT_SECRET',
+    !BACKEND_URL && 'BACKEND_URL'
+  ].filter(Boolean);
+}
 
 /* ── URLs da Shopify ─────────────────────────────────────────────────────── */
 const authBase = () => `https://shopify.com/authentication/${SHOP_ID}`;
@@ -123,7 +141,12 @@ function novoPkce() {
 /* ── 1. Início do login ──────────────────────────────────────────────────── */
 router.get('/login', (req, res) => {
   if (!configurado()) {
-    return res.status(503).json({ error: 'Login de cliente ainda não configurado no servidor.' });
+    const faltam = faltando();
+    console.error('[conta] configuração incompleta — faltando: ' + faltam.join(', '));
+    return res.status(503).json({
+      error: 'Login de cliente ainda não configurado no servidor.',
+      faltando: faltam
+    });
   }
 
   const { verifier, challenge } = novoPkce();
@@ -178,13 +201,13 @@ router.get('/callback', async (req, res) => {
       code_verifier: fluxo.verifier
     });
 
-    const cabecalhos = { 'Content-Type': 'application/x-www-form-urlencoded' };
-    /* Client confidencial: a Shopify aceita o secret em Basic auth. Sem secret,
-       o app é público e o PKCE sozinho responde pela segurança. */
-    if (CLIENT_SECRET) {
-      cabecalhos.Authorization = 'Basic '
-        + Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64');
-    }
+    /* client_secret_basic: é o método que esta loja anuncia suportar. O
+       endpoint de token NÃO aceita cliente público — sem o secret a troca
+       falha com erro genérico, difícil de diagnosticar. */
+    const cabecalhos = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: 'Basic ' + Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')
+    };
 
     const r = await fetch(`${authBase()}/oauth/token`, {
       method: 'POST', headers: cabecalhos, body: corpo
@@ -198,6 +221,7 @@ router.get('/callback', async (req, res) => {
     await salvarSessao(id, {
       accessToken: tok.access_token,
       refreshToken: tok.refresh_token || null,
+      idToken: tok.id_token || null,
       expiraEm: Date.now() + (Number(tok.expires_in || 3600) * 1000),
       criadoEm: new Date().toISOString()
     });
