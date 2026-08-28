@@ -74,7 +74,7 @@ function buildEmailHtml(lead) {
               ${row('E-mail', email ? `<a href="mailto:${email}" style="color:#1E4C8F;">${email}</a>` : '')}
               ${row('Telefone', phone)}
               ${row('Origem', source)}
-              ${row('Cidade', esc(lead.cidade))}
+              ${row('Local', esc(lead.cidade))}
               ${row('Perfil', esc(lead.perfil))}
               ${row('Espécie', esc((lead.especie || []).join(', ')))}
               ${row('Rebanho', esc(lead.rebanho))}
@@ -119,6 +119,7 @@ router.post('/', async (req, res) => {
   /* Qualificação do formulário de interesse. Opcionais: o formulário de contato
      simples continua funcionando sem mandar nada disso. */
   const cidade    = sanitize(req.body?.cidade, 120);
+  const estado    = sanitize(req.body?.estado, 4);
   const perfil    = sanitize(req.body?.perfil, 60);
   const rebanho   = sanitize(req.body?.rebanho, 60);
   const momento   = sanitize(req.body?.momento, 60);
@@ -128,7 +129,7 @@ router.post('/', async (req, res) => {
   const lead = {
     id: `lead-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     name, email, phone, message, source,
-    cidade, perfil, rebanho, momento, especie, interesse,
+    cidade, estado, perfil, rebanho, momento, especie, interesse,
     status: 'open',
     createdAt: new Date().toISOString()
   };

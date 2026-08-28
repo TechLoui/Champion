@@ -1,8 +1,8 @@
-import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260828-8';
-import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260828-8';
-import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-8';
+import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260828-9';
+import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260828-9';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-9';
 import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
-import { assetUrl } from './asset-url.js?v=20260828-8';
+import { assetUrl } from './asset-url.js?v=20260828-9';
 
 (async function () {
   'use strict';
@@ -328,6 +328,7 @@ import { assetUrl } from './asset-url.js?v=20260828-8';
   function leadTags(lead) {
     const tags = []
       .concat(lead.cidade ? [lead.cidade] : [])
+      .concat(lead.estado && !String(lead.cidade || '').includes(lead.estado) ? [lead.estado] : [])
       .concat(lead.perfil ? [lead.perfil] : [])
       .concat(Array.isArray(lead.especie) ? lead.especie : [])
       .concat(lead.rebanho ? [lead.rebanho] : [])
@@ -405,12 +406,12 @@ import { assetUrl } from './asset-url.js?v=20260828-8';
     /* Colunas de qualificação vêm depois das antigas, e não no meio: quem já tem
        planilha ou relatório montado em cima deste CSV continua funcionando. */
     const header = ['Nome', 'E-mail', 'Telefone', 'Mensagem', 'Origem', 'Status', 'Data',
-      'Cidade', 'Perfil', 'Espécie', 'Rebanho', 'Interesse', 'Momento'];
+      'Local', 'Estado', 'Perfil', 'Espécie', 'Rebanho', 'Interesse', 'Momento'];
     const rows = leadsCache.map((l) => [
       l.name, l.email, l.phone, l.message, l.source,
       l.status === 'done' ? 'Resolvido' : 'Aberto',
       l.createdAt ? new Date(l.createdAt).toLocaleString('pt-BR') : '',
-      l.cidade, l.perfil,
+      l.cidade, l.estado, l.perfil,
       Array.isArray(l.especie) ? l.especie.join(' / ') : l.especie,
       l.rebanho,
       Array.isArray(l.interesse) ? l.interesse.join(' / ') : l.interesse,
