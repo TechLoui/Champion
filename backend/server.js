@@ -84,7 +84,7 @@ const leadsLimiter = rateLimit({
    checagem de "existe" e falhar no PEM.
 
    Só booleanos e a mensagem do SDK. Nenhum valor de variável sai daqui. */
-const BUILD = '2026-08-28-base64';
+const BUILD = '2026-08-28-forense';
 
 app.get('/api/health', async (_req, res) => {
   const cfg = {

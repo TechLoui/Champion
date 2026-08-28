@@ -144,6 +144,37 @@ function diagnosticarChave() {
   } catch (err) {
     info.erro = String(err && err.message || err).slice(0, 160);
   }
+
+  /* Só quando já falhou: mede o corpo para dizer POR QUE falhou. */
+  if (!info.valida) {
+    const corpo = k.split('\n').filter((l) => l && !l.includes('-----')).join('');
+    info.corpoTamanho = corpo.length;
+    info.corpoMultiploDe4 = corpo.length % 4 === 0;
+
+    /* Quais caracteres não pertencem ao alfabeto base64, e quantos de cada.
+       Sem posição: saber que existem doze espaços não ajuda ninguém a
+       reconstruir a chave, mas diz na hora qual foi a substituição. */
+    const fora = {};
+    for (const ch of corpo) {
+      if (/[A-Za-z0-9+/=]/.test(ch)) continue;
+      const nome = ch === ' ' ? '(espaço)' : 'U+' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+      fora[nome] = (fora[nome] || 0) + 1;
+    }
+    info.caracteresForaDoAlfabeto = fora;
+
+    /* Os primeiros bytes do DER dizem se a estrutura bate com o rótulo do PEM.
+       Um PKCS#1 rotulado como PKCS#8 falha exatamente com "DECODER routines". */
+    try {
+      const der = Buffer.from(corpo, 'base64');
+      info.derTamanho = der.length;
+      info.derPrimeirosBytes = der.slice(0, 8).toString('hex');
+      /* PKCS#8 de 2048 bits começa em 30 82 04 ... 02 01 00 30. */
+      info.pareceP8 = der[0] === 0x30 && der[4] === 0x02 && der[5] === 0x01 && der[6] === 0x00;
+    } catch (err) {
+      info.derErro = String(err && err.message || err).slice(0, 80);
+    }
+  }
+
   return info;
 }
 
