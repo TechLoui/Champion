@@ -15,6 +15,8 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .map((o) => o.trim())
   .filter(Boolean);
 
+const { getDb } = require('./lib/firebase');
+
 const app = express();
 
 /* O Railway serve atrás de um proxy, então o IP real do visitante vem no
@@ -76,8 +78,51 @@ const leadsLimiter = rateLimit({
   message: { error: 'Muitas requisições. Tente novamente em alguns minutos.' }
 });
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, service: 'champion-backend', ts: new Date().toISOString() });
+/* Diz o que está configurado e o que realmente conecta. A diferença importa:
+   variável presente não significa credencial válida — já aconteceu de a chave
+   do Firebase chegar com a quebra de linha escapada duas vezes, passar na
+   checagem de "existe" e falhar no PEM.
+
+   Só booleanos e a mensagem do SDK. Nenhum valor de variável sai daqui. */
+app.get('/api/health', async (_req, res) => {
+  const cfg = {
+    firebase: Boolean(
+      (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY)
+      || process.env.FIREBASE_SERVICE_ACCOUNT
+    ),
+    resend: Boolean(process.env.RESEND_API_KEY),
+    emailDestino: Boolean(process.env.NOTIFICATION_EMAIL),
+    llm: Boolean(process.env.LLM_API_KEY),
+    shopify: Boolean(process.env.SHOPIFY_SHOP_ID && process.env.SHOPIFY_CUSTOMER_CLIENT_ID),
+    allowedOrigins: allowedOrigins.length
+  };
+
+  /* Uma leitura de verdade: só ela distingue "variável existe" de "credencial
+     funciona". Documento inexistente é resposta válida — o que importa é a
+     chamada completar sem erro. */
+  let firestore = false;
+  let firestoreErro = null;
+  try {
+    const db = getDb();
+    if (db) {
+      await db.collection('_health').doc('ping').get();
+      firestore = true;
+    }
+  } catch (err) {
+    firestoreErro = String(err && err.message || err).slice(0, 160);
+  }
+
+  res.json({
+    ok: true,
+    service: 'champion-backend',
+    ts: new Date().toISOString(),
+    config: cfg,
+    firestore,
+    firestoreErro,
+    /* O que acontece com um lead que chegar agora. */
+    leadsSeriamGravados: firestore,
+    leadsSeriamNotificados: cfg.resend && cfg.emailDestino
+  });
 });
 
 app.use('/api/leads', leadsLimiter, leadsRouter);
