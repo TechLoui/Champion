@@ -25,10 +25,17 @@ function normalizarChave(bruta) {
   let k = String(bruta || '').trim();
   if (!k) return '';
 
-  /* Aspas em volta do valor inteiro. */
-  if ((k.startsWith('"') && k.endsWith('"')) || (k.startsWith("'") && k.endsWith("'"))) {
-    k = k.slice(1, -1);
-  }
+  /* Restos de quem copiou a linha inteira do JSON da conta de serviço:
+
+       "private_key": "-----BEGIN PRIVATE KEY-----...-----END PRIVATE KEY-----",
+
+     A vírgula final sai ANTES das aspas, senão a aspa de abertura fica presa:
+     com vírgula no fim, uma checagem que exija aspa nas duas pontas nunca
+     dispara. Cada ponta é tratada por si pelo mesmo motivo. */
+  k = k.replace(/[,;]+$/, '').trim();
+  if (k[0] === '"' || k[0] === "'") k = k.slice(1);
+  if (k.endsWith('"') || k.endsWith("'")) k = k.slice(0, -1);
+  k = k.trim();
 
   /* Escapado duas vezes antes de uma vez, senão a primeira troca consome a
      barra da segunda e sobra um "n" solto no meio da chave. */
@@ -44,23 +51,29 @@ function normalizarChave(bruta) {
     } catch (err) { /* não era base64: segue com o valor original */ }
   }
 
-  /* Conserta o corpo base64 sem tocar no cabeçalho e no rodapé, que têm espaço
-     de verdade ("BEGIN PRIVATE KEY").
+  /* Limpa o corpo base64 sem tocar no cabeçalho e no rodapé, que contêm espaço
+     e hífen de verdade ("-----BEGIN PRIVATE KEY-----").
 
-     Duas trocas, ambas inofensivas numa chave íntegra — base64 padrão não
-     contém nenhum dos caracteres procurados:
+     Primeiro converte o alfabeto base64url, que é uma codificação legítima e
+     precisa virar o alfabeto padrão em vez de ser descartada.
 
-       ' ' -> '+'  Decodificação de URL em algum ponto do caminho transforma
-                   '+' em espaço. É a corrupção mais comum e a mais traiçoeira:
-                   preserva o tamanho e o número de linhas, então a chave passa
-                   em toda checagem estrutural e só falha no decode.
+     Depois descarta tudo que não pertence ao alfabeto base64. Parece agressivo,
+     mas é o contrário: o corpo de um PEM só pode conter [A-Za-z0-9+/=], então
+     numa chave íntegra não há o que remover. Qualquer outra coisa ali é resto
+     de quem colou — foi exatamente o caso em produção, onde sobraram uma aspa
+     e uma vírgula do JSON da conta de serviço ("private_key": "...",) e os dois
+     caracteres a mais faziam o corpo parar de ser múltiplo de 4.
 
-       '-' -> '+'  e  '_' -> '/'   Alfabeto base64url, de quem gerou a variável
-                   com uma ferramenta web. */
+     Deliberadamente NÃO trocamos espaço por '+', embora seja um sintoma comum
+     de decodificação de URL: sem evidência de que foi isso, adivinhar corrompe
+     uma chave boa, enquanto remover deixa o erro visível na forense. */
   k = k.split('\n').map((linha) => {
     if (linha.includes('-----')) return linha;
-    return linha.split(' ').join('+').split('-').join('+').split('_').join('/');
-  }).join('\n');
+    return linha
+      .split('-').join('+')
+      .split('_').join('/')
+      .replace(/[^A-Za-z0-9+/=]/g, '');
+  }).filter((linha, i, todas) => linha !== '' || i === todas.length - 1).join('\n');
 
   /* O SDK exige a quebra final. */
   if (!k.endsWith('\n')) k += '\n';
