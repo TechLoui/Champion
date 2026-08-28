@@ -9089,3 +9089,43 @@ body.chat-modal-aberto { overflow: hidden; }
   color: var(--blue, #1E4C8F);
   white-space: nowrap;
 }
+
+/* ── Conta do cliente: pedidos vindos da Shopify ─────────────────────────── */
+.conta-shopify {
+  background: var(--paper, #fff);
+  border: 1px solid var(--line, rgba(22,41,77,0.10));
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 18px;
+}
+.conta-shopify h2 { margin: 0 0 10px; font-size: 19px; }
+.conta-shopify h2 span { font-weight: 500; color: var(--muted, #64738C); }
+.conta-shopify p { margin: 0 0 14px; color: var(--muted, #64738C); font-size: 14px; line-height: 1.55; }
+.conta-shopify-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.conta-shopify-head h2 { margin: 0; flex: 1; }
+.conta-shopify-sair {
+  border: 1px solid var(--line-strong, rgba(22,41,77,0.18));
+  background: transparent; color: var(--muted, #64738C);
+  border-radius: 8px; padding: 7px 14px;
+  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.conta-shopify-sair:hover { color: var(--ink, #131F35); }
+.conta-shopify-erro { color: #D8352A; font-weight: 600; }
+.conta-shopify-vazio { margin: 0; }
+
+.conta-pedidos { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.conta-pedido {
+  border: 1px solid var(--line, rgba(22,41,77,0.10));
+  border-radius: 12px; padding: 14px 16px;
+}
+.conta-pedido-topo { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.conta-pedido-topo strong { font-size: 15px; }
+.conta-pedido-data { font-size: 12px; color: var(--muted, #64738C); }
+.conta-pedido-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.conta-tag {
+  font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  background: var(--blue-tint, #EAF1FA); color: var(--blue, #1E4C8F);
+}
+.conta-tag.is-ok { background: #E6F4EA; color: #1B7A3D; }
+.conta-pedido-itens { margin: 0 0 6px; font-size: 13px; }
+.conta-pedido-total { margin: 0; font-weight: 700; font-size: 15px; color: var(--ink, #131F35); }

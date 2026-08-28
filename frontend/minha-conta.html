@@ -220,9 +220,9 @@
     }
   </style>
   <!-- Meta Pixel: código base + PageView. O evento de compra fica na Shopify (ver js/meta-pixel.js). -->
-  <script src="/js/meta-pixel.js?v=20260828-6"></script>
+  <script src="/js/meta-pixel.js?v=20260828-7"></script>
   <!-- Google Ads (gtag.js). A conversão de compra fica na Shopify (ver js/google-ads.js). -->
-  <script src="/js/google-ads.js?v=20260828-6"></script>
+  <script src="/js/google-ads.js?v=20260828-7"></script>
   <meta name="robots" content="noindex, nofollow" />
 </head>
 <body>
@@ -256,6 +256,9 @@
     <div>
       <!-- Orders -->
       <section data-panel="orders">
+        <!-- Pedidos reais, vindos da Shopify (js/conta-shopify.js). O bloco
+             abaixo é o histórico local antigo, mantido durante a transição. -->
+        <div id="shopifyOrders"></div>
         <div id="ordersList"></div>
       </section>
 
@@ -315,8 +318,9 @@
   </div>
 </div>
 
-<script src="/js/customer-store.js?v=20260828-6"></script>
-<script src="/js/order-store.js?v=20260828-6"></script>
+<script src="/js/customer-store.js?v=20260828-7"></script>
+<script src="/js/order-store.js?v=20260828-7"></script>
+<script src="/js/conta-shopify.js?v=20260828-7"></script>
 <script>
 (async function () {
   /* Auth guard */

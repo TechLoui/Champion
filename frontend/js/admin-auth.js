@@ -47,7 +47,7 @@
     if (firebaseReady) return firebaseReady;
     firebaseReady = (async function () {
       try {
-        var cfgModule = await import('./firebase-config.js?v=20260828-6');
+        var cfgModule = await import('./firebase-config.js?v=20260828-7');
         var cfg = cfgModule.CHAMPION_FIREBASE_CONFIG;
         if (!isFirebaseConfigured(cfg)) return false;
 

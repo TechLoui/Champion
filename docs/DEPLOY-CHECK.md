@@ -6,7 +6,7 @@ produto errado), a falha só apareceu no teste manual slug a slug.
 
 Esta é a lista para conferir depois de subir. Leva um minuto.
 
-## 1. Todo arquivo JS/CSS precisa vir com `?v=20260827-4`
+## 1. Todo arquivo JS/CSS precisa vir com `?v=20260828-7`
 
 O `.htaccess` cacheia JS e CSS por 1 hora, e a Hostinger tem cache próprio
 (LiteSpeed). Um arquivo alterado que mantém a mesma URL continua sendo servido
@@ -21,17 +21,19 @@ Tamanho e hash valem para o pacote `champion-site-hostinger.zip` desta rodada.
 
 | arquivo | bytes | sha256 (12) | precisa conter |
 |---|---:|---|---|
-| `js/products-cms.js` | 55109 | `0c955689cfc3` | `atualizarEstadoEscolha`, `siblingsOf` |
+| `js/products-cms.js` | 55207 | `cdc114ce1d21` | `atualizarEstadoEscolha`, `siblingsOf` |
 | `js/product-slug.js` | 1032 | `d4f7d3795023` | `championProductSlug` |
-| `js/product-data.js` | 17344 | `3093df450a19` | `assetUrl`, `family` |
+| `js/product-data.js` | 4390 | `82b5711ed8cd` | `assetUrl` |
 | `js/asset-url.js` | 880 | `ce8af90894ec` | `assetUrl` |
 | `js/shopify-client.js` | 10595 | `d56394892b83` | `familia` |
-| `js/main.js` | 130494 | `07920ce0f6c8` | `setTextByRoute` |
+| `js/main.js` | 120581 | `898795302592` | `setTextByRoute` |
 | `js/ao-vivo.js` | 4038 | `455c6bc0b09d` | `rEnr_Ryomdk` |
-| `css/styles.css` | 240167 | `209b5f8b4e31` | `aguardando-escolha` |
-| `produto.html` | 40850 | `c49a128c3f94` | `src: '/assets/img/products/` (19x) |
+| `js/lead-form.js` | 11810 | `b3ff86e58ad0` | `data-lead-form` |
+| `js/conta-shopify.js` | 6438 | `839e58911cb8` | `shopifyOrders` |
+| `css/styles.css` | 252198 | `3a857c3d216f` | `aguardando-escolha`, `lead-box` |
+| `produto.html` | 22640 | `5ead3019fca1` | `data-lead-form` |
 | `404.html` | 3501 | `452be9b6664f` | — |
-| `.htaccess` | 3412 | `fa64cea341da` | `ErrorDocument 404 /404.html`, `201.48.81.157` |
+| `.htaccess` | 3987 | `62eda9debacd` | `201.48.81.157` |
 
 **`asset-url.js` não aparece em nenhum `<script>` do HTML — isso é esperado.**
 Ele é um módulo ES, importado por `product-data.js`, `products-cms.js`,
@@ -223,3 +225,77 @@ champion.ind.br → 192.168.1.5 → 301 → www.champion.ind.br
 Ou seja: **nunca remover a exceção do `.htaccess` sem remover antes o redirect
 interno.** Quando o DNS do AD for corrigido, sair na ordem: primeiro o redirect
 interno, depois a exceção daqui.
+
+---
+
+# Conta do cliente pela Shopify (fase 1: status do pedido)
+
+A loja usa as **novas contas de cliente**, onde `customerAccessTokenCreate` da
+Storefront API não existe. O caminho é OAuth 2.0 / OIDC com a Customer Account
+API, e a troca do código pelo token tem de ser server-side — por isso mora no
+backend do Railway, em `backend/routes/conta.js`.
+
+O token nunca chega ao navegador. O que vai é um id de sessão em cookie
+`httpOnly`; o token fica no Firestore, na coleção `customerSessions`.
+
+## O que configurar no Shopify
+
+Criar um app de **Customer Account API** (headless) e anotar:
+
+- **Shop ID** — o número que aparece nas URLs de autenticação
+- **Client ID**
+- **Client secret** (opcional: sem ele o app é público e o PKCE responde sozinho)
+
+Registrar como **redirect URI** autorizada:
+
+```
+https://<seu-backend>/api/conta/callback
+```
+
+## Variáveis de ambiente no Railway
+
+| variável | exemplo |
+|---|---|
+| `SHOPIFY_SHOP_ID` | `12345678` |
+| `SHOPIFY_CUSTOMER_CLIENT_ID` | `shp_xxxxxxxx-...` |
+| `SHOPIFY_CUSTOMER_CLIENT_SECRET` | *(opcional)* |
+| `BACKEND_URL` | `https://api.champion.ind.br` |
+| `SITE_URL` | `https://champion.ind.br` |
+| `ALLOWED_ORIGINS` | `https://champion.ind.br,https://www.champion.ind.br` |
+
+**`ALLOWED_ORIGINS` deixou de ser opcional.** Com o cookie de sessão em jogo,
+aceitar origem desconhecida permitiria a qualquer site agir em nome do visitante
+logado. Se estiver vazio, as rotas de conta respondem 503 de propósito — é
+melhor o login não funcionar do que ficar exposto sem ninguém perceber.
+
+## O domínio `api.champion.ind.br`
+
+Enquanto o backend responder em `...railway.app`, o cookie de sessão é **cookie
+de terceiros** — Safari e Firefox bloqueiam por padrão, e o Chrome está
+encerrando. Dá para testar no Chrome, mas não dá para lançar assim.
+
+A correção é apontar `api.champion.ind.br` para o Railway (domínio personalizado
+lá + registro no DNS público). Aí o cookie é de primeira parte.
+
+**Atenção — isso esbarra no Active Directory:** a zona interna é autoritativa
+para `champion.ind.br`, então `api.champion.ind.br` **não vai resolver dentro do
+escritório** sem um registro `api` criado lá. Mesma conversa da seção anterior,
+com um item a mais.
+
+## Verificar depois de configurar
+
+```bash
+curl -s https://<backend>/api/health          # deve responder ok
+curl -si https://<backend>/api/conta/login    # deve responder 302 para shopify.com
+```
+
+Um **503** em `/api/conta/login` significa `ALLOWED_ORIGINS` vazio.
+Um **JSON de erro** significa que faltou `SHOPIFY_SHOP_ID`, `CLIENT_ID` ou
+`BACKEND_URL`.
+
+## Uma coisa a validar na primeira execução
+
+A query de pedidos em `/api/conta/pedidos` foi escrita contra o schema
+documentado da Customer Account API, mas não foi possível executá-la sem as
+credenciais. Se algum nome de campo divergir, o erro do GraphQL sai **cru no log
+do Railway** de propósito — é o que permite corrigir sem adivinhação.

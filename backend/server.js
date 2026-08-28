@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 
 const leadsRouter    = require('./routes/leads');
 const chatRouter     = require('./routes/chat');
+const contaRouter    = require('./routes/conta');
 
 const PORT = process.env.PORT || 3000;
 
@@ -29,10 +30,25 @@ app.set('trust proxy', 1);
    e sem isso quem entra pelo www leva erro de CORS enquanto quem entra sem
    o www funciona. Não amplia nada — só normaliza o que já foi liberado. */
 function origemPermitida(origin) {
+  /* Sem allowlist configurada, as rotas públicas (leads, chat) seguem abertas —
+     é como sempre funcionou. Mas as rotas de conta carregam cookie de sessão, e
+     aceitar origem desconhecida ali permitiria a qualquer site agir em nome do
+     visitante logado. Por isso a liberação ampla vale só para o que não é conta;
+     ver o guard em /api/conta abaixo. */
   if (allowedOrigins.length === 0) return true;
   if (allowedOrigins.includes(origin)) return true;
   const semWww = origin.replace('://www.', '://');
   return allowedOrigins.includes(semWww);
+}
+
+/* Trava explícita: se ninguém configurou ALLOWED_ORIGINS, as rotas de conta não
+   sobem. É preferível o login não funcionar a ficar exposto sem que se perceba. */
+function exigirAllowlist(req, res, next) {
+  if (allowedOrigins.length === 0) {
+    console.error('[conta] ALLOWED_ORIGINS não configurado — rotas de conta desativadas.');
+    return res.status(503).json({ error: 'Login indisponível: servidor sem origens autorizadas.' });
+  }
+  next();
 }
 
 app.use(cors({
@@ -41,6 +57,11 @@ app.use(cors({
     if (origemPermitida(origin)) return callback(null, true);
     callback(new Error(`CORS bloqueado para origem: ${origin}`));
   },
+  /* Necessário para o cookie de sessão da conta do cliente viajar entre o site
+     e este backend. Ver a trava em origemPermitida: com credenciais ligadas,
+     liberar origem desconhecida deixaria qualquer site fazer requisição
+     autenticada em nome do visitante. */
+  credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400
@@ -60,6 +81,17 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/leads', leadsLimiter, leadsRouter);
+
+/* Conta do cliente (OAuth das novas contas da Shopify). Limite folgado: o
+   /eu é consultado a cada carregamento de página pelo site. */
+const contaLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas requisições. Tente novamente em instantes.' }
+});
+app.use('/api/conta', exigirAllowlist, contaLimiter, contaRouter);
 
 /* Chat: limite mais alto que leads (é uma conversa, não um formulário), mas
    ainda apertado — cada mensagem custa tokens, então a rota é um alvo óbvio

@@ -1,6 +1,6 @@
-import { getAdminStore } from './admin-store.js?v=20260828-6';
-import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayImage } from './product-data.js?v=20260828-6';
-import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-6';
+import { getAdminStore } from './admin-store.js?v=20260828-7';
+import { PRODUCT_ALIASES, formatBRL, normalizeProduct, getMinPrice, getDisplayImage } from './product-data.js?v=20260828-7';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-7';
 
 (async function () {
   'use strict';

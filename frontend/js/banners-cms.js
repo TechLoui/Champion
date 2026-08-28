@@ -7,8 +7,8 @@
  * Para cada página que tiver um <div data-banner-page="<key>"> a gente
  * popula com o banner publicado correspondente.
  */
-import { getAdminStore } from './admin-store.js?v=20260828-6';
-import { assetUrl } from './asset-url.js?v=20260828-6';
+import { getAdminStore } from './admin-store.js?v=20260828-7';
+import { assetUrl } from './asset-url.js?v=20260828-7';
 
 (async function () {
   'use strict';
