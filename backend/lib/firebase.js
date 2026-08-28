@@ -90,6 +90,45 @@ function buildCredential(admin) {
   return null;
 }
 
+/* Tenta carregar a chave com o crypto do próprio Node. É a única forma de
+   saber se o PEM em si está válido: se o crypto aceita e o Google recusa, o
+   problema não é o formato da variável — é a conta de serviço (projeto errado,
+   chave revogada, service account desativada).
+
+   Devolve só medidas e a mensagem de erro. Nenhum pedaço da chave sai daqui. */
+function diagnosticarChave() {
+  const bruta = process.env.FIREBASE_PRIVATE_KEY
+    || (process.env.FIREBASE_SERVICE_ACCOUNT && (() => {
+      try { return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT).private_key; }
+      catch (err) { return ''; }
+    })())
+    || '';
+
+  if (!bruta) return { presente: false };
+
+  const k = normalizarChave(bruta);
+  const info = {
+    presente: true,
+    origem: process.env.FIREBASE_PRIVATE_KEY ? 'FIREBASE_PRIVATE_KEY' : 'FIREBASE_SERVICE_ACCOUNT',
+    tamanhoBruto: String(bruta).length,
+    tamanhoNormalizado: k.length,
+    linhas: k.split('\n').filter(Boolean).length,
+    temCabecalho: k.includes('-----BEGIN'),
+    temRodape: k.includes('-----END'),
+    tipo: (k.match(/-----BEGIN ([A-Z ]+)-----/) || [])[1] || null,
+    valida: false,
+    erro: null
+  };
+
+  try {
+    require('crypto').createPrivateKey(k);
+    info.valida = true;
+  } catch (err) {
+    info.erro = String(err && err.message || err).slice(0, 160);
+  }
+  return info;
+}
+
 function getAdmin() {
   if (_admin) return _admin;
   try {
@@ -112,4 +151,4 @@ function getDb() {
   return admin ? admin.firestore() : null;
 }
 
-module.exports = { getAdmin, getDb };
+module.exports = { getAdmin, getDb , diagnosticarChave };

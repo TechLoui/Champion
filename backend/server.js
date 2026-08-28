@@ -15,7 +15,7 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .map((o) => o.trim())
   .filter(Boolean);
 
-const { getDb } = require('./lib/firebase');
+const { getDb, diagnosticarChave } = require('./lib/firebase');
 
 const app = express();
 
@@ -84,6 +84,8 @@ const leadsLimiter = rateLimit({
    checagem de "existe" e falhar no PEM.
 
    Só booleanos e a mensagem do SDK. Nenhum valor de variável sai daqui. */
+const BUILD = '2026-08-28-diag';
+
 app.get('/api/health', async (_req, res) => {
   const cfg = {
     firebase: Boolean(
@@ -115,7 +117,11 @@ app.get('/api/health', async (_req, res) => {
   res.json({
     ok: true,
     service: 'champion-backend',
+    /* Marcador de build: sem ele não dá para saber, de fora, se o deploy que
+       você acabou de disparar já substituiu o processo antigo. */
+    build: BUILD,
     ts: new Date().toISOString(),
+    chave: diagnosticarChave(),
     config: cfg,
     firestore,
     firestoreErro,
