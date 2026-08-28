@@ -1,8 +1,8 @@
-import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260828-9';
-import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260828-9';
-import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-9';
+import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260828-10';
+import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260828-10';
+import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260828-10';
 import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';
-import { assetUrl } from './asset-url.js?v=20260828-9';
+import { assetUrl } from './asset-url.js?v=20260828-10';
 
 (async function () {
   'use strict';

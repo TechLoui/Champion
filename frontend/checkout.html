@@ -296,9 +296,9 @@
     }
   </style>
   <!-- Meta Pixel: código base + PageView. O evento de compra fica na Shopify (ver js/meta-pixel.js). -->
-  <script src="/js/meta-pixel.js?v=20260828-9"></script>
+  <script src="/js/meta-pixel.js?v=20260828-10"></script>
   <!-- Google Ads (gtag.js). A conversão de compra fica na Shopify (ver js/google-ads.js). -->
-  <script src="/js/google-ads.js?v=20260828-9"></script>
+  <script src="/js/google-ads.js?v=20260828-10"></script>
   <meta name="robots" content="noindex, nofollow" />
 </head>
 <body>
@@ -323,8 +323,8 @@
 </div>
 
 
-<script src="/js/customer-store.js?v=20260828-9"></script>
-<script src="/js/order-store.js?v=20260828-9"></script>
+<script src="/js/customer-store.js?v=20260828-10"></script>
+<script src="/js/order-store.js?v=20260828-10"></script>
 <script>
 (async function () {
   var CART_KEY = 'champion-cart';
@@ -472,7 +472,7 @@
   }
 
   try {
-    var shopifyMod = await import('./js/shopify-client.js?v=20260828-9');
+    var shopifyMod = await import('./js/shopify-client.js?v=20260828-10');
     if (shopifyMod.isShopifyEnabled()) {
       renderShopifyCheckout(cart, shopifyMod);
       return;

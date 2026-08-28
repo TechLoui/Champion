@@ -8814,7 +8814,8 @@ body.chat-modal-aberto { overflow: hidden; }
   bottom: 4px;
   display: flex;
   align-items: stretch;
-  max-width: min(16rem, calc(100vw - var(--fab-size, 56px) - 48px));
+  width: max-content;
+  max-width: min(17rem, calc(100vw - var(--fab-size, 56px) - 48px));
   background: var(--paper, #fff);
   border: 1px solid var(--line, rgba(22,41,77,0.10));
   border-radius: 14px;
@@ -8887,7 +8888,8 @@ body.chat-modal-aberto { overflow: hidden; }
   .chat-convite {
     left: 0;
     bottom: calc(var(--fab-size, 56px) + 12px);
-    max-width: min(15rem, calc(100vw - 36px));
+    width: max-content;
+    max-width: min(16rem, calc(100vw - 36px));
     transform: translateY(8px) scale(0.96);
     transform-origin: left bottom;
   }
@@ -8941,140 +8943,317 @@ body.chat-modal-aberto { overflow: hidden; }
 }
 
 /* ── Formulário de interesse ─────────────────────────────────────────────────
+   Duas colunas no mesmo esqueleto do .cta-grid do site: argumento à esquerda,
+   formulário à direita. Antes era um card solto no meio da página, que não
+   conversava com o resto e ainda repetia o CTA logo abaixo.
+
    Em passos porque dez campos numa tela só são abandonados. O primeiro passo
    pede só contato: se a pessoa desistir depois, o lead já está de pé. */
+.lead-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: clamp(32px, 5vw, 64px);
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .lead-grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+/* Coluna do argumento */
+.lead-pitch h2 {
+  margin: 0;
+  font-size: clamp(28px, 4.2vw, 42px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ink, #131F35);
+}
+.lead-pitch h2 em { font-style: normal; color: var(--blue, #1E4C8F); }
+.lead-pitch > p {
+  margin: 16px 0 0;
+  max-width: 34rem;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted, #64738C);
+}
+.lead-pontos {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.lead-pontos li {
+  position: relative;
+  padding-left: 30px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--steel, #5A6A85);
+}
+/* Check desenhado em CSS: um ícone a mais por item seria markup à toa. */
+.lead-pontos li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--blue-tint, #EAF1FA);
+}
+.lead-pontos li::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 7px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--blue, #1E4C8F);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.lead-direto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line, rgba(22,41,77,0.10));
+}
+.lead-direto span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted, #64738C);
+  margin-right: 2px;
+}
+.lead-direto a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 20px;
+  border-radius: var(--radius-pill, 999px);
+  border: 1.5px solid var(--line-strong, rgba(22,41,77,0.18));
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink, #131F35);
+  text-decoration: none;
+  transition: border-color 0.25s var(--ease, ease), color 0.25s var(--ease, ease);
+}
+.lead-direto a:hover {
+  border-color: var(--blue, #1E4C8F);
+  color: var(--blue, #1E4C8F);
+}
+
+/* Card do formulário */
 .lead-box {
+  position: relative;
   background: var(--paper, #fff);
   border: 1px solid var(--line, rgba(22,41,77,0.10));
-  border-radius: 18px;
-  padding: clamp(20px, 4vw, 36px);
-  box-shadow: 0 20px 46px -22px rgba(22,41,77,0.28);
-  max-width: 44rem;
-  margin: 0 auto;
+  border-radius: 14px;
+  padding: clamp(22px, 3.4vw, 34px);
+  box-shadow: 0 26px 60px -30px rgba(22,41,77,0.42);
+  overflow: hidden;
 }
-.lead-cabeca { margin-bottom: 22px; }
-.lead-eyebrow {
-  display: inline-block;
-  font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--blue, #1E4C8F); background: var(--blue-tint, #EAF1FA);
-  border-radius: 999px; padding: 5px 12px; margin-bottom: 12px;
+/* Fio de cor no topo, como as faixas de destaque do resto do site. */
+.lead-box::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue-soft, #2F6BC4), var(--blue-deep, #12315F));
 }
-.lead-cabeca h2 { margin: 0 0 6px; font-size: clamp(21px, 3.2vw, 27px); line-height: 1.2; }
-.lead-cabeca p { margin: 0; color: var(--muted, #64738C); font-size: 15px; line-height: 1.55; }
 
 /* Trilha de passos */
 .lead-trilha {
-  display: flex; gap: 6px; list-style: none; margin: 0 0 22px; padding: 0;
-  counter-reset: passo;
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
 }
 .lead-trilha li {
-  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--muted, #64738C); position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  position: relative;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted, #64738C);
+  transition: color 0.25s var(--ease, ease);
 }
 .lead-trilha li span {
-  width: 30px; height: 30px; border-radius: 999px;
-  display: grid; place-items: center;
+  position: relative;
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
   border: 2px solid var(--line-strong, rgba(22,41,77,0.18));
-  font-size: 13px; background: var(--paper, #fff);
+  background: var(--paper, #fff);
+  font-size: 12px;
+  transition: border-color 0.25s var(--ease, ease), background 0.25s var(--ease, ease), color 0.25s var(--ease, ease);
 }
 .lead-trilha li.is-on { color: var(--blue, #1E4C8F); }
-.lead-trilha li.is-on span { border-color: var(--blue, #1E4C8F); color: var(--blue, #1E4C8F); }
+.lead-trilha li.is-on span {
+  border-color: var(--blue, #1E4C8F);
+  color: var(--blue, #1E4C8F);
+  box-shadow: 0 0 0 4px var(--blue-tint, #EAF1FA);
+}
 .lead-trilha li.is-feito span {
-  background: var(--blue, #1E4C8F); border-color: var(--blue, #1E4C8F); color: #fff;
+  background: var(--blue, #1E4C8F);
+  border-color: var(--blue, #1E4C8F);
+  color: #fff;
 }
 /* Linha ligando os passos, atrás das bolinhas. */
 .lead-trilha li:not(:first-child)::before {
-  content: ''; position: absolute; top: 15px; right: 50%; left: -50%;
-  height: 2px; background: var(--line, rgba(22,41,77,0.10)); z-index: 0;
+  content: '';
+  position: absolute;
+  top: 14px;
+  right: 50%;
+  left: -50%;
+  height: 2px;
+  background: var(--line, rgba(22,41,77,0.10));
+  z-index: 0;
 }
-.lead-trilha li span { position: relative; z-index: 1; }
+.lead-trilha li.is-on:not(:first-child)::before,
+.lead-trilha li.is-feito:not(:first-child)::before { background: var(--blue, #1E4C8F); }
 
-.lead-tela h3 { margin: 0 0 4px; font-size: 17px; }
-.lead-ajuda { margin: 0 0 16px; font-size: 13px; color: var(--muted, #64738C); }
+.lead-tela h3 { margin: 0 0 4px; font-size: 18px; letter-spacing: -0.01em; }
+.lead-ajuda { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: var(--muted, #64738C); }
 
 .lead-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lead-grade + .lead-grade { margin-top: 14px; }
 .lead-grade-1 { grid-template-columns: 1fr; }
 @media (max-width: 560px) { .lead-grade { grid-template-columns: 1fr; } }
 
-.lead-campo { display: flex; flex-direction: column; gap: 5px; }
+.lead-campo { display: flex; flex-direction: column; gap: 6px; }
 .lead-rotulo {
-  font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--steel, #5A6A85);
 }
-.lead-rotulo-solto { display: block; margin: 18px 0 8px; }
 .lead-campo input,
 .lead-campo select,
 .lead-campo textarea {
-  width: 100%; font: inherit; font-size: 15px;
-  padding: 11px 13px;
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
   border: 1.5px solid var(--line-strong, rgba(22,41,77,0.18));
   border-radius: 10px;
-  background: var(--paper, #fff); color: var(--ink, #131F35);
-  transition: border-color 0.18s ease;
+  background: var(--bone, #F2F6FB);
+  color: var(--ink, #131F35);
+  transition: border-color 0.2s var(--ease, ease), background 0.2s var(--ease, ease), box-shadow 0.2s var(--ease, ease);
 }
-.lead-campo textarea { resize: vertical; min-height: 74px; }
+.lead-campo select {
+  appearance: none;
+  -webkit-appearance: none;
+  /* Seta própria: a nativa muda de forma em cada navegador e destoa do resto. */
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A6A85' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 38px;
+}
+.lead-campo textarea { resize: vertical; min-height: 78px; }
 .lead-campo input:focus,
 .lead-campo select:focus,
 .lead-campo textarea:focus {
-  outline: none; border-color: var(--blue, #1E4C8F);
+  outline: none;
+  background: var(--paper, #fff);
+  border-color: var(--blue, #1E4C8F);
+  box-shadow: 0 0 0 3px var(--blue-tint, #EAF1FA);
 }
+.lead-campo select:focus { background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235A6A85' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); }
 
 .lead-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .lead-chip {
   border: 1.5px solid var(--line-strong, rgba(22,41,77,0.18));
-  background: transparent; color: var(--ink, #131F35);
-  border-radius: 999px; padding: 9px 15px;
-  font: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+  background: var(--paper, #fff);
+  color: var(--ink, #131F35);
+  border-radius: var(--radius-pill, 999px);
+  padding: 9px 16px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease, ease), background 0.2s var(--ease, ease), color 0.2s var(--ease, ease);
 }
-.lead-chip:hover { border-color: var(--blue, #1E4C8F); }
+.lead-chip:hover { border-color: var(--blue, #1E4C8F); color: var(--blue, #1E4C8F); }
 .lead-chip.is-on {
-  background: var(--blue, #1E4C8F); border-color: var(--blue, #1E4C8F); color: #fff;
+  background: var(--blue, #1E4C8F);
+  border-color: var(--blue, #1E4C8F);
+  color: #fff;
 }
+.lead-chip.is-on:hover { color: #fff; }
 
-.lead-aviso { margin: 14px 0 0; font-size: 13px; font-weight: 600; }
-.lead-aviso[data-tipo="erro"] { color: #D8352A; }
+.lead-aviso { margin: 16px 0 0; font-size: 13px; font-weight: 600; line-height: 1.45; }
+.lead-aviso[data-tipo="erro"] { color: var(--red, #D8352A); }
 
-.lead-pe { display: flex; align-items: center; gap: 10px; margin-top: 22px; }
+.lead-pe { display: flex; align-items: center; gap: 10px; margin-top: 24px; }
+/* Pílula, como todo botão do site — o retângulo de cantos macios era a única
+   forma de botão que não aparecia em nenhuma outra tela. */
 .lead-btn {
-  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
-  border-radius: 10px; padding: 12px 22px; border: 1.5px solid transparent;
-  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  min-height: 46px;
+  padding: 0 26px;
+  border-radius: var(--radius-pill, 999px);
+  border: 1.5px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s var(--ease, ease), color 0.25s var(--ease, ease),
+              border-color 0.25s var(--ease, ease), transform 0.25s var(--ease, ease),
+              box-shadow 0.25s var(--ease, ease);
 }
 .lead-btn-voltar {
-  background: transparent; color: var(--muted, #64738C);
+  background: transparent;
+  color: var(--muted, #64738C);
   border-color: var(--line-strong, rgba(22,41,77,0.18));
 }
-.lead-btn-voltar:hover { color: var(--ink, #131F35); }
+.lead-btn-voltar:hover { color: var(--ink, #131F35); border-color: var(--steel, #5A6A85); }
 .lead-btn-avancar,
 .lead-btn-enviar {
-  margin-left: auto; background: var(--blue, #1E4C8F); color: #fff;
-  text-decoration: none; display: inline-block;
+  margin-left: auto;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--blue-soft, #2F6BC4) 0%, var(--blue, #1E4C8F) 55%, var(--blue-deep, #12315F) 100%);
+  box-shadow: 0 8px 22px rgba(30,76,143,0.30), inset 0 1px 0 rgba(255,255,255,0.18);
 }
 .lead-btn-avancar:hover,
-.lead-btn-enviar:hover { background: var(--blue-deep, #12315F); }
-.lead-btn-enviar:disabled { opacity: 0.6; cursor: default; }
-
-.lead-selos {
-  display: flex; flex-wrap: wrap; gap: 6px 18px;
-  list-style: none; margin: 20px 0 0; padding: 18px 0 0;
-  border-top: 1px solid var(--line, rgba(22,41,77,0.10));
-  font-size: 12px; color: var(--muted, #64738C);
+.lead-btn-enviar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(30,76,143,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
 }
-.lead-selos li::before { content: '✓ '; color: var(--blue, #1E4C8F); font-weight: 700; }
+.lead-btn-enviar:disabled { opacity: 0.6; cursor: default; transform: none; }
+.lead-btn-link { margin: 0; }
 
-.lead-pronto { text-align: center; padding: 12px 0; }
-.lead-pronto strong { display: block; font-size: 19px; margin-bottom: 8px; }
+.lead-pronto { text-align: center; padding: 18px 0 8px; }
+.lead-pronto strong { display: block; font-size: 21px; margin-bottom: 10px; letter-spacing: -0.01em; }
 .lead-pronto p {
-  margin: 0 auto 18px; max-width: 30rem;
-  color: var(--muted, #64738C); font-size: 15px; line-height: 1.55;
+  margin: 0 auto 20px;
+  max-width: 30rem;
+  color: var(--muted, #64738C);
+  font-size: 15px;
+  line-height: 1.55;
 }
-.lead-pronto .lead-btn { margin: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .lead-campo input, .lead-campo select, .lead-campo textarea,
-  .lead-chip, .lead-btn { transition: none; }
+  .lead-chip, .lead-btn, .lead-trilha li, .lead-trilha li span, .lead-direto a {
+    transition: none;
+  }
+  .lead-btn-avancar:hover, .lead-btn-enviar:hover { transform: none; }
 }
 
 /* Tags de qualificação na linha do lead (painel admin). */

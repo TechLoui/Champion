@@ -51,6 +51,8 @@
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   }
 
+  const destacar = (v) => esc(v).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
   const campo = (id, rotulo, attrs) => `<label class="lead-campo">
       <span class="lead-rotulo">${esc(rotulo)}</span>
       <input id="${id}" ${attrs || ''} />
@@ -70,73 +72,81 @@
       || 'Conte o que você precisa. Nossa equipe indica o produto certo para o seu rebanho.';
 
     raiz.innerHTML = `
-      <div class="lead-box">
-        <div class="lead-cabeca">
-          <span class="lead-eyebrow">Atendimento técnico</span>
-          <h2>${esc(titulo)}</h2>
+      <div class="lead-grid">
+        <div class="lead-pitch">
+          <span class="section-eyebrow">Atendimento técnico</span>
+          <h2>${destacar(titulo)}</h2>
           <p>${esc(sub)}</p>
+          <ul class="lead-pontos">
+            <li>Orientação técnica gratuita, sem compromisso</li>
+            <li>Retorno pelo WhatsApp em até 24 horas</li>
+            <li>Indicação por espécie, fase e tamanho de rebanho</li>
+          </ul>
+          <div class="lead-direto">
+            <span>Prefere falar agora?</span>
+            <a href="tel:08007231616">0800 723 1616</a>
+            <a href="https://api.whatsapp.com/send/?phone=556240150742&type=phone_number&app_absent=0"
+               target="_blank" rel="noopener">WhatsApp</a>
+          </div>
         </div>
 
-        <ol class="lead-trilha" aria-hidden="true">
-          ${PASSOS.map((p, i) => `<li data-passo="${i}"><span>${i + 1}</span>${esc(p.rotulo)}</li>`).join('')}
-        </ol>
+        <div class="lead-box">
+          <ol class="lead-trilha" aria-hidden="true">
+            ${PASSOS.map((p, i) => `<li data-passo="${i}"><span>${i + 1}</span>${esc(p.rotulo)}</li>`).join('')}
+          </ol>
 
-        <form class="lead-form" novalidate>
-          <div class="lead-tela" data-tela="0">
-            <h3>${esc(PASSOS[0].titulo)}</h3>
-            <p class="lead-ajuda">${esc(PASSOS[0].ajuda)}</p>
-            <div class="lead-grade">
-              ${campo('leadNome', 'Nome completo *', 'type="text" autocomplete="name" required')}
-              ${campo('leadZap', 'Telefone / WhatsApp *', 'type="tel" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" required')}
+          <form class="lead-form" novalidate>
+            <div class="lead-tela" data-tela="0">
+              <h3>${esc(PASSOS[0].titulo)}</h3>
+              <p class="lead-ajuda">${esc(PASSOS[0].ajuda)}</p>
+              <div class="lead-grade">
+                ${campo('leadNome', 'Nome completo *', 'type="text" autocomplete="name" required')}
+                ${campo('leadZap', 'Telefone / WhatsApp *', 'type="tel" inputmode="tel" autocomplete="tel" placeholder="(00) 00000-0000" required')}
+              </div>
+              <div class="lead-grade lead-grade-1">
+                ${campo('leadEmail', 'E-mail', 'type="email" autocomplete="email" placeholder="seu@email.com"')}
+              </div>
             </div>
-            <div class="lead-grade lead-grade-1">
-              ${campo('leadEmail', 'E-mail', 'type="email" autocomplete="email" placeholder="seu@email.com"')}
-            </div>
-          </div>
 
-          <div class="lead-tela" data-tela="1" hidden>
-            <h3>${esc(PASSOS[1].titulo)}</h3>
-            <p class="lead-ajuda">${esc(PASSOS[1].ajuda)}</p>
-            <div class="lead-grade">
-              ${selecao('leadEstado', 'Estado *', UFS)}
-              ${campo('leadCidade', 'Cidade', 'type="text" autocomplete="address-level2" placeholder="Ex.: Rio Verde"')}
+            <div class="lead-tela" data-tela="1" hidden>
+              <h3>${esc(PASSOS[1].titulo)}</h3>
+              <p class="lead-ajuda">${esc(PASSOS[1].ajuda)}</p>
+              <div class="lead-grade">
+                ${selecao('leadEstado', 'Estado *', UFS)}
+                ${campo('leadCidade', 'Cidade', 'type="text" autocomplete="address-level2" placeholder="Ex.: Rio Verde"')}
+              </div>
+              <div class="lead-grade">
+                ${selecao('leadPerfil', 'Você é', PERFIS)}
+                ${selecao('leadRebanho', 'Tamanho do rebanho', REBANHOS)}
+              </div>
             </div>
-            <div class="lead-grade">
-              ${selecao('leadPerfil', 'Você é', PERFIS)}
-              ${selecao('leadRebanho', 'Tamanho do rebanho', REBANHOS)}
+
+            <div class="lead-tela" data-tela="2" hidden>
+              <h3>${esc(PASSOS[2].titulo)}</h3>
+              <p class="lead-ajuda">${esc(PASSOS[2].ajuda)}</p>
+              <div class="lead-chips" data-grupo="produtos" data-carregando="1">
+                <span class="lead-ajuda">Carregando produtos…</span>
+              </div>
+              <div class="lead-grade lead-grade-1">
+                ${selecao('leadMomento', 'Quando pretende resolver', MOMENTOS)}
+                <label class="lead-campo">
+                  <span class="lead-rotulo">Quer detalhar? (opcional)</span>
+                  <textarea id="leadObs" rows="3" maxlength="600"
+                    placeholder="Conte o problema que quer resolver, se preferir."></textarea>
+                </label>
+              </div>
             </div>
-          </div>
 
-          <div class="lead-tela" data-tela="2" hidden>
-            <h3>${esc(PASSOS[2].titulo)}</h3>
-            <p class="lead-ajuda">${esc(PASSOS[2].ajuda)}</p>
-            <div class="lead-chips" data-grupo="produtos" data-carregando="1">
-              <span class="lead-ajuda">Carregando produtos…</span>
+            <p class="lead-aviso" data-aviso hidden></p>
+
+            <div class="lead-pe">
+              <button type="button" class="lead-btn lead-btn-voltar" data-voltar hidden>← Voltar</button>
+              <button type="button" class="lead-btn lead-btn-avancar" data-avancar>Próximo →</button>
+              <button type="submit" class="lead-btn lead-btn-enviar" data-enviar hidden>Enviar</button>
             </div>
-            <div class="lead-grade lead-grade-1">
-              ${selecao('leadMomento', 'Quando pretende resolver', MOMENTOS)}
-              <label class="lead-campo">
-                <span class="lead-rotulo">Quer detalhar? (opcional)</span>
-                <textarea id="leadObs" rows="3" maxlength="600"
-                  placeholder="Conte o problema que quer resolver, se preferir."></textarea>
-              </label>
-            </div>
-          </div>
 
-          <p class="lead-aviso" data-aviso hidden></p>
-
-          <div class="lead-pe">
-            <button type="button" class="lead-btn lead-btn-voltar" data-voltar hidden>← Voltar</button>
-            <button type="button" class="lead-btn lead-btn-avancar" data-avancar>Próximo →</button>
-            <button type="submit" class="lead-btn lead-btn-enviar" data-enviar hidden>Enviar</button>
-          </div>
-
-          <ul class="lead-selos">
-            <li>Sem compromisso</li>
-            <li>Retorno em até 24h</li>
-            <li>Orientação técnica gratuita</li>
-          </ul>
-        </form>
+          </form>
+        </div>
       </div>`;
 
     ligar(raiz);
@@ -319,7 +329,7 @@
             <strong>Recebemos, ${esc(d.nome.split(' ')[0])}.</strong>
             <p>Nossa equipe entra em contato pelo WhatsApp em até 24 horas.
                Se preferir adiantar, fale com a gente agora.</p>
-            <a class="lead-btn lead-btn-enviar" target="_blank" rel="noopener"
+            <a class="lead-btn lead-btn-enviar lead-btn-link" target="_blank" rel="noopener"
                href="https://api.whatsapp.com/send/?phone=556240150742&type=phone_number&app_absent=0">
                Falar no WhatsApp</a>
           </div>`;
