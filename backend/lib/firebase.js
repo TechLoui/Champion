@@ -44,6 +44,24 @@ function normalizarChave(bruta) {
     } catch (err) { /* não era base64: segue com o valor original */ }
   }
 
+  /* Conserta o corpo base64 sem tocar no cabeçalho e no rodapé, que têm espaço
+     de verdade ("BEGIN PRIVATE KEY").
+
+     Duas trocas, ambas inofensivas numa chave íntegra — base64 padrão não
+     contém nenhum dos caracteres procurados:
+
+       ' ' -> '+'  Decodificação de URL em algum ponto do caminho transforma
+                   '+' em espaço. É a corrupção mais comum e a mais traiçoeira:
+                   preserva o tamanho e o número de linhas, então a chave passa
+                   em toda checagem estrutural e só falha no decode.
+
+       '-' -> '+'  e  '_' -> '/'   Alfabeto base64url, de quem gerou a variável
+                   com uma ferramenta web. */
+  k = k.split('\n').map((linha) => {
+    if (linha.includes('-----')) return linha;
+    return linha.split(' ').join('+').split('-').join('+').split('_').join('/');
+  }).join('\n');
+
   /* O SDK exige a quebra final. */
   if (!k.endsWith('\n')) k += '\n';
   return k;
