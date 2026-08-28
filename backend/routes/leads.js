@@ -151,14 +151,37 @@ router.post('/', async (req, res) => {
       : Promise.resolve(null)
   ]);
 
-  if (saveResult.status === 'rejected') {
+  /* "fulfilled" não significa gravado: quando o Firestore ou o Resend não estão
+     configurados, o ramo correspondente é um Promise.resolve(null) que sempre
+     cumpre. Por isso a checagem olha primeiro se o destino existia. */
+  const gravou = Boolean(firestore) && saveResult.status === 'fulfilled';
+  const notificou = Boolean(resend && process.env.NOTIFICATION_EMAIL)
+    && emailResult.status === 'fulfilled';
+
+  if (firestore && saveResult.status === 'rejected') {
     console.error('[leads] Firestore save falhou:', saveResult.reason?.message);
   }
-  if (emailResult.status === 'rejected') {
+  if (!firestore) {
+    console.error('[leads] Firestore não configurado — lead não foi gravado.');
+  }
+  if (resend && process.env.NOTIFICATION_EMAIL && emailResult.status === 'rejected') {
     console.error('[leads] Resend send falhou:', emailResult.reason?.message);
   }
 
-  res.status(201).json({ ok: true, id: lead.id });
+  /* Basta um dos dois: com o e-mail enviado o contato não se perdeu, mesmo sem
+     o registro no painel. Mas se nenhum dos caminhos funcionou, o lead deixou
+     de existir — e responder 201 aqui faz o site prometer um retorno que
+     ninguém vai dar. Melhor o visitante ver o erro e ir para o WhatsApp. */
+  if (!gravou && !notificou) {
+    console.error('[leads] LEAD PERDIDO — nem gravou nem notificou.', {
+      id: lead.id, name: lead.name, phone: lead.phone, email: lead.email
+    });
+    return res.status(502).json({
+      error: 'Não consegui registrar seu contato agora. Chame no WhatsApp que respondemos na hora.'
+    });
+  }
+
+  res.status(201).json({ ok: true, id: lead.id, gravado: gravou, notificado: notificou });
 });
 
 module.exports = router;
