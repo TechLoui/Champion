@@ -9,13 +9,67 @@
 
 let _admin = null;
 
+/* A mesma chave chega de jeitos diferentes conforme como foi colada no painel.
+   Todas estas variações já apareceram e todas produzem o mesmo erro opaco do
+   OpenSSL ("DECODER routines::unsupported"), que não diz qual é o problema:
+
+     - aspas em volta do valor, que o painel guarda como parte do texto;
+     - \n literal em vez de quebra de linha (o caso comum);
+     - \\n, quando o valor já vinha escapado e o painel escapou de novo;
+     - \r\n, de quem copiou de um editor do Windows;
+     - o PEM inteiro em base64, de quem tentou fugir do problema da quebra.
+
+   Normalizar é seguro: numa chave já correta nenhuma destas trocas encontra o
+   que substituir. */
+function normalizarChave(bruta) {
+  let k = String(bruta || '').trim();
+  if (!k) return '';
+
+  /* Aspas em volta do valor inteiro. */
+  if ((k.startsWith('"') && k.endsWith('"')) || (k.startsWith("'") && k.endsWith("'"))) {
+    k = k.slice(1, -1);
+  }
+
+  /* Escapado duas vezes antes de uma vez, senão a primeira troca consome a
+     barra da segunda e sobra um "n" solto no meio da chave. */
+  k = k.split('\\\\n').join('\n');
+  k = k.split('\\n').join('\n');
+  k = k.split('\r\n').join('\n');
+
+  /* Sem cabeçalho PEM, a aposta é base64 do PEM inteiro. */
+  if (!k.includes('BEGIN')) {
+    try {
+      const decodificada = Buffer.from(k, 'base64').toString('utf8');
+      if (decodificada.includes('BEGIN')) k = decodificada;
+    } catch (err) { /* não era base64: segue com o valor original */ }
+  }
+
+  /* O SDK exige a quebra final. */
+  if (!k.endsWith('\n')) k += '\n';
+  return k;
+}
+
+/* Falha cedo e com nome: o erro do OpenSSL não diz qual variável está errada. */
+function conferirChave(k) {
+  if (!k.includes('-----BEGIN') || !k.includes('PRIVATE KEY-----')) {
+    console.error('[firebase] FIREBASE_PRIVATE_KEY não parece um PEM: falta o cabeçalho -----BEGIN PRIVATE KEY-----.');
+    return false;
+  }
+  if (k.split('\n').length < 3) {
+    console.error('[firebase] FIREBASE_PRIVATE_KEY veio numa linha só — as quebras de linha se perderam.');
+    return false;
+  }
+  return true;
+}
+
 function buildCredential(admin) {
   if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    const privateKey = normalizarChave(process.env.FIREBASE_PRIVATE_KEY);
+    if (!conferirChave(privateKey)) return null;
     return admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      /* Nas env vars a chave vem com \n escapado — converte para quebras reais. */
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+      privateKey: privateKey
     });
   }
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
@@ -29,7 +83,7 @@ function buildCredential(admin) {
        Normalizar aqui é inofensivo: numa chave já correta não sobra barra
        invertida literal para trocar. */
     if (typeof conta.private_key === 'string') {
-      conta.private_key = conta.private_key.replace(/\\n/g, '\n');
+      conta.private_key = normalizarChave(conta.private_key);
     }
     return admin.credential.cert(conta);
   }
