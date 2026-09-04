@@ -3140,7 +3140,7 @@
     .dl-published-table-head,
     .dl-published-row {
       display:grid;
-      grid-template-columns:44px minmax(210px,1.4fr) minmax(135px,.72fr) minmax(145px,.68fr) 108px 130px;
+      grid-template-columns:44px minmax(210px,1.25fr) minmax(130px,.58fr) minmax(230px,.9fr) 122px minmax(188px,auto);
       gap:12px;
       align-items:center;
     }
@@ -3150,25 +3150,55 @@
       letter-spacing:.045em; text-transform:uppercase;
     }
     .dl-published-table-head span:last-child { text-align:right; }
-    .dl-published-row { min-height:78px; padding:11px 16px; }
+    .dl-published-row { min-height:112px; padding:12px 16px; }
     .dl-pub-categories { gap:5px; }
     .dl-category-tag { padding:4px 7px; font-size:10.5px; }
     .dl-category-tag.is-muted { color:#556174; background:#EDF0F4; }
-    .dl-permission-summary { display:flex; flex-wrap:wrap; gap:5px; }
-    .dl-permission-badge {
-      display:inline-flex; align-items:center; gap:4px; padding:4px 7px; border-radius:7px;
-      color:#3F5E86; background:#EDF4FC; font-size:10.5px; font-weight:750;
+    .dl-access-summary { display:grid; gap:6px; }
+    .dl-access-indicator {
+      min-height:44px; display:grid; grid-template-columns:28px minmax(0,1fr); align-items:center; gap:8px;
+      padding:7px 9px; border:1px solid #D8E1EA; border-radius:10px; background:#F8FAFC;
     }
-    .dl-permission-badge.is-off { color:#586476; background:#EDF0F4; text-decoration:line-through; }
+    .dl-access-icon {
+      width:28px; height:28px; display:grid; place-items:center; border-radius:8px;
+      color:#526075; background:#E8EDF3;
+    }
+    .dl-access-icon svg { width:15px; height:15px; }
+    .dl-access-copy { min-width:0; display:flex; flex-direction:column; gap:1px; }
+    .dl-access-copy strong { color:#344258; font-size:12.5px; line-height:1.25; }
+    .dl-access-copy small { color:#68758A; font-size:11.5px; line-height:1.25; }
+    .dl-access-indicator.is-enabled { border-color:#BFE2CF; background:#F0FAF5; }
+    .dl-access-indicator.is-enabled .dl-access-icon { color:#147A4C; background:#DDF3E7; }
+    .dl-access-indicator.is-enabled .dl-access-copy strong { color:#12633F; }
+    .dl-access-indicator.is-blocked { border-color:#E1E5EA; background:#F6F7F9; }
+    .dl-access-indicator.is-blocked .dl-access-icon { color:#68758A; background:#E6E9EE; }
+    .dl-access-indicator.is-hidden { border-color:#EAD9BA; background:#FFF9EF; }
+    .dl-access-indicator.is-hidden .dl-access-icon { color:#996000; background:#F8EBCF; }
+    .dl-access-indicator.is-hidden .dl-access-copy strong { color:#825200; }
     .dl-status-button {
       min-width:104px; min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:6px;
-      font-size:11.5px;
+      padding:7px 9px; font-size:12.5px; line-height:1.25; text-align:center; white-space:normal;
     }
     .dl-status-cell { display:flex; align-items:center; }
     .dl-status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
-    .dl-pub-actions { gap:7px; }
+    .dl-pub-actions { gap:7px; flex-wrap:wrap; }
     .dl-pub-actions .dl-open-link,
     .dl-pub-actions .dl-icon-button { width:38px; height:38px; }
+    .dl-preview-button {
+      min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+      padding:0 12px; border:1px solid #BFCFE2; border-radius:10px; color:#1E4C8F;
+      background:#F3F7FC; font:750 14px 'Inter',sans-serif; cursor:pointer;
+    }
+    .dl-preview-button:hover { border-color:#8FABCF; background:#E8F0FA; }
+    .dl-preview-button svg { width:17px; height:17px; }
+    .dl-access-legend {
+      min-height:44px; padding:10px 16px; display:flex; align-items:center; gap:8px 14px; flex-wrap:wrap;
+      border-bottom:1px solid #E8EDF3; color:#59677B; background:#F7FAFD; font-size:12px; line-height:1.4;
+    }
+    .dl-access-legend strong { color:#354258; font-size:12.5px; }
+    .dl-access-legend span { display:inline-flex; align-items:center; gap:6px; }
+    .dl-legend-dot { width:8px; height:8px; flex:none; border-radius:50%; background:#147A4C; }
+    .dl-legend-dot.is-blocked { background:#778397; }
     .dl-published-row:focus-within { background:#F8FAFD; }
     .dl-published-row.is-busy { opacity:.68; pointer-events:none; }
     .dl-file-unavailable { color:#A33C2A; font-weight:750; }
@@ -3186,6 +3216,49 @@
     .dl-edit-fieldset { min-width:0; margin:0; padding:0; border:0; }
     .dl-edit-fieldset legend { margin-bottom:7px; color:#4B5563; font-size:12px; font-weight:700; }
     .dl-edit-permissions input { width:18px; height:18px; padding:0; appearance:auto; }
+    .dl-edit-access-result {
+      margin-top:10px; padding:10px 12px; border:1px solid #DCE4ED; border-radius:9px;
+      color:#4C5A6E; background:#F7F9FC; font-size:12px; line-height:1.5;
+    }
+    .dl-edit-access-result strong { color:#26364E; }
+
+    .prod-drawer.dl-preview-drawer .prod-drawer-panel { width:min(980px,100%); }
+    .dl-preview-drawer .prod-drawer-body { padding:18px; background:#F3F6FA; }
+    .dl-preview-context {
+      margin-bottom:12px; padding:11px 13px; display:flex; align-items:center; justify-content:space-between;
+      gap:12px; border:1px solid #DDE5EE; border-radius:11px; background:#FFFFFF;
+    }
+    .dl-preview-context-copy { min-width:0; }
+    .dl-preview-context-copy strong { display:block; color:#26364E; font-size:13px; }
+    .dl-preview-context-copy span { display:block; margin-top:2px; color:#657287; font-size:12px; line-height:1.4; }
+    .dl-preview-context .dl-access-summary { width:min(410px,52%); grid-template-columns:1fr 1fr; flex:none; }
+    .dl-preview-context .dl-access-indicator { min-height:42px; }
+    .dl-preview-stage {
+      position:relative; width:100%; height:clamp(420px,68vh,720px); min-height:420px;
+      display:grid; place-items:center; overflow:hidden;
+      border:1px solid #D7E0EA; border-radius:13px; background:#E9EEF4;
+    }
+    .dl-preview-stage.is-audio { height:260px; min-height:260px; }
+    .dl-preview-loading {
+      position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center; gap:9px;
+      color:#4F5E72; background:#F4F7FA; font-size:13px; font-weight:700;
+    }
+    .dl-preview-stage:not(.is-loading) .dl-preview-loading { display:none; }
+    .dl-preview-frame,
+    .dl-preview-image,
+    .dl-preview-video { width:100%; height:100%; min-height:0; border:0; background:#FFFFFF; }
+    .dl-preview-image { object-fit:contain; background:#E9EEF4; }
+    .dl-preview-video { object-fit:contain; background:#101722; }
+    .dl-preview-audio-wrap {
+      width:min(560px,calc(100% - 32px)); padding:28px; border:1px solid #D9E2EC;
+      border-radius:14px; background:#FFFFFF; box-shadow:0 8px 28px rgba(19,31,53,.08); text-align:center;
+    }
+    .dl-preview-audio-wrap svg { width:38px; height:38px; margin-bottom:16px; color:#1E4C8F; }
+    .dl-preview-audio { width:100%; }
+    .dl-preview-error { max-width:460px; padding:28px; color:#59677B; text-align:center; }
+    .dl-preview-error strong { display:block; margin-bottom:7px; color:#A33C2A; font-size:15px; }
+    .dl-preview-error span { font-size:13px; line-height:1.5; }
+    .dl-preview-footer-info { margin-right:auto; color:#657287; font-size:12px; }
 
     .dl-admin-feedback { font-size:13px; line-height:1.45; }
     .dl-admin-card :is(button, input, select, summary, a):focus-visible,
@@ -3220,7 +3293,7 @@
       .dl-published-row > .dl-file-icon { grid-area:icon; align-self:start; }
       .dl-published-row > .dl-file-main { grid-area:main; }
       .dl-published-row > .dl-pub-categories { grid-area:categories; }
-      .dl-published-row > .dl-permission-summary { grid-area:permissions; }
+      .dl-published-row > .dl-access-summary { grid-area:permissions; }
       .dl-published-row > .dl-status-cell { grid-area:status; justify-self:end; }
       .dl-published-row > .dl-pub-actions { grid-area:actions; justify-self:start; }
     }
@@ -3272,8 +3345,19 @@
       .dl-pub-actions { width:100%; }
       .dl-pub-actions .dl-icon-button,
       .dl-pub-actions .dl-open-link { flex:1; width:auto; }
+      .dl-preview-button { flex:2; }
+      .dl-preview-context { align-items:stretch; flex-direction:column; }
+      .dl-preview-context .dl-access-summary { width:100%; }
+      .dl-preview-stage,
+      .dl-preview-frame,
+      .dl-preview-image,
+      .dl-preview-video { height:56vh; min-height:320px; }
+      .dl-preview-stage.is-audio { height:260px; min-height:260px; }
+      .dl-preview-drawer .prod-drawer-foot { align-items:stretch; }
+      .dl-preview-footer-info { margin:0 0 4px; text-align:center; }
     }
     @media (max-width:360px) {
+      .dl-preview-context .dl-access-summary { grid-template-columns:1fr; }
       .dl-drive-table-head,
       .dl-drive-row { grid-template-columns:32px 34px minmax(0,1fr); gap:6px; padding-left:8px; padding-right:8px; }
       .dl-drive-table-head > :last-child,
@@ -4580,11 +4664,11 @@
                   <div class="dl-publish-permissions">
                     <label>
                       <input id="driveAllowView" type="checkbox" checked />
-                      <span><strong>Abrir online</strong><small>Visualizar no navegador</small></span>
+                      <span><strong>Preview no site</strong><small>Abrir no navegador quando o formato for compatível</small></span>
                     </label>
                     <label>
                       <input id="driveAllowDownload" type="checkbox" checked />
-                      <span><strong>Baixar arquivo</strong><small>Salvar no dispositivo</small></span>
+                      <span><strong>Download do arquivo</strong><small>Salvar uma cópia no dispositivo</small></span>
                     </label>
                   </div>
                   <small class="dl-field-hint" id="drivePermissionHint" role="status" aria-live="polite"></small>
@@ -4640,7 +4724,7 @@
             <div>
               <span class="dl-eyebrow">Área pública</span>
               <h3>Downloads no site</h3>
-              <p>Revise o que está visível ou oculto para os visitantes.</p>
+              <p>Veja rapidamente se cada arquivo está no site e o que o visitante pode fazer.</p>
             </div>
             <span class="dl-count-group"><strong id="publishedDownloadCount">0</strong><small>cadastrados</small></span>
           </header>
@@ -4658,18 +4742,30 @@
               <option value="published">Visíveis no site</option>
               <option value="draft">Ocultos</option>
             </select>
+            <select class="dl-filter-select" id="publishedDownloadAccess" aria-label="Filtrar downloads por acesso disponível">
+              <option value="">Todos os acessos</option>
+              <option value="download-enabled">Download liberado</option>
+              <option value="download-disabled">Download não liberado</option>
+              <option value="preview-enabled">Preview disponível</option>
+              <option value="preview-disabled">Preview indisponível</option>
+            </select>
             <button class="ap-btn ap-btn-ghost ap-btn-sm" id="publishedDownloadClearFilters" type="button" hidden>Limpar filtros</button>
           </div>
           <div class="dl-results-summary">
             <strong id="publishedDownloadResultCount" tabindex="-1" role="status" aria-live="polite" aria-atomic="true">0 de 0 itens</strong>
-            <span>Use “Editar” para alterar nome, descrição, categorias e permissões.</span>
+            <span>Liberado significa que a ação está disponível aos visitantes. Itens ocultos nunca ficam acessíveis.</span>
+          </div>
+          <div class="dl-access-legend" role="note" aria-label="Como interpretar os indicadores de acesso">
+            <strong>Como ler:</strong>
+            <span><i class="dl-legend-dot" aria-hidden="true"></i>Liberado: o visitante pode usar a ação agora.</span>
+            <span><i class="dl-legend-dot is-blocked" aria-hidden="true"></i>Não liberado: veja o motivo indicado no arquivo.</span>
           </div>
           <div class="dl-published-table" role="region" aria-label="Downloads cadastrados no site">
             <div class="dl-published-table-head" id="publishedDownloadTableHead" hidden>
               <span aria-label="Tipo"></span>
               <span>Arquivo</span>
               <span>Categorias</span>
-              <span>Permissões</span>
+              <span>Acesso do visitante</span>
               <span>Visibilidade</span>
               <span>Ações</span>
             </div>
@@ -4711,10 +4807,11 @@
                   <fieldset class="ap-form-field full dl-edit-fieldset">
                     <legend>Permissões públicas</legend>
                     <div class="dl-edit-permissions">
-                      <label><input id="downloadEditAllowView" name="allowView" type="checkbox" /> Permitir visualização</label>
-                      <label><input id="downloadEditAllowDownload" name="allowDownload" type="checkbox" /> Permitir download</label>
+                      <label><input id="downloadEditAllowView" name="allowView" type="checkbox" /> Preview no site</label>
+                      <label><input id="downloadEditAllowDownload" name="allowDownload" type="checkbox" /> Download do arquivo</label>
                     </div>
                     <small id="downloadEditPermissionHint">Ao menos uma opção deve permanecer ativa.</small>
+                    <div class="dl-edit-access-result" id="downloadEditAccessResult" role="status" aria-live="polite"></div>
                   </fieldset>
                 </div>
               </form>
@@ -4725,6 +4822,42 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
                 Salvar alterações
               </button>
+            </footer>
+          </aside>
+        </div>
+
+        <div class="prod-drawer drawer-wide dl-preview-drawer" id="downloadPreviewDrawer" aria-hidden="true" inert>
+          <div class="prod-drawer-overlay" data-download-preview-close></div>
+          <aside class="prod-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="downloadPreviewTitle" aria-describedby="downloadPreviewMeta" tabindex="-1">
+            <header class="prod-drawer-head">
+              <div>
+                <span class="dl-eyebrow">Preview dentro do painel</span>
+                <h3 id="downloadPreviewTitle">Pré-visualização do arquivo</h3>
+                <p id="downloadPreviewMeta">Carregando informações do arquivo…</p>
+              </div>
+              <button class="prod-drawer-close" id="downloadPreviewClose" type="button" data-download-preview-close aria-label="Fechar pré-visualização">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </header>
+            <div class="prod-drawer-body">
+              <div class="dl-preview-context">
+                <div class="dl-preview-context-copy">
+                  <strong>Experiência do visitante</strong>
+                  <span>Esta é a mesma versão liberada na página pública.</span>
+                </div>
+                <div class="dl-access-summary" id="downloadPreviewAccess" role="group" aria-label="Acesso público do arquivo"></div>
+              </div>
+              <div class="dl-preview-stage" id="downloadPreviewStage" aria-busy="false"></div>
+            </div>
+            <footer class="prod-drawer-foot">
+              <span class="dl-preview-footer-info">Se o preview não carregar, abra o arquivo em uma nova guia.</span>
+              <button class="ap-btn ap-btn-ghost" type="button" data-download-preview-close>Fechar</button>
+              <a class="ap-btn ap-btn-ghost" id="downloadPreviewOpen" href="#" target="_blank" rel="noopener noreferrer">
+                Abrir em nova guia
+              </a>
+              <a class="ap-btn ap-btn-primary" id="downloadPreviewDownload" href="#" hidden>
+                Baixar arquivo
+              </a>
             </footer>
           </aside>
         </div>
@@ -4878,7 +5011,7 @@
 <script src="/js/order-store.js?v=20260902-3"></script>
 <script type="module" src="/js/admin.js?v=20260902-3"></script>
 <script src="/js/admin-customers.js?v=20260902-3"></script>
-<script type="module" src="/js/admin-downloads.js?v=20260904-3"></script>
+<script type="module" src="/js/admin-downloads.js?v=20260904-4"></script>
 
 <!-- Dashboard charts (vanilla SVG, sem dependências) -->
 <script>

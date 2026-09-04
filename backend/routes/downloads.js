@@ -249,14 +249,16 @@ async function sendContent(req, res, next, mode) {
     const filename = filenameWithExtension(found.data.name || content.driveFile.name, content.extension);
 
     res.status(content.status || 200);
-    res.set({
+    const responseHeaders = {
       'Content-Type': content.mimeType,
       'Content-Disposition': dispositionHeader(disposition, filename),
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': 'sandbox',
       'Cache-Control': 'private, no-store, max-age=0',
       'Cross-Origin-Resource-Policy': 'cross-origin'
-    });
+    };
+    // O modo view ja aceita apenas MIME types seguros; sandbox bloquearia o visualizador de PDF do Chromium.
+    if (mode !== 'view') responseHeaders['Content-Security-Policy'] = 'sandbox';
+    res.set(responseHeaders);
     if (content.size) res.set('Content-Length', String(content.size));
     if (content.contentRange) res.set('Content-Range', content.contentRange);
     if (content.acceptRanges) res.set('Accept-Ranges', content.acceptRanges);

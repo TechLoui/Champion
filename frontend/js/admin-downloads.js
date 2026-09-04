@@ -64,6 +64,7 @@
     publishedSearch: $('#publishedDownloadSearch'),
     publishedCategory: $('#publishedDownloadCategory'),
     publishedStatus: $('#publishedDownloadStatus'),
+    publishedAccess: $('#publishedDownloadAccess'),
     publishedClearFilters: $('#publishedDownloadClearFilters'),
     publishedResultCount: $('#publishedDownloadResultCount'),
     publishedTableHead: $('#publishedDownloadTableHead'),
@@ -74,7 +75,16 @@
     editCategories: $('#downloadEditCategories'),
     editAllowView: $('#downloadEditAllowView'),
     editAllowDownload: $('#downloadEditAllowDownload'),
-    editPermissionHint: $('#downloadEditPermissionHint')
+    editPermissionHint: $('#downloadEditPermissionHint'),
+    editAccessResult: $('#downloadEditAccessResult'),
+    previewDrawer: $('#downloadPreviewDrawer'),
+    previewTitle: $('#downloadPreviewTitle'),
+    previewMeta: $('#downloadPreviewMeta'),
+    previewAccess: $('#downloadPreviewAccess'),
+    previewStage: $('#downloadPreviewStage'),
+    previewClose: $('#downloadPreviewClose'),
+    previewOpen: $('#downloadPreviewOpen'),
+    previewDownload: $('#downloadPreviewDownload')
   };
 
   const state = {
@@ -91,6 +101,9 @@
     publicationRequestId: 0,
     lastFocusedElement: null,
     lastFocusedPublicationId: '',
+    previewLastFocusedElement: null,
+    previewPublicationId: '',
+    previewRequestId: 0,
     editorOriginalActiveCategoryIds: [],
     editorSaving: false,
     publishing: false,
@@ -111,6 +124,10 @@
     external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4z"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6m3 0V4h8v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14"/></svg>',
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+    audio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>',
     empty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z"/><path d="M9 13h6"/></svg>'
   };
 
@@ -152,6 +169,19 @@
       const apiOrigin = new URL(API_BASE, window.location.origin).origin;
       const url = new URL(raw, raw.startsWith('/api/') ? apiOrigin : window.location.origin);
       return /^(https?:)$/.test(url.protocol) ? url.href : '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function safeDownloadEndpoint(value, id, action) {
+    const href = safeUrl(value);
+    if (!href || !id || !['view', 'download'].includes(action)) return '';
+    try {
+      const apiOrigin = new URL(API_BASE, window.location.origin).origin;
+      const url = new URL(href);
+      const expectedPath = `/api/downloads/${encodeURIComponent(String(id))}/${action}`;
+      return url.origin === apiOrigin && url.pathname === expectedPath ? url.href : '';
     } catch (_) {
       return '';
     }
@@ -388,7 +418,9 @@
     const status = String(item.status || (rawPublished === false ? 'draft' : 'published')).toLowerCase();
     const allowView = firstDefined(item.allowView, true) !== false;
     const allowDownload = firstDefined(item.allowDownload, true) !== false;
-    const downloadUrl = firstDefined(item.downloadUrl, '');
+    const viewUrl = String(firstDefined(item.viewUrl, '') || '');
+    const downloadUrl = String(firstDefined(item.downloadUrl, '') || '');
+    const driveWebViewLink = String(firstDefined(item.webViewLink, item.driveItem?.webViewLink, '') || '');
     return Object.assign({}, drive, {
       id: String(firstDefined(item.id, item.publicationId, item.downloadId, drive.id, `download-${index}`)),
       driveId: String(firstDefined(item.driveId, item.driveFileId, item.fileId, item.googleDriveId, drive.id)),
@@ -399,9 +431,10 @@
       allowView,
       allowDownload,
       canPreview: firstDefined(item.canPreview, true) !== false,
-      canDownload: allowDownload && firstDefined(item.canDownload, Boolean(downloadUrl), true) !== false,
+      canDownload: allowDownload && Boolean(downloadUrl),
       deliveryMimeType: String(firstDefined(item.deliveryMimeType, item.exportMimeType, drive.mimeType, '') || ''),
-      webViewLink: firstDefined(item.webViewLink, item.viewUrl, drive.webViewLink, ''),
+      viewUrl,
+      webViewLink: driveWebViewLink,
       downloadUrl
     });
   }
@@ -447,6 +480,60 @@
 
   function publicationHasPublicAction(item) {
     return Boolean((item?.allowDownload && item?.canDownload) || (item?.allowView && item?.canPreview));
+  }
+
+  function publicationAccess(item) {
+    const published = item?.status === 'published';
+    const previewUrl = safeDownloadEndpoint(item?.viewUrl, item?.id, 'view');
+    const downloadUrl = safeDownloadEndpoint(item?.downloadUrl, item?.id, 'download');
+    const previewEnabled = Boolean(published && item?.allowView && item?.canPreview && previewUrl);
+    const downloadEnabled = Boolean(published && item?.allowDownload && item?.canDownload && downloadUrl);
+
+    let previewReason = 'Visitantes podem visualizar o arquivo.';
+    if (!published) previewReason = 'Item oculto do site.';
+    else if (!item?.allowView) previewReason = 'Desativado nas permissões.';
+    else if (!item?.canPreview) previewReason = 'Formato sem visualização.';
+    else if (!previewUrl) previewReason = 'Link de preview indisponível.';
+
+    let downloadReason = 'Visitantes podem baixar o arquivo.';
+    if (!published) downloadReason = 'Item oculto do site.';
+    else if (!item?.allowDownload) downloadReason = 'Desativado nas permissões.';
+    else if (!item?.canDownload || !downloadUrl) downloadReason = 'Arquivo indisponível para baixar.';
+
+    return {
+      published,
+      previewEnabled,
+      downloadEnabled,
+      previewUrl,
+      downloadUrl,
+      previewReason,
+      downloadReason
+    };
+  }
+
+  function accessIndicator(kind, access) {
+    const isPreview = kind === 'preview';
+    const enabled = isPreview ? access.previewEnabled : access.downloadEnabled;
+    const label = isPreview
+      ? (enabled ? 'Preview disponível' : 'Preview indisponível')
+      : (enabled ? 'Download liberado' : 'Download não liberado');
+    const reason = isPreview ? access.previewReason : access.downloadReason;
+    const stateClass = enabled ? 'is-enabled' : (access.published ? 'is-blocked' : 'is-hidden');
+    const icon = enabled ? (isPreview ? ICONS.eye : ICONS.download) : ICONS.lock;
+    return `
+      <span class="dl-access-indicator ${stateClass}" data-access-kind="${kind}" data-access-enabled="${enabled}">
+        <span class="dl-access-icon" aria-hidden="true">${icon}</span>
+        <span class="dl-access-copy"><strong>${label}</strong><small>${escapeHtml(reason)}</small></span>
+      </span>`;
+  }
+
+  function matchesAccessFilter(access, filter) {
+    if (!filter) return true;
+    if (filter === 'download-enabled') return access.downloadEnabled;
+    if (filter === 'download-disabled') return !access.downloadEnabled;
+    if (filter === 'preview-enabled') return access.previewEnabled;
+    if (filter === 'preview-disabled') return !access.previewEnabled;
+    return true;
   }
 
   function fileKind(item) {
@@ -587,9 +674,9 @@
     } else if (!sourceAvailable) {
       refs.permissionHint.textContent = 'Remova da seleção os arquivos sem permissão para importação.';
     } else if (hasSelection && !refs.allowDownload.checked && hasFolder) {
-      refs.permissionHint.textContent = 'Para publicar pastas com segurança, mantenha “Baixar arquivo” ativo; a pasta pode conter formatos que não abrem no navegador.';
+      refs.permissionHint.textContent = 'Para publicar pastas com segurança, mantenha “Download do arquivo” ativo; a pasta pode conter formatos que não abrem no navegador.';
     } else if (hasSelection && refs.allowView.checked && !refs.allowDownload.checked && !selectedItems.every(isPreviewableDriveItem)) {
-      refs.permissionHint.textContent = 'Um ou mais formatos selecionados não podem ser abertos no navegador. Ative “Baixar arquivo”.';
+      refs.permissionHint.textContent = 'Um ou mais formatos selecionados não podem ser abertos no navegador. Ative “Download do arquivo”.';
     } else if (count === MAX_DIRECT_SELECTION) {
       refs.permissionHint.textContent = `Limite de ${MAX_DIRECT_SELECTION} itens atingido. Publique esta seleção antes de adicionar outros.`;
     } else {
@@ -683,16 +770,20 @@
     const term = refs.publishedSearch.value.trim().toLocaleLowerCase('pt-BR');
     const categoryId = refs.publishedCategory.value;
     const status = refs.publishedStatus.value;
+    const accessFilter = refs.publishedAccess.value;
     const rows = state.publications.filter((item) => {
       const haystack = `${item.name} ${item.description} ${item.categoryIds.map(categoryName).join(' ')}`.toLocaleLowerCase('pt-BR');
       return (!term || haystack.includes(term)) &&
         (!categoryId || item.categoryIds.includes(categoryId)) &&
-        (!status || item.status === status);
+        (!status || item.status === status) &&
+        matchesAccessFilter(publicationAccess(item), accessFilter);
     });
 
-    const hasFilters = Boolean(term || categoryId || status);
+    const hasFilters = Boolean(term || categoryId || status || accessFilter);
     refs.publishedClearFilters.hidden = !hasFilters;
-    refs.publishedResultCount.textContent = `${rows.length} de ${state.publications.length} ${state.publications.length === 1 ? 'item' : 'itens'}`;
+    const downloadCount = rows.filter((item) => publicationAccess(item).downloadEnabled).length;
+    const previewCount = rows.filter((item) => publicationAccess(item).previewEnabled).length;
+    refs.publishedResultCount.textContent = `${rows.length} de ${state.publications.length} ${state.publications.length === 1 ? 'item' : 'itens'} · ${downloadCount} com download liberado · ${previewCount} com preview`;
     refs.publishedTableHead.hidden = rows.length === 0;
     refs.publishedList.setAttribute('aria-busy', 'false');
     updateSummaryMetrics();
@@ -711,7 +802,7 @@
     refs.publishedList.setAttribute('role', 'list');
     refs.publishedList.innerHTML = rows.map((item) => {
       const kind = fileKind(item);
-      const url = safeUrl(item.webViewLink);
+      const access = publicationAccess(item);
       const busy = state.pendingPublications.has(item.id);
       const controlsLocked = busy || state.publishing || state.categoryMutating || state.initializing;
       const categories = item.categoryIds.length
@@ -725,17 +816,17 @@
             <span class="dl-file-sub">${escapeHtml(kind.label)}${item.size != null && !item.isFolder ? ' · ' + escapeHtml(formatSize(item.size)) : ''}${item.modifiedTime ? ' · atualizado ' + escapeHtml(formatDate(item.modifiedTime)) : ''}</span>
           </div>
           <div class="dl-pub-categories"><span class="sr-only">Categorias: </span>${categories}</div>
-          <div class="dl-permission-summary"><span class="sr-only">Permissões: </span>
-            <span class="dl-permission-badge${item.allowView && item.canPreview ? '' : ' is-off'}">Abrir online</span>
-            <span class="dl-permission-badge${item.allowDownload && item.canDownload ? '' : ' is-off'}">Baixar</span>
+          <div class="dl-access-summary" role="group" aria-label="Acesso de ${escapeHtml(item.name)}">
+            ${accessIndicator('download', access)}
+            ${accessIndicator('preview', access)}
           </div>
           <div class="dl-status-cell">
-            <button class="dl-status-button${item.status === 'draft' ? ' is-draft' : ''}" type="button" data-publication-status="${escapeHtml(item.id)}" aria-label="${item.status === 'published' ? 'Ocultar' : 'Tornar visível'} ${escapeHtml(item.name)}" title="${item.status === 'published' ? 'Clique para ocultar do site' : 'Clique para tornar visível no site'}" ${controlsLocked ? 'disabled' : ''}>
-              <span class="dl-status-dot" aria-hidden="true"></span>${item.status === 'published' ? 'Visível' : 'Oculto'}
+            <button class="dl-status-button${item.status === 'draft' ? ' is-draft' : ''}" type="button" data-publication-status="${escapeHtml(item.id)}" aria-label="Estado atual: ${item.status === 'published' ? 'visível no site' : 'oculto do site'}. ${item.status === 'published' ? 'Ocultar' : 'Tornar visível'} ${escapeHtml(item.name)}." title="${item.status === 'published' ? 'Clique para ocultar do site' : 'Clique para tornar visível no site'}" ${controlsLocked ? 'disabled' : ''}>
+              <span class="dl-status-dot" aria-hidden="true"></span>${item.status === 'published' ? 'Visível no site' : 'Oculto do site'}
             </button>
           </div>
           <div class="dl-pub-actions">
-            ${item.status === 'published' && item.allowView && item.canPreview && url ? `<a class="dl-open-link" href="${escapeHtml(url)}" target="_blank" rel="noopener" title="Abrir como visitante" aria-label="Abrir ${escapeHtml(item.name)} como visitante" ${busy ? 'aria-disabled="true" tabindex="-1"' : ''}>${ICONS.external}</a>` : ''}
+            ${access.previewEnabled ? `<button class="dl-preview-button" type="button" data-publication-preview="${escapeHtml(item.id)}" aria-label="Pré-visualizar ${escapeHtml(item.name)} dentro do painel" ${controlsLocked ? 'disabled' : ''}>${ICONS.eye}<span>Pré-visualizar</span></button>` : ''}
             <button class="dl-icon-button" type="button" data-publication-edit="${escapeHtml(item.id)}" title="Editar download" aria-label="Editar ${escapeHtml(item.name)}" ${controlsLocked ? 'disabled' : ''}>${ICONS.edit}</button>
             <button class="dl-icon-button is-danger" type="button" data-publication-delete="${escapeHtml(item.id)}" title="Remover do site" aria-label="Remover ${escapeHtml(item.name)} do site" ${controlsLocked ? 'disabled' : ''}>${ICONS.trash}</button>
           </div>
@@ -1055,7 +1146,7 @@
       return;
     }
     if (!refs.allowDownload.checked && items.some((item) => item.isFolder || !isPreviewableDriveItem(item))) {
-      setFeedback('Ative “Baixar arquivo”: esta seleção contém pasta ou formato que não pode ser garantido para abertura online.');
+      setFeedback('Ative “Download do arquivo”: esta seleção contém pasta ou formato que não pode ser garantido para preview.');
       refs.allowDownload.focus();
       return;
     }
@@ -1201,13 +1292,21 @@
   function hasPublicPermission(viewInput, downloadInput, changedInput, showFeedback = setFeedback) {
     if (viewInput.checked || downloadInput.checked) return true;
     if (changedInput) changedInput.checked = true;
-    showFeedback('Ao menos “Abrir online” ou “Baixar arquivo” deve permanecer ativo.');
+    showFeedback('Ao menos “Preview no site” ou “Download do arquivo” deve permanecer ativo.');
     return false;
   }
 
   function updateEditorPermissionHint() {
     const id = String(refs.editForm.elements.id.value || '');
     const publication = state.publications.find((item) => item.id === id);
+    if (publication) {
+      const previewReady = refs.editAllowView.checked
+        && isPreviewableMime(publication.deliveryMimeType || publication.mimeType);
+      const resultLabel = publication.status === 'published' ? 'Resultado no site após salvar:' : 'Ao publicar este item:';
+      refs.editAccessResult.innerHTML = `<strong>${resultLabel}</strong> ${previewReady ? 'Preview disponível' : 'Preview não liberado'} · ${refs.editAllowDownload.checked ? 'Download liberado' : 'Download não liberado'}.`;
+    } else {
+      refs.editAccessResult.textContent = '';
+    }
     if (publication && refs.editAllowView.checked && !refs.editAllowDownload.checked
       && !isPreviewableMime(publication.deliveryMimeType || publication.mimeType)) {
       refs.editPermissionHint.textContent = 'Este formato não abre no navegador. Mantenha o download ativo.';
@@ -1263,6 +1362,122 @@
         : null;
       (target || refs.categoriesPanel.querySelector('summary') || refs.categoryList).focus({ preventScroll: true });
     }, 0);
+  }
+
+  function syncDownloadDrawerScrollLock() {
+    const hasOpenDrawer = [refs.editDrawer, refs.previewDrawer]
+      .some((drawer) => drawer.getAttribute('aria-hidden') === 'false');
+    document.body.style.overflow = hasOpenDrawer ? 'hidden' : '';
+  }
+
+  function clearPreviewStage() {
+    state.previewRequestId += 1;
+    refs.previewStage.querySelectorAll('audio, video').forEach((media) => {
+      media.pause();
+      media.removeAttribute('src');
+      media.load();
+    });
+    refs.previewStage.querySelectorAll('iframe, img').forEach((media) => media.removeAttribute('src'));
+    refs.previewStage.innerHTML = '';
+    refs.previewStage.className = 'dl-preview-stage';
+    refs.previewStage.setAttribute('aria-busy', 'false');
+  }
+
+  function showPreviewError() {
+    refs.previewStage.classList.remove('is-loading');
+    refs.previewStage.setAttribute('aria-busy', 'false');
+    refs.previewStage.innerHTML = `
+      <div class="dl-preview-error" role="alert">
+        <strong>Não foi possível carregar o preview.</strong>
+        <span>O arquivo pode ter sido movido, estar temporariamente indisponível ou usar um formato que este navegador não reproduz. Tente abrir em uma nova guia.</span>
+      </div>`;
+  }
+
+  function renderPreviewMedia(publication, url) {
+    clearPreviewStage();
+    const requestId = state.previewRequestId;
+    const mimeType = String(publication.deliveryMimeType || publication.mimeType || '').toLowerCase();
+    const title = `Preview de ${publication.name}`;
+    refs.previewStage.classList.add('is-loading');
+    refs.previewStage.setAttribute('aria-busy', 'true');
+    const loading = '<div class="dl-preview-loading" role="status"><span class="dl-spinner" aria-hidden="true"></span>Carregando preview…</div>';
+
+    if (mimeType.startsWith('image/')) {
+      refs.previewStage.innerHTML = `${loading}<img class="dl-preview-image" data-preview-media alt="Preview de ${escapeHtml(publication.name)}" src="${escapeHtml(url)}" />`;
+    } else if (mimeType.startsWith('audio/')) {
+      refs.previewStage.classList.add('is-audio');
+      refs.previewStage.innerHTML = `${loading}<div class="dl-preview-audio-wrap">${ICONS.audio}<audio class="dl-preview-audio" data-preview-media aria-label="Preview em áudio de ${escapeHtml(publication.name)}" controls preload="metadata" src="${escapeHtml(url)}">Seu navegador não consegue reproduzir este áudio.</audio></div>`;
+    } else if (mimeType.startsWith('video/')) {
+      refs.previewStage.innerHTML = `${loading}<video class="dl-preview-video" data-preview-media aria-label="Preview em vídeo de ${escapeHtml(publication.name)}" controls playsinline preload="metadata" src="${escapeHtml(url)}">Seu navegador não consegue reproduzir este vídeo.</video>`;
+    } else {
+      refs.previewStage.innerHTML = `${loading}<iframe class="dl-preview-frame" data-preview-media title="${escapeHtml(title)}" src="${escapeHtml(url)}" referrerpolicy="no-referrer"></iframe>`;
+    }
+
+    const media = refs.previewStage.querySelector('[data-preview-media]');
+    if (!media) return showPreviewError();
+    const readyEvent = media.tagName === 'IFRAME' || media.tagName === 'IMG' ? 'load' : 'loadedmetadata';
+    const markReady = () => {
+      if (requestId !== state.previewRequestId) return;
+      refs.previewStage.classList.remove('is-loading');
+      refs.previewStage.setAttribute('aria-busy', 'false');
+    };
+    const markError = () => {
+      if (requestId === state.previewRequestId) showPreviewError();
+    };
+    media.addEventListener(readyEvent, markReady, { once: true });
+    media.addEventListener('error', markError, { once: true });
+    if ((media.tagName === 'IMG' && media.complete && media.naturalWidth)
+      || (['AUDIO', 'VIDEO'].includes(media.tagName) && media.readyState >= 1)) markReady();
+  }
+
+  function openPublicationPreview(id) {
+    if (state.publishing || state.categoryMutating || state.initializing || state.pendingPublications.has(id)) return;
+    const publication = state.publications.find((item) => item.id === id);
+    if (!publication) return;
+    const access = publicationAccess(publication);
+    if (!access.previewEnabled) {
+      announce(`Preview indisponível para ${publication.name}. ${access.previewReason}`, 'info');
+      return;
+    }
+
+    state.previewLastFocusedElement = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    state.previewPublicationId = publication.id;
+    const kind = fileKind(publication);
+    const meta = [kind.label];
+    if (publication.size != null) meta.push(formatSize(publication.size));
+    if (publication.modifiedTime) meta.push(`atualizado ${formatDate(publication.modifiedTime)}`);
+    refs.previewTitle.textContent = publication.name;
+    refs.previewMeta.textContent = meta.join(' · ');
+    refs.previewAccess.innerHTML = accessIndicator('download', access) + accessIndicator('preview', access);
+    refs.previewOpen.href = access.previewUrl;
+    refs.previewDownload.hidden = !access.downloadEnabled;
+    if (access.downloadEnabled) refs.previewDownload.href = access.downloadUrl;
+    else refs.previewDownload.removeAttribute('href');
+    renderPreviewMedia(publication, access.previewUrl);
+    refs.previewDrawer.removeAttribute('inert');
+    refs.previewDrawer.classList.add('is-open');
+    refs.previewDrawer.setAttribute('aria-hidden', 'false');
+    syncDownloadDrawerScrollLock();
+    window.setTimeout(() => refs.previewClose.focus(), 0);
+  }
+
+  function closePublicationPreview() {
+    if (refs.previewDrawer.getAttribute('aria-hidden') === 'true') return;
+    refs.previewDrawer.classList.remove('is-open');
+    refs.previewDrawer.setAttribute('aria-hidden', 'true');
+    refs.previewDrawer.setAttribute('inert', '');
+    clearPreviewStage();
+    refs.previewAccess.innerHTML = '';
+    refs.previewOpen.removeAttribute('href');
+    refs.previewDownload.removeAttribute('href');
+    refs.previewDownload.hidden = true;
+    syncDownloadDrawerScrollLock();
+    const returnFocus = state.previewLastFocusedElement?.isConnected
+      ? state.previewLastFocusedElement
+      : findPublicationControl('data-publication-preview', state.previewPublicationId);
+    state.previewLastFocusedElement = null;
+    state.previewPublicationId = '';
+    window.setTimeout(() => (returnFocus || refs.publishedResultCount).focus({ preventScroll: true }), 0);
   }
 
   function setPublicationPending(id, busy) {
@@ -1353,7 +1568,7 @@
     refs.editDrawer.removeAttribute('inert');
     refs.editDrawer.classList.add('is-open');
     refs.editDrawer.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    syncDownloadDrawerScrollLock();
     window.setTimeout(() => refs.editForm.elements.name.focus(), 0);
   }
 
@@ -1366,7 +1581,7 @@
     refs.editDrawer.classList.remove('is-open');
     refs.editDrawer.setAttribute('aria-hidden', 'true');
     refs.editDrawer.setAttribute('inert', '');
-    document.body.style.overflow = '';
+    syncDownloadDrawerScrollLock();
     const returnFocus = state.lastFocusedElement?.isConnected
       ? state.lastFocusedElement
       : findPublicationControl('data-publication-edit', state.lastFocusedPublicationId);
@@ -1384,7 +1599,7 @@
     if (!id || !name) return;
     if (!hasPublicPermission(refs.editAllowView, refs.editAllowDownload, null, setDrawerFeedback)) return;
     if (!updateEditorPermissionHint()) {
-      setDrawerFeedback('Este formato não pode ser publicado somente com abertura online. Ative “Permitir download”.');
+      setDrawerFeedback('Este formato não pode ser publicado somente com preview. Ative “Download do arquivo”.');
       refs.editAllowDownload.focus();
       return;
     }
@@ -1509,6 +1724,7 @@
     refs.publishedSearch.value = '';
     refs.publishedCategory.value = '';
     refs.publishedStatus.value = '';
+    refs.publishedAccess.value = '';
     renderPublications();
     refs.publishedSearch.focus();
   }
@@ -1581,6 +1797,7 @@
   refs.publishedSearch.addEventListener('input', renderPublications);
   refs.publishedCategory.addEventListener('change', renderPublications);
   refs.publishedStatus.addEventListener('change', renderPublications);
+  refs.publishedAccess.addEventListener('change', renderPublications);
   refs.publishedClearFilters.addEventListener('click', clearPublicationFilters);
 
   refs.selectAll.addEventListener('change', () => {
@@ -1725,6 +1942,11 @@
       refs.publishedList.focus({ preventScroll: true });
       return;
     }
+    const previewButton = event.target.closest('[data-publication-preview]');
+    if (previewButton) {
+      openPublicationPreview(previewButton.dataset.publicationPreview);
+      return;
+    }
     const editButton = event.target.closest('[data-publication-edit]');
     if (editButton) {
       openPublicationEditor(editButton.dataset.publicationEdit);
@@ -1760,21 +1982,28 @@
   refs.editDrawer.addEventListener('click', (event) => {
     if (event.target.closest('[data-download-edit-close]')) closePublicationEditor();
   });
+  refs.previewDrawer.addEventListener('click', (event) => {
+    if (event.target.closest('[data-download-preview-close]')) closePublicationPreview();
+  });
   document.addEventListener('keydown', (event) => {
-    if (refs.editDrawer.getAttribute('aria-hidden') !== 'false') return;
+    const previewOpen = refs.previewDrawer.getAttribute('aria-hidden') === 'false';
+    const editorOpen = refs.editDrawer.getAttribute('aria-hidden') === 'false';
+    const activeDrawer = previewOpen ? refs.previewDrawer : (editorOpen ? refs.editDrawer : null);
+    if (!activeDrawer) return;
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
-      closePublicationEditor();
+      if (previewOpen) closePublicationPreview();
+      else closePublicationEditor();
       return;
     }
     if (event.key !== 'Tab') return;
-    const focusable = Array.from(refs.editDrawer.querySelectorAll(
-      'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    const focusable = Array.from(activeDrawer.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), textarea:not([disabled]), select:not([disabled]), iframe, audio[controls], video[controls], [tabindex]:not([tabindex="-1"])'
     )).filter((element) => !element.hidden && element.getAttribute('aria-hidden') !== 'true' && element.offsetParent !== null);
     if (!focusable.length) {
       event.preventDefault();
-      refs.editDrawer.querySelector('.prod-drawer-panel')?.focus();
+      activeDrawer.querySelector('.prod-drawer-panel')?.focus();
       return;
     }
     const first = focusable[0];
