@@ -13,6 +13,11 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     [hidden] { display: none !important; }
+    .sr-only {
+      position:absolute !important; width:1px !important; height:1px !important;
+      padding:0 !important; margin:-1px !important; overflow:hidden !important;
+      clip:rect(0,0,0,0) !important; white-space:nowrap !important; border:0 !important;
+    }
     body {
       font-family: 'Inter', system-ui, sans-serif;
       font-size: 15px;
@@ -2879,6 +2884,408 @@
       .dl-category-form-row { flex-wrap:wrap; }
       .dl-category-form-row .ap-btn { width:100%; justify-content:center; }
     }
+
+    /* Downloads workspace v2 — fluxo guiado, seleção persistente e leitura mais clara */
+    .dl-page-head { margin-bottom:16px; }
+    .dl-page-head > div:first-child { max-width:690px; }
+    .dl-page-head p { max-width:660px; }
+
+    .dl-command-strip {
+      display:grid;
+      grid-template-columns:minmax(0, 1fr) auto;
+      gap:14px;
+      align-items:stretch;
+      margin-bottom:10px;
+    }
+    .dl-command-strip .dl-admin-status-card {
+      min-height:92px;
+      margin:0;
+      padding:15px 17px;
+      border-radius:16px;
+      box-shadow:none;
+    }
+    .dl-status-copy h3 { font-size:15px; }
+    .dl-status-copy p { color:#566276; font-size:13px; line-height:1.45; }
+    .dl-status-meta span { color:#475569; font-size:12px; }
+
+    .dl-overview {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(105px, 1fr));
+      min-width:370px;
+      overflow:hidden;
+      border:1px solid #E1E7EF;
+      border-radius:16px;
+      background:#FFFFFF;
+    }
+    .dl-overview-item {
+      min-width:0;
+      padding:15px 17px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:4px;
+      border-left:1px solid #EDF0F4;
+    }
+    .dl-overview-item:first-child { border-left:0; }
+    .dl-overview-item span { color:#647084; font-size:12px; font-weight:650; white-space:nowrap; }
+    .dl-overview-item strong { color:#14213A; font:700 22px/1 'Sora',sans-serif; font-variant-numeric:tabular-nums; }
+
+    .dl-config-help { margin:0 0 18px; }
+    .dl-config-help summary { min-height:42px; display:flex; align-items:center; justify-content:space-between; gap:12px; list-style:none; font-size:13px; }
+    .dl-config-help summary::-webkit-details-marker { display:none; }
+    .dl-config-help summary::after { content:'+'; color:#1E4C8F; font-size:18px; font-weight:600; }
+    .dl-config-help[open] summary::after { content:'−'; }
+    .dl-config-help li { color:#536074; font-size:13px; line-height:1.5; }
+
+    .dl-workflow-intro {
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:18px;
+      margin:25px 0 12px;
+    }
+    .dl-workflow-intro h3 { color:#131F35; font:700 17px/1.3 'Sora',sans-serif; }
+    .dl-workflow-intro p { margin-top:4px; color:#637084; font-size:13px; }
+    .dl-workflow-steps { display:flex; align-items:center; gap:8px; list-style:none; }
+    .dl-workflow-steps li {
+      display:flex; align-items:center; gap:6px; color:#667286;
+      font-size:12.5px; font-weight:700; white-space:nowrap;
+    }
+    .dl-workflow-steps li + li::before { content:'→'; margin-right:2px; color:#A1AABA; }
+    .dl-workflow-steps span,
+    .dl-step-number {
+      width:26px; height:26px; display:inline-grid; place-items:center; flex:none;
+      border-radius:8px; color:#FFFFFF; background:#1E4C8F;
+      font:750 12px/1 'Sora',sans-serif;
+    }
+
+    .dl-admin-workspace {
+      grid-template-columns:minmax(0, 1.65fr) minmax(340px, .72fr);
+      gap:16px;
+    }
+    .dl-admin-card {
+      border-color:#E1E6ED;
+      border-radius:16px;
+      box-shadow:0 7px 24px rgba(19,31,53,.045);
+    }
+    .dl-admin-card-head { min-height:76px; padding:17px 18px; align-items:center; }
+    .dl-admin-card-head h3 { font-size:15px; }
+    .dl-admin-card-head p { margin-top:4px; color:#657185; font-size:12.5px; line-height:1.4; }
+    .dl-card-title { display:flex; align-items:flex-start; gap:11px; min-width:0; }
+    .dl-count-group {
+      min-width:68px; padding:7px 10px; display:flex; flex-direction:column; align-items:center;
+      border:1px solid #DEE6F0; border-radius:10px; color:#1E4C8F; background:#F4F8FD;
+    }
+    .dl-count-group strong { font:750 17px/1.1 'Sora',sans-serif; font-variant-numeric:tabular-nums; }
+    .dl-count-group small { margin-top:2px; color:#647084; font-size:10px; font-weight:700; }
+
+    .dl-browser-tools { padding:13px 16px; background:#FBFCFE; }
+    .dl-location-row { display:flex; align-items:center; gap:9px; min-width:0; margin-bottom:11px; }
+    .dl-location-label {
+      flex:none; color:#657185; font-size:12px; font-weight:750; text-transform:uppercase; letter-spacing:.04em;
+    }
+    .dl-breadcrumb { min-height:28px; margin:0; }
+    .dl-crumb { min-height:34px; padding:6px 8px; color:#526075; font-size:12.5px; }
+    .dl-search-row .ap-search-wrap input { min-height:42px; font-size:14px; }
+    .dl-search-row .ap-btn { min-height:42px; }
+
+    .dl-drive-list { max-height:560px; }
+    .dl-drive-row {
+      min-height:66px;
+      grid-template-columns:34px 40px minmax(170px, 1fr) 96px 112px 42px;
+      gap:10px;
+      padding:10px 15px;
+    }
+    .dl-drive-table-head {
+      grid-template-columns:34px 40px minmax(170px, 1fr) 96px 112px 42px;
+      gap:10px;
+      min-height:39px;
+      padding:9px 15px;
+      color:#5F6C80;
+      font-size:11px;
+    }
+    .dl-drive-row:hover { background:#F7FAFD; }
+    .dl-drive-row.is-selected { background:#EEF5FD; box-shadow:inset 4px 0 #1E4C8F; }
+    .dl-drive-row.is-published:not(.is-selected) { box-shadow:inset 3px 0 #87B8A0; }
+    .dl-check-cell,
+    .dl-row-action { display:flex; align-items:center; justify-content:center; }
+    .dl-check-cell,
+    .dl-check-target { min-width:34px; min-height:40px; cursor:pointer; }
+    .dl-check-target { display:grid; place-items:center; }
+    .dl-check { width:19px; height:19px; }
+    .dl-file-icon { width:38px; height:38px; border-radius:10px; }
+    .dl-file-icon svg { width:19px; height:19px; }
+    .dl-file-name { font-size:13.5px; line-height:1.35; }
+    .dl-file-sub { margin-top:3px; color:#657185; font-size:12px; }
+    .dl-file-cell { color:#596679; font-size:12px; }
+    .dl-open-link,
+    .dl-icon-button { width:40px; height:40px; border-radius:10px; }
+    .dl-open-link svg,
+    .dl-icon-button svg { width:16px; height:16px; }
+    .dl-sync-badge {
+      display:inline-flex; align-items:center; margin-left:6px; padding:2px 6px;
+      border-radius:99px; color:#147A4C; background:#E6F6ED; font-size:10px; font-weight:800;
+      vertical-align:1px;
+    }
+    .dl-state { min-height:210px; color:#596679; }
+    .dl-state strong { color:#354154; font-size:14px; }
+    .dl-state span { font-size:13px; line-height:1.45; }
+    .dl-state .ap-btn { margin-top:5px; }
+
+    .dl-admin-side { position:sticky; top:16px; display:flex; flex-direction:column; gap:14px; }
+    .dl-publish-card { overflow:hidden; border-color:#CAD9EA; }
+    .dl-publish-card > .dl-admin-card-head { background:linear-gradient(135deg,#F7FAFE,#EFF5FC); }
+    .dl-publish-empty {
+      min-height:246px; padding:30px 24px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:7px; color:#637084; text-align:center;
+    }
+    .dl-publish-empty-icon {
+      width:50px; height:50px; display:grid; place-items:center; margin-bottom:5px;
+      border-radius:15px; color:#1E4C8F; background:#E8F0FB;
+    }
+    .dl-publish-empty-icon svg { width:24px; height:24px; }
+    .dl-publish-empty strong { color:#2F3C50; font-size:14px; }
+    .dl-publish-empty > span:last-child { max-width:290px; font-size:12.5px; line-height:1.5; }
+    .dl-publish-content { padding:16px; }
+    .dl-selection-head { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+    .dl-eyebrow {
+      display:block; margin-bottom:4px; color:#657185; font-size:10.5px;
+      font-weight:800; letter-spacing:.07em; text-transform:uppercase;
+    }
+    .dl-selection-head strong { color:#17243A; font-size:14px; }
+    .dl-selected-preview { display:flex; flex-wrap:wrap; gap:6px; max-height:92px; margin-top:11px; overflow:auto; }
+    .dl-selected-chip {
+      max-width:100%; display:inline-flex; align-items:center; gap:5px; padding:5px 6px 5px 9px;
+      border:1px solid #D8E1ED; border-radius:8px; color:#405069; background:#F7F9FC;
+      font-size:11.5px; font-weight:650;
+    }
+    .dl-selected-chip > span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dl-selected-chip button {
+      width:24px; height:24px; display:grid; place-items:center; border:0; border-radius:6px;
+      color:#69768A; background:transparent; font-size:17px; line-height:1; cursor:pointer;
+    }
+    .dl-selected-chip button:hover { color:#A33C2A; background:#FCECEA; }
+    .dl-selected-more { align-self:center; color:#5D6A7E; font-size:11.5px; font-weight:750; }
+    .dl-selected-context { flex-basis:100%; color:#5D6A7E; font-size:11.5px; line-height:1.4; }
+
+    .dl-publish-field { margin-top:15px; padding-top:15px; border-top:1px solid #EDF0F4; }
+    fieldset.dl-publish-field { min-width:0; padding:15px 0 0; border:0; border-top:1px solid #EDF0F4; }
+    .dl-field-heading,
+    .dl-permission-field legend { margin-bottom:9px; color:#354154; font-size:12.5px; font-weight:750; }
+    .dl-field-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    legend.dl-field-heading { width:100%; }
+    .dl-field-heading em { color:#A25B00; font-size:10.5px; font-style:normal; font-weight:800; }
+    .dl-category-choices { gap:7px; }
+    .dl-category-choice span { min-height:34px; align-items:center; padding:6px 10px; color:#536075; font-size:12px; }
+    .dl-choice-empty { display:block; color:#657185; font-size:12px; line-height:1.45; }
+    .dl-text-button {
+      margin-top:9px; padding:4px 0; border:0; color:#1E4C8F; background:none;
+      font:700 12px 'Inter',sans-serif; text-decoration:underline; text-underline-offset:2px; cursor:pointer;
+    }
+    .dl-publish-permissions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:0; }
+    .dl-publish-permissions label {
+      min-height:64px; padding:10px; align-items:flex-start; gap:8px;
+      border:1px solid #DCE3EC; border-radius:10px; background:#FAFBFD;
+    }
+    .dl-publish-permissions input { width:18px; height:18px; margin-top:1px; flex:none; }
+    .dl-publish-permissions label > span { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .dl-publish-permissions strong { color:#354154; font-size:12px; }
+    .dl-publish-permissions small { color:#657185; font-size:10.5px; font-weight:500; line-height:1.35; }
+    .dl-recursive-option {
+      min-height:58px; margin-top:12px; padding:10px; align-items:flex-start; gap:9px;
+      border:1px solid #DCE3EC; border-radius:10px; background:#F8FAFC;
+    }
+    .dl-recursive-option input { width:18px; height:18px; margin-top:2px; flex:none; }
+    .dl-recursive-option > span { display:flex; flex-direction:column; gap:2px; }
+    .dl-recursive-option strong { color:#354154; font-size:12px; }
+    .dl-recursive-option small { color:#657185; font-size:10.5px; font-weight:500; line-height:1.35; }
+    .dl-publish-note { margin:13px 0; color:#657185; font-size:11.5px; line-height:1.45; }
+    .dl-publish-submit { width:100%; min-height:46px; justify-content:center; }
+    .dl-publish-submit:disabled,
+    .dl-publish-submit:disabled:hover { opacity:.55; cursor:not-allowed; box-shadow:none; transform:none; }
+
+    .dl-category-card { position:static; overflow:hidden; }
+    .dl-category-summary {
+      min-height:66px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between;
+      gap:12px; list-style:none; cursor:pointer;
+    }
+    .dl-category-summary::-webkit-details-marker { display:none; }
+    .dl-category-summary::after { content:'+'; color:#1E4C8F; font-size:22px; font-weight:500; order:3; }
+    .dl-category-card[open] .dl-category-summary::after { content:'−'; }
+    .dl-category-summary > span:first-child { min-width:0; flex:1; }
+    .dl-category-summary strong { display:block; color:#253349; font-size:13.5px; }
+    .dl-category-summary small { display:block; margin-top:3px; color:#657185; font-size:11.5px; }
+    .dl-category-content { border-top:1px solid #EEF0F4; }
+    .dl-category-form input { min-height:40px; font-size:13px; }
+    .dl-category-active {
+      min-height:38px; display:flex; align-items:center; gap:8px; margin-top:8px;
+      color:#536075; font-size:12px; font-weight:650;
+    }
+    .dl-category-active input { width:18px; min-height:18px; height:18px; padding:0; flex:none; }
+    .dl-category-list { max-height:300px; }
+    .dl-category-row { min-height:54px; }
+    .dl-category-main strong { font-size:13px; }
+    .dl-category-main small { color:#657185; font-size:11.5px; }
+
+    .dl-published-card { grid-column:auto; margin-top:22px; overflow:visible; }
+    .dl-published-head { min-height:86px; }
+    .dl-published-tools { padding:13px 16px; background:#FBFCFE; }
+    .dl-published-tools .ap-search-wrap input { min-height:42px; font-size:14px; }
+    .dl-filter-select { min-height:42px; color:#3D4A5E; font-size:13px; }
+    .dl-results-summary {
+      min-height:42px; padding:10px 16px; display:flex; align-items:center; justify-content:space-between;
+      gap:12px; border-bottom:1px solid #EEF0F4; color:#657185; background:#FFFFFF; font-size:12px;
+    }
+    .dl-results-summary strong { color:#46546A; font-size:12.5px; }
+    .dl-published-table-head,
+    .dl-published-row {
+      display:grid;
+      grid-template-columns:44px minmax(210px,1.4fr) minmax(135px,.72fr) minmax(145px,.68fr) 108px 130px;
+      gap:12px;
+      align-items:center;
+    }
+    .dl-published-table-head {
+      min-height:39px; padding:8px 16px; color:#5F6C80; background:#F8FAFC;
+      border-bottom:1px solid #E9EDF2; font-size:11px; font-weight:800;
+      letter-spacing:.045em; text-transform:uppercase;
+    }
+    .dl-published-table-head span:last-child { text-align:right; }
+    .dl-published-row { min-height:78px; padding:11px 16px; }
+    .dl-pub-categories { gap:5px; }
+    .dl-category-tag { padding:4px 7px; font-size:10.5px; }
+    .dl-category-tag.is-muted { color:#556174; background:#EDF0F4; }
+    .dl-permission-summary { display:flex; flex-wrap:wrap; gap:5px; }
+    .dl-permission-badge {
+      display:inline-flex; align-items:center; gap:4px; padding:4px 7px; border-radius:7px;
+      color:#3F5E86; background:#EDF4FC; font-size:10.5px; font-weight:750;
+    }
+    .dl-permission-badge.is-off { color:#586476; background:#EDF0F4; text-decoration:line-through; }
+    .dl-status-button {
+      min-width:104px; min-height:40px; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+      font-size:11.5px;
+    }
+    .dl-status-cell { display:flex; align-items:center; }
+    .dl-status-dot { width:7px; height:7px; border-radius:50%; background:currentColor; }
+    .dl-pub-actions { gap:7px; }
+    .dl-pub-actions .dl-open-link,
+    .dl-pub-actions .dl-icon-button { width:38px; height:38px; }
+    .dl-published-row:focus-within { background:#F8FAFD; }
+    .dl-published-row.is-busy { opacity:.68; pointer-events:none; }
+    .dl-file-unavailable { color:#A33C2A; font-weight:750; }
+    .dl-field-hint {
+      display:block; min-height:18px; margin-top:8px; color:#8A4D00;
+      font-size:11px; font-weight:650; line-height:1.4;
+    }
+    .dl-field-hint:empty { display:none; }
+
+    .dl-drawer-feedback {
+      display:none; margin-bottom:14px; padding:11px 13px; border:1px solid #F1C2B9;
+      border-radius:9px; color:#A33C2A; background:#FFF5F3; font-size:13px; font-weight:650;
+    }
+    .dl-drawer-feedback:not(:empty) { display:block; }
+    .dl-edit-fieldset { min-width:0; margin:0; padding:0; border:0; }
+    .dl-edit-fieldset legend { margin-bottom:7px; color:#4B5563; font-size:12px; font-weight:700; }
+    .dl-edit-permissions input { width:18px; height:18px; padding:0; appearance:auto; }
+
+    .dl-admin-feedback { font-size:13px; line-height:1.45; }
+    .dl-admin-card :is(button, input, select, summary, a):focus-visible,
+    .dl-config-help summary:focus-visible,
+    .dl-results-summary strong:focus-visible,
+    .dl-drive-list:focus-visible,
+    .dl-category-list:focus-visible,
+    .dl-published-list:focus-visible,
+    .dl-admin-feedback:focus-visible {
+      outline:3px solid rgba(30,76,143,.22);
+      outline-offset:2px;
+    }
+
+    @media (max-width:1300px) {
+      .dl-command-strip { grid-template-columns:1fr; }
+      .dl-overview { min-width:0; }
+      .dl-admin-workspace { grid-template-columns:1fr; }
+      .dl-admin-side { position:static; display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,.7fr); align-items:start; }
+    }
+    @media (max-width:1300px) {
+      .dl-published-table-head { display:none !important; }
+      .dl-published-row {
+        grid-template-columns:44px minmax(0,1fr) auto;
+        grid-template-areas:
+          'icon main status'
+          '. categories categories'
+          '. permissions permissions'
+          '. actions actions';
+        gap:8px 11px;
+        padding:14px 16px;
+      }
+      .dl-published-row > .dl-file-icon { grid-area:icon; align-self:start; }
+      .dl-published-row > .dl-file-main { grid-area:main; }
+      .dl-published-row > .dl-pub-categories { grid-area:categories; }
+      .dl-published-row > .dl-permission-summary { grid-area:permissions; }
+      .dl-published-row > .dl-status-cell { grid-area:status; justify-self:end; }
+      .dl-published-row > .dl-pub-actions { grid-area:actions; justify-self:start; }
+    }
+    @media (max-width:760px) {
+      .dl-admin-side { grid-template-columns:1fr; }
+      .dl-workflow-intro { align-items:flex-start; flex-direction:column; }
+      .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr) auto; }
+      .dl-status-actions { grid-column:auto; }
+      .dl-status-actions .ap-btn { width:auto; }
+      .dl-drive-table-head,
+      .dl-drive-row { grid-template-columns:34px 38px minmax(130px,1fr) 40px; }
+      .dl-drive-table-head span.dl-col-name { display:block; }
+      .dl-drive-table-head .dl-col-size,
+      .dl-drive-table-head .dl-col-modified,
+      .dl-drive-row > .dl-file-cell { display:none; }
+      .dl-results-summary { align-items:flex-start; flex-direction:column; gap:3px; }
+    }
+    @media (max-width:600px) {
+      .dl-page-head .ap-section-head-actions { width:100%; flex-direction:column; }
+      .dl-page-head .ap-section-head-actions .ap-btn { width:100%; flex:none; justify-content:center; }
+      .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr); }
+      .dl-status-actions { grid-column:2; justify-content:flex-start; }
+      .dl-overview { grid-template-columns:1fr; }
+      .dl-overview-item { min-height:64px; border-left:0; border-top:1px solid #EDF0F4; }
+      .dl-overview-item:first-child { border-top:0; }
+      .dl-workflow-steps { width:100%; justify-content:space-between; gap:3px; }
+      .dl-workflow-steps li { gap:4px; font-size:11px; }
+      .dl-workflow-steps li + li::before { margin-right:0; }
+      .dl-location-row { align-items:flex-start; flex-direction:column; gap:3px; }
+      .dl-search-row { flex-direction:row; flex-wrap:wrap; }
+      .dl-search-row .ap-search-wrap { flex-basis:100%; }
+      .dl-search-row .ap-btn { flex:1; }
+      .dl-drive-list { max-height:52vh; overflow:auto; }
+      .dl-publish-permissions { grid-template-columns:1fr; }
+      .dl-published-tools { align-items:stretch; flex-direction:column; }
+      .dl-published-tools .ap-search-wrap,
+      .dl-filter-select,
+      .dl-published-tools .ap-btn { width:100%; min-width:0; }
+      .dl-published-row {
+        grid-template-columns:40px minmax(0,1fr);
+        grid-template-areas:
+          'icon main'
+          'status status'
+          'categories categories'
+          'permissions permissions'
+          'actions actions';
+      }
+      .dl-published-row > .dl-status-cell { justify-self:start; }
+      .dl-pub-actions { width:100%; }
+      .dl-pub-actions .dl-icon-button,
+      .dl-pub-actions .dl-open-link { flex:1; width:auto; }
+    }
+    @media (max-width:360px) {
+      .dl-drive-table-head,
+      .dl-drive-row { grid-template-columns:32px 34px minmax(0,1fr); gap:6px; padding-left:8px; padding-right:8px; }
+      .dl-drive-table-head > :last-child,
+      .dl-drive-row > .dl-row-action { display:none; }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .dl-drive-row,
+      .dl-category-choice span,
+      .prod-drawer-overlay,
+      .prod-drawer-panel { transition:none !important; }
+      .dl-spinner { animation:none; }
+    }
   </style>
   <meta name="robots" content="noindex, nofollow" />
 </head>
@@ -2926,7 +3333,7 @@
 
       <button type="button" data-admin-tab="downloads" aria-selected="false">
         <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2"/></svg>
-        Drive &amp; Downloads
+        Downloads do site
       </button>
 
       <!-- Categorias agora é gerenciada por um modal dentro do Catálogo,
@@ -4008,173 +4415,284 @@
 
       <!-- ─── Google Drive / Downloads ─── -->
       <section data-admin-panel="downloads" id="adminDownloadsPanel" hidden>
-        <div class="ap-section-head">
+        <div class="ap-section-head dl-page-head">
           <div>
-            <h2>Drive &amp; Downloads</h2>
-            <p>Escolha arquivos ou pastas do Google Drive e controle o que aparece na área pública de downloads.</p>
+            <h2>Downloads do site</h2>
+            <p>Selecione arquivos da pasta compartilhada e defina como eles aparecem para os visitantes.</p>
           </div>
           <div class="ap-section-head-actions">
             <a class="ap-btn ap-btn-ghost" href="/downloads" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-              Ver página pública
+              Abrir página de downloads
             </a>
             <button class="ap-btn ap-btn-primary" type="button" id="downloadsRefresh">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Atualizar
+              Sincronizar dados
             </button>
           </div>
         </div>
 
-        <div class="dl-admin-status-card" id="driveStatusCard" data-state="loading" aria-live="polite">
-          <div class="dl-status-orb">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7a5 5 0 0 1-.6-9.96A7 7 0 0 1 20 9.5 4 4 0 0 1 17 17z"/><path d="M12 11v8"/><polyline points="9 16 12 19 15 16"/></svg>
-          </div>
-          <div class="dl-status-copy">
-            <h3 id="driveStatusTitle">Verificando integração…</h3>
-            <p id="driveStatusText">Consultando a configuração segura do servidor.</p>
-            <div class="dl-status-meta" id="driveStatusMeta" hidden>
-              <span id="driveAccountMeta" hidden></span>
-              <span id="driveRootMeta" hidden></span>
+        <div class="dl-command-strip">
+          <div class="dl-admin-status-card" id="driveStatusCard" data-state="loading" role="status" aria-live="polite">
+            <div class="dl-status-orb">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7a5 5 0 0 1-.6-9.96A7 7 0 0 1 20 9.5 4 4 0 0 1 17 17z"/><path d="M12 11v8"/><polyline points="9 16 12 19 15 16"/></svg>
+            </div>
+            <div class="dl-status-copy">
+              <h3 id="driveStatusTitle">Verificando integração…</h3>
+              <p id="driveStatusText">Consultando a configuração segura do servidor.</p>
+              <div class="dl-status-meta" id="driveStatusMeta" hidden>
+                <span id="driveAccountMeta" hidden></span>
+                <span id="driveRootMeta" hidden></span>
+              </div>
+            </div>
+            <div class="dl-status-actions">
+              <span class="ap-pill gray" id="driveStatusPill">Verificando</span>
             </div>
           </div>
-          <div class="dl-status-actions">
-            <span class="ap-pill gray" id="driveStatusPill">Verificando</span>
+
+          <div class="dl-overview" aria-label="Resumo dos downloads">
+            <div class="dl-overview-item">
+              <span>Visíveis no site</span>
+              <strong id="downloadPublishedMetric">0</strong>
+            </div>
+            <div class="dl-overview-item">
+              <span>Ocultos</span>
+              <strong id="downloadDraftMetric">0</strong>
+            </div>
+            <div class="dl-overview-item">
+              <span>Categorias</span>
+              <strong id="downloadCategoryMetric">0</strong>
+            </div>
           </div>
         </div>
 
         <details class="dl-config-help" id="driveConfigHelp">
-          <summary>Como configurar a integração no servidor</summary>
+          <summary>Detalhes da conexão com o Google Drive</summary>
           <ol>
-            <li>Crie uma conta de serviço no Google Cloud com a API do Google Drive habilitada.</li>
-            <li>Compartilhe a pasta raiz do Drive com o e-mail <code id="driveHelpEmail">da conta de serviço</code>.</li>
-            <li>Configure as credenciais e o ID da pasta nas variáveis protegidas do backend. Nenhuma chave fica exposta neste painel.</li>
+            <li>A API do Google Drive deve estar habilitada para a conta de serviço.</li>
+            <li>A pasta raiz deve estar compartilhada com <code id="driveHelpEmail">a conta de serviço</code>.</li>
+            <li>As credenciais e o ID da pasta ficam somente nas variáveis protegidas do backend.</li>
           </ol>
         </details>
 
-        <div class="dl-admin-feedback" id="downloadsFeedback" role="status" aria-live="polite"></div>
+        <div class="dl-admin-feedback" id="downloadsFeedback" role="status" aria-live="polite" tabindex="-1"></div>
+
+        <div class="dl-workflow-intro">
+          <div>
+            <h3>Publicar arquivos do Drive</h3>
+            <p>Siga o fluxo ao lado: escolha, configure e publique.</p>
+          </div>
+          <ol class="dl-workflow-steps" aria-label="Etapas para publicar">
+            <li><span>1</span> Escolha</li>
+            <li><span>2</span> Configure</li>
+            <li><span>3</span> Publique</li>
+          </ol>
+        </div>
 
         <div class="dl-admin-workspace">
-          <article class="dl-admin-card">
+          <article class="dl-admin-card dl-drive-card">
             <header class="dl-admin-card-head">
-              <div>
-                <h3>Arquivos no Google Drive</h3>
-                <p>Navegue pelas pastas ou pesquise pelo nome.</p>
+              <div class="dl-card-title">
+                <span class="dl-step-number" aria-hidden="true">1</span>
+                <div>
+                  <h3>Escolha no Google Drive</h3>
+                  <p>Abra uma pasta, pesquise e marque os arquivos que deseja disponibilizar.</p>
+                </div>
               </div>
-              <span class="dl-count-badge" id="driveItemCount">0</span>
+              <span class="dl-count-group"><strong id="driveItemCount" role="status" aria-live="polite" aria-atomic="true">0</strong><small>carregados</small></span>
             </header>
 
             <div class="dl-browser-tools">
+              <div class="dl-location-row">
+                <span class="dl-location-label">Pasta atual</span>
+                <nav class="dl-breadcrumb" id="driveBreadcrumb" aria-label="Caminho no Google Drive"></nav>
+              </div>
               <form class="dl-search-row" id="driveSearchForm" role="search">
+                <label class="sr-only" for="driveSearch">Buscar arquivos nesta pasta</label>
                 <div class="ap-search-wrap">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                  <input id="driveSearch" type="search" placeholder="Pesquisar arquivos e pastas…" autocomplete="off" />
+                  <input id="driveSearch" type="search" placeholder="Buscar nesta pasta…" autocomplete="off" />
                 </div>
-                <button class="ap-btn ap-btn-ghost ap-btn-sm" type="submit">Pesquisar</button>
+                <button class="ap-btn ap-btn-ghost ap-btn-sm dl-search-clear" id="driveSearchClear" type="button" hidden>Limpar</button>
+                <button class="ap-btn ap-btn-ghost ap-btn-sm" type="submit">Buscar</button>
               </form>
-              <nav class="dl-breadcrumb" id="driveBreadcrumb" aria-label="Caminho no Google Drive"></nav>
             </div>
 
-            <div class="dl-drive-table-head" id="driveTableHead" hidden>
-              <label title="Selecionar todos"><input class="dl-check" id="driveSelectAll" type="checkbox" aria-label="Selecionar todos os itens" /></label>
-              <span aria-hidden="true"></span>
-              <span>Nome</span>
-              <span>Tamanho</span>
-              <span>Modificado</span>
-              <span aria-hidden="true"></span>
-            </div>
-            <div class="dl-drive-list" id="driveItemsList">
-              <div class="dl-state"><span class="dl-spinner" aria-hidden="true"></span><strong>Carregando arquivos…</strong></div>
+            <div class="dl-drive-table" role="region" aria-label="Arquivos do Google Drive">
+              <div class="dl-drive-table-head" id="driveTableHead" hidden>
+                <span><label class="dl-check-target" title="Selecionar itens carregados"><input class="dl-check" id="driveSelectAll" type="checkbox" aria-label="Selecionar todos os itens carregados" /></label></span>
+                <span aria-label="Tipo"></span>
+                <span class="dl-col-name">Nome</span>
+                <span class="dl-col-size">Tamanho</span>
+                <span class="dl-col-modified">Modificado</span>
+                <span aria-label="Ações"></span>
+              </div>
+              <div class="dl-drive-list" id="driveItemsList" tabindex="-1" aria-busy="true">
+                <div class="dl-state" role="status"><span class="dl-spinner" aria-hidden="true"></span><strong>Carregando arquivos…</strong></div>
+              </div>
             </div>
             <div class="dl-load-more" id="driveLoadMoreWrap" hidden>
-              <button class="ap-btn ap-btn-ghost ap-btn-sm" id="driveLoadMore" type="button">Carregar mais</button>
+              <button class="ap-btn ap-btn-ghost ap-btn-sm" id="driveLoadMore" type="button">Carregar mais arquivos</button>
             </div>
+          </article>
 
-            <div class="dl-publish-bar" id="drivePublishBar" hidden>
-              <div class="dl-selection-copy">
-                <strong id="driveSelectionCount">0 selecionados</strong>
-                <span>Escolha uma ou mais categorias</span>
-                <label class="dl-recursive-option" title="Inclui os arquivos dentro das pastas selecionadas">
-                  <input id="driveRecursive" type="checkbox" checked /> Incluir conteúdo das pastas
+          <aside class="dl-admin-side">
+            <article class="dl-admin-card dl-publish-card" id="drivePublishBar" data-state="empty">
+              <header class="dl-admin-card-head">
+                <div class="dl-card-title">
+                  <span class="dl-step-number" aria-hidden="true">2</span>
+                  <div>
+                    <h3>Configure e publique</h3>
+                    <p>Defina como a seleção aparecerá no site.</p>
+                  </div>
+                </div>
+              </header>
+
+              <div class="dl-publish-empty" id="drivePublishEmpty">
+                <span class="dl-publish-empty-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                </span>
+                <strong>Selecione arquivos para começar</strong>
+                <span>Use as caixas na lista do Drive. Sua seleção será mantida ao navegar entre pastas.</span>
+              </div>
+
+              <div class="dl-publish-content" id="drivePublishContent" hidden>
+                <div class="dl-selection-head">
+                  <div>
+                    <span class="dl-eyebrow">Sua seleção</span>
+                    <strong id="driveSelectionCount" role="status" aria-live="polite" aria-atomic="true">0 itens selecionados</strong>
+                  </div>
+                  <button class="ap-mini-btn" id="driveClearSelection" type="button">Limpar seleção</button>
+                </div>
+                <div class="dl-selected-preview" id="driveSelectedPreview"></div>
+
+                <fieldset class="dl-publish-field">
+                  <legend class="dl-field-heading">
+                    <span>Categorias no site</span>
+                    <em>Obrigatório</em>
+                  </legend>
+                  <div class="dl-category-choices" id="drivePublishCategories"></div>
+                  <button class="dl-text-button" id="downloadCategoriesJump" type="button">Criar ou gerenciar categorias</button>
+                </fieldset>
+
+                <fieldset class="dl-publish-field dl-permission-field">
+                  <legend>O visitante poderá</legend>
+                  <div class="dl-publish-permissions">
+                    <label>
+                      <input id="driveAllowView" type="checkbox" checked />
+                      <span><strong>Abrir online</strong><small>Visualizar no navegador</small></span>
+                    </label>
+                    <label>
+                      <input id="driveAllowDownload" type="checkbox" checked />
+                      <span><strong>Baixar arquivo</strong><small>Salvar no dispositivo</small></span>
+                    </label>
+                  </div>
+                  <small class="dl-field-hint" id="drivePermissionHint" role="status" aria-live="polite"></small>
+                </fieldset>
+
+                <label class="dl-recursive-option" id="driveRecursiveWrap" title="Inclui os arquivos que estão dentro das pastas selecionadas" hidden>
+                  <input id="driveRecursive" type="checkbox" checked />
+                  <span><strong>Incluir arquivos dentro das pastas</strong><small>Também publica o conteúdo das subpastas selecionadas.</small></span>
                 </label>
-                <div class="dl-publish-permissions" aria-label="Permissões dos itens publicados">
-                  <label><input id="driveAllowView" type="checkbox" checked /> Visualização</label>
-                  <label><input id="driveAllowDownload" type="checkbox" checked /> Download</label>
+
+                <p class="dl-publish-note">Se um arquivo já estiver cadastrado, os dados do Drive serão sincronizados e as personalizações existentes serão preservadas.</p>
+                <button class="ap-btn ap-btn-primary dl-publish-submit" id="drivePublishSelected" type="button" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2"/></svg>
+                  <span data-publish-label>Selecione uma categoria</span>
+                </button>
+              </div>
+            </article>
+
+            <details class="dl-admin-card dl-category-card" id="downloadCategoriesPanel">
+              <summary class="dl-category-summary">
+                <span>
+                  <strong>Gerenciar categorias</strong>
+                  <small>Organize os filtros da página pública.</small>
+                </span>
+                <span class="dl-count-badge" id="downloadCategoryCount">0</span>
+              </summary>
+              <div class="dl-category-content">
+                <form class="dl-category-form" id="downloadCategoryForm">
+                  <input type="hidden" name="id" />
+                  <label class="sr-only" for="downloadCategoryName">Nome da categoria</label>
+                  <div class="dl-category-form-row">
+                    <input id="downloadCategoryName" name="name" required maxlength="60" placeholder="Nome da nova categoria" />
+                    <button class="ap-btn ap-btn-primary ap-btn-sm" type="submit" id="downloadCategorySubmit">Adicionar</button>
+                  </div>
+                  <label class="sr-only" for="downloadCategoryDescription">Descrição da categoria</label>
+                  <input class="dl-category-description" id="downloadCategoryDescription" name="description" maxlength="160" placeholder="Descrição (opcional)" />
+                  <label class="dl-category-active"><input id="downloadCategoryActive" name="active" type="checkbox" checked /> Categoria disponível para novas publicações</label>
+                  <div class="dl-category-edit-actions" id="downloadCategoryEditActions" hidden>
+                    <small>Editando categoria</small>
+                    <button class="ap-mini-btn" id="downloadCategoryCancel" type="button">Cancelar</button>
+                  </div>
+                </form>
+                <div class="dl-category-list" id="downloadCategoryList" tabindex="-1" aria-busy="true">
+                  <div class="dl-state" role="status"><span class="dl-spinner" aria-hidden="true"></span><span>Carregando categorias…</span></div>
                 </div>
               </div>
-              <div class="dl-category-choices" id="drivePublishCategories"></div>
-              <button class="ap-btn ap-btn-primary" id="drivePublishSelected" type="button">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2"/></svg>
-                Liberar em Downloads
-              </button>
-            </div>
-          </article>
-
-          <aside class="dl-admin-card dl-category-card">
-            <header class="dl-admin-card-head">
-              <div>
-                <h3>Categorias</h3>
-                <p>Organize os filtros da página pública.</p>
-              </div>
-              <span class="dl-count-badge" id="downloadCategoryCount">0</span>
-            </header>
-            <form class="dl-category-form" id="downloadCategoryForm">
-              <input type="hidden" name="id" />
-              <div class="dl-category-form-row">
-                <input name="name" required maxlength="60" placeholder="Nova categoria" aria-label="Nome da categoria" />
-                <button class="ap-btn ap-btn-primary ap-btn-sm" type="submit" id="downloadCategorySubmit">Adicionar</button>
-              </div>
-              <input class="dl-category-description" name="description" maxlength="160" placeholder="Descrição (opcional)" aria-label="Descrição da categoria" />
-              <div class="dl-category-edit-actions" id="downloadCategoryEditActions" hidden>
-                <small>Editando categoria</small>
-                <button class="ap-mini-btn" id="downloadCategoryCancel" type="button">Cancelar</button>
-              </div>
-            </form>
-            <div class="dl-category-list" id="downloadCategoryList">
-              <div class="dl-state"><span class="dl-spinner" aria-hidden="true"></span><span>Carregando categorias…</span></div>
-            </div>
+            </details>
           </aside>
-
-          <article class="dl-admin-card dl-published-card">
-            <header class="dl-admin-card-head">
-              <div>
-                <h3>Conteúdo disponibilizado</h3>
-                <p>Altere categorias, publique, despublique ou remova itens da área de downloads.</p>
-              </div>
-              <span class="dl-count-badge" id="publishedDownloadCount">0</span>
-            </header>
-            <div class="dl-published-tools">
-              <div class="ap-search-wrap">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                <input id="publishedDownloadSearch" type="search" placeholder="Pesquisar conteúdo liberado…" autocomplete="off" />
-              </div>
-              <select class="dl-filter-select" id="publishedDownloadCategory" aria-label="Filtrar por categoria">
-                <option value="">Todas as categorias</option>
-              </select>
-              <select class="dl-filter-select" id="publishedDownloadStatus" aria-label="Filtrar por situação">
-                <option value="">Todos os status</option>
-                <option value="published">Publicados</option>
-                <option value="draft">Despublicados</option>
-              </select>
-            </div>
-            <div class="dl-published-list" id="publishedDownloadList">
-              <div class="dl-state"><span class="dl-spinner" aria-hidden="true"></span><span>Carregando publicações…</span></div>
-            </div>
-          </article>
         </div>
 
-        <div class="prod-drawer" id="downloadEditDrawer" aria-hidden="true">
-          <div class="prod-drawer-overlay" data-download-edit-close data-close-drawer></div>
-          <aside class="prod-drawer-panel" aria-labelledby="downloadEditTitle">
+        <article class="dl-admin-card dl-published-card">
+          <header class="dl-admin-card-head dl-published-head">
+            <div>
+              <span class="dl-eyebrow">Área pública</span>
+              <h3>Downloads no site</h3>
+              <p>Revise o que está visível ou oculto para os visitantes.</p>
+            </div>
+            <span class="dl-count-group"><strong id="publishedDownloadCount">0</strong><small>cadastrados</small></span>
+          </header>
+          <div class="dl-published-tools">
+            <label class="sr-only" for="publishedDownloadSearch">Buscar downloads cadastrados</label>
+            <div class="ap-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="publishedDownloadSearch" type="search" placeholder="Buscar por nome, descrição ou categoria…" autocomplete="off" />
+            </div>
+            <select class="dl-filter-select" id="publishedDownloadCategory" aria-label="Filtrar downloads por categoria">
+              <option value="">Todas as categorias</option>
+            </select>
+            <select class="dl-filter-select" id="publishedDownloadStatus" aria-label="Filtrar downloads por visibilidade">
+              <option value="">Todas as visibilidades</option>
+              <option value="published">Visíveis no site</option>
+              <option value="draft">Ocultos</option>
+            </select>
+            <button class="ap-btn ap-btn-ghost ap-btn-sm" id="publishedDownloadClearFilters" type="button" hidden>Limpar filtros</button>
+          </div>
+          <div class="dl-results-summary">
+            <strong id="publishedDownloadResultCount" tabindex="-1" role="status" aria-live="polite" aria-atomic="true">0 de 0 itens</strong>
+            <span>Use “Editar” para alterar nome, descrição, categorias e permissões.</span>
+          </div>
+          <div class="dl-published-table" role="region" aria-label="Downloads cadastrados no site">
+            <div class="dl-published-table-head" id="publishedDownloadTableHead" hidden>
+              <span aria-label="Tipo"></span>
+              <span>Arquivo</span>
+              <span>Categorias</span>
+              <span>Permissões</span>
+              <span>Visibilidade</span>
+              <span>Ações</span>
+            </div>
+            <div class="dl-published-list" id="publishedDownloadList" tabindex="-1" aria-busy="true">
+              <div class="dl-state" role="status"><span class="dl-spinner" aria-hidden="true"></span><span>Carregando downloads…</span></div>
+            </div>
+          </div>
+        </article>
+
+        <div class="prod-drawer" id="downloadEditDrawer" aria-hidden="true" inert>
+          <div class="prod-drawer-overlay" data-download-edit-close></div>
+          <aside class="prod-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="downloadEditTitle" aria-describedby="downloadEditDescriptionText" tabindex="-1">
             <header class="prod-drawer-head">
               <div>
                 <h3 id="downloadEditTitle">Editar download</h3>
-                <p>Personalize como este arquivo aparece na página pública.</p>
+                <p id="downloadEditDescriptionText">Personalize como este arquivo aparece na página pública.</p>
               </div>
-              <button class="prod-drawer-close" type="button" data-download-edit-close data-close-drawer aria-label="Fechar editor">
+              <button class="prod-drawer-close" type="button" data-download-edit-close aria-label="Fechar editor">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </header>
             <div class="prod-drawer-body">
+              <div class="dl-drawer-feedback" id="downloadEditFeedback" role="alert" tabindex="-1"></div>
               <form id="downloadEditForm">
                 <input type="hidden" name="id" />
                 <div class="ap-form-grid">
@@ -4186,23 +4704,23 @@
                     <label for="downloadEditDescription">Descrição</label>
                     <textarea id="downloadEditDescription" name="description" rows="5" maxlength="3000" placeholder="Explique brevemente o conteúdo e para quem ele é indicado."></textarea>
                   </div>
-                  <div class="ap-form-field full">
-                    <label>Categorias</label>
+                  <fieldset class="ap-form-field full dl-edit-fieldset">
+                    <legend>Categorias</legend>
                     <div class="dl-category-choices dl-edit-category-choices" id="downloadEditCategories"></div>
-                  </div>
-                  <div class="ap-form-field full">
-                    <label>Permissões públicas</label>
+                  </fieldset>
+                  <fieldset class="ap-form-field full dl-edit-fieldset">
+                    <legend>Permissões públicas</legend>
                     <div class="dl-edit-permissions">
                       <label><input id="downloadEditAllowView" name="allowView" type="checkbox" /> Permitir visualização</label>
                       <label><input id="downloadEditAllowDownload" name="allowDownload" type="checkbox" /> Permitir download</label>
                     </div>
-                    <small>Ao menos uma opção deve permanecer ativa.</small>
-                  </div>
+                    <small id="downloadEditPermissionHint">Ao menos uma opção deve permanecer ativa.</small>
+                  </fieldset>
                 </div>
               </form>
             </div>
             <footer class="prod-drawer-foot">
-              <button class="ap-btn ap-btn-ghost" type="button" data-download-edit-close data-close-drawer>Cancelar</button>
+              <button class="ap-btn ap-btn-ghost" type="button" data-download-edit-close>Cancelar</button>
               <button class="ap-btn ap-btn-primary" id="downloadEditSubmit" type="submit" form="downloadEditForm">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
                 Salvar alterações
@@ -4360,7 +4878,7 @@
 <script src="/js/order-store.js?v=20260902-3"></script>
 <script type="module" src="/js/admin.js?v=20260902-3"></script>
 <script src="/js/admin-customers.js?v=20260902-3"></script>
-<script type="module" src="/js/admin-downloads.js?v=20260904-1"></script>
+<script type="module" src="/js/admin-downloads.js?v=20260904-3"></script>
 
 <!-- Dashboard charts (vanilla SVG, sem dependências) -->
 <script>
