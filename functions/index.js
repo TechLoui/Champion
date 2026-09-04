@@ -122,6 +122,8 @@ const STATIC_PAGES = [
   { loc: '/guias/sal-mineral-para-gado.html', changefreq: 'monthly', priority: '0.8' },
   { loc: '/guias/vermifugacao-bovinos.html', changefreq: 'monthly', priority: '0.8' },
   { loc: '/blog.html', changefreq: 'weekly', priority: '0.7' },
+  { loc: '/downloads.html', changefreq: 'weekly', priority: '0.8' },
+  { loc: '/contato.html', changefreq: 'monthly', priority: '0.7' },
   { loc: '/calculo-dose.html', changefreq: 'monthly', priority: '0.7' },
   { loc: '/sobre.html', changefreq: 'monthly', priority: '0.6' }
 ];

@@ -25,6 +25,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://champion.ind.br/contato</loc>
+    <lastmod>2026-08-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://champion.ind.br/downloads</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://champion.ind.br/produtos/absorvit-champion-2-kg</loc>
     <lastmod>2026-08-27</lastmod>
     <changefreq>weekly</changefreq>

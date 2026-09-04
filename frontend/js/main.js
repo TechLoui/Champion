@@ -118,6 +118,39 @@
   // ------------------------------------------------------------
   // Mobile menu
   // ------------------------------------------------------------
+  /* A navegação é repetida nos arquivos estáticos e nas páginas de produto
+     geradas. Centralizar este item aqui mantém o menu consistente inclusive
+     quando o catálogo for regenerado. Ele entra antes da montagem do painel
+     mobile, portanto aparece nas duas versões do menu. */
+  (function ensureSharedNavLinks() {
+    const nav = document.getElementById('primaryNav');
+    if (!nav) return;
+
+    const insertBeforeUtilityLinks = (link) => {
+      const links = Array.from(nav.querySelectorAll('a'));
+      const anchor = links.find((item) => (item.getAttribute('href') || '').includes('revendachampion.com.br'))
+        || nav.querySelector('.nav-live');
+      nav.insertBefore(link, anchor || null);
+    };
+
+    if (!nav.querySelector('a[href="/downloads"]')) {
+      const downloads = document.createElement('a');
+      downloads.href = '/downloads';
+      downloads.textContent = 'Downloads';
+      nav.insertBefore(downloads, nav.querySelector('a[href="/contato"]') || null);
+      if (!downloads.nextElementSibling && !nav.querySelector('a[href="/contato"]')) {
+        insertBeforeUtilityLinks(downloads);
+      }
+    }
+
+    if (!nav.querySelector('a[href="/contato"]')) {
+      const contact = document.createElement('a');
+      contact.href = '/contato';
+      contact.textContent = 'Contato';
+      insertBeforeUtilityLinks(contact);
+    }
+  })();
+
   // Mobile menu — FAB + bottom-sheet panel (replaces header on <=720px)
   (function setupMobileMenu() {
     const nav = document.getElementById('primaryNav');
@@ -146,6 +179,12 @@
       }
       if (t.includes('blog')) {
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+      }
+      if (t.includes('download')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';
+      }
+      if (t.includes('contato') || t.includes('contact')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
       }
       if (t.includes('revenda')) {
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
@@ -273,6 +312,7 @@
   // Header language switch
   // ------------------------------------------------------------
   const LANGUAGE_KEY = 'champion-language';
+  const LOCKED_LANGUAGE = document.body?.dataset.languageLock;
   let accountTriggers = [];
   const languageCopy = {
     pt: {
@@ -283,6 +323,8 @@
       shop: 'Produtos',
       about: 'Sobre a Champion',
       blog: 'Blog',
+      downloads: 'Downloads',
+      contact: 'Contato',
       store: 'Revenda',
       promo: 'FRETE GRÁTIS para pedidos acima de R$ 500',
       search: 'Buscar',
@@ -300,6 +342,8 @@
       shop: 'Products',
       about: 'About Champion',
       blog: 'Blog',
+      downloads: 'Downloads',
+      contact: 'Contact',
       store: 'Resellers',
       promo: 'FREE SHIPPING on orders over R$ 500',
       search: 'Search',
@@ -317,6 +361,8 @@
       shop: 'Productos',
       about: 'Sobre Champion',
       blog: 'Blog',
+      downloads: 'Descargas',
+      contact: 'Contacto',
       store: 'Distribuidores',
       promo: 'ENVÍO GRATIS en pedidos superiores a R$ 500',
       search: 'Buscar',
@@ -334,11 +380,13 @@
   };
 
   const getCurrentLanguage = () => {
+    if (LOCKED_LANGUAGE && languageCopy[LOCKED_LANGUAGE]) return LOCKED_LANGUAGE;
     const saved = safeStorage.get(LANGUAGE_KEY);
     return languageCopy[saved] ? saved : 'pt';
   };
 
   function createLanguageSwitch() {
+    if (LOCKED_LANGUAGE) return;
     const headerActions = document.querySelector('.header-actions');
     if (!headerActions || headerActions.querySelector('.lang-switch')) return;
 
@@ -393,6 +441,8 @@
     setTextByRoute('/produtos', copy.shop);
     setTextByRoute('/sobre', copy.about);
     setTextByRoute('/blog', copy.blog);
+    setTextByRoute('/downloads', copy.downloads);
+    setTextByRoute('/contato', copy.contact);
     setTextByHref('revendachampion.com.br', copy.store);
 
     const promo = document.querySelector('.topbar .pill');
@@ -415,8 +465,10 @@
   }
 
   function setLanguage(lang, announce = false) {
-    const nextLang = languageCopy[lang] ? lang : 'pt';
-    safeStorage.set(LANGUAGE_KEY, nextLang);
+    const nextLang = LOCKED_LANGUAGE && languageCopy[LOCKED_LANGUAGE]
+      ? LOCKED_LANGUAGE
+      : (languageCopy[lang] ? lang : 'pt');
+    if (!LOCKED_LANGUAGE) safeStorage.set(LANGUAGE_KEY, nextLang);
     document.documentElement.dataset.lang = nextLang;
     applyHeaderLanguage(nextLang);
     /* Conteudo da pagina (js/i18n.js). Fica separado do cabecalho porque o
@@ -1072,7 +1124,7 @@
   // Wire click on the static .cart-float (added directly in HTML for reliability).
   // Fallback: if for any reason it isn't in the page, inject it.
   let floatBtn = document.querySelector('.cart-float');
-  if (!floatBtn) {
+  if (!floatBtn && drawer) {
     floatBtn = document.createElement('button');
     floatBtn.type = 'button';
     floatBtn.className = 'cart-float';
@@ -1086,7 +1138,7 @@
     `;
     document.body.appendChild(floatBtn);
   }
-  floatBtn.addEventListener('click', () => Cart.open());
+  floatBtn?.addEventListener('click', () => Cart.open());
 
   document.getElementById('cartCheckout')?.addEventListener('click', () => {
     if (!Cart.items.length) { showToast('Seu carrinho está vazio.'); return; }

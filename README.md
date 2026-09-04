@@ -48,6 +48,10 @@ Champion/
 
 ## Painel administrativo
 
+### Google Drive e Downloads
+
+O painel permite importar arquivos ou pastas de uma pasta privada do Google Drive, criar categorias e liberar visualização/download em `/downloads`. A configuração de credenciais e o fluxo de publicação estão em [docs/GOOGLE-DRIVE-DOWNLOADS.md](docs/GOOGLE-DRIVE-DOWNLOADS.md).
+
 ### Visão geral das telas
 
 Tudo unificado em `admin.html` (single-page com tabs):
@@ -97,11 +101,12 @@ A API escuta em `http://localhost:3000` por padrão. Configure variáveis de amb
 
 ## Deploy
 
-- **Frontend:** Firebase Hosting (workflow em `.github/workflows/deploy-frontend.yml`)
-- **Backend:** Railway (configuração em `backend/railway.toml`)
+- **Frontend oficial (`champion.ind.br`):** Hostinger/LiteSpeed; publique o conteúdo de `frontend/` conforme `docs/DEPLOY-CHECK.md`.
+- **Frontend alternativo:** Firebase Hosting pelo workflow `.github/workflows/deploy-frontend.yml`.
+- **Backend:** Railway (configuração em `backend/railway.toml`).
 
 ## Tecnologias
 
 - **Frontend:** HTML/CSS/JS vanilla, ES modules, Firebase JS SDK (Auth, Firestore, Storage)
 - **Backend:** Node 20+, Express, Firebase Admin, Resend (e-mail transacional)
-- **Hosting:** Firebase Hosting (estático), Railway (API)
+- **Hosting:** Hostinger/LiteSpeed (site oficial), Firebase Hosting (alternativo), Railway (API)

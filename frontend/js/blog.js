@@ -1,5 +1,5 @@
 import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-config.js';
-import { assetUrl } from './asset-url.js?v=20260828-10';
+import { assetUrl } from './asset-url.js?v=20260902-3';
 
 (async function () {
   'use strict';

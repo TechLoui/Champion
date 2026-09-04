@@ -87,3 +87,11 @@ DirectoryIndex index.html
 # encontrado" em "página sem estilo", sem nenhum erro visível no console, e o que
 # fazia o Google enxergar a home duplicada em toda URL inválida do site.
 ErrorDocument 404 /404.html
+
+# A trilha do mapa foi entregue como musica.mpeg, mas o conteudo e MP3.
+# Sem esta linha o Apache anuncia .mpeg como video/mpeg e parte dos
+# navegadores recusa o arquivo num elemento de audio — a musica simplesmente
+# nao toca, sem erro visivel. Aqui so o rotulo muda; o arquivo e o mesmo.
+<IfModule mod_mime.c>
+  AddType audio/mpeg .mpeg .mp3
+</IfModule>

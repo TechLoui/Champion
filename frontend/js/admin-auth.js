@@ -47,7 +47,7 @@
     if (firebaseReady) return firebaseReady;
     firebaseReady = (async function () {
       try {
-        var cfgModule = await import('./firebase-config.js?v=20260828-10');
+        var cfgModule = await import('./firebase-config.js?v=20260902-3');
         var cfg = cfgModule.CHAMPION_FIREBASE_CONFIG;
         if (!isFirebaseConfigured(cfg)) return false;
 
@@ -152,6 +152,19 @@
     return Boolean(s && s.loggedAt);
   }
 
+  /* Token curto usado por rotas administrativas do backend (ex.: Drive).
+     Credenciais locais nunca viram um Bearer: essas integrações exigem que o
+     usuário tenha sido autenticado e autorizado de verdade pelo Firebase. */
+  async function getIdToken(forceRefresh) {
+    var useFirebase = await initFirebase();
+    if (!useFirebase || !firebase) return null;
+    if (typeof firebase.auth.authStateReady === 'function') {
+      await firebase.auth.authStateReady();
+    }
+    if (!firebase.auth.currentUser) return null;
+    return firebase.auth.currentUser.getIdToken(Boolean(forceRefresh));
+  }
+
   /* Pra páginas como _panel.js que abrem após o login:
      se Firebase está configurado mas a sessão localStorage não tem `mode: 'firebase'`,
      pode ser sessão local antiga ou estado inconsistente. Aceitar mesmo assim — a regra
@@ -166,6 +179,7 @@
     logout: logout,
     currentSession: currentSession,
     isLogged: isLogged,
+    getIdToken: getIdToken,
     ADMIN_SESSION_KEY: ADMIN_SESSION_KEY,
     BLOG_SESSION_KEY: BLOG_SESSION_KEY,
     /* Aguarda detecção do modo Firebase concluir (true=firebase, false=local) */

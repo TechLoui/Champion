@@ -2598,6 +2598,287 @@
       .dash-bar-row { grid-template-columns: 1fr; gap: 4px; }
       .dash-bar-value { text-align: left; }
     }
+
+    /* ════════════════════════════════════════════════════════════
+       GOOGLE DRIVE / DOWNLOADS
+       ════════════════════════════════════════════════════════════ */
+    .dl-admin-status-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      border: 1px solid #DCE4EF;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #FFFFFF, #F7FAFE);
+      box-shadow: 0 2px 12px rgba(19,31,53,.035);
+    }
+    .dl-admin-status-card[data-state="ready"] { border-color: #BCE4CE; background: linear-gradient(135deg,#FFFFFF,#F2FBF6); }
+    .dl-admin-status-card[data-state="error"] { border-color: #F2C6BE; background: linear-gradient(135deg,#FFFFFF,#FFF7F5); }
+    .dl-status-orb {
+      width: 44px; height: 44px;
+      display: grid; place-items: center;
+      border-radius: 12px;
+      color: #1E4C8F;
+      background: #E8F0FB;
+    }
+    .dl-status-orb svg { width: 23px; height: 23px; }
+    .dl-admin-status-card[data-state="ready"] .dl-status-orb { color: #147A4C; background: #DFF5E9; }
+    .dl-admin-status-card[data-state="error"] .dl-status-orb { color: #B4432F; background: #FCE7E3; }
+    .dl-status-copy { min-width: 0; }
+    .dl-status-copy h3 { font-family:'Sora',sans-serif; font-size:14px; line-height:1.35; color:#131F35; }
+    .dl-status-copy p { margin-top:3px; color:#687080; font-size:12.5px; }
+    .dl-status-meta { display:flex; gap:7px; flex-wrap:wrap; margin-top:8px; }
+    .dl-status-meta span {
+      display:inline-flex; align-items:center; gap:5px;
+      max-width:100%; padding:3px 9px; border-radius:99px;
+      color:#526071; background:rgba(255,255,255,.82); border:1px solid #E3E9F1;
+      font-size:10.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .dl-status-actions { display:flex; align-items:center; gap:8px; }
+    .dl-config-help {
+      margin:-6px 0 18px; border:1px solid #E5E8EF; border-radius:11px;
+      color:#526071; background:#FAFBFC; font-size:12.5px;
+    }
+    .dl-config-help summary { padding:10px 14px; cursor:pointer; font-weight:700; color:#354052; }
+    .dl-config-help ol { padding:0 18px 13px 34px; }
+    .dl-config-help li + li { margin-top:4px; }
+    .dl-config-help code { padding:1px 5px; border-radius:4px; color:#1E4C8F; background:#E8F0FB; font-size:11.5px; }
+
+    .dl-admin-workspace {
+      display:grid;
+      grid-template-columns:minmax(0, 1.75fr) minmax(280px, .75fr);
+      gap:18px;
+      align-items:start;
+    }
+    .dl-admin-card {
+      min-width:0; overflow:hidden;
+      border:1px solid #E5E8EF; border-radius:14px; background:white;
+    }
+    .dl-admin-card-head {
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+      padding:17px 19px; border-bottom:1px solid #EEF0F4;
+    }
+    .dl-admin-card-head h3 { font-family:'Sora',sans-serif; font-size:14.5px; color:#131F35; }
+    .dl-admin-card-head p { margin-top:2px; color:#8A93A3; font-size:11.5px; }
+    .dl-count-badge {
+      min-width:27px; padding:3px 8px; border-radius:99px;
+      color:#1E4C8F; background:#E8F0FB; text-align:center; font-size:11px; font-weight:800;
+    }
+    .dl-browser-tools { padding:14px 16px 12px; border-bottom:1px solid #F0F2F6; }
+    .dl-search-row { display:flex; gap:8px; align-items:center; }
+    .dl-search-row .ap-search-wrap { flex:1; min-width:0; }
+    .dl-breadcrumb {
+      display:flex; align-items:center; gap:2px; min-height:31px;
+      margin-top:10px; overflow-x:auto; scrollbar-width:none; white-space:nowrap;
+    }
+    .dl-breadcrumb::-webkit-scrollbar { display:none; }
+    .dl-crumb {
+      display:inline-flex; align-items:center; gap:5px; padding:4px 7px;
+      border:0; border-radius:6px; background:none; color:#687080;
+      font:600 11.5px 'Inter',sans-serif; cursor:pointer;
+    }
+    .dl-crumb:hover { color:#1E4C8F; background:#F1F5FA; }
+    .dl-crumb:last-child { color:#131F35; cursor:default; }
+    .dl-crumb-sep { color:#C4CAD4; font-size:12px; }
+    .dl-drive-table-head,
+    .dl-drive-row {
+      display:grid;
+      grid-template-columns:30px 32px minmax(170px, 1fr) 100px 112px 34px;
+      gap:9px; align-items:center;
+    }
+    .dl-drive-table-head {
+      padding:9px 15px; color:#8A93A3; background:#FAFBFC;
+      border-bottom:1px solid #EEF0F4; font-size:10px; font-weight:800;
+      letter-spacing:.055em; text-transform:uppercase;
+    }
+    .dl-drive-table-head label { display:flex; align-items:center; }
+    .dl-drive-list { max-height:470px; overflow:auto; }
+    .dl-drive-row {
+      min-height:60px; padding:9px 15px; border-bottom:1px solid #F0F2F6;
+      transition:background .15s, box-shadow .15s;
+    }
+    .dl-drive-row:last-child { border-bottom:0; }
+    .dl-drive-row:hover { background:#FAFCFE; }
+    .dl-drive-row.is-selected { background:#F1F6FC; box-shadow:inset 3px 0 #1E4C8F; }
+    .dl-check { width:17px; height:17px; accent-color:#1E4C8F; cursor:pointer; }
+    .dl-file-icon {
+      width:32px; height:32px; display:grid; place-items:center; border-radius:8px;
+      color:#687080; background:#F0F2F6;
+    }
+    .dl-file-icon svg { width:17px; height:17px; }
+    .dl-file-icon.folder { color:#B36B00; background:#FFF3D7; }
+    .dl-file-icon.pdf { color:#B4432F; background:#FDEAE6; }
+    .dl-file-icon.image { color:#2563A7; background:#E8F2FD; }
+    .dl-file-icon.sheet { color:#147A4C; background:#DFF5E9; }
+    .dl-file-icon.doc { color:#1E4C8F; background:#E8F0FB; }
+    .dl-file-main { min-width:0; }
+    .dl-file-name {
+      display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+      color:#131F35; font-size:12.75px; font-weight:650;
+    }
+    button.dl-file-name { padding:2px 0; border:0; background:none; cursor:pointer; text-align:left; font-family:inherit; }
+    button.dl-file-name:hover { color:#1E4C8F; text-decoration:underline; }
+    .dl-file-sub { display:block; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#9EA6B4; font-size:10.75px; }
+    .dl-file-cell { color:#687080; font-size:11px; white-space:nowrap; }
+    .dl-open-link {
+      width:31px; height:31px; display:grid; place-items:center; border:1px solid #E5E8EF;
+      border-radius:8px; color:#687080; background:white; cursor:pointer; text-decoration:none;
+    }
+    .dl-open-link:hover { color:#1E4C8F; border-color:#AFC4E0; background:#F5F8FC; }
+    .dl-open-link svg { width:14px; height:14px; }
+    .dl-state {
+      min-height:170px; padding:34px 20px; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:8px; color:#8992A0; text-align:center;
+    }
+    .dl-state svg { width:34px; height:34px; color:#B4BCC8; }
+    .dl-state strong { color:#4C5565; font-size:13px; }
+    .dl-state span { max-width:380px; font-size:12px; }
+    .dl-spinner { width:22px; height:22px; border:2px solid #DAE2ED; border-top-color:#1E4C8F; border-radius:50%; animation:dl-spin .7s linear infinite; }
+    @keyframes dl-spin { to { transform:rotate(360deg); } }
+    .dl-load-more { padding:11px 15px; border-top:1px solid #EEF0F4; text-align:center; background:#FAFBFC; }
+
+    .dl-publish-bar {
+      display:grid; grid-template-columns:minmax(150px,auto) minmax(190px,1fr) auto;
+      gap:13px; align-items:center; padding:13px 16px; border-top:1px solid #DDE7F2;
+      background:#F5F9FE;
+    }
+    .dl-selection-copy strong { display:block; color:#1E4C8F; font-size:12.5px; }
+    .dl-selection-copy span { display:block; color:#7B8696; font-size:10.75px; }
+    .dl-category-choices { display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
+    .dl-category-choice { position:relative; }
+    .dl-category-choice input { position:absolute; opacity:0; pointer-events:none; }
+    .dl-category-choice span {
+      display:inline-flex; padding:5px 9px; border:1px solid #D7DFEA; border-radius:99px;
+      color:#687080; background:white; font-size:10.75px; font-weight:650; cursor:pointer;
+      transition:all .14s;
+    }
+    .dl-category-choice input:checked + span { color:white; border-color:#1E4C8F; background:#1E4C8F; }
+    .dl-category-choice input:focus-visible + span { outline:3px solid rgba(30,76,143,.18); }
+    .dl-recursive-option { display:inline-flex; align-items:center; gap:6px; margin-top:6px; color:#687080; font-size:10.75px; cursor:pointer; }
+    .dl-recursive-option input { accent-color:#1E4C8F; }
+    .dl-publish-permissions { display:flex; align-items:center; gap:10px; margin-top:7px; flex-wrap:wrap; }
+    .dl-publish-permissions label,
+    .dl-edit-permissions label,
+    .dl-pub-permissions label {
+      display:inline-flex; align-items:center; gap:5px; color:#596475;
+      font-size:10.75px; font-weight:650; cursor:pointer;
+    }
+    .dl-publish-permissions input,
+    .dl-edit-permissions input,
+    .dl-pub-permissions input { width:15px; height:15px; accent-color:#1E4C8F; }
+
+    .dl-category-card { position:sticky; top:0; }
+    .dl-category-form { padding:14px 16px; border-bottom:1px solid #EEF0F4; background:#FAFBFC; }
+    .dl-category-form-row { display:flex; gap:7px; }
+    .dl-category-form input {
+      min-width:0; flex:1; padding:9px 10px; border:1.5px solid #E1E6ED; border-radius:8px;
+      color:#131F35; background:white; font:12px 'Inter',sans-serif; outline:none;
+    }
+    .dl-category-form input:focus { border-color:#1E4C8F; box-shadow:0 0 0 3px rgba(30,76,143,.09); }
+    .dl-category-description { margin-top:7px; width:100%; }
+    .dl-category-edit-actions { display:flex; gap:6px; align-items:center; margin-top:8px; }
+    .dl-category-list { max-height:350px; overflow:auto; padding:7px 9px; }
+    .dl-category-row { display:flex; align-items:center; gap:8px; padding:9px 7px; border-bottom:1px solid #F0F2F6; }
+    .dl-category-row:last-child { border-bottom:0; }
+    .dl-category-dot { width:9px; height:9px; border-radius:3px; background:#1E4C8F; flex:none; }
+    .dl-category-main { flex:1; min-width:0; }
+    .dl-category-main strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#354052; font-size:12px; }
+    .dl-category-main small { display:block; color:#9EA6B4; font-size:10.5px; }
+    .dl-icon-button {
+      width:29px; height:29px; display:grid; place-items:center; border:1px solid #E5E8EF;
+      border-radius:7px; color:#7D8796; background:white; cursor:pointer;
+    }
+    .dl-icon-button:hover { color:#1E4C8F; border-color:#B9CBE2; }
+    .dl-icon-button.is-danger:hover { color:#B4432F; border-color:#F0BDB4; background:#FFF6F4; }
+    .dl-icon-button svg { width:13px; height:13px; }
+
+    .dl-published-card { grid-column:1 / -1; }
+    .dl-published-tools {
+      display:flex; align-items:center; gap:8px; padding:13px 16px; border-bottom:1px solid #EEF0F4; flex-wrap:wrap;
+    }
+    .dl-published-tools .ap-search-wrap { flex:1; min-width:210px; }
+    .dl-filter-select {
+      min-width:150px; padding:9px 30px 9px 10px; border:1.5px solid #E4E8EF; border-radius:8px;
+      color:#354052; background:white; font:12px 'Inter',sans-serif; outline:none;
+    }
+    .dl-published-list { display:flex; flex-direction:column; }
+    .dl-published-row {
+      display:grid; grid-template-columns:36px minmax(200px,1.45fr) minmax(130px,.7fr) minmax(145px,.65fr) auto auto;
+      gap:11px; align-items:center; min-height:68px; padding:10px 16px; border-bottom:1px solid #F0F2F6;
+    }
+    .dl-published-row:last-child { border-bottom:0; }
+    .dl-published-row:hover { background:#FAFBFC; }
+    .dl-pub-categories { display:flex; flex-wrap:wrap; gap:4px; }
+    .dl-category-tag { padding:3px 7px; border-radius:6px; color:#1E4C8F; background:#E8F0FB; font-size:10px; font-weight:700; }
+    .dl-pub-category-editor { position:relative; }
+    .dl-pub-category-editor > summary {
+      list-style:none; display:inline-flex; padding:6px 9px; border:1px solid #E0E5EC; border-radius:7px;
+      color:#687080; background:white; font-size:10.5px; font-weight:650; cursor:pointer;
+    }
+    .dl-pub-category-editor > summary::-webkit-details-marker { display:none; }
+    .dl-pub-category-menu {
+      position:absolute; z-index:30; right:0; top:calc(100% + 5px); width:210px; max-height:210px;
+      overflow:auto; padding:7px; border:1px solid #DDE3EB; border-radius:9px; background:white;
+      box-shadow:0 10px 28px rgba(19,31,53,.16);
+    }
+    .dl-pub-category-menu label { display:flex; align-items:center; gap:7px; padding:6px; color:#4F5968; font-size:11.5px; cursor:pointer; }
+    .dl-pub-category-menu input { accent-color:#1E4C8F; }
+    .dl-pub-permissions { display:flex; align-items:flex-start; gap:7px 12px; flex-wrap:wrap; }
+    .dl-pub-permissions label { white-space:nowrap; }
+    .dl-pub-permissions label.is-unavailable { opacity:.5; }
+    .dl-pub-permissions input:disabled { cursor:not-allowed; }
+    .dl-edit-permissions { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:10px 12px; border:1px solid #E4E8EF; border-radius:9px; background:#F9FAFB; }
+    .dl-edit-permissions label { font-size:12px; }
+    .dl-edit-category-choices { min-height:37px; padding:8px; border:1px solid #E4E8EF; border-radius:9px; background:#F9FAFB; }
+    .dl-pub-actions { display:flex; align-items:center; justify-content:flex-end; gap:6px; }
+    .dl-status-button {
+      min-width:92px; padding:6px 9px; border:1px solid #C5E7D4; border-radius:99px;
+      color:#147A4C; background:#EDFAF3; font:700 10.5px 'Inter',sans-serif; cursor:pointer;
+    }
+    .dl-status-button.is-draft { color:#A45E00; border-color:#EED7AD; background:#FFF8EB; }
+    .dl-status-button:disabled, .dl-icon-button:disabled, .dl-open-link:disabled { opacity:.55; cursor:wait; }
+    .dl-admin-feedback {
+      display:none; margin:0 0 14px; padding:10px 13px; border:1px solid #F1C2B9;
+      border-radius:9px; color:#A33C2A; background:#FFF5F3; font-size:12px; font-weight:600;
+    }
+    .dl-admin-feedback:not(:empty) { display:block; }
+    .dl-admin-feedback.is-success { color:#147A4C; border-color:#BCE4CE; background:#F0FAF5; }
+    .dl-admin-feedback.is-info { color:#1E4C8F; border-color:#C8D8EB; background:#F2F7FC; }
+    .dl-admin-feedback button { margin-left:7px; border:0; color:inherit; background:none; font:700 11px inherit; text-decoration:underline; cursor:pointer; }
+
+    @media (max-width: 1100px) {
+      .dl-admin-workspace { grid-template-columns:1fr; }
+      .dl-category-card { position:static; }
+      .dl-category-list { max-height:260px; }
+    }
+    @media (max-width: 760px) {
+      .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr); }
+      .dl-status-actions { grid-column:1 / -1; }
+      .dl-status-actions .ap-btn { width:100%; justify-content:center; }
+      .dl-drive-table-head, .dl-drive-row { grid-template-columns:26px 31px minmax(130px,1fr) 34px; }
+      .dl-drive-table-head span:nth-of-type(3), .dl-drive-table-head span:nth-of-type(4),
+      .dl-drive-row > .dl-file-cell { display:none; }
+      .dl-publish-bar { grid-template-columns:1fr; }
+      .dl-published-row { grid-template-columns:34px minmax(0,1fr) auto; }
+      .dl-published-row > .dl-pub-category-editor { grid-column:2 / -1; }
+      .dl-published-row > .dl-pub-permissions { grid-column:2 / -1; }
+      .dl-published-row > .dl-status-button { grid-column:2; justify-self:start; }
+      .dl-published-row > .dl-pub-actions { grid-column:3; }
+    }
+    @media (max-width: 520px) {
+      .dl-admin-status-card { padding:15px; gap:12px; }
+      .dl-search-row { align-items:stretch; flex-direction:column; }
+      .dl-search-row .ap-btn { justify-content:center; }
+      .dl-drive-table-head, .dl-drive-row { padding-left:11px; padding-right:11px; gap:7px; }
+      .dl-published-tools { align-items:stretch; flex-direction:column; }
+      .dl-published-tools .ap-search-wrap, .dl-filter-select { width:100%; min-width:0; }
+      .dl-published-row { padding:11px; }
+      .dl-pub-actions { gap:4px; }
+      .dl-category-form-row { flex-wrap:wrap; }
+      .dl-category-form-row .ap-btn { width:100%; justify-content:center; }
+    }
   </style>
   <meta name="robots" content="noindex, nofollow" />
 </head>
@@ -2641,6 +2922,11 @@
       <button type="button" data-admin-tab="banners" aria-selected="false">
         <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><circle cx="8.5" cy="15" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         Banners Site
+      </button>
+
+      <button type="button" data-admin-tab="downloads" aria-selected="false">
+        <svg class="ap-nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2"/></svg>
+        Drive &amp; Downloads
       </button>
 
       <!-- Categorias agora é gerenciada por um modal dentro do Catálogo,
@@ -3720,6 +4006,212 @@
         <div class="admin-list" id="adminLeadsList"></div>
       </section>
 
+      <!-- ─── Google Drive / Downloads ─── -->
+      <section data-admin-panel="downloads" id="adminDownloadsPanel" hidden>
+        <div class="ap-section-head">
+          <div>
+            <h2>Drive &amp; Downloads</h2>
+            <p>Escolha arquivos ou pastas do Google Drive e controle o que aparece na área pública de downloads.</p>
+          </div>
+          <div class="ap-section-head-actions">
+            <a class="ap-btn ap-btn-ghost" href="/downloads" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Ver página pública
+            </a>
+            <button class="ap-btn ap-btn-primary" type="button" id="downloadsRefresh">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Atualizar
+            </button>
+          </div>
+        </div>
+
+        <div class="dl-admin-status-card" id="driveStatusCard" data-state="loading" aria-live="polite">
+          <div class="dl-status-orb">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7a5 5 0 0 1-.6-9.96A7 7 0 0 1 20 9.5 4 4 0 0 1 17 17z"/><path d="M12 11v8"/><polyline points="9 16 12 19 15 16"/></svg>
+          </div>
+          <div class="dl-status-copy">
+            <h3 id="driveStatusTitle">Verificando integração…</h3>
+            <p id="driveStatusText">Consultando a configuração segura do servidor.</p>
+            <div class="dl-status-meta" id="driveStatusMeta" hidden>
+              <span id="driveAccountMeta" hidden></span>
+              <span id="driveRootMeta" hidden></span>
+            </div>
+          </div>
+          <div class="dl-status-actions">
+            <span class="ap-pill gray" id="driveStatusPill">Verificando</span>
+          </div>
+        </div>
+
+        <details class="dl-config-help" id="driveConfigHelp">
+          <summary>Como configurar a integração no servidor</summary>
+          <ol>
+            <li>Crie uma conta de serviço no Google Cloud com a API do Google Drive habilitada.</li>
+            <li>Compartilhe a pasta raiz do Drive com o e-mail <code id="driveHelpEmail">da conta de serviço</code>.</li>
+            <li>Configure as credenciais e o ID da pasta nas variáveis protegidas do backend. Nenhuma chave fica exposta neste painel.</li>
+          </ol>
+        </details>
+
+        <div class="dl-admin-feedback" id="downloadsFeedback" role="status" aria-live="polite"></div>
+
+        <div class="dl-admin-workspace">
+          <article class="dl-admin-card">
+            <header class="dl-admin-card-head">
+              <div>
+                <h3>Arquivos no Google Drive</h3>
+                <p>Navegue pelas pastas ou pesquise pelo nome.</p>
+              </div>
+              <span class="dl-count-badge" id="driveItemCount">0</span>
+            </header>
+
+            <div class="dl-browser-tools">
+              <form class="dl-search-row" id="driveSearchForm" role="search">
+                <div class="ap-search-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input id="driveSearch" type="search" placeholder="Pesquisar arquivos e pastas…" autocomplete="off" />
+                </div>
+                <button class="ap-btn ap-btn-ghost ap-btn-sm" type="submit">Pesquisar</button>
+              </form>
+              <nav class="dl-breadcrumb" id="driveBreadcrumb" aria-label="Caminho no Google Drive"></nav>
+            </div>
+
+            <div class="dl-drive-table-head" id="driveTableHead" hidden>
+              <label title="Selecionar todos"><input class="dl-check" id="driveSelectAll" type="checkbox" aria-label="Selecionar todos os itens" /></label>
+              <span aria-hidden="true"></span>
+              <span>Nome</span>
+              <span>Tamanho</span>
+              <span>Modificado</span>
+              <span aria-hidden="true"></span>
+            </div>
+            <div class="dl-drive-list" id="driveItemsList">
+              <div class="dl-state"><span class="dl-spinner" aria-hidden="true"></span><strong>Carregando arquivos…</strong></div>
+            </div>
+            <div class="dl-load-more" id="driveLoadMoreWrap" hidden>
+              <button class="ap-btn ap-btn-ghost ap-btn-sm" id="driveLoadMore" type="button">Carregar mais</button>
+            </div>
+
+            <div class="dl-publish-bar" id="drivePublishBar" hidden>
+              <div class="dl-selection-copy">
+                <strong id="driveSelectionCount">0 selecionados</strong>
+                <span>Escolha uma ou mais categorias</span>
+                <label class="dl-recursive-option" title="Inclui os arquivos dentro das pastas selecionadas">
+                  <input id="driveRecursive" type="checkbox" checked /> Incluir conteúdo das pastas
+                </label>
+                <div class="dl-publish-permissions" aria-label="Permissões dos itens publicados">
+                  <label><input id="driveAllowView" type="checkbox" checked /> Visualização</label>
+                  <label><input id="driveAllowDownload" type="checkbox" checked /> Download</label>
+                </div>
+              </div>
+              <div class="dl-category-choices" id="drivePublishCategories"></div>
+              <button class="ap-btn ap-btn-primary" id="drivePublishSelected" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M5 21h14a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2"/></svg>
+                Liberar em Downloads
+              </button>
+            </div>
+          </article>
+
+          <aside class="dl-admin-card dl-category-card">
+            <header class="dl-admin-card-head">
+              <div>
+                <h3>Categorias</h3>
+                <p>Organize os filtros da página pública.</p>
+              </div>
+              <span class="dl-count-badge" id="downloadCategoryCount">0</span>
+            </header>
+            <form class="dl-category-form" id="downloadCategoryForm">
+              <input type="hidden" name="id" />
+              <div class="dl-category-form-row">
+                <input name="name" required maxlength="60" placeholder="Nova categoria" aria-label="Nome da categoria" />
+                <button class="ap-btn ap-btn-primary ap-btn-sm" type="submit" id="downloadCategorySubmit">Adicionar</button>
+              </div>
+              <input class="dl-category-description" name="description" maxlength="160" placeholder="Descrição (opcional)" aria-label="Descrição da categoria" />
+              <div class="dl-category-edit-actions" id="downloadCategoryEditActions" hidden>
+                <small>Editando categoria</small>
+                <button class="ap-mini-btn" id="downloadCategoryCancel" type="button">Cancelar</button>
+              </div>
+            </form>
+            <div class="dl-category-list" id="downloadCategoryList">
+              <div class="dl-state"><span class="dl-spinner" aria-hidden="true"></span><span>Carregando categorias…</span></div>
+            </div>
+          </aside>
+
+          <article class="dl-admin-card dl-published-card">
+            <header class="dl-admin-card-head">
+              <div>
+                <h3>Conteúdo disponibilizado</h3>
+                <p>Altere categorias, publique, despublique ou remova itens da área de downloads.</p>
+              </div>
+              <span class="dl-count-badge" id="publishedDownloadCount">0</span>
+            </header>
+            <div class="dl-published-tools">
+              <div class="ap-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="publishedDownloadSearch" type="search" placeholder="Pesquisar conteúdo liberado…" autocomplete="off" />
+              </div>
+              <select class="dl-filter-select" id="publishedDownloadCategory" aria-label="Filtrar por categoria">
+                <option value="">Todas as categorias</option>
+              </select>
+              <select class="dl-filter-select" id="publishedDownloadStatus" aria-label="Filtrar por situação">
+                <option value="">Todos os status</option>
+                <option value="published">Publicados</option>
+                <option value="draft">Despublicados</option>
+              </select>
+            </div>
+            <div class="dl-published-list" id="publishedDownloadList">
+              <div class="dl-state"><span class="dl-spinner" aria-hidden="true"></span><span>Carregando publicações…</span></div>
+            </div>
+          </article>
+        </div>
+
+        <div class="prod-drawer" id="downloadEditDrawer" aria-hidden="true">
+          <div class="prod-drawer-overlay" data-download-edit-close data-close-drawer></div>
+          <aside class="prod-drawer-panel" aria-labelledby="downloadEditTitle">
+            <header class="prod-drawer-head">
+              <div>
+                <h3 id="downloadEditTitle">Editar download</h3>
+                <p>Personalize como este arquivo aparece na página pública.</p>
+              </div>
+              <button class="prod-drawer-close" type="button" data-download-edit-close data-close-drawer aria-label="Fechar editor">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </header>
+            <div class="prod-drawer-body">
+              <form id="downloadEditForm">
+                <input type="hidden" name="id" />
+                <div class="ap-form-grid">
+                  <div class="ap-form-field full">
+                    <label for="downloadEditName">Nome exibido</label>
+                    <input id="downloadEditName" name="name" maxlength="240" required />
+                  </div>
+                  <div class="ap-form-field full">
+                    <label for="downloadEditDescription">Descrição</label>
+                    <textarea id="downloadEditDescription" name="description" rows="5" maxlength="3000" placeholder="Explique brevemente o conteúdo e para quem ele é indicado."></textarea>
+                  </div>
+                  <div class="ap-form-field full">
+                    <label>Categorias</label>
+                    <div class="dl-category-choices dl-edit-category-choices" id="downloadEditCategories"></div>
+                  </div>
+                  <div class="ap-form-field full">
+                    <label>Permissões públicas</label>
+                    <div class="dl-edit-permissions">
+                      <label><input id="downloadEditAllowView" name="allowView" type="checkbox" /> Permitir visualização</label>
+                      <label><input id="downloadEditAllowDownload" name="allowDownload" type="checkbox" /> Permitir download</label>
+                    </div>
+                    <small>Ao menos uma opção deve permanecer ativa.</small>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <footer class="prod-drawer-foot">
+              <button class="ap-btn ap-btn-ghost" type="button" data-download-edit-close data-close-drawer>Cancelar</button>
+              <button class="ap-btn ap-btn-primary" id="downloadEditSubmit" type="submit" form="downloadEditForm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar alterações
+              </button>
+            </footer>
+          </aside>
+        </div>
+      </section>
+
       <!-- ─── Configurações ─── -->
       <section data-admin-panel="settings" hidden>
         <div class="ap-section-head">
@@ -3769,7 +4261,7 @@
   </div><!-- /ap-main -->
 </div><!-- /ap-shell -->
 
-<script src="/js/admin-auth.js?v=20260828-10"></script>
+<script src="/js/admin-auth.js?v=20260904-1"></script>
 <script>
 (function () {
   var SESSION_KEY = 'champion-admin-session';
@@ -3864,10 +4356,11 @@
   });
 })();
 </script>
-<script src="/js/customer-store.js?v=20260828-10"></script>
-<script src="/js/order-store.js?v=20260828-10"></script>
-<script type="module" src="/js/admin.js?v=20260828-10"></script>
-<script src="/js/admin-customers.js?v=20260828-10"></script>
+<script src="/js/customer-store.js?v=20260902-3"></script>
+<script src="/js/order-store.js?v=20260902-3"></script>
+<script type="module" src="/js/admin.js?v=20260902-3"></script>
+<script src="/js/admin-customers.js?v=20260902-3"></script>
+<script type="module" src="/js/admin-downloads.js?v=20260904-1"></script>
 
 <!-- Dashboard charts (vanilla SVG, sem dependências) -->
 <script>

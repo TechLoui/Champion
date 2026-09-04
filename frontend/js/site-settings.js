@@ -15,6 +15,10 @@ import { getAdminStore } from './admin-store.js';
     return `https://api.whatsapp.com/send/?phone=${encodeURIComponent(phone)}&type=phone_number&app_absent=0`;
   }
 
+  function phoneUrl(phone) {
+    return `tel:${String(phone || '').replace(/[^\d+]/g, '')}`;
+  }
+
   try {
     const store = await getAdminStore();
     const settings = await store.getSettings();
@@ -25,6 +29,24 @@ import { getAdminStore } from './admin-store.js';
     if (promo && settings.promoText) promo.textContent = settings.promoText;
     if (topbarSpans[1] && settings.phone) setTextAfterIcon(topbarSpans[1], settings.phone);
     if (topbarSpans[2] && settings.email) setTextAfterIcon(topbarSpans[2], settings.email);
+
+    if (settings.phone) {
+      document.querySelectorAll('[data-site-phone]').forEach((node) => {
+        node.textContent = settings.phone;
+      });
+      document.querySelectorAll('a[data-site-phone-link]').forEach((link) => {
+        link.href = phoneUrl(settings.phone);
+      });
+    }
+
+    if (settings.email) {
+      document.querySelectorAll('[data-site-email]').forEach((node) => {
+        node.textContent = settings.email;
+      });
+      document.querySelectorAll('a[data-site-email-link]').forEach((link) => {
+        link.href = `mailto:${settings.email}`;
+      });
+    }
 
     if (settings.whatsapp) {
       document.querySelectorAll('a[href*="api.whatsapp.com"]').forEach((link) => {

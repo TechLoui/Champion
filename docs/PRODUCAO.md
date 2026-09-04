@@ -101,60 +101,24 @@ firebase deploy --only firestore:rules,storage
 
 ---
 
-## 3. Firebase Hosting (frontend)
+## 3. Frontend oficial — Hostinger
 
-### 3.1. Deploy inicial pelo CLI
+O domínio oficial **`https://champion.ind.br`** é servido pela Hostinger/LiteSpeed. Publique o conteúdo atual da pasta `frontend/` na raiz pública do domínio (`public_html`), incluindo o arquivo oculto `.htaccess`. Não envie a pasta `frontend` como um nível extra.
+
+Antes de substituir arquivos, leia [DEPLOY-CHECK.md](DEPLOY-CHECK.md): há conteúdo que existe somente no servidor e não deve ser apagado por uma sincronização destrutiva. Gere um pacote novo a partir de `frontend/`; os diretórios/ZIPs antigos do workspace são artefatos ignorados e podem estar desatualizados.
+
+Depois do upload, valide ao menos:
 
 ```bash
-cd Champion
-firebase deploy --only hosting
+curl -I https://champion.ind.br/
+curl -I https://champion.ind.br/downloads
 ```
 
-> O `firebase.json` já está configurado para servir a pasta `frontend/`.
+O segundo endereço precisa responder `200`, sem redirecionar para uma página genérica.
 
-A URL pública aparece no final do deploy (algo como `https://champion-xxxxx.web.app`).
+### 3.1. Firebase Hosting alternativo
 
-### 3.2. Domínio customizado · `ofertaschampion.com.br`
-
-O domínio oficial em produção é **`https://ofertaschampion.com.br`**, hospedado via Netlify.
-
-**No painel do Netlify:**
-
-1. <https://app.netlify.com/sites/ecommerce-champion/domain-management>
-2. **Add custom domain** → `ofertaschampion.com.br`
-3. Netlify mostra os registros DNS necessários (NS, A ou CNAME)
-
-**No painel do registrador (Registro.br):**
-
-1. Acesse o painel do `ofertaschampion.com.br`
-2. Aponte os DNS para Netlify (geralmente apex `A 75.2.60.5` + `www` CNAME `apex-loadbalancer.netlify.com`) ou use os Netlify DNS nameservers
-3. Aguarde propagação (5 min a 24h)
-
-**Importante depois do domínio funcionar:**
-
-1. **Firebase Authentication** → Settings → **Authorized domains** → adicionar:
-   - `ofertaschampion.com.br`
-   - `www.ofertaschampion.com.br`
-
-2. **Railway** → variável `ALLOWED_ORIGINS` deve incluir o domínio novo:
-   ```
-   https://ofertaschampion.com.br,https://www.ofertaschampion.com.br,https://ecommerce-champion.netlify.app
-   ```
-
-3. **SSL** é emitido automaticamente pelo Netlify (Let's Encrypt) após o DNS propagar — sem ação manual necessária.
-
-Após esses 3 ajustes, `https://ofertaschampion.com.br` será o domínio oficial e os fluxos de auth + leads vão funcionar normalmente.
-
-### 3.3. Deploy automático via GitHub Actions
-
-Já existe o workflow em [.github/workflows/deploy-frontend.yml](../.github/workflows/deploy-frontend.yml). Para ele funcionar, adicione 2 secrets no GitHub:
-
-1. <https://github.com/TechLoui/Champion/settings/secrets/actions>
-2. **New repository secret**:
-   - `FIREBASE_PROJECT_ID` → o `projectId` (ex.: `champion-xxxxx`)
-   - `FIREBASE_SERVICE_ACCOUNT` → JSON da service account (gerar em Firebase Console → ⚙️ → Contas de serviço → **Gerar nova chave privada** → cole o JSON completo)
-
-A partir daí, cada push em `main` que toque `frontend/`, `firebase.json` ou `*.rules` dispara deploy automático.
+O `firebase.json` e o workflow [.github/workflows/deploy-frontend.yml](../.github/workflows/deploy-frontend.yml) continuam disponíveis para preview ou hospedagem alternativa, mas publicar ali **não atualiza o domínio oficial da Hostinger**.
 
 ---
 
@@ -174,13 +138,17 @@ Em **Settings → Variables**, declare:
 
 | Variável | Valor | Obrigatória? |
 |---|---|---|
-| `ALLOWED_ORIGINS` | `https://ofertaschampion.com.br,https://www.ofertaschampion.com.br,https://ecommerce-champion.netlify.app` | **Sim** |
+| `ALLOWED_ORIGINS` | `https://champion.ind.br,https://www.champion.ind.br` | **Sim** |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON completo da service account (mesmo do GitHub) | Sim, para salvar leads no Firestore |
+| `GOOGLE_DRIVE_ROOT_FOLDER_ID` | ID ou URL da pasta raiz compartilhada | Sim, para a área de Downloads |
+| `GOOGLE_DRIVE_SERVICE_ACCOUNT` | JSON da conta de serviço com Drive API habilitada; pode omitir se reutilizar a conta Firebase | Conforme a credencial escolhida |
 | `RESEND_API_KEY` | Chave da API do Resend (<https://resend.com/api-keys>) | Para enviar e-mail de notificação |
 | `NOTIFICATION_EMAIL` | E-mail que recebe os contatos (ex.: `comercial@champion.ind.br`) | Para enviar e-mail |
 | `FROM_EMAIL` | Opcional. Default `noreply@champion.ind.br` (precisa estar verificado no Resend) | Não |
 
 > `PORT` o Railway injeta automaticamente — não declarar.
+
+Veja o preparo da pasta, as permissões e o fluxo de publicação em [GOOGLE-DRIVE-DOWNLOADS.md](GOOGLE-DRIVE-DOWNLOADS.md).
 
 ### 4.3. Verificar saúde
 
@@ -216,9 +184,9 @@ Atualmente o site não chama o backend (form de contato grava direto via Firebas
 - [ ] Firestore Database criado (`southamerica-east1`)
 - [ ] Storage criado (mesma região)
 - [ ] Regras publicadas (Firestore + Storage)
-- [ ] Hosting deployado (`firebase deploy --only hosting`)
-- [ ] (Opcional) Domínio customizado configurado
-- [ ] Secrets no GitHub: `FIREBASE_PROJECT_ID`, `FIREBASE_SERVICE_ACCOUNT`
+- [ ] Conteúdo de `frontend/` publicado na Hostinger, incluindo `.htaccess`
+- [ ] `https://champion.ind.br` e `https://champion.ind.br/downloads` respondendo corretamente
+- [ ] (Opcional) Secrets do workflow alternativo: `FIREBASE_PROJECT_ID`, `FIREBASE_SERVICE_ACCOUNT`
 - [ ] Railway conectado ao repo, root = `backend`
 - [ ] Vars Railway: `ALLOWED_ORIGINS`, `FIREBASE_SERVICE_ACCOUNT`, (`RESEND_API_KEY`, `NOTIFICATION_EMAIL`)
 - [ ] `/api/health` respondendo na URL Railway

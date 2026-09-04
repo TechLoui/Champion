@@ -1,5 +1,9 @@
 'use strict';
 
+/* Railway injeta variaveis diretamente; em desenvolvimento, carrega o
+   backend/.env documentado no README sem exigir export manual no terminal. */
+require('dotenv').config({ quiet: true });
+
 const express   = require('express');
 const cors      = require('cors');
 const rateLimit = require('express-rate-limit');
@@ -7,6 +11,13 @@ const rateLimit = require('express-rate-limit');
 const leadsRouter    = require('./routes/leads');
 const chatRouter     = require('./routes/chat');
 const contaRouter    = require('./routes/conta');
+const adminDriveRouter = require('./routes/admin-drive');
+const {
+  downloadsRouter: adminDownloadsRouter,
+  categoriesRouter: adminDownloadCategoriesRouter
+} = require('./routes/admin-downloads');
+const downloadsRouter = require('./routes/downloads');
+const { requireAdmin } = require('./middleware/admin-auth');
 
 const PORT = process.env.PORT || 3000;
 
@@ -64,8 +75,9 @@ app.use(cors({
      liberar origem desconhecida deixaria qualquer site fazer requisição
      autenticada em nome do visitante. */
   credentials: true,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Accept', 'Content-Type', 'Authorization', 'Range'],
+  exposedHeaders: ['Content-Disposition', 'Content-Length', 'Content-Range', 'Accept-Ranges', 'ETag'],
   maxAge: 86400
 }));
 app.use(express.json({ limit: '64kb' }));
@@ -84,7 +96,7 @@ const leadsLimiter = rateLimit({
    checagem de "existe" e falhar no PEM.
 
    Só booleanos e a mensagem do SDK. Nenhum valor de variável sai daqui. */
-const BUILD = '2026-08-28-limpeza';
+const BUILD = '2026-09-04-google-drive-downloads';
 
 app.get('/api/health', async (_req, res) => {
   const cfg = {
@@ -96,6 +108,14 @@ app.get('/api/health', async (_req, res) => {
     emailDestino: Boolean(process.env.NOTIFICATION_EMAIL),
     llm: Boolean(process.env.LLM_API_KEY),
     shopify: Boolean(process.env.SHOPIFY_SHOP_ID && process.env.SHOPIFY_CUSTOMER_CLIENT_ID),
+    googleDrive: Boolean(
+      process.env.GOOGLE_DRIVE_ROOT_FOLDER_ID
+      && (process.env.GOOGLE_DRIVE_SERVICE_ACCOUNT
+        || process.env.GOOGLE_SERVICE_ACCOUNT_JSON
+        || (process.env.GOOGLE_DRIVE_CLIENT_EMAIL && process.env.GOOGLE_DRIVE_PRIVATE_KEY)
+        || process.env.FIREBASE_SERVICE_ACCOUNT
+        || (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY))
+    ),
     allowedOrigins: allowedOrigins.length
   };
 
@@ -159,13 +179,54 @@ app.use('/api/chat', chatLimiter, chatRouter);
 /* Checkout e pagamento migraram para o Shopify (checkout hospedado).
    As rotas Pagar.me (checkout/webhook) foram removidas. */
 
+/* Google Drive e catalogo de downloads. A conta de servico so recebe escopo
+   de leitura, e as rotas administrativas ainda exigem o token Firebase + a
+   whitelist blogAdmins. */
+const adminDownloadsLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 180,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas operacoes administrativas. Aguarde um momento.' }
+});
+app.use('/api/admin/drive', adminDownloadsLimiter, requireAdmin, adminDriveRouter);
+app.use('/api/admin/downloads', adminDownloadsLimiter, requireAdmin, adminDownloadsRouter);
+app.use('/api/admin/download-categories', adminDownloadsLimiter, requireAdmin, adminDownloadCategoriesRouter);
+
+const publicDownloadsLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas requisicoes de arquivos. Aguarde um momento.' }
+});
+app.use('/api/downloads', publicDownloadsLimiter, downloadsRouter);
+
 app.use((_req, res) => {
   res.status(404).json({ error: 'Rota não encontrada.' });
 });
 
-app.use((err, _req, res, _next) => {
-  console.error('[champion-backend]', err);
-  res.status(500).json({ error: err.message || 'Erro interno do servidor.' });
+app.use((err, req, res, _next) => {
+  if (res.headersSent) return res.end();
+  const corsBlocked = String(err?.message || '').startsWith('CORS bloqueado');
+  const status = corsBlocked
+    ? 403
+    : (Number.isInteger(err?.status) && err.status >= 400 && err.status <= 599 ? err.status : 500);
+  if (status >= 500) {
+    if (err?.code) {
+      console.error(`[champion-backend] ${req.method} ${req.path} ${err.code}: ${err.message}`);
+    } else {
+      console.error('[champion-backend]', err);
+    }
+  }
+  const body = {
+    error: status >= 500 && !err?.code
+      ? 'Erro interno do servidor.'
+      : (err?.message || 'Erro interno do servidor.')
+  };
+  if (err?.code) body.code = err.code;
+  if (err?.details !== undefined && status < 500) body.details = err.details;
+  return res.status(status).json(body);
 });
 
 app.listen(PORT, () => {

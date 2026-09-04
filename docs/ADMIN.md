@@ -12,6 +12,7 @@ admin.html
 - Status de publicação ou rascunho.
 - Dados principais de atendimento.
 - Contatos recebidos.
+- Arquivos e pastas do Google Drive publicados na área de Downloads, com categorias e permissões de visualização/download.
 - Atalho para o painel do blog (`painel-blog.html`).
 
 ## Modo local
@@ -38,3 +39,7 @@ name: "Administrador Champion"
 4. Acesse `admin.html` e clique em `Restaurar padrão` em Produtos para popular a coleção `products`.
 
 O catálogo público (`produtos.html`) e a página de detalhe (`produto.html?p=...`) leem os produtos publicados pelo painel.
+
+## Downloads do Google Drive
+
+A seção **Downloads** exige Firebase Auth real para enviar o token administrativo ao backend. O modo local do painel não concede acesso às rotas do Drive. Depois de configurar a pasta e a conta de serviço conforme [GOOGLE-DRIVE-DOWNLOADS.md](GOOGLE-DRIVE-DOWNLOADS.md), use a seção para criar categorias, selecionar arquivos/pastas e controlar se cada material permite visualização, download ou ambos.
