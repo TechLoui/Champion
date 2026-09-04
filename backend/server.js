@@ -96,7 +96,7 @@ const leadsLimiter = rateLimit({
    checagem de "existe" e falhar no PEM.
 
    Só booleanos e a mensagem do SDK. Nenhum valor de variável sai daqui. */
-const BUILD = '2026-09-04-google-drive-downloads';
+const BUILD = '2026-09-04-download-preview';
 
 app.get('/api/health', async (_req, res) => {
   const cfg = {
