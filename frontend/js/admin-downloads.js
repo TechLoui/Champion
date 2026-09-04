@@ -21,12 +21,6 @@
     statusCard: $('#driveStatusCard'),
     statusTitle: $('#driveStatusTitle'),
     statusText: $('#driveStatusText'),
-    statusMeta: $('#driveStatusMeta'),
-    statusPill: $('#driveStatusPill'),
-    accountMeta: $('#driveAccountMeta'),
-    rootMeta: $('#driveRootMeta'),
-    help: $('#driveConfigHelp'),
-    helpEmail: $('#driveHelpEmail'),
     searchForm: $('#driveSearchForm'),
     search: $('#driveSearch'),
     searchClear: $('#driveSearchClear'),
@@ -834,14 +828,20 @@
     }).join('');
   }
 
+  function driveRootName(payload) {
+    const root = firstDefined(payload?.rootFolder, payload?.root, null);
+    if (root && typeof root === 'object') {
+      return String(root.name || root.title || payload?.rootFolderName || payload?.folderName || '');
+    }
+    return String(payload?.rootFolderName || payload?.folderName || '');
+  }
+
   function updateRootFromStatus(payload) {
     const root = firstDefined(payload?.rootFolder, payload?.root, payload?.folder, null);
     const id = root && typeof root === 'object'
       ? String(firstDefined(root.id, root.folderId, '') || '')
       : String(firstDefined(payload?.rootFolderId, typeof root === 'string' ? root : '', '') || '');
-    const name = root && typeof root === 'object'
-      ? String(firstDefined(root.name, root.title, 'Drive Champion'))
-      : String(firstDefined(payload?.rootFolderName, 'Drive Champion'));
+    const name = driveRootName(payload) || 'Nome da pasta indisponível';
     state.currentFolderId = id;
     state.currentFolderName = name;
     state.breadcrumbs = [{ id, name }];
@@ -850,63 +850,39 @@
 
   async function loadStatus() {
     refs.statusCard.dataset.state = 'loading';
-    refs.statusTitle.textContent = 'Verificando integração…';
-    refs.statusText.textContent = 'Consultando a configuração segura do servidor.';
-    refs.statusPill.className = 'ap-pill gray';
-    refs.statusPill.textContent = 'Verificando';
-    refs.statusMeta.hidden = true;
+    refs.statusTitle.textContent = 'Verificando pasta…';
+    refs.statusText.textContent = '';
+    refs.statusText.hidden = true;
 
     try {
       const response = await api('/drive/status');
       const payload = response.drive || response.data || response;
       const configured = Boolean(firstDefined(payload.configured, payload.enabled, false));
       const connected = Boolean(firstDefined(payload.connected, payload.ready, configured));
-      const accountEmail = String(firstDefined(payload.accountEmail, payload.serviceAccountEmail, '') || '');
-      const root = firstDefined(payload.rootFolder, payload.root, payload.folderName, '');
-      const rootLabel = root && typeof root === 'object'
-        ? String(firstDefined(root.name, root.title, root.id, '') || '')
-        : String(root || '');
-
-      refs.accountMeta.hidden = !accountEmail;
-      refs.accountMeta.textContent = accountEmail ? `Conta: ${accountEmail}` : '';
-      refs.rootMeta.hidden = !rootLabel;
-      refs.rootMeta.textContent = rootLabel ? `Pasta: ${rootLabel}` : '';
-      refs.statusMeta.hidden = !accountEmail && !rootLabel;
-      if (accountEmail) refs.helpEmail.textContent = accountEmail;
+      const rootLabel = driveRootName(payload);
 
       state.driveReady = configured && connected;
       if (state.driveReady) {
-        refs.statusCard.dataset.state = 'ready';
-        refs.statusTitle.textContent = 'Google Drive conectado';
-        refs.statusText.textContent = 'A conta de serviço consegue acessar a pasta configurada.';
-        refs.statusPill.className = 'ap-pill green';
-        refs.statusPill.textContent = 'Operacional';
-        refs.help.open = false;
         updateRootFromStatus(payload);
+        refs.statusCard.dataset.state = 'ready';
+        refs.statusTitle.textContent = rootLabel || state.currentFolderName || 'Pasta configurada';
+        refs.statusText.textContent = '';
+        refs.statusText.hidden = true;
       } else {
         refs.statusCard.dataset.state = 'error';
-        refs.statusTitle.textContent = configured ? 'Não foi possível acessar a pasta' : 'Integração ainda não configurada';
-        refs.statusText.textContent = String(firstDefined(
-          payload.message,
-          payload.error,
-          payload.configurationError,
-          configured
-            ? 'Revise o compartilhamento da pasta com a conta de serviço.'
-            : 'Configure a conta de serviço e a pasta raiz nas variáveis do backend.'
-        ));
-        refs.statusPill.className = 'ap-pill red';
-        refs.statusPill.textContent = configured ? 'Sem acesso' : 'Pendente';
-        refs.help.open = true;
+        refs.statusTitle.textContent = rootLabel || (configured ? 'Pasta indisponível' : 'Pasta não configurada');
+        refs.statusText.textContent = configured
+          ? 'Não foi possível acessar esta pasta agora.'
+          : 'Defina a pasta de origem no servidor para carregar os arquivos.';
+        refs.statusText.hidden = false;
       }
       return payload;
     } catch (error) {
       state.driveReady = false;
       refs.statusCard.dataset.state = 'error';
-      refs.statusTitle.textContent = 'Integração indisponível';
-      refs.statusText.textContent = friendlyError(error);
-      refs.statusPill.className = 'ap-pill red';
-      refs.statusPill.textContent = 'Erro';
-      refs.help.open = true;
+      refs.statusTitle.textContent = 'Pasta indisponível';
+      refs.statusText.textContent = 'Não foi possível consultar a pasta agora. Tente sincronizar novamente.';
+      refs.statusText.hidden = false;
       throw error;
     }
   }

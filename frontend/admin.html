@@ -2609,17 +2609,17 @@
        ════════════════════════════════════════════════════════════ */
     .dl-admin-status-card {
       display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      gap: 16px;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 13px;
       align-items: center;
-      padding: 18px 20px;
+      padding: 15px 18px;
       margin-bottom: 18px;
       border: 1px solid #DCE4EF;
       border-radius: 14px;
       background: linear-gradient(135deg, #FFFFFF, #F7FAFE);
       box-shadow: 0 2px 12px rgba(19,31,53,.035);
     }
-    .dl-admin-status-card[data-state="ready"] { border-color: #BCE4CE; background: linear-gradient(135deg,#FFFFFF,#F2FBF6); }
+    .dl-admin-status-card[data-state="ready"] { border-color:#DCE4EF; background:#FFFFFF; }
     .dl-admin-status-card[data-state="error"] { border-color: #F2C6BE; background: linear-gradient(135deg,#FFFFFF,#FFF7F5); }
     .dl-status-orb {
       width: 44px; height: 44px;
@@ -2629,27 +2629,14 @@
       background: #E8F0FB;
     }
     .dl-status-orb svg { width: 23px; height: 23px; }
-    .dl-admin-status-card[data-state="ready"] .dl-status-orb { color: #147A4C; background: #DFF5E9; }
     .dl-admin-status-card[data-state="error"] .dl-status-orb { color: #B4432F; background: #FCE7E3; }
     .dl-status-copy { min-width: 0; }
-    .dl-status-copy h3 { font-family:'Sora',sans-serif; font-size:14px; line-height:1.35; color:#131F35; }
+    .dl-source-label {
+      display:block; margin-bottom:3px; color:#68758A; font-size:12px; font-weight:750;
+      letter-spacing:.035em; text-transform:uppercase;
+    }
+    .dl-status-copy h3 { color:#131F35; font-family:'Sora',sans-serif; font-size:15px; line-height:1.35; overflow-wrap:anywhere; }
     .dl-status-copy p { margin-top:3px; color:#687080; font-size:12.5px; }
-    .dl-status-meta { display:flex; gap:7px; flex-wrap:wrap; margin-top:8px; }
-    .dl-status-meta span {
-      display:inline-flex; align-items:center; gap:5px;
-      max-width:100%; padding:3px 9px; border-radius:99px;
-      color:#526071; background:rgba(255,255,255,.82); border:1px solid #E3E9F1;
-      font-size:10.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-    }
-    .dl-status-actions { display:flex; align-items:center; gap:8px; }
-    .dl-config-help {
-      margin:-6px 0 18px; border:1px solid #E5E8EF; border-radius:11px;
-      color:#526071; background:#FAFBFC; font-size:12.5px;
-    }
-    .dl-config-help summary { padding:10px 14px; cursor:pointer; font-weight:700; color:#354052; }
-    .dl-config-help ol { padding:0 18px 13px 34px; }
-    .dl-config-help li + li { margin-top:4px; }
-    .dl-config-help code { padding:1px 5px; border-radius:4px; color:#1E4C8F; background:#E8F0FB; font-size:11.5px; }
 
     .dl-admin-workspace {
       display:grid;
@@ -2860,8 +2847,6 @@
     }
     @media (max-width: 760px) {
       .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr); }
-      .dl-status-actions { grid-column:1 / -1; }
-      .dl-status-actions .ap-btn { width:100%; justify-content:center; }
       .dl-drive-table-head, .dl-drive-row { grid-template-columns:26px 31px minmax(130px,1fr) 34px; }
       .dl-drive-table-head span:nth-of-type(3), .dl-drive-table-head span:nth-of-type(4),
       .dl-drive-row > .dl-file-cell { display:none; }
@@ -2898,7 +2883,7 @@
       margin-bottom:10px;
     }
     .dl-command-strip .dl-admin-status-card {
-      min-height:92px;
+      min-height:78px;
       margin:0;
       padding:15px 17px;
       border-radius:16px;
@@ -2906,7 +2891,6 @@
     }
     .dl-status-copy h3 { font-size:15px; }
     .dl-status-copy p { color:#566276; font-size:13px; line-height:1.45; }
-    .dl-status-meta span { color:#475569; font-size:12px; }
 
     .dl-overview {
       display:grid;
@@ -2929,13 +2913,6 @@
     .dl-overview-item:first-child { border-left:0; }
     .dl-overview-item span { color:#647084; font-size:12px; font-weight:650; white-space:nowrap; }
     .dl-overview-item strong { color:#14213A; font:700 22px/1 'Sora',sans-serif; font-variant-numeric:tabular-nums; }
-
-    .dl-config-help { margin:0 0 18px; }
-    .dl-config-help summary { min-height:42px; display:flex; align-items:center; justify-content:space-between; gap:12px; list-style:none; font-size:13px; }
-    .dl-config-help summary::-webkit-details-marker { display:none; }
-    .dl-config-help summary::after { content:'+'; color:#1E4C8F; font-size:18px; font-weight:600; }
-    .dl-config-help[open] summary::after { content:'−'; }
-    .dl-config-help li { color:#536074; font-size:13px; line-height:1.5; }
 
     .dl-workflow-intro {
       display:flex;
@@ -3262,7 +3239,6 @@
 
     .dl-admin-feedback { font-size:13px; line-height:1.45; }
     .dl-admin-card :is(button, input, select, summary, a):focus-visible,
-    .dl-config-help summary:focus-visible,
     .dl-results-summary strong:focus-visible,
     .dl-drive-list:focus-visible,
     .dl-category-list:focus-visible,
@@ -3300,9 +3276,7 @@
     @media (max-width:760px) {
       .dl-admin-side { grid-template-columns:1fr; }
       .dl-workflow-intro { align-items:flex-start; flex-direction:column; }
-      .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr) auto; }
-      .dl-status-actions { grid-column:auto; }
-      .dl-status-actions .ap-btn { width:auto; }
+      .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr); }
       .dl-drive-table-head,
       .dl-drive-row { grid-template-columns:34px 38px minmax(130px,1fr) 40px; }
       .dl-drive-table-head span.dl-col-name { display:block; }
@@ -3315,7 +3289,6 @@
       .dl-page-head .ap-section-head-actions { width:100%; flex-direction:column; }
       .dl-page-head .ap-section-head-actions .ap-btn { width:100%; flex:none; justify-content:center; }
       .dl-admin-status-card { grid-template-columns:auto minmax(0,1fr); }
-      .dl-status-actions { grid-column:2; justify-content:flex-start; }
       .dl-overview { grid-template-columns:1fr; }
       .dl-overview-item { min-height:64px; border-left:0; border-top:1px solid #EDF0F4; }
       .dl-overview-item:first-child { border-top:0; }
@@ -4517,20 +4490,14 @@
         </div>
 
         <div class="dl-command-strip">
-          <div class="dl-admin-status-card" id="driveStatusCard" data-state="loading" role="status" aria-live="polite">
-            <div class="dl-status-orb">
+          <div class="dl-admin-status-card" id="driveStatusCard" data-state="loading" role="status" aria-live="polite" aria-atomic="true">
+            <div class="dl-status-orb" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7a5 5 0 0 1-.6-9.96A7 7 0 0 1 20 9.5 4 4 0 0 1 17 17z"/><path d="M12 11v8"/><polyline points="9 16 12 19 15 16"/></svg>
             </div>
             <div class="dl-status-copy">
-              <h3 id="driveStatusTitle">Verificando integração…</h3>
-              <p id="driveStatusText">Consultando a configuração segura do servidor.</p>
-              <div class="dl-status-meta" id="driveStatusMeta" hidden>
-                <span id="driveAccountMeta" hidden></span>
-                <span id="driveRootMeta" hidden></span>
-              </div>
-            </div>
-            <div class="dl-status-actions">
-              <span class="ap-pill gray" id="driveStatusPill">Verificando</span>
+              <span class="dl-source-label">Pasta do Google Drive</span>
+              <h3 id="driveStatusTitle">Verificando pasta…</h3>
+              <p id="driveStatusText" hidden></p>
             </div>
           </div>
 
@@ -4549,15 +4516,6 @@
             </div>
           </div>
         </div>
-
-        <details class="dl-config-help" id="driveConfigHelp">
-          <summary>Detalhes da conexão com o Google Drive</summary>
-          <ol>
-            <li>A API do Google Drive deve estar habilitada para a conta de serviço.</li>
-            <li>A pasta raiz deve estar compartilhada com <code id="driveHelpEmail">a conta de serviço</code>.</li>
-            <li>As credenciais e o ID da pasta ficam somente nas variáveis protegidas do backend.</li>
-          </ol>
-        </details>
 
         <div class="dl-admin-feedback" id="downloadsFeedback" role="status" aria-live="polite" tabindex="-1"></div>
 
@@ -5011,7 +4969,7 @@
 <script src="/js/order-store.js?v=20260902-3"></script>
 <script type="module" src="/js/admin.js?v=20260902-3"></script>
 <script src="/js/admin-customers.js?v=20260902-3"></script>
-<script type="module" src="/js/admin-downloads.js?v=20260904-4"></script>
+<script type="module" src="/js/admin-downloads.js?v=20260904-5"></script>
 
 <!-- Dashboard charts (vanilla SVG, sem dependências) -->
 <script>
