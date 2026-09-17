@@ -52,6 +52,20 @@ test('catálogo de 21 itens aparece em seis páginas sem perdas ou duplicatas', 
 test('mais sem contexto não presume uma listagem', async () => {
   assert.equal(await flow.catalogoDireto('mais', [{ role: 'user', content: 'mais' }], 'pt'), null);
 });
+
+test('produto conhecido responde sim explicitamente à dúvida sobre ausência', () => {
+  assert.match(flow.consultaExistencia({ produtos: [p], total: 1 }, 'Ver-Mi-Sal não tem no catálogo?', 'pt').resposta, /^Sim, Ver-Mi-Sal está no catálogo/);
+  assert.equal(flow.consultaExistencia({ produtos: [p] }, 'Não quero Ver-Mi-Sal', 'pt'), null);
+  assert.equal(flow.consultaExistencia({ produtos: [p] }, 'Ver-Mi-Sal não tem contraindicação na gestação?', 'pt'), null);
+  assert.equal(flow.ehConsultaSimples('Quero saber mais sobre Ver-Mi-Sal na gestação'), false);
+});
+
+test('código desconhecido não vira conselho para usar outra linha', () => {
+  const r = flow.nomeComCodigoNaoLocalizado('Quero saber mais sobre Difly S2', 'pt');
+  assert.deepEqual(r.cards, []);
+  assert.match(r.resposta, /Não vou substituir/);
+  assert.equal(flow.nomeComCodigoNaoLocalizado('Quero saber mais sobre controle de mosca', 'pt'), null);
+});
 test('Suino Nobre encontra palavra inteira compactada, não abre equivalência para suino genérico', () => {
   const ps = [{ nome: 'Farinha SUINONOBRE (4 Fardos de 25kg)', handle: 'farinha-suinonobre-fardo-25-x-1kg' }];
   assert.equal(buscarNoCatalogo('Suino Nobre', ps).produtos[0]?.handle, ps[0].handle);

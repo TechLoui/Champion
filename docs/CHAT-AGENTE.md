@@ -10,7 +10,7 @@ compatível com OpenAI) e busca todo dado no Shopify que o site já usa.
 
 ### Refinamentos de 17/09/2026
 
-Versão da API: `chat-2026-09-17-refinamentos-v3`.
+Versão da API: `chat-2026-09-17-refinamentos-v4`.
 
 - Consulta geral ou foto de um nome único: resposta breve ancorada no catálogo,
   com card, embalagens atuais e distinção entre disponível e sem estoque.
@@ -33,6 +33,12 @@ Versão da API: `chat-2026-09-17-refinamentos-v3`.
 Executar `npm test` em `backend` e `node tools/test-mapa-empresa.cjs` na raiz.
 O frontend atualizado precisa ser enviado à Hostinger para ativar paginação
 e travas visuais; o push do backend atualiza somente a API no Railway.
+
+O chat usa opções de embalagem fixas e quantidade dentro do card. Não há
+"Ver foto", carrossel automático ou modal intermediário. No celular ocupa a
+área visível, com cabeçalho e campo fixos; só a conversa rola. O carrinho abre
+apenas por ação do cliente. A rolagem da resposta usa coordenadas da conversa,
+não `offsetTop` relativo à página, e não é alterada pela carga das fotos.
 
 ```
 navegador                    Railway (backend)                serviços

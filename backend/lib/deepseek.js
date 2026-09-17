@@ -115,8 +115,14 @@ async function responder(historico, idiomaSite, opcoes = {}) {
       if (recusa) return recusa;
       const confirmado = await flow.produtoConfirmado(historico);
       const consulta = confirmado || await tools.consultarMencionados(ultimaMensagem.content, coletor);
+      if (!consulta) {
+        const desconhecido = flow.nomeComCodigoNaoLocalizado(ultimaMensagem.content, idioma);
+        if (desconhecido) return desconhecido;
+      }
       if (consulta) {
         if (!consulta.produtos.length && consulta.sugestoes?.length) return flow.perguntaConfirmacao(consulta.sugestoes, idioma);
+        const existencia = flow.consultaExistencia(consulta, ultimaMensagem.content, idioma);
+        if (existencia) return existencia;
         if (confirmado || flow.ehConsultaSimples(ultimaMensagem.content)) {
           const breve = flow.consultaBreve(consulta, idioma);
           if (breve) return breve;

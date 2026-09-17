@@ -29,7 +29,7 @@ function perguntaConfirmacao(sugestoes, idioma) {
 
 function ehConsultaSimples(texto) {
   const t = normalizar(texto);
-  if (/\b(dose|dosagem|aplicar|aplicacao|composicao|concentracao|modo|mistur|tratamento|doente|sintoma|prenhe|gestante|bezerro|comparar|compare|difference|composition|dosage|dosis|usar|use|calcular|quantos|quantas|preco|price|precio|custa|adicion|coloc|comprar|buy|add|cart|carrinho)\w*/.test(t)) return false;
+  if (/\b(dose|dosagem|aplicar|aplicacao|composicao|concentracao|modo|mistur|tratamento|doente|sintoma|prenhe|gestante|gestacao|gravid|pregnan|seguran|safe|contraindic|bezerro|comparar|compare|difference|composition|dosage|dosis|usar|uso|use|calcular|quantos|quantas|preco|price|precio|custa|adicion|coloc|comprar|buy|add|cart|carrinho)\w*/.test(t)) return false;
   if (/\b(nao|not|dont|don t)\b|\bno quiero\b/.test(t)) return false;
   return /\b(foto|photo|picture|image|imagem)\b/.test(t) ||
     /^(?:quero|gostaria de|queria|i want to|quiero) (?:saber mais|conhecer|know more|saber mas)/.test(t);
@@ -109,4 +109,26 @@ function recusaConfirmacao(historico, idioma) {
     es: '¿Qué producto buscas? Envía otra parte del nombre o pide el catálogo.' }[idioma]);
 }
 
-module.exports = { idiomaDoCliente, perguntaConfirmacao, ehConsultaSimples, consultaBreve, catalogoDireto, produtoConfirmado, recusaConfirmacao };
+function consultaExistencia(consulta, texto, idioma) {
+  const t = normalizar(texto);
+  if (!/catalogo|catalog|mencionou|mentioned|mencionaste/.test(t) ||
+      /\b(dose|dosagem|gesta|prenhe|pregnan|contraindic|composicao|composition|comprar|buy|estoque|stock)\w*/.test(t)) return null;
+  if (!/nao (?:tem|esta|consta|mencionou)|not (?:in|mentioned)|don t have|no (?:tienen|esta|mencionaste)/.test(t) ||
+      /nao quero|don t want|no quiero/.test(t)) return null;
+  const breve = consultaBreve(consulta, idioma);
+  if (!breve) return null;
+  const p = consulta.produtos[0];
+  breve.resposta = { pt: `Sim, ${p.nome} está no catálogo.`, en: `Yes, ${p.nome} is in the catalog.`,
+    es: `Sí, ${p.nome} está en el catálogo.` }[idioma] + '\n\n' + breve.resposta;
+  return breve;
+}
+
+function nomeComCodigoNaoLocalizado(texto, idioma) {
+  const t = normalizar(texto);
+  if (!/\b[a-z]+ ?\d+[a-z]*\b/.test(t) || !/saber mais|know more|saber mas|\btem\b|\bt[eê]m\b|\bhave\b|\btienen\b/.test(t)) return null;
+  return resultado({ pt: 'Não localizei esse nome e código no catálogo consultado. Não vou substituir por outra linha. Confirme o nome ou peça o catálogo para conferir as opções oficiais.',
+    en: 'I could not find that name and code in the catalog. I will not replace it with another product line. Confirm the name or ask for the catalog to check the official options.',
+    es: 'No encontré ese nombre y código en el catálogo. No lo sustituiré por otra línea. Confirma el nombre o pide el catálogo para revisar las opciones oficiales.' }[idioma]);
+}
+
+module.exports = { idiomaDoCliente, perguntaConfirmacao, ehConsultaSimples, consultaBreve, catalogoDireto, produtoConfirmado, recusaConfirmacao, consultaExistencia, nomeComCodigoNaoLocalizado };
