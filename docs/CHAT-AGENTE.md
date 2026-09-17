@@ -10,7 +10,7 @@ compatível com OpenAI) e busca todo dado no Shopify que o site já usa.
 
 ### Refinamentos de 17/09/2026
 
-Versão da API: `chat-2026-09-17-refinamentos-v4`.
+Versão da API: `chat-2026-09-17-refinamentos-v5`.
 
 - Consulta geral ou foto de um nome único: resposta breve ancorada no catálogo,
   com card, embalagens atuais e distinção entre disponível e sem estoque.

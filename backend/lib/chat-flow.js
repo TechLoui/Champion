@@ -39,26 +39,21 @@ function descricaoBreve(produto) {
   const texto = String(produto.resumo || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
   const informacao = texto.split(/Apresenta[çc]|Modo de us[oa]r?|Dosagem|Posologia/i)[0];
   const primeira = informacao.match(/^.*?[.!?](?:\s|(?=[A-ZÀ-Ý])|$)/)?.[0].trim() || informacao;
-  if (primeira.length <= 180) return primeira;
-  const fim = primeira.slice(0, 176).lastIndexOf(' ');
-  return primeira.slice(0, Math.max(fim, 120)).replace(/[ ,;:]$/, '') + '…';
+  if (primeira.length <= 140) return primeira;
+  const fim = primeira.slice(0, 136).lastIndexOf(' ');
+  return primeira.slice(0, Math.max(fim, 100)).replace(/[ ,;:]$/, '') + '…';
 }
 
 function consultaBreve(consulta, idioma) {
   if (consulta.produtos.length !== 1 || (consulta.total || 1) > 1) return null;
   const p = prepararProduto(consulta.produtos[0]);
   const vendaveis = p.apresentacoes.filter((a) => a.compravel);
-  const esgotadas = p.apresentacoes.filter((a) => !a.disponivel);
   const sobConsulta = p.apresentacoes.filter((a) => a.sobConsulta);
-  const nomes = vendaveis.map((a) => a.apresentacao).join(', ');
-  const semEstoque = esgotadas.map((a) => a.apresentacao).join(', ');
   const partes = [idioma === 'pt' ? (descricaoBreve(p) || p.nome) : p.nome];
-  if (vendaveis.length) partes.push({ pt: `Disponível: ${nomes}.`, en: `Available: ${nomes}.`, es: `Disponible: ${nomes}.` }[idioma]);
-  if (esgotadas.length) partes.push({ pt: `Sem estoque: ${semEstoque}.`, en: `Out of stock: ${semEstoque}.`, es: `Agotado: ${semEstoque}.` }[idioma]);
   if (sobConsulta.length) partes.push({ pt: `Preço sob consulta. Confirme o valor com a equipe: ${WHATSAPP}.`, en: `Price on request. Contact the team: ${WHATSAPP}.`, es: `Precio a consultar. Contacta al equipo: ${WHATSAPP}.` }[idioma]);
-  else if (vendaveis.length) partes.push({ pt: 'Quer escolher uma dessas apresentações e a quantidade?', en: 'Which available size and quantity would you like?', es: '¿Qué presentación disponible y cantidad prefieres?' }[idioma]);
+  else if (vendaveis.length) partes.push({ pt: 'Escolha uma embalagem disponível abaixo.', en: 'Choose an available size below.', es: 'Elige una presentación disponible abajo.' }[idioma]);
   else partes.push({ pt: `Consulte a equipe para reposição: ${WHATSAPP}.`, en: `Ask the team about restocking: ${WHATSAPP}.`, es: `Consulta la reposición con el equipo: ${WHATSAPP}.` }[idioma]);
-  return resultado(partes.join('\n\n'), [p]);
+  return resultado(partes.join('\n'), [p]);
 }
 
 function offsetDoHistorico(historico) {

@@ -10,8 +10,9 @@ const p = { nome: 'Ver-Mi-Sal', handle: 'ver-mi-sal', resumo: 'Ver-Mi-Sal é um 
 
 test('consulta geral é breve, respeita estoque e não repete embalagem antiga', () => {
   const r = flow.consultaBreve({ produtos: [p], total: 1 }, 'pt');
-  assert.match(r.resposta, /Disponível: Balde 10 kg/);
-  assert.match(r.resposta, /Sem estoque: Pote 1,110 kg/);
+  assert.match(r.resposta, /embalagem disponível abaixo/);
+  assert.equal(r.cards[0].apresentacoes[0].compravel, false);
+  assert.equal(r.cards[0].apresentacoes[1].compravel, true);
   assert.doesNotMatch(r.resposta, /1,100|dosagem/i);
   assert.ok(r.resposta.length < 400);
 });
