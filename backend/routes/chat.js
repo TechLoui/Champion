@@ -69,7 +69,7 @@ async function registrarConversa(dados) {
 
 /* `versao` existe para responder de fora a pergunta "o Railway já subiu o meu
    último commit?" — sem ela, a única forma de saber era pelo comportamento. */
-const VERSAO = 'chat-2026-09-17-refinamentos-v2';
+const VERSAO = 'chat-2026-09-17-refinamentos-v3';
 
 router.get('/health', (_req, res) => {
   res.json({
@@ -145,6 +145,7 @@ router.post('/', async (req, res) => {
 
     res.json({
       resposta: resultado.resposta,
+      versao: VERSAO,
       /* Cards de produto: dado estruturado, renderizado pelo widget com a foto
          de verdade. Não é texto e não passa pelo modelo de novo. */
       produtos: cards,

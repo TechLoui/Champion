@@ -37,8 +37,8 @@ function ehConsultaSimples(texto) {
 
 function descricaoBreve(produto) {
   const texto = String(produto.resumo || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-  const informacao = texto.split(/Apresenta[çc]|Modo de uso|Dosagem|Posologia/i)[0];
-  const primeira = informacao.match(/^.*?[.!?](?:\s|$)/)?.[0].trim() || informacao;
+  const informacao = texto.split(/Apresenta[çc]|Modo de us[oa]r?|Dosagem|Posologia/i)[0];
+  const primeira = informacao.match(/^.*?[.!?](?:\s|(?=[A-ZÀ-Ý])|$)/)?.[0].trim() || informacao;
   if (primeira.length <= 180) return primeira;
   const fim = primeira.slice(0, 176).lastIndexOf(' ');
   return primeira.slice(0, Math.max(fim, 120)).replace(/[ ,;:]$/, '') + '…';

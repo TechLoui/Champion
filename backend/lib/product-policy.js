@@ -31,7 +31,10 @@ function rotuloUnico(node) {
 }
 
 function prepararProduto(produto) {
-  return { ...produto, apresentacoes: (produto.apresentacoes || []).map(normalizarApresentacao) };
+  const resumo = String(produto.resumo || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+    .split(/Apresenta[çc][ãa]o|Modo de us[oa]r?|Dosagem|Posologia|Administra[çc][ãa]o/i)[0].trim();
+  return { ...produto, resumo: /[<>]/.test(resumo) ? '' : resumo,
+    apresentacoes: (produto.apresentacoes || []).map(normalizarApresentacao) };
 }
 
 function fichaParaAgente(produto) {

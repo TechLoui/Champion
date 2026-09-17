@@ -35,3 +35,8 @@ test('ficha não altera rótulo original e avisa sobre campos ausentes e embalag
   assert.equal(p.modo_de_uso, undefined);
   assert.equal(p.avisos_cadastro.length, 3);
 });
+
+test('card de consulta geral não inclui modo de usar ou HTML malformado', () => {
+  assert.equal(fichaParaAgente({ resumo: 'Indicação registrada. Modo de usar: instruções técnicas', apresentacoes: [] }).resumo, 'Indicação registrada.');
+  assert.equal(fichaParaAgente({ resumo: 'Texto > quebrado', apresentacoes: [] }).resumo, '');
+});
