@@ -40,6 +40,29 @@ O chat usa opções de embalagem fixas e quantidade dentro do card. Não há
 apenas por ação do cliente. A rolagem da resposta usa coordenadas da conversa,
 não `offsetTop` relativo à página, e não é alterada pela carga das fotos.
 
+### QA visual reproduzível (PowerShell)
+
+Em um terminal, executar `node tools/qa-static-server.cjs`. O servidor de QA
+fica apenas em `127.0.0.1:5510`; usa respostas salvas, se presentes, ou monta
+fixtures com o catálogo público. Não cria pedidos nem executa checkout.
+
+Em outro terminal:
+
+```powershell
+npx --yes --package @playwright/cli playwright-cli -s=champion-qa open http://127.0.0.1:5510/index.html
+$qaScript = (Get-Content tools/qa-chat-layout.cjs -Encoding UTF8) -join ' '
+$qaScript = $qaScript.Replace('__ENGINE__', 'chromium')
+npx --yes --package @playwright/cli playwright-cli -s=champion-qa run-code $qaScript
+npx --yes --package @playwright/cli playwright-cli -s=champion-qa close
+```
+
+`qa-chat-ui.cjs` testa paginação, preço sob consulta, estoque e inclusão única
+com mocks de navegador; `qa-chat-layout.cjs` confere encaixe em seis tamanhos.
+As capturas ficam em `output/playwright`. Para WebKit, abrir outra sessão com
+`--browser=webkit --device="iPhone 13"`. Encerrar o servidor de QA ao terminar.
+Gerar pacote com `powershell -File tools/build-hostinger.ps1`; ele não sobrescreve
+ZIP existente e verifica por hash todos os arquivos incluídos.
+
 ```
 navegador                    Railway (backend)                serviços
 ─────────                    ─────────────────                ────────

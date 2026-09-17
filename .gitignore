@@ -8,6 +8,11 @@ champion-site-hostinger*.zip
 .cache/
 .parcel-cache/
 
+# Browser verification artifacts
+.playwright-cli/
+output/playwright/
+output/qa-ia-*/
+
 # Env / secrets
 .env
 .env.local

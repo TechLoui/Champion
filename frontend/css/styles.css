@@ -9346,6 +9346,94 @@ body.chat-modal-aberto { overflow: hidden; }
 .chat-card-acoes { gap: 6px; margin-top: 6px; }
 .chat-card-cta { padding: 7px 13px; font-size: 12.5px; }
 
+/* Chat: uma área de leitura, embalagens estáticas e compra no próprio card. */
+.chat-painel { width: min(440px, calc(100vw - 32px)); height: min(700px, calc(100dvh - 36px)); transform: none; transition: opacity 0.15s; }
+body.chat-aberto .chat-fab { display: none; }
+body.chat-aberto .whatsapp-float, body.chat-aberto .cart-float,
+body.chat-aberto .scroll-top-btn, body.chat-aberto .mobile-menu-fab { visibility: hidden !important; pointer-events: none !important; }
+.chat-resposta-produtos { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+.chat-resposta-produtos > .chat-msg { width: 100%; max-width: 100%; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; margin: 0 0 12px; animation: none; }
+.chat-resposta-produtos .chat-card { padding: 0; border: 0; border-radius: 0; box-shadow: none; }
+.chat-resposta-produtos .chat-card + .chat-card { padding-top: 12px; border-top: 1px solid var(--line); }
+.chat-corpo { overflow-x: hidden; scroll-behavior: auto; overflow-anchor: none; scrollbar-width: thin; }
+.chat-corpo > * { flex-shrink: 0; min-width: 0; }
+.chat-msg { max-width: 94%; line-height: 1.45; animation: none; }
+.chat-msg-user { max-width: 90%; }
+.chat-cards { width: 100%; max-width: 100%; animation: none; }
+.chat-card {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  min-width: 0;
+  transition: none;
+}
+.chat-card:hover { transform: none; box-shadow: 0 1px 2px rgba(16,32,64,0.05); }
+.chat-card-foto { width: 56px; height: 56px; }
+.chat-card-body { min-width: 0; gap: 5px; }
+.chat-card-body strong { overflow-wrap: anywhere; }
+.chat-card-body strong a { color: inherit; text-decoration: none; }
+.chat-card-body strong a:hover { text-decoration: underline; }
+.chat-card-dica { font-size: 11px; line-height: 1.35; color: var(--muted); }
+.chat-options { grid-column: 1 / -1; display: grid; gap: 6px; min-width: 0; }
+.chat-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.chat-option-nome { font-size: 13px; line-height: 1.3; overflow-wrap: anywhere; }
+.chat-option-preco { font-size: 13px; font-weight: 700; color: var(--blue); white-space: nowrap; }
+.chat-option-status { grid-column: 1 / -1; color: var(--muted); font-size: 11px; }
+.chat-option:disabled { cursor: default; background: #f6f7f9; color: var(--muted); }
+.chat-option:disabled .chat-option-preco { color: var(--muted); }
+.chat-option.is-selected, .chat-option:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-tint); }
+.chat-option:focus-visible, .chat-inline-qtd button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.chat-inline-qtd { grid-column: 1 / -1; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.chat-inline-qtd .chat-stepper button { width: 40px; height: 42px; }
+.chat-inline-qtd output { min-width: 26px; font-size: 14px; font-weight: 700; text-align: center; }
+.chat-inline-add { flex: 1; min-width: 0; height: 44px; padding: 0 10px; border: 0; border-radius: 10px; color: white; background: var(--blue); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.chat-inline-cancel { flex-shrink: 0; width: 32px; height: 44px; border: 0; background: transparent; font-size: 22px; color: var(--muted); cursor: pointer; }
+.chat-consulta-link { grid-column: 1 / -1; font-size: 13px; color: var(--blue); }
+.chat-mais-produtos { align-self: flex-start; flex-shrink: 0; min-height: 44px; padding: 10px 16px; }
+.chat-mais-produtos:disabled { display: none; }
+.chat-form textarea { height: 44px; min-height: 44px; padding: 10px 12px; line-height: 22px; overflow-y: hidden; }
+.chat-form button { width: 44px; height: 44px; }
+
+@media (max-width: 560px), (max-width: 900px) and (max-height: 500px) and (pointer: coarse) {
+  html.chat-page-aberta { overflow: hidden; scrollbar-gutter: auto; }
+  body.chat-aberto { overflow: hidden; }
+  body.chat-aberto .chat-widget {
+    top: var(--chat-vtop, 0px); left: 0; right: 0; bottom: auto;
+    height: var(--chat-vh, 100dvh); gap: 0;
+  }
+  body.chat-aberto .chat-painel {
+    width: 100%; height: 100%; max-height: none;
+    border: 0; border-radius: 0; transform: none;
+  }
+  .chat-head { padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px; }
+  .chat-head-marca { width: 34px; height: 34px; flex-basis: 34px; font-size: 16px; }
+  .chat-head-info strong { font-size: 14px; }
+  .chat-head-info span { font-size: 11px; }
+  .chat-close { width: 40px; height: 40px; }
+  .chat-corpo { padding: 12px; gap: 8px; }
+  .chat-msg { max-width: 100%; padding: 10px 12px; font-size: 14px; }
+  .chat-msg-user { max-width: 90%; }
+  .chat-form { padding: 10px 12px; gap: 6px; }
+  .chat-aviso { display: block; padding: 0 12px calc(8px + env(safe-area-inset-bottom, 0px)); font-size: 10px; line-height: 1.3; }
+  .chat-carrinho { max-height: 40%; overflow-y: auto; }
+}
+
 /* ================================================================
    CONTATO — página central de atendimento
    ================================================================ */
@@ -9888,38 +9976,31 @@ body.mapa-aberto { overflow: hidden; }
   display: grid;
   place-items: center;
   overflow: hidden;
+  overscroll-behavior: contain;
   touch-action: none; /* o zoom é nosso, não o do navegador */
   cursor: grab;
 }
 .mapa-overlay.is-arrastando .mapa-palco { cursor: grabbing; }
 
 .mapa-img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
   display: block;
   width: auto;
   height: auto;
-  max-width: 100%;
-  max-height: 100%;
+  max-width: none;
+  max-height: none;
   object-fit: contain;
   transform-origin: center center;
-  will-change: transform;
+  image-rendering: auto;
+  filter: none;
   user-select: none;
   -webkit-user-drag: none;
 }
-/* Sem transição durante o arrasto: o atraso faz a imagem escorregar atrás do
-   dedo. */
-.mapa-overlay:not(.is-arrastando) .mapa-img {
-  transition: transform 0.16s var(--ease, ease);
-}
-
-/* Giro por CSS, para quando o navegador não deixa travar a orientação (o
-   Safari do iPhone nunca deixa). As medidas são trocadas de propósito: a
-   imagem passa a ocupar a altura da tela na largura e vice-versa. */
-.mapa-overlay.is-girado .mapa-img {
-  max-width: 100vh;
-  max-height: 100vw;
-  max-width: 100dvh;
-  max-height: 100dvw;
-}
+/* Não promove uma miniatura permanente para a GPU nem anima a transformação:
+   largura/altura são calculadas sobre o original em cada nível de zoom.
+   A imagem fica ancorada ao centro real, inclusive com o giro de 90 graus. */
 
 /* Carregamento — o mapa tem 18,8 MB e no celular isso é meia dúzia de segundos
    de espera. Tela preta sem sinal de vida parece travamento. */
@@ -10055,18 +10136,18 @@ body.mapa-aberto { overflow: hidden; }
 /* Com o conteúdo girado, os controles giram junto — senão ficariam de lado em
    relação ao mapa e a pessoa teria que inclinar a cabeça para ler. */
 .mapa-overlay.is-girado .mapa-fechar {
-  top: auto;
-  bottom: max(14px, env(safe-area-inset-bottom, 0px));
-  right: max(14px, env(safe-area-inset-right, 0px));
-  transform: rotate(90deg);
-  transform-origin: right bottom;
+  top: max(70px, calc(env(safe-area-inset-top, 0px) + 60px));
+  left: max(38px, calc(env(safe-area-inset-left, 0px) + 24px));
+  bottom: auto;
+  right: auto;
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 .mapa-overlay.is-girado .mapa-zoom {
-  left: auto;
-  right: max(10px, env(safe-area-inset-right, 0px));
+  left: calc(100% - max(32px, calc(env(safe-area-inset-right, 0px) + 28px)));
+  right: auto;
   top: 50%;
   bottom: auto;
-  transform: translateY(-50%) rotate(90deg);
+  transform: translate(-50%, -50%) rotate(90deg);
 }
 .mapa-overlay.is-girado .mapa-dica { display: none; }
 

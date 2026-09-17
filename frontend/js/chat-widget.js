@@ -40,7 +40,7 @@
       conviteSub: 'Tire dúvidas e monte seu pedido',
       conviteFechar: 'Dispensar convite',
       fechar: 'Fechar atendimento',
-      placeholder: 'Escreva sua mensagem...',
+      placeholder: 'Mensagem...',
       enviar: 'Enviar',
       campo: 'Sua mensagem',
       saudacao:
@@ -56,6 +56,12 @@
       verFoto: 'Ver foto',
       escolher: 'Escolher',
       esgotado: 'Esgotado',
+      sobConsulta: 'Sob consulta',
+      mostrarMais: 'Mostrar mais produtos',
+      escolhaEmbalagem: 'Toque na embalagem para escolher a quantidade',
+      embalagem: 'Embalagem',
+      quantidade: 'Quantidade',
+      consultaEquipe: 'Consultar equipe',
       adicionar: 'Adicionar',
       cancelar: 'Cancelar',
       menos: 'Diminuir quantidade',
@@ -79,7 +85,7 @@
       conviteSub: 'Ask questions and build your order',
       conviteFechar: 'Dismiss',
       fechar: 'Close support chat',
-      placeholder: 'Type your message...',
+      placeholder: 'Message...',
       enviar: 'Send',
       campo: 'Your message',
       saudacao:
@@ -95,6 +101,12 @@
       verFoto: 'View photo',
       escolher: 'Choose',
       esgotado: 'Sold out',
+      sobConsulta: 'Price on request',
+      mostrarMais: 'Show more products',
+      escolhaEmbalagem: 'Tap a size to choose the quantity',
+      embalagem: 'Size',
+      quantidade: 'Quantity',
+      consultaEquipe: 'Contact the team',
       adicionar: 'Add',
       cancelar: 'Cancel',
       menos: 'Decrease quantity',
@@ -118,7 +130,7 @@
       conviteSub: 'Resuelve dudas y arma tu pedido',
       conviteFechar: 'Descartar',
       fechar: 'Cerrar atención',
-      placeholder: 'Escribe tu mensaje...',
+      placeholder: 'Mensaje...',
       enviar: 'Enviar',
       campo: 'Tu mensaje',
       saudacao:
@@ -134,6 +146,12 @@
       verFoto: 'Ver foto',
       escolher: 'Elegir',
       esgotado: 'Agotado',
+      sobConsulta: 'Precio a consultar',
+      mostrarMais: 'Mostrar más productos',
+      escolhaEmbalagem: 'Toca una presentación para elegir la cantidad',
+      embalagem: 'Presentación',
+      quantidade: 'Cantidad',
+      consultaEquipe: 'Consultar al equipo',
       adicionar: 'Añadir',
       cancelar: 'Cancelar',
       menos: 'Disminuir cantidad',
@@ -153,6 +171,7 @@
   let historico = [];
   let aberto = false;
   let enviando = false;
+  let posicaoScroll = null;
   let lang = 'pt';
   let els = {};
 
@@ -280,7 +299,8 @@
   function rolarParaTopo(el) {
     if (!el) return;
     requestAnimationFrame(function () {
-      els.corpo.scrollTop = Math.max(0, el.offsetTop - 8);
+      const destino = el.getBoundingClientRect().top - els.corpo.getBoundingClientRect().top + els.corpo.scrollTop - 12;
+      els.corpo.scrollTop = Math.max(0, destino);
     });
   }
 
@@ -318,23 +338,24 @@
     if (caixa) caixa.remove();
   }
 
-  function addBolha(papel, texto) {
+  function addBolha(papel, texto, destino) {
     const eUsuario = papel === 'user';
     const div = document.createElement('div');
     div.className = 'chat-msg chat-msg-' + (eUsuario ? 'user' : 'bot');
 
     /* Mensagens seguidas do mesmo lado se agrupam: espaçamento menor e só a
        primeira do bloco mantém o "rabinho" do balão. */
-    const anterior = els.corpo.lastElementChild;
+    const area = destino || els.corpo;
+    const anterior = area.lastElementChild;
     if (anterior && anterior.classList.contains(eUsuario ? 'chat-msg-user' : 'chat-msg-bot')) {
       div.classList.add('is-seguida');
     }
 
     div.innerHTML = formatar(texto);
-    els.corpo.appendChild(div);
+    area.appendChild(div);
     /* Mensagem nova sempre puxa a tela: quem acabou de escrever quer ver o
        que veio. */
-    rolarFim(true);
+    if (eUsuario) rolarFim(true);
     return div;
   }
 
@@ -347,122 +368,135 @@
     return /^https:\/\//i.test(s) ? s : '';
   }
 
-  function addCards(produtos) {
-    if (!Array.isArray(produtos) || !produtos.length) return;
+  function compravel(a) {
+    return Boolean(a && a.disponivel === true && a.compravel !== false &&
+      !a.sobConsulta && Number.isFinite(Number(a.precoNum)) && Number(a.precoNum) > 0);
+  }
 
+  function ehMobile() {
+    return window.matchMedia('(max-width: 560px), (pointer: coarse)').matches;
+  }
+
+  function precoApresentacao(a) {
+    return Number.isFinite(Number(a.precoNum)) && Number(a.precoNum) > 0 && !a.sobConsulta
+      ? (a.preco || moeda(a.precoNum)) : t('sobConsulta');
+  }
+
+  function addPagina(catalogo) {
+    if (!catalogo) return;
+    els.corpo.querySelectorAll('.chat-mais-produtos').forEach(function (b) { b.disabled = true; });
+    if (!Number.isInteger(catalogo.proximoOffset) || catalogo.proximoOffset < 1) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'chat-card-cta chat-mais-produtos';
+    btn.textContent = t('mostrarMais');
+    btn.addEventListener('click', async function () {
+      if (enviando) return;
+      btn.disabled = true;
+      const ok = await enviar(t('mostrarMais'), { catalogoOffset: catalogo.proximoOffset });
+      if (!ok) btn.disabled = false;
+    });
+    els.corpo.appendChild(btn);
+  }
+
+  function addCards(produtos, destino) {
+    if (!Array.isArray(produtos) || !produtos.length) return;
     const grade = document.createElement('div');
     grade.className = 'chat-cards';
-
-    /* Três, não quatro: com quatro, o último fica sempre fora da tela e o
-       cliente nem sabe que existe. */
-    produtos.slice(0, 3).forEach(function (p) {
-      const foto = urlSegura(p.foto);
-      const link = urlSegura(p.url);
-      const nome = escapar(p.nome || '');
-      const resumo = escapar(String(p.resumo || '').slice(0, 100));
-      const aprs = Array.isArray(p.apresentacoes) ? p.apresentacoes.slice(0, 6) : [];
-
+    produtos.slice(0, 4).forEach(function (p) {
+      const aprs = Array.isArray(p.apresentacoes) ? p.apresentacoes : [];
       const card = document.createElement('article');
       card.className = 'chat-card';
-
-      const partes = [];
-
-      /* Sem foto cadastrada no Shopify (ou imagem quebrada) o card mostra a
-         inicial do produto em vez de um buraco — degrada em vez de parecer
-         defeito. */
-      const inicial = escapar(String(p.nome || '?').trim().charAt(0).toUpperCase());
-      if (foto) {
-        partes.push(
-          '<div class="chat-card-foto"><img src="' + foto + '" alt="' + nome +
-          '" loading="lazy" onerror="this.parentElement.classList.add(\'sem-foto\');' +
-          'this.parentElement.textContent=\'' + inicial + '\'"></div>'
-        );
+      const foto = document.createElement('div');
+      foto.className = 'chat-card-foto';
+      const inicial = String(p.nome || '?').trim().charAt(0).toUpperCase();
+      const imagem = urlSegura(p.foto);
+      if (imagem) {
+        const img = document.createElement('img');
+        img.src = imagem;
+        img.alt = p.nome || '';
+        img.addEventListener('error', function () {
+          foto.classList.add('sem-foto');
+          foto.textContent = inicial;
+        });
+        foto.appendChild(img);
       } else {
-        partes.push('<div class="chat-card-foto sem-foto">' + inicial + '</div>');
+        foto.classList.add('sem-foto');
+        foto.textContent = inicial;
       }
-
-      partes.push('<div class="chat-card-body">');
-      partes.push('<strong>' + nome + '</strong>');
-      if (resumo) partes.push('<p>' + resumo + '</p>');
-
-      /* Uma apresentação: preço fixo. Várias: slides que se alternam, cada um
-         com o nome da embalagem e o preço dela. É onde o cliente percebe que
-         existe embalagem maior — o preço isolado esconde essa escolha. */
-      if (aprs.length) {
-        partes.push('<div class="chat-slider" data-i="0">');
-        aprs.forEach(function (a, i) {
-          const rotulo = escapar(a.apresentacao || '');
-          const preco = escapar(a.preco || '');
-          partes.push(
-            '<button type="button" class="chat-slide' + (i === 0 ? ' is-active' : '') + '"' +
-            ' data-i="' + i + '"' +
-            ' tabindex="' + (i === 0 ? '0' : '-1') + '">' +
-            (aprs.length > 1 ? '<span class="chat-slide-nome">' + rotulo + '</span>' : '') +
-            '<span class="chat-slide-preco">' + preco + '</span>' +
-            '</button>'
-          );
-        });
-        partes.push('</div>');
-
-        if (aprs.length > 1) {
-          partes.push('<div class="chat-dots">');
-          aprs.forEach(function (a, i) {
-            partes.push(
-              '<button type="button" class="chat-dot' + (i === 0 ? ' is-active' : '') +
-              '" data-ir="' + i + '" aria-label="' + escapar(a.apresentacao || '') + '"></button>'
-            );
-          });
-          partes.push('</div>');
-        }
-      }
-
-      /* Duas ações: a janela ampliada (foto grande + todas as variações de
-         uma vez) e a página completa do produto no site. */
-      partes.push('<div class="chat-card-acoes">');
-      partes.push(
-        '<button type="button" class="chat-card-cta chat-card-vars">' +
-        escapar(aprs.length > 1 ? t('verVariacoes') : t('verFoto')) + '</button>'
-      );
+      card.appendChild(foto);
+      const info = document.createElement('div');
+      info.className = 'chat-card-body';
+      const nome = document.createElement('strong');
+      const link = urlSegura(p.url);
       if (link) {
-        partes.push(
-          '<a class="chat-card-link" href="' + link + '" target="_blank" rel="noopener">' +
-          escapar(t('verDetalhes')) + '</a>'
-        );
-      }
-      partes.push('</div>');
-
-      partes.push('</div>');
-      card.innerHTML = partes.join('');
-
-      /* Tocar numa apresentação abre o seletor de quantidade — não manda o
-         pedido direto, porque quantidade é decisão do cliente. */
-      card.querySelectorAll('.chat-slide').forEach(function (btn) {
+        const a = document.createElement('a');
+        a.href = link;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.title = t('verDetalhes');
+        a.textContent = p.nome || '';
+        nome.appendChild(a);
+      } else nome.textContent = p.nome || '';
+      info.appendChild(nome);
+      const dica = document.createElement('span');
+      dica.className = 'chat-card-dica';
+      dica.textContent = aprs.some(compravel) ? t('escolhaEmbalagem') : t('consultaEquipe');
+      info.appendChild(dica);
+      card.appendChild(info);
+      const variantes = document.createElement('div');
+      variantes.className = 'chat-options';
+      aprs.forEach(function (a) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chat-option';
+        btn.disabled = !compravel(a);
+        btn.innerHTML = '<span class="chat-option-nome"></span><span class="chat-option-preco"></span>';
+        btn.querySelector('.chat-option-nome').textContent = a.apresentacao || t('embalagem');
+        btn.querySelector('.chat-option-preco').textContent = precoApresentacao(a);
+        if (a.disponivel === false) {
+          const status = document.createElement('small');
+          status.className = 'chat-option-status';
+          status.textContent = t('esgotado');
+          btn.appendChild(status);
+        }
+        btn.setAttribute('aria-expanded', 'false');
         btn.addEventListener('click', function () {
-          pedirQuantidade(p, aprs[Number(btn.dataset.i) || 0]);
+          if (enviando) return;
+          pedirQuantidade(p, a, card);
+          btn.classList.add('is-selected');
+          btn.setAttribute('aria-expanded', 'true');
         });
+        variantes.appendChild(btn);
       });
-
-      card.querySelectorAll('.chat-dot').forEach(function (dot) {
-        dot.addEventListener('click', function () {
-          irPara(card.querySelector('.chat-slider'), Number(dot.dataset.ir));
-        });
-      });
-
-      /* Closure com o produto: nada de serializar objeto em atributo. */
-      card.querySelector('.chat-card-vars').addEventListener('click', function () {
-        abrirModal(p);
-      });
-
-      /* A foto entra depois do layout. Se o cliente estava acompanhando o fim
-         da conversa, reencosta no fim quando ela chega. */
-      const img = card.querySelector('.chat-card-foto img');
-      if (img) img.addEventListener('load', function () { rolarFim(); });
-
+      card.appendChild(variantes);
+      if (!aprs.some(compravel)) {
+        const contato = document.createElement('a');
+        contato.className = 'chat-consulta-link';
+        contato.href = 'https://wa.me/556240150742';
+        contato.target = '_blank';
+        contato.rel = 'noopener';
+        contato.textContent = t('consultaEquipe');
+        card.appendChild(contato);
+      }
       grade.appendChild(card);
     });
+    (destino || els.corpo).appendChild(grade);
+    return grade;
+  }
 
-    els.corpo.appendChild(grade);
-    rolarFim(true);
+  function addResposta(texto, cards, catalogo) {
+    let ancora;
+    if (Array.isArray(cards) && cards.length) {
+      const grupo = document.createElement('div');
+      grupo.className = 'chat-resposta-produtos';
+      addBolha('assistant', texto, grupo);
+      addCards(cards, grupo);
+      els.corpo.appendChild(grupo);
+      ancora = grupo;
+    } else ancora = addBolha('assistant', texto);
+    addPagina(catalogo);
+    return ancora;
   }
 
   /* ── Seletor de quantidade ─────────────────────────────── */
@@ -473,45 +507,58 @@
 
      Só existe para o caminho do clique. Quem digita "quero 3 baldes de 6 kg"
      não passa por aqui — o próprio agente entende e monta o carrinho. */
-  function pedirQuantidade(produto, apresentacao) {
-    if (!apresentacao) return;
-
-    const apr = apresentacao.apresentacao || '';
+  function pedirQuantidade(produto, apresentacao, card) {
+    if (!compravel(apresentacao) || !card || enviando) return;
+    fecharQuantidade();
     let qtd = 1;
-
-    els.qtdRotulo.textContent = (produto.nome || '') + (apr ? ' · ' + apr : '');
-    els.qtdPreco.textContent = apresentacao.preco || '';
-    els.qtdValor.textContent = '1';
-    els.qtdBarra.hidden = false;
-
+    const editor = document.createElement('div');
+    editor.className = 'chat-inline-qtd';
+    editor.innerHTML =
+      '<div class="chat-stepper" role="group">' +
+      '<button type="button" class="chat-menos">−</button><output>1</output>' +
+      '<button type="button" class="chat-mais">+</button></div>' +
+      '<button type="button" class="chat-inline-add"></button>' +
+      '<button type="button" class="chat-inline-cancel">×</button>';
+    editor.querySelector('.chat-stepper').setAttribute('aria-label', t('quantidade'));
+    const menos = editor.querySelector('.chat-menos');
+    const mais = editor.querySelector('.chat-mais');
+    const adicionar = editor.querySelector('.chat-inline-add');
+    const cancelar = editor.querySelector('.chat-inline-cancel');
+    menos.setAttribute('aria-label', t('menos'));
+    mais.setAttribute('aria-label', t('mais'));
+    cancelar.setAttribute('aria-label', t('cancelar'));
+    adicionar.textContent = t('adicionar');
     function ajustar(delta) {
       qtd = Math.min(Math.max(qtd + delta, 1), 99);
-      els.qtdValor.textContent = String(qtd);
-      els.qtdMenos.disabled = qtd <= 1;
-      els.qtdMais.disabled = qtd >= 99;
+      editor.querySelector('output').textContent = String(qtd);
+      menos.disabled = qtd <= 1;
+      mais.disabled = qtd >= 99;
     }
-
-    /* Atribuição em .onclick (e não addEventListener) de propósito: cada
-       abertura substitui o handler da anterior em vez de empilhar mais um. */
-    els.qtdMenos.onclick = function () { ajustar(-1); };
-    els.qtdMais.onclick = function () { ajustar(1); };
-    els.qtdCancelar.onclick = fecharQuantidade;
-    els.qtdOk.onclick = function () {
+    menos.onclick = function () { ajustar(-1); };
+    mais.onclick = function () { ajustar(1); };
+    cancelar.onclick = fecharQuantidade;
+    adicionar.onclick = function () {
+      if (enviando) return;
       fecharQuantidade();
-      /* Entra no carrinho do site na hora — a pessoa vê o contador subir sem
-         precisar esperar a resposta do agente. E avisa o agente por texto,
-         para ele saber o que foi escolhido e seguir o atendimento. */
-      adicionarAoCarrinho(produto, apresentacao, qtd);
-      atualizarBadge();
-      enviar(frasePedido(qtd, produto.nome, apr));
+      enviar(frasePedido(qtd, produto.nome, apresentacao.apresentacao));
     };
-
+    card.appendChild(editor);
     ajustar(0);
-    els.qtdMais.focus();
+    requestAnimationFrame(function () {
+      const limite = els.corpo.getBoundingClientRect();
+      const rect = editor.getBoundingClientRect();
+      if (rect.bottom > limite.bottom - 8) els.corpo.scrollTop += rect.bottom - limite.bottom + 8;
+    });
   }
 
   function fecharQuantidade() {
     if (els.qtdBarra) els.qtdBarra.hidden = true;
+    if (!els.corpo) return;
+    els.corpo.querySelectorAll('.chat-inline-qtd').forEach(function (e) { e.remove(); });
+    els.corpo.querySelectorAll('.chat-option.is-selected').forEach(function (b) {
+      b.classList.remove('is-selected');
+      b.setAttribute('aria-expanded', 'false');
+    });
   }
 
   /* ── Carrinho do site ──────────────────────────────────── */
@@ -536,7 +583,8 @@
   }
 
   function adicionarAoCarrinho(produto, apresentacao, qtd) {
-    if (!carrinhoDisponivel()) return false;
+    if (!carrinhoDisponivel() || !compravel(apresentacao) ||
+        !Number.isInteger(qtd) || qtd < 1 || qtd > 99) return false;
 
     const apr = apresentacao.apresentacao || '';
     const vid = apresentacao.variantId || '';
@@ -547,7 +595,7 @@
            mesmo item entraria duas vezes no carrinho. */
         id: vid ? produto.handle + '|' + vid : produto.handle,
         name: produto.nome + (apr && apr !== 'Padrão' ? ' · ' + apr : ''),
-        price: Number(apresentacao.precoNum) || 0,
+        price: Number(apresentacao.precoNum),
         qty: qtd,
         image: produto.foto || '',
         art: String(produto.nome || '?').charAt(0),
@@ -634,181 +682,6 @@
       .replace('{p}', String(nome || '') + (apr ? ' ' + apr : ''));
   }
 
-  /* ── Janela de variações ───────────────────────────────── */
-
-  /* Uma janela só, reaproveitada. Fica fora do painel do chat (direto no
-     body) para poder ser maior que ele — é o ponto do recurso: ver a foto
-     grande e todas as apresentações de uma vez, sem o slider. */
-  let modalEls = null;
-  let modalFoco = null;
-
-  function montarModal() {
-    if (modalEls) return modalEls;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'chat-modal';
-    wrap.hidden = true;
-    wrap.innerHTML = [
-      '<div class="chat-modal-fundo" data-fechar></div>',
-      '<div class="chat-modal-box" role="dialog" aria-modal="true" aria-labelledby="chatModalNome">',
-      '  <button type="button" class="chat-modal-x" data-fechar aria-label="Fechar">',
-      '    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-      '  </button>',
-      '  <div class="chat-modal-foto" id="chatModalFoto"></div>',
-      '  <div class="chat-modal-info">',
-      '    <strong id="chatModalNome"></strong>',
-      '    <p id="chatModalResumo"></p>',
-      '    <div class="chat-modal-vars" id="chatModalVars"></div>',
-      '    <a class="chat-modal-link" id="chatModalLink" target="_blank" rel="noopener"></a>',
-      '  </div>',
-      '</div>'
-    ].join('');
-
-    document.body.appendChild(wrap);
-
-    wrap.querySelectorAll('[data-fechar]').forEach(function (el) {
-      el.addEventListener('click', fecharModal);
-    });
-
-    modalEls = {
-      wrap: wrap,
-      foto: wrap.querySelector('#chatModalFoto'),
-      nome: wrap.querySelector('#chatModalNome'),
-      resumo: wrap.querySelector('#chatModalResumo'),
-      vars: wrap.querySelector('#chatModalVars'),
-      link: wrap.querySelector('#chatModalLink'),
-      x: wrap.querySelector('.chat-modal-x')
-    };
-    return modalEls;
-  }
-
-  function abrirModal(p) {
-    const m = montarModal();
-    const foto = urlSegura(p.foto);
-    const link = urlSegura(p.url);
-    const inicial = String(p.nome || '?').trim().charAt(0).toUpperCase();
-
-    modalFoco = document.activeElement;
-
-    m.foto.className = 'chat-modal-foto' + (foto ? '' : ' sem-foto');
-    m.foto.innerHTML = '';
-    if (foto) {
-      const img = document.createElement('img');
-      img.src = foto;
-      img.alt = String(p.nome || '');
-      img.addEventListener('error', function () {
-        m.foto.className = 'chat-modal-foto sem-foto';
-        m.foto.textContent = inicial;
-      });
-      m.foto.appendChild(img);
-    } else {
-      m.foto.textContent = inicial;
-    }
-
-    m.nome.textContent = p.nome || '';
-    m.resumo.textContent = p.resumo || '';
-    m.resumo.hidden = !p.resumo;
-
-    m.vars.innerHTML = '';
-    (Array.isArray(p.apresentacoes) ? p.apresentacoes : []).forEach(function (a) {
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'chat-var' + (a.disponivel === false ? ' esgotado' : '');
-      b.innerHTML =
-        '<span class="chat-var-nome"></span>' +
-        '<span class="chat-var-preco"></span>' +
-        '<span class="chat-var-cta"></span>';
-      b.querySelector('.chat-var-nome').textContent = a.apresentacao || '';
-      b.querySelector('.chat-var-preco').textContent = a.preco || '';
-      b.querySelector('.chat-var-cta').textContent =
-        a.disponivel === false ? t('esgotado') : t('escolher');
-
-      if (a.disponivel === false) {
-        b.disabled = true;
-      } else {
-        b.addEventListener('click', function () {
-          fecharModal();
-          pedirQuantidade(p, a);
-        });
-      }
-      m.vars.appendChild(b);
-    });
-
-    if (link) {
-      m.link.href = link;
-      m.link.textContent = t('verDetalhes');
-      m.link.hidden = false;
-    } else {
-      m.link.hidden = true;
-    }
-
-    m.wrap.hidden = false;
-    document.body.classList.add('chat-modal-aberto');
-    requestAnimationFrame(function () {
-      m.wrap.classList.add('is-open');
-      m.x.focus();
-    });
-  }
-
-  function fecharModal() {
-    if (!modalEls || modalEls.wrap.hidden) return;
-    modalEls.wrap.classList.remove('is-open');
-    document.body.classList.remove('chat-modal-aberto');
-    setTimeout(function () {
-      if (modalEls && !modalEls.wrap.classList.contains('is-open')) modalEls.wrap.hidden = true;
-    }, 220);
-    if (modalFoco && modalFoco.focus) modalFoco.focus();
-    modalFoco = null;
-  }
-
-  function modalAberto() {
-    return Boolean(modalEls && !modalEls.wrap.hidden);
-  }
-
-  /* ── Alternância dos slides ────────────────────────────── */
-
-  /* Um único ticker para todos os cards da conversa. Um setInterval por card
-     vazaria conforme o histórico cresce, e sincronizados eles ficam mais
-     calmos visualmente do que cada um no seu tempo. */
-  let ticker = null;
-
-  function irPara(slider, indice) {
-    if (!slider) return;
-    const slides = slider.querySelectorAll('.chat-slide');
-    if (slides.length < 2) return;
-
-    const i = ((indice % slides.length) + slides.length) % slides.length;
-    slider.dataset.i = String(i);
-
-    slides.forEach(function (s, n) {
-      s.classList.toggle('is-active', n === i);
-      s.tabIndex = n === i ? 0 : -1;
-    });
-
-    const dots = slider.parentElement.querySelectorAll('.chat-dot');
-    dots.forEach(function (d, n) { d.classList.toggle('is-active', n === i); });
-  }
-
-  function iniciarTicker() {
-    if (ticker) return;
-    /* Quem pediu menos movimento não recebe alternância automática — os
-       slides continuam acessíveis pelos pontinhos. */
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    ticker = setInterval(function () {
-      els.corpo.querySelectorAll('.chat-slider').forEach(function (slider) {
-        /* Não gira o que o cliente está olhando ou usando. */
-        if (slider.matches(':hover') || slider.contains(document.activeElement)) return;
-        irPara(slider, Number(slider.dataset.i || 0) + 1);
-      });
-    }, 3200);
-  }
-
-  function pararTicker() {
-    if (!ticker) return;
-    clearInterval(ticker);
-    ticker = null;
-  }
 
   function mostrarDigitando() {
     const div = document.createElement('div');
@@ -822,7 +695,7 @@
 
   /* ── Envio ─────────────────────────────────────────────── */
 
-  async function enviar(mensagem) {
+  async function enviar(mensagem, opcoes) {
     if (enviando || !mensagem.trim()) return;
     enviando = true;
     limparAtalhos();
@@ -835,7 +708,9 @@
     salvarHistorico();
 
     els.input.value = '';
-    els.input.style.height = 'auto';
+    els.input.style.height = '44px';
+    els.input.style.overflowY = 'hidden';
+    if (ehMobile()) els.input.blur();
     els.enviar.disabled = true;
 
     const digitando = mostrarDigitando();
@@ -854,7 +729,8 @@
             .slice(-MAX_HISTORICO)
             .map(function (m) { return { role: m.role, content: m.content }; }),
           sessionId: sessionId(),
-          idioma: lang
+          idioma: lang,
+          catalogoOffset: opcoes && Number.isInteger(opcoes.catalogoOffset) ? opcoes.catalogoOffset : undefined
         })
       });
 
@@ -872,8 +748,6 @@
         return;
       }
 
-      const bolhaResposta = addBolha('bot', resposta);
-
       const cards = Array.isArray(payload.produtos) ? payload.produtos : [];
 
       /* Diagnóstico no console do navegador. Se o card não aparecer, esta
@@ -887,7 +761,7 @@
         );
       } catch (e) { /* console indisponível */ }
 
-      addCards(cards);
+      const bolhaResposta = addResposta(resposta, cards, payload.catalogo);
       rolarParaTopo(bolhaResposta);
 
       /* O agente fechou o pedido: os itens entram no carrinho do site e a
@@ -899,27 +773,29 @@
         paraCarrinho.forEach(function (i) {
           const ok = adicionarAoCarrinho(
             { handle: i.handle, nome: i.nome, foto: i.foto },
-            { apresentacao: i.apresentacao, variantId: i.variantId, precoNum: i.precoNum },
-            Math.min(Math.max(Number(i.quantidade) || 1, 1), 99)
+            { apresentacao: i.apresentacao, variantId: i.variantId, precoNum: i.precoNum,
+              disponivel: i.disponivel, compravel: i.compravel, sobConsulta: i.sobConsulta },
+            Number(i.quantidade)
           );
           if (ok) entrou += 1;
         });
         atualizarBadge();
-        if (entrou) abrirCarrinho();
+        if (entrou && carrinhoVisivel()) renderCarrinho();
       }
 
       /* Os cards ficam guardados junto da mensagem para reaparecerem se a
          pessoa fechar e reabrir o chat. O backend descarta esse campo ao
          remontar o histórico para o modelo. */
-      historico.push({ role: 'assistant', content: resposta, cards: cards });
+      historico.push({ role: 'assistant', content: resposta, cards: cards, catalogo: payload.catalogo || null });
       salvarHistorico();
+      return true;
     } catch (err) {
       digitando.remove();
       addBolha('bot', t('erroRede'));
     } finally {
       enviando = false;
       els.enviar.disabled = false;
-      if (aberto) els.input.focus();
+      if (aberto && !ehMobile()) els.input.focus();
     }
   }
 
@@ -936,8 +812,7 @@
       if (!aberto) return;
       const alturaReal = Math.round(vv.height);
       document.documentElement.style.setProperty('--chat-vh', alturaReal + 'px');
-      /* Mantém a última mensagem à vista quando o teclado empurra o layout. */
-      rolarFim();
+      document.documentElement.style.setProperty('--chat-vtop', Math.round(vv.offsetTop) + 'px');
     }
 
     vv.addEventListener('resize', ajustar);
@@ -997,6 +872,7 @@
     els.fab.setAttribute('aria-expanded', 'true');
     els.fab.setAttribute('aria-label', t('fechar'));
     document.body.classList.add('chat-aberto');
+    document.documentElement.classList.add('chat-page-aberta');
 
     if (window.visualViewport) {
       document.documentElement.style.setProperty(
@@ -1009,34 +885,34 @@
       els.painel.classList.add('is-open');
       /* Não damos foco automático no celular: o teclado subiria por cima da
          conversa antes de a pessoa ler a saudação. */
-      if (window.matchMedia('(min-width: 561px)').matches) els.input.focus();
+      if (!ehMobile()) els.input.focus();
     });
 
     if (!els.corpo.children.length) {
       if (historico.length) {
         historico.forEach(function (m) {
-          addBolha(m.role, m.content);
-          if (m.cards) addCards(m.cards);
+          if (m.role === 'assistant') addResposta(m.content, m.cards, m.catalogo);
+          else addBolha(m.role, m.content);
         });
       } else {
         addBolha('bot', t('saudacao'));
         addAtalhos();
       }
     }
-    rolarFim();
-    iniciarTicker();
+    if (posicaoScroll != null) requestAnimationFrame(function () { els.corpo.scrollTop = posicaoScroll; });
+    else rolarParaTopo(Array.from(els.corpo.querySelectorAll('.chat-msg-bot')).pop());
   }
 
   function fechar() {
+    posicaoScroll = els.corpo.scrollTop;
     aberto = false;
-    pararTicker();
-    fecharModal();
     fecharQuantidade();
     fecharCarrinho();
     els.painel.classList.remove('is-open');
     els.fab.setAttribute('aria-expanded', 'false');
     els.fab.setAttribute('aria-label', t('abrir'));
     document.body.classList.remove('chat-aberto');
+    document.documentElement.classList.remove('chat-page-aberta');
     setTimeout(function () { if (!aberto) els.painel.hidden = true; }, 260);
     els.fab.focus();
   }
@@ -1201,7 +1077,7 @@
     /* Enter envia, Shift+Enter quebra linha. No celular o Enter é "nova linha"
        por convenção, então lá só o botão envia. */
     els.input.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' && !ev.shiftKey && window.matchMedia('(min-width: 561px)').matches) {
+      if (ev.key === 'Enter' && !ev.shiftKey && !ehMobile()) {
         ev.preventDefault();
         enviar(els.input.value);
       }
@@ -1211,13 +1087,13 @@
     els.input.addEventListener('input', function () {
       els.input.style.height = 'auto';
       els.input.style.height = Math.min(els.input.scrollHeight, 120) + 'px';
+      els.input.style.overflowY = els.input.scrollHeight > 120 ? 'auto' : 'hidden';
     });
 
     /* Esc fecha a camada mais interna primeiro: janela de variações, depois
        o seletor de quantidade, e só então o chat. */
     document.addEventListener('keydown', function (ev) {
       if (ev.key !== 'Escape') return;
-      if (modalAberto()) { fecharModal(); return; }
       if (carrinhoVisivel()) { fecharCarrinho(); return; }
       if (els.qtdBarra && !els.qtdBarra.hidden) { fecharQuantidade(); return; }
       if (aberto) fechar();

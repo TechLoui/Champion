@@ -5,11 +5,9 @@
  * legível. Por isso o visualizador tem zoom e arrasto, não é só uma imagem
  * grande.
  *
- * Sobre a horizontal no celular: a Screen Orientation API só funciona em tela
- * cheia e nem todo navegador implementa — o Safari do iPhone não trava
- * orientação de jeito nenhum. Então tentamos travar de verdade e, quando não
- * dá, giramos o conteúdo 90° por CSS. O resultado é o mesmo para quem olha, e
- * funciona em qualquer aparelho.
+ * Muitos navegadores exigem tela cheia para travar a orientação. Tentamos
+ * deitar de verdade e, quando o navegador não permite, giramos o conteúdo
+ * 90° por CSS sem depender da rotação física do aparelho.
  *
  * Uso: <button data-mapa-empresa>…</button> em qualquer página.
  *      data-src troca o caminho da imagem.
@@ -17,16 +15,14 @@
 'use strict';
 
 (function () {
-  /* O arquivo entregue tem espaço no nome, então precisa ir codificado. Os
-     outros nomes ficam como rede: se um dia trocarem o PNG por um JPG ou WebP
-     comprimido, o mapa continua abrindo sem mexer aqui. A ordem é a ordem de
-     preferência — formatos leves primeiro. */
+  /* Prioriza o original: texto técnico perde nitidez em versões comprimidas.
+     O nome com espaço precisa ir codificado; os demais são alternativas. */
   const CANDIDATOS = [
-    '/assets/mapachamp/mapa.webp',
-    '/assets/mapachamp/mapa.jpg',
-    '/assets/mapachamp/MAPA%20PIXEL.png',
+    '/assets/mapachamp/MAPA%20PIXEL.png?v=20260917-2',
     '/assets/mapachamp/mapa.png',
-    '/assets/mapachamp/mapa.svg'
+    '/assets/mapachamp/mapa.svg',
+    '/assets/mapachamp/mapa.webp',
+    '/assets/mapachamp/mapa.jpg'
   ];
   /* Trilha de fundo do mapa. Primeiro o nome que existe hoje na pasta: pedir
      musica.mp3 antes custaria um 404 a cada abertura e atrasaria o início do
@@ -69,13 +65,25 @@
   let x = 0;
   let y = 0;
   let girado = false;
+  let telaCheiaDoMapa = false;
+  let larguraBase = 0;
+  let alturaBase = 0;
+  let larguraPalco = 0;
+  let alturaPalco = 0;
 
   /* ── Estado visual ────────────────────────────────────────────────────── */
 
   function aplicar() {
     if (!img) return;
     const giro = girado ? ' rotate(90deg)' : '';
-    img.style.transform = `translate(${x}px, ${y}px) scale(${escala})${giro}`;
+    /* Zoom por tamanho, não scale(): o navegador volta a rasterizar o
+       original na resolução exibida, em vez de ampliar uma camada pequena
+       promovida pela GPU. A rotação mantém o centro na metade do palco. */
+    if (larguraBase && alturaBase) {
+      img.style.width = (larguraBase * escala) + 'px';
+      img.style.height = (alturaBase * escala) + 'px';
+    }
+    img.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)${giro}`;
     caixa.classList.toggle('is-ampliado', escala > 1.01);
   }
 
@@ -90,9 +98,27 @@
      de tamanho ao entrar em tela cheia ou quando o aparelho gira. */
   function alinharNaTela() {
     if (!caixa || !aberto) return;
-    girado = ehEstreito() && window.innerHeight > window.innerWidth;
+    const r = palco.getBoundingClientRect();
+    const novoGiro = ehEstreito() && r.height > r.width;
+    let mudou = novoGiro !== girado || r.width !== larguraPalco || r.height !== alturaPalco;
+    girado = novoGiro;
+    larguraPalco = r.width;
+    alturaPalco = r.height;
     caixa.classList.toggle('is-girado', girado);
-    reenquadrar();
+    if (img.naturalWidth && img.naturalHeight && r.width && r.height) {
+      const largura = girado ? r.height : r.width;
+      const altura = girado ? r.width : r.height;
+      const ajuste = Math.min(largura / img.naturalWidth, altura / img.naturalHeight, 1);
+      const novaLargura = img.naturalWidth * ajuste;
+      const novaAltura = img.naturalHeight * ajuste;
+      mudou = mudou || novaLargura !== larguraBase || novaAltura !== alturaBase;
+      larguraBase = novaLargura;
+      alturaBase = novaAltura;
+    }
+    /* fullscreen/resize/orientation/visualViewport podem notificar a mesma
+       mudança várias vezes. Não apaga um zoom já feito entre esses eventos. */
+    if (mudou) reenquadrar();
+    else aplicar();
   }
 
   function agendarAlinhamento() {
@@ -230,7 +256,8 @@
   /* ── Orientação no celular ────────────────────────────────────────────── */
 
   function ehEstreito() {
-    return window.matchMedia('(max-width: 900px)').matches;
+    /* Um celular em paisagem pode ter mais de 900px de largura. */
+    return window.innerWidth <= 900 || window.matchMedia('(pointer: coarse)').matches;
   }
 
   async function tentarDeitar() {
@@ -239,7 +266,7 @@
     /* Caminho bom: tela cheia de verdade + trava de orientação. */
     try {
       if (caixa.requestFullscreen) await caixa.requestFullscreen({ navigationUI: 'hide' });
-      else if (caixa.webkitRequestFullscreen) caixa.webkitRequestFullscreen();
+      else if (caixa.webkitRequestFullscreen) await caixa.webkitRequestFullscreen();
     } catch (err) { /* recusado (gesto não confiável, iOS): segue para o giro */ }
 
     if (!aberto) {
@@ -254,9 +281,9 @@
           desfazerOrientacao();
           return;
         }
-        girado = false;
-        caixa.classList.remove('is-girado');
-        reenquadrar();
+        /* lock() pode resolver antes do resize. Continua enquadrando pelo
+           tamanho real e só tira o giro CSS quando a tela já está deitada. */
+        alinharNaTela();
         return;
       }
     } catch (err) { /* navegador não trava orientação: gira por CSS */ }
@@ -271,8 +298,12 @@
       if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
     } catch (err) { /* nada a desfazer */ }
     try {
-      if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+      if (document.fullscreenElement === caixa && document.exitFullscreen) {
+        const saida = document.exitFullscreen();
+        if (saida && saida.catch) saida.catch(() => {});
+      } else if (document.webkitFullscreenElement === caixa && document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
     } catch (err) { /* idem */ }
     girado = false;
     caixa.classList.remove('is-girado');
@@ -291,7 +322,7 @@
 
     caixa.innerHTML = [
       '<div class="mapa-palco" data-palco>',
-      '  <img class="mapa-img" alt="Mapa da Champion Saúde Animal" draggable="false" hidden />',
+      '  <img class="mapa-img" alt="Mapa da Champion Saúde Animal" draggable="false" decoding="async" hidden />',
       '  <div class="mapa-carga" data-carga hidden>',
       '    <span>Carregando o mapa…</span>',
       '    <span class="mapa-barra-trilho"><i class="mapa-barra" data-barra></i></span>',
@@ -356,12 +387,22 @@
 
     /* Sair da tela cheia pelo gesto do sistema também fecha: senão o overlay
        fica aberto sem tela cheia e a pessoa não entende o que houve. */
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement && !caixa.hidden && ehEstreito()) fechar();
-    });
+    const aoMudarTelaCheia = () => {
+      const atual = document.fullscreenElement || document.webkitFullscreenElement;
+      if (atual === caixa) {
+        telaCheiaDoMapa = true;
+        agendarAlinhamento();
+      } else if (telaCheiaDoMapa) {
+        telaCheiaDoMapa = false;
+        if (aberto) fechar();
+      }
+    };
+    document.addEventListener('fullscreenchange', aoMudarTelaCheia);
+    document.addEventListener('webkitfullscreenchange', aoMudarTelaCheia);
 
     window.addEventListener('resize', agendarAlinhamento);
     window.addEventListener('orientationchange', agendarAlinhamento);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', agendarAlinhamento);
     if (screen.orientation && screen.orientation.addEventListener) {
       screen.orientation.addEventListener('change', agendarAlinhamento);
     }
@@ -419,6 +460,8 @@
 
     palco.addEventListener('touchstart', (ev) => {
       if (ev.touches.length !== 2) return;
+      arrastando = false;
+      caixa.classList.remove('is-arrastando');
       distancia0 = dist(ev.touches);
       escala0 = escala;
     }, { passive: true });
@@ -432,6 +475,7 @@
     }, { passive: false });
 
     palco.addEventListener('touchend', () => { distancia0 = 0; });
+    palco.addEventListener('touchcancel', () => { distancia0 = 0; });
 
     /* Dois toques rápidos alternam entre ajustado e ampliado. */
     let ultimoToque = 0;
@@ -451,7 +495,7 @@
   let carregada = false;
   let carregando = false;
 
-  /* O mapa entregue tem 18,8 MB. Numa conexão de celular isso é meio minuto de
+  /* O mapa original tem cerca de 21 MB. Numa conexão de celular isso é meio minuto de
      espera, e meio minuto de tela preta sem sinal de vida parece travamento —
      a pessoa fecha antes de ver o mapa. Por isso o download passa por fetch
      com leitura em pedaços: dá para mostrar a porcentagem de verdade.
@@ -472,10 +516,34 @@
     carga.hidden = false;
     barra.style.width = '0%';
 
+    async function exibirFonte(fonte) {
+      try {
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error('Não foi possível decodificar o mapa.'));
+          img.src = fonte;
+        });
+        if (img.decode) await img.decode();
+      } finally {
+        img.onload = null;
+        img.onerror = null;
+      }
+      /* Calcula o tamanho antes de revelar: não mostra um quadro gigante ou
+         fora de centro enquanto aguarda o próximo animation frame. */
+      alinharNaTela();
+      carga.hidden = true;
+      img.hidden = false;
+      carregada = true;
+      carregando = false;
+    }
+
     for (const alvo of lista) {
+      let urlBlob = null;
       try {
         const r = await fetch(alvo);
         if (!r.ok) continue;
+        const tipo = r.headers.get('content-type') || '';
+        if (tipo && !tipo.startsWith('image/') && tipo !== 'application/octet-stream') continue;
 
         const total = Number(r.headers.get('content-length')) || 0;
         const leitor = r.body && r.body.getReader ? r.body.getReader() : null;
@@ -499,44 +567,31 @@
           blob = await r.blob();
         }
 
-        img.src = URL.createObjectURL(blob);
-        img.onload = () => {
-          carga.hidden = true;
-          img.hidden = false;
-          carregada = true;
-          carregando = false;
-          agendarAlinhamento();
-        };
+        urlBlob = URL.createObjectURL(blob);
+        await exibirFonte(urlBlob);
         return;
       } catch (err) {
+        if (urlBlob) URL.revokeObjectURL(urlBlob);
         /* tenta o próximo candidato */
       }
     }
 
     /* Nenhum candidato respondeu pelo fetch: última tentativa pelo <img>. */
-    let i = 0;
-    (function tentarImg() {
-      if (i >= lista.length) {
-        carga.hidden = true;
-        erro.hidden = false;
-        erro.textContent = 'Não consegui carregar o mapa. Confira se o arquivo está em '
-          + decodeURIComponent(lista[0]) + '.';
-        carregando = false;
+    for (const alvo of lista) {
+      try {
+        /* Usa a própria imagem: não decodifica duas cópias de 6000px na
+           memória do celular só para testar uma URL alternativa. */
+        await exibirFonte(alvo);
         return;
+      } catch (err) {
+        /* tenta a próxima fonte */
       }
-      const alvo = lista[i++];
-      const teste = new Image();
-      teste.onload = () => {
-        img.src = alvo;
-        img.hidden = false;
-        carga.hidden = true;
-        carregada = true;
-        carregando = false;
-        agendarAlinhamento();
-      };
-      teste.onerror = tentarImg;
-      teste.src = alvo;
-    })();
+    }
+    carga.hidden = true;
+    erro.hidden = false;
+    erro.textContent = 'Não consegui carregar o mapa. Confira se o arquivo está em '
+      + decodeURIComponent(lista[0]) + '.';
+    carregando = false;
   }
 
   /* ── Abrir e fechar ───────────────────────────────────────────────────── */
@@ -552,10 +607,11 @@
     caixa.hidden = false;
     document.body.classList.add('mapa-aberto');
     alinharNaTela();
+    reenquadrar();
     tocarMusica();
 
     /* Precisa de um quadro para a transição sair do estado inicial. */
-    requestAnimationFrame(() => caixa.classList.add('is-on'));
+    requestAnimationFrame(() => { if (aberto) caixa.classList.add('is-on'); });
 
     tentarDeitar().finally(agendarAlinhamento);
     caixa.querySelector('[data-fechar]').focus();
