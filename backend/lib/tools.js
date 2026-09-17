@@ -13,6 +13,7 @@
 
 const shopify = require('./shopify');
 const site = require('./site');
+const { normalizar, reconhecerProdutos, buscarNoCatalogo } = require('./product-search');
 
 const definitions = [
   {
@@ -21,6 +22,8 @@ const definitions = [
       name: 'buscar_produtos',
       description:
         'Busca produtos no catálogo Champion por termo livre (nome, espécie, tipo). ' +
+        'Reconhece acentos, espaços, hífens e nomes em frases completas. ' +
+        'Se devolver sugestoes por erro de digitação, confirme o nome antes de tratar como encontrado. ' +
         'Devolve nome, resumo, foto, preço por apresentação e link da página. ' +
         'Use sempre que o cliente perguntar o que existe, quanto custa ou o que serve para algo.',
       parameters: {
@@ -28,7 +31,7 @@ const definitions = [
         properties: {
           termo: {
             type: 'string',
-            description: 'O que buscar. Ex: "difly", "sal mineral bovinos", "vermifugo". Vazio lista o catálogo.'
+            description: 'Priorize o nome dito pelo cliente. Ex: "Vermisal", "difly s3", "sal mineral bovinos", "vermifugo". Vazio lista o catálogo.'
           },
           limite: {
             type: 'integer',
@@ -66,7 +69,7 @@ const definitions = [
       description:
         'Exibe cards visuais dos produtos na conversa, com FOTO, preço e botão de comprar. ' +
         'É assim que o cliente vê a imagem do produto — escrever a URL da foto no texto NÃO mostra imagem nenhuma. ' +
-        'Chame sempre que recomendar ou citar produtos, logo depois da sua mensagem de texto. ' +
+        'Chame sempre que recomendar ou citar produtos, antes de encerrar a resposta. ' +
         'Escolha só os produtos que você realmente recomendou, não tudo que a busca devolveu.',
       parameters: {
         type: 'object',
@@ -170,24 +173,50 @@ function lembrar(coletor, produtos) {
       coletor.vistos.push(paraCard(p));
     }
   });
+  if (coletor.aproximados) {
+    coletor.aproximados = coletor.aproximados.filter((h) => !produtos.some((p) => p.handle === h));
+  }
+}
+
+function lembrarSugestoes(coletor, sugestoes) {
+  if (!coletor) return;
+  coletor.aproximados = [...new Set((coletor.aproximados || []).concat(sugestoes.map((p) => p.handle)))];
 }
 
 const executors = {
   async buscar_produtos(args, coletor) {
-    const produtos = await shopify.buscarProdutos(args.termo, args.limite);
+    const resultado = await shopify.pesquisarProdutos(args.termo, args.limite);
+    const { produtos, sugestoes, correspondencia } = resultado;
     if (!produtos.length) {
-      return { produtos: [], aviso: 'Nenhum produto encontrado para esse termo.' };
+      if (sugestoes.length) {
+        lembrarSugestoes(coletor, sugestoes);
+        return {
+          produtos: [], sugestoes, correspondencia,
+          instrucao: 'Há nomes parecidos no catálogo. Pergunte qual deles o cliente quis dizer; não afirme que é o mesmo produto e não adicione ao carrinho sem confirmação.'
+        };
+      }
+      return {
+        produtos: [], correspondencia,
+        aviso: 'Não foi encontrada correspondência para esse termo; isso não prova que o produto não existe.',
+        instrucao: 'Confira o nome e tente outra parte dele ou liste o catálogo antes de dizer que não encontrou. Não substitua um nome específico por uma categoria presumida.'
+      };
     }
     lembrar(coletor, produtos);
     return {
-      produtos,
-      instrucao: 'Para o cliente VER estes produtos, chame mostrar_produtos com os handles. Sem isso ele não vê nada.'
+      produtos, correspondencia, total_encontrados: resultado.total || produtos.length,
+      mais_resultados: resultado.total > produtos.length,
+      instrucao: 'Use o nome e os handles exatamente como retornados. Para o cliente VER estes produtos, chame mostrar_produtos com os handles. Se houver mais de uma opção para o nome solicitado, pergunte qual; nunca escolha uma linha ou apresentação por conta própria. Se mais_resultados for true, consulte com limite maior antes de tratar o resultado como único.'
     };
   },
 
   async detalhes_produto(args, coletor) {
-    const produto = await shopify.detalhesProduto(args.handle);
-    if (!produto) return { erro: 'Produto não encontrado com esse handle.' };
+    const resolucao = await resolverProduto(args.handle, coletor);
+    if (!resolucao.produto) return resolucao;
+    /* Um card em cache não contém a ficha técnica; consulta sempre a ficha
+       pelo handle real antes de responder composição ou uso. */
+    const produto = Object.hasOwn(resolucao.produto, 'modo_de_uso')
+      ? resolucao.produto : await shopify.detalhesProduto(resolucao.produto.handle);
+    if (!produto) return { erro: 'Ficha do produto indisponível agora.' };
     lembrar(coletor, [produto]);
     return { produto };
   },
@@ -204,33 +233,22 @@ const executors = {
        evitar uma ida à rede, isso salva o caso comum de o modelo inventar o
        handle ("difly-s3") em vez de copiar o que veio da busca
        ("difly-s3-champion") — antes disso o card simplesmente não aparecia. */
-    const vistos = (coletor && coletor.vistos) || [];
-
-    const produtos = (await Promise.all(handles.map(async (h) => {
-      const alvo = h.toLowerCase();
-
-      const cache = vistos.find((v) => {
-        const vh = String(v.handle || '').toLowerCase();
-        return vh === alvo || vh.includes(alvo) || alvo.includes(vh);
-      });
-      if (cache) return cache;
-
-      const buscado = await shopify.detalhesProduto(h);
-      if (buscado) return buscado;
-
-      /* Último recurso: o "handle" pode ser na verdade o nome do produto. */
-      return vistos.find((v) => String(v.nome || '').toLowerCase().includes(alvo)) || null;
-    }))).filter(Boolean);
+    const resolucoes = await Promise.all(handles.map((h) => resolverProduto(h, coletor)));
+    const produtos = resolucoes.map((r) => r.produto).filter(Boolean);
 
     if (!produtos.length) {
-      return { erro: 'Nenhum dos handles foi encontrado. Confira com buscar_produtos.' };
+      return {
+        erro: 'Não foi possível identificar um produto único para esses handles.',
+        sugestoes: resolucoes.flatMap((r) => r.sugestoes || []),
+        instrucao: 'Confira com buscar_produtos e use o handle exato. Se houver opções parecidas, peça confirmação.'
+      };
     }
 
     if (coletor) {
       lembrar(coletor, produtos);
       produtos.forEach((p) => {
         /* Evita repetir o mesmo card se o modelo chamar duas vezes. */
-        if (!coletor.cards.some((c) => c.handle === p.handle)) {
+        if (coletor.cards.length < 4 && !coletor.cards.some((c) => c.handle === p.handle)) {
           coletor.cards.push(paraCard(p));
         }
       });
@@ -238,7 +256,8 @@ const executors = {
 
     return {
       exibidos: produtos.map((p) => p.nome),
-      instrucao: 'Os cards já apareceram para o cliente com foto e preço. Não repita a URL da imagem no texto.'
+      nao_encontrados: handles.filter((_h, i) => !resolucoes[i].produto),
+      instrucao: 'Os cards foram enviados para exibição com foto e preço. Não repita a URL da imagem no texto nem afirme que carregaram na tela.'
     };
   },
 
@@ -323,6 +342,57 @@ const executors = {
   }
 };
 
+/* Substrings não identificam produtos: "difly" não pode resolver para
+   "difly-s3", e "nucleo" não escolhe entre Supera e Premium. */
+async function resolverProduto(handle, coletor) {
+  const termo = String(handle || '').trim();
+  if (!termo) return { erro: 'Nenhum handle informado.' };
+  const vistos = (coletor && coletor.vistos) || [];
+  const exato = vistos.find((p) => p.handle.toLowerCase() === termo.toLowerCase());
+  if (exato) return { produto: exato };
+  const compacto = normalizar(termo).replace(/ /g, '');
+  const nomes = vistos.filter((p) => normalizar(p.nome).replace(/ /g, '') === compacto);
+  if (nomes.length === 1) return { produto: nomes[0] };
+  const produto = await shopify.detalhesProduto(termo);
+  if (produto) return { produto };
+  const resultado = await shopify.pesquisarProdutos(termo, 12);
+  if (resultado.produtos.length === 1 && ['nome', 'nome_parcial'].includes(resultado.correspondencia)) {
+    return { produto: resultado.produtos[0] };
+  }
+  return {
+    erro: 'Nome ou handle não identifica um único produto.',
+    sugestoes: resultado.produtos.length ? resultado.produtos : resultado.sugestoes
+  };
+}
+
+/* Antecipa a consulta quando o cliente já deu um nome reconhecível. Assim o
+   modelo recebe evidência real mesmo se esquecer de buscar antes de responder.
+   Aproximações são enviadas apenas como sugestões para confirmar. */
+async function consultarMencionados(texto, coletor) {
+  const resultado = buscarNoCatalogo(texto, await shopify.catalogo(), 12);
+  const { produtos, sugestoes } = resultado;
+  if (!produtos.length) {
+    if (!sugestoes.length) return null;
+    lembrarSugestoes(coletor, sugestoes);
+    return {
+      ...resultado,
+      instrucao: 'A grafia da mensagem tem nomes próximos no catálogo. Pergunte se o cliente quis dizer um destes nomes, sem afirmar equivalência ou adicionar ao carrinho. Não diga que o catálogo não tem o produto antes de confirmar o nome.'
+    };
+  }
+  lembrar(coletor, produtos);
+  /* Pedido positivo por um nome confirmado: o card não pode desaparecer só
+     porque o modelo respondeu "segue abaixo" sem repetir o nome. Não aplica
+     essa rede de segurança a menções negativas nem a grafias aproximadas. */
+  if (coletor && resultado.correspondencia === 'nome' &&
+      !/\b(nao|not|dont|don t)\b|\bno (?:quiero|quisiera|deseo|necesito)\b/.test(normalizar(texto))) {
+    coletor.solicitados = produtos.slice(0, 4).map(paraCard);
+  }
+  return {
+    ...resultado,
+    instrucao: 'Estes produtos foram identificados pelo nome na mensagem atual do cliente. Use os dados retornados, não diga que o nome está ausente do catálogo. Chame mostrar_produtos com os handles antes de responder e detalhes_produto se precisar da ficha técnica. Linhas, embalagens e quantidades não devem ser presumidas.'
+  };
+}
+
 /* Localiza o produto e a apresentação a partir do variantId. */
 function encontrarPorVariante(lista, variantId) {
   for (const produto of lista || []) {
@@ -357,55 +427,18 @@ async function execute(name, args, coletor) {
  * modelo lembrar da regra.
  */
 function cardsPorMencao(texto, vistos) {
-  const t = normalizar(texto);
-  if (!t || !Array.isArray(vistos) || !vistos.length) return [];
-
-  /* Comparar o nome inteiro não serve: o título no Shopify costuma ser
-     "Difly S3 Champion 6kg" e o agente escreve só "Difly S3". Então batemos
-     token a token e exigimos que todos os termos distintivos do nome
-     apareçam no texto. */
-  const GENERICOS = ['champion', 'kg', 'ml', 'gr', 'litro', 'litros', 'para', 'com'];
-
-  return vistos
-    .map((p) => {
-      const tokens = normalizar(p.nome)
-        .split(' ')
-        .filter((w) => w.length >= 2 && GENERICOS.indexOf(w) === -1);
-
-      if (!tokens.length) return null;
-
-      const achou = tokens.filter((w) => t.indexOf(w) !== -1).length;
-      /* Todos os termos presentes, e pelo menos um com mais de 3 letras
-         (senão "s3" sozinho casaria com qualquer coisa). */
-      const forte = tokens.some((w) => w.length > 3 && t.indexOf(w) !== -1);
-      return achou === tokens.length && forte ? { p, peso: tokens.length } : null;
-    })
-    .filter(Boolean)
-    /* Nome mais específico primeiro: se o texto cita "Difly S3", o card do
-       S3 vem antes do card do "Difly". */
-    .sort((a, b) => b.peso - a.peso)
-    .slice(0, 4)
-    .map((x) => x.p);
-}
-
-/* Minúsculas, sem acento e sem pontuação — o agente escreve "Difly S3." e o
-   título vem "DIFLY S3"; sem normalizar, nada casa. */
-function normalizar(v) {
-  return String(v || '')
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+  if (!normalizar(texto) || !Array.isArray(vistos)) return [];
+  return reconhecerProdutos(texto, vistos).slice(0, 4);
 }
 
 /**
  * Decide quais cards vão para a tela ao fim de uma mensagem.
  *
- * Três degraus, do mais confiável ao mais tolerante:
+ * Quatro degraus, do mais confiável ao mais tolerante:
  *  1. O que o agente pediu explicitamente com mostrar_produtos.
  *  2. O que ele consultou nesta mensagem e citou pelo nome.
- *  3. Qualquer produto do catálogo citado pelo nome — cobre o caso em que
+ *  3. Produto pedido pelo nome e confirmado na consulta inicial.
+ *  4. Qualquer produto do catálogo citado pelo nome — cobre o caso em que
  *     ele responde de cabeça, com o que já sabia de mensagens anteriores,
  *     sem chamar ferramenta nenhuma. Era exatamente o que acontecia quando
  *     o cliente pedia "quero ver os produtos" no meio da conversa.
@@ -415,14 +448,16 @@ async function resolverCards(texto, coletor) {
 
   const doTurno = cardsPorMencao(texto, coletor.vistos);
   if (doTurno.length) return doTurno;
+  if (coletor.solicitados && coletor.solicitados.length) return coletor.solicitados;
 
   try {
     const todos = await shopify.catalogo();
-    return cardsPorMencao(texto, todos.map(paraCard));
+    const confirmados = todos.filter((p) => !(coletor.aproximados || []).includes(p.handle));
+    return cardsPorMencao(texto, confirmados.map(paraCard));
   } catch (err) {
     console.error('[chat] resolverCards falhou:', err.message);
     return [];
   }
 }
 
-module.exports = { definitions, execute, cardsPorMencao, resolverCards };
+module.exports = { definitions, execute, cardsPorMencao, resolverCards, consultarMencionados };

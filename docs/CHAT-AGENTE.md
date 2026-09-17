@@ -56,6 +56,7 @@ porque não escreve link nenhum.
 | Arquivo | Papel |
 |---|---|
 | `backend/lib/shopify.js` | Consultas ao Storefront: busca, ficha, catálogo em cache |
+| `backend/lib/product-search.js` | Reconhecimento de nomes, grafias equivalentes, nomes parciais e sugestões por digitação |
 | `backend/lib/site.js` | Conteúdo do site: fatos institucionais + busca no blog |
 | `backend/lib/prompt.js` | System prompt (postura de venda, escopo, limites) |
 | `backend/lib/tools.js` | Definição das ferramentas + executores |
@@ -90,6 +91,40 @@ existe embalagem maior — o preço isolado escondia essa escolha.
 
 Páginas com o widget: `index`, `produtos`, `produto`, `sobre` e `blog`.
 Fora de propósito no checkout, na conta e no admin.
+
+### Reconhecimento dos nomes
+
+A busca compara primeiro os nomes e handles do catálogo real, sem diferenciar
+caixa, acentos, espaços ou hífens. `Vermisal`, `Vermi Sal`, `Vermi-Sal` e
+`Ver-Mi-Sal` encontram o cadastro oficial `Ver-Mi-Sal` (`ver-mi-sal`), inclusive
+dentro de frases como "Quero saber mais sobre o Vermisal".
+
+Quando a mensagem já contém um nome reconhecível, o backend consulta o catálogo
+antes da primeira resposta do modelo e entrega os dados como resultado de
+ferramenta. O card de um produto pedido e identificado também tem uma rede de
+segurança caso o modelo esqueça de chamar `mostrar_produtos` ou repetir o nome.
+O catálogo é paginado, fica em cache por 10 minutos e compartilha cargas
+simultâneas; buscas por finalidade/espécie continuam usando o índice Shopify.
+
+Pequenos erros, como `Vermissal`, retornam `sugestoes`, não produtos confirmados:
+o agente deve perguntar qual nome o cliente quis dizer. Nomes parciais podem
+retornar várias opções; `nucleo` não escolhe Supera ou Premium por conta própria.
+`Difly` e `Difly S3` permanecem separados. A resolução dos cards não usa mais
+substrings que poderiam trocar uma linha por outra. Uma falha da API é tratada
+como indisponibilidade, não como ausência do produto.
+
+Testes automatizados, sem chave LLM nem chamadas externas:
+
+```sh
+cd backend
+npm test
+```
+
+Antes de publicar, confira também no chat real: "Quero saber mais sobre o
+Vermisal", "Me manda a foto do Vermi Sal", "Vermissal", "Difly S3" e "Núcleo".
+O health do backend identifica esta alteração com
+`versao: "chat-2026-09-17-busca-nomes"`. A alteração exige deploy do backend;
+não altera o catálogo ou os arquivos do widget no frontend.
 
 ---
 

@@ -102,6 +102,28 @@ async function responder(historico, idiomaSite) {
      quando o modelo fala do produto mas esquece de pedir o card. */
   const coletor = { cards: [], vistos: [], carrinho: [] };
 
+  const ultimaMensagem = messages.filter((m) => m.role === 'user').at(-1);
+  if (ultimaMensagem) {
+    try {
+      const consulta = await tools.consultarMencionados(ultimaMensagem.content, coletor);
+      if (consulta) {
+        const id = 'consulta_nome_cliente';
+        messages.push({
+          role: 'assistant', content: null,
+          tool_calls: [{ id, type: 'function', function: {
+            name: 'buscar_produtos', arguments: JSON.stringify({ termo: ultimaMensagem.content })
+          } }]
+        }, { role: 'tool', tool_call_id: id, content: JSON.stringify(consulta) });
+        ferramentasUsadas.push('buscar_produtos');
+      }
+    } catch (err) {
+      /* A indisponibilidade do catálogo não impede atendimento institucional
+         nem deve virar uma falsa afirmação de produto inexistente. */
+      console.error('[chat] consulta inicial falhou:', err.message);
+      messages.push({ role: 'system', content: 'A consulta inicial ao catálogo falhou. Se a mensagem trata de produto, tente buscar_produtos; se a ferramenta falhar, informe indisponibilidade temporária. Não diga que o produto não existe.' });
+    }
+  }
+
   for (let i = 0; i < MAX_ITERACOES; i += 1) {
     const { message, usage } = await chamarModelo(messages);
 

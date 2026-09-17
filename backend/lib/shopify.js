@@ -23,6 +23,7 @@ const NS = process.env.SHOPIFY_METAFIELD_NAMESPACE || 'custom';
 
 /* Mesmas chaves cadastradas no Shopify (ver docs/SHOPIFY-INTEGRACAO.md). */
 const META_KEYS = ['headline', 'excerpt', 'usage', 'presentations', 'category'];
+const { buscarNoCatalogo } = require('./product-search');
 
 function isConfigured() {
   return Boolean(DOMAIN && TOKEN && DOMAIN.includes('myshopify.com'));
@@ -111,17 +112,23 @@ const PRODUCT_FIELDS = `
 /**
  * Busca produtos por termo livre. Sem termo, devolve os primeiros do catálogo.
  */
-async function buscarProdutos(termo, limite) {
-  const first = Math.min(Math.max(Number(limite) || 6, 1), 12);
+async function pesquisarProdutos(termo, limite) {
+  const first = Math.min(Math.max(Math.trunc(Number(limite)) || 6, 1), 12);
   const termoLimpo = String(termo || '').trim();
 
-  /* RELEVANCE só é válido junto de um termo de busca — sem termo o Shopify
-     precisa de outra ordenação, senão a query se comporta de forma imprevisível. */
-  const sortKey = termoLimpo ? 'RELEVANCE' : 'TITLE';
+  /* O índice do Shopify não reconhece todas as grafias de uma marca.
+     Procura primeiro nos nomes/handles reais, sem acentos, espaços ou hífens.
+     A busca remota continua disponível para espécie, finalidade e categoria. */
+  const todos = await catalogo();
+  if (!termoLimpo) {
+    return { produtos: todos.slice(0, first), correspondencia: 'catalogo', sugestoes: [] };
+  }
+  const local = buscarNoCatalogo(termoLimpo, todos, first);
+  if (local.produtos.length || local.sugestoes.length) return local;
 
   const query = `
     query ChampionBusca($first: Int!, $q: String) {
-      products(first: $first, query: $q, sortKey: ${sortKey}) {
+      products(first: $first, query: $q, sortKey: RELEVANCE) {
         nodes {
           ${PRODUCT_FIELDS}
           ${metafieldFragment()}
@@ -130,8 +137,14 @@ async function buscarProdutos(termo, limite) {
     }
   `;
 
-  const data = await gql(query, { first, q: termoLimpo || null });
-  return ((data.products && data.products.nodes) || []).map(mapProduct);
+  const data = await gql(query, { first, q: termoLimpo });
+  const produtos = ((data.products && data.products.nodes) || []).map(mapProduct);
+  if (produtos.length) return { produtos, correspondencia: 'conteudo', sugestoes: [] };
+  return local;
+}
+
+async function buscarProdutos(termo, limite) {
+  return (await pesquisarProdutos(termo, limite)).produtos;
 }
 
 /**
@@ -175,33 +188,57 @@ async function detalhesProduto(handle) {
  */
 const CATALOGO_TTL = 10 * 60 * 1000;
 let _catalogo = { em: 0, produtos: [] };
+let _catalogoPendente = null;
 
 async function catalogo() {
   if (_catalogo.produtos.length && Date.now() - _catalogo.em < CATALOGO_TTL) {
     return _catalogo.produtos;
   }
 
+  if (_catalogoPendente) return _catalogoPendente;
+  _catalogoPendente = carregarCatalogo();
+  try {
+    return await _catalogoPendente;
+  } finally {
+    _catalogoPendente = null;
+  }
+}
+
+async function carregarCatalogo() {
   const query = `
-    query ChampionCatalogo($first: Int!) {
-      products(first: $first, sortKey: TITLE) {
+    query ChampionCatalogo($first: Int!, $after: String) {
+      products(first: $first, after: $after, sortKey: TITLE) {
         nodes {
           ${PRODUCT_FIELDS}
           ${metafieldFragment()}
         }
+        pageInfo { hasNextPage endCursor }
       }
     }
   `;
 
   try {
-    const data = await gql(query, { first: 100 });
-    const produtos = ((data.products && data.products.nodes) || []).map(mapProduct);
-    if (produtos.length) _catalogo = { em: Date.now(), produtos };
+    const produtos = [];
+    let after = null;
+    do {
+      const data = await gql(query, { first: 100, after });
+      const pagina = data.products;
+      if (!pagina || !Array.isArray(pagina.nodes)) throw new Error('Catálogo sem dados de produtos.');
+      produtos.push(...pagina.nodes.map(mapProduct));
+      const info = pagina.pageInfo || {};
+      if (!info.hasNextPage) break;
+      if (!info.endCursor || info.endCursor === after) throw new Error('Paginação do catálogo inválida.');
+      after = info.endCursor;
+    } while (after);
+    _catalogo = { em: Date.now(), produtos };
     return produtos;
   } catch (err) {
     console.error('[chat] catalogo falhou:', err.message);
     /* Devolve o cache velho, se houver — melhor desatualizado que vazio. */
-    return _catalogo.produtos;
+    if (_catalogo.produtos.length) return _catalogo.produtos;
+    /* Falha de consulta não significa que o produto não existe. */
+    throw err;
   }
 }
 
-module.exports = { isConfigured, buscarProdutos, detalhesProduto, catalogo };
+module.exports = { isConfigured, buscarProdutos, pesquisarProdutos, detalhesProduto, catalogo };

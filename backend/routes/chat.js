@@ -69,7 +69,7 @@ async function registrarConversa(dados) {
 
 /* `versao` existe para responder de fora a pergunta "o Railway já subiu o meu
    último commit?" — sem ela, a única forma de saber era pelo comportamento. */
-const VERSAO = 'chat-2026-08-15-catalogo';
+const VERSAO = 'chat-2026-09-17-busca-nomes';
 
 router.get('/health', (_req, res) => {
   res.json({
