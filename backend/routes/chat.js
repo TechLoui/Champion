@@ -69,7 +69,7 @@ async function registrarConversa(dados) {
 
 /* `versao` existe para responder de fora a pergunta "o Railway já subiu o meu
    último commit?" — sem ela, a única forma de saber era pelo comportamento. */
-const VERSAO = 'chat-2026-09-17-busca-nomes';
+const VERSAO = 'chat-2026-09-17-refinamentos-v2';
 
 router.get('/health', (_req, res) => {
   res.json({
@@ -115,7 +115,9 @@ router.post('/', async (req, res) => {
   historico.push({ role: 'user', content: mensagem });
 
   try {
-    const resultado = await llm.responder(historico, idiomaSite);
+    const catalogoOffset = Number.isInteger(body.catalogoOffset) && body.catalogoOffset >= 0 && body.catalogoOffset <= 100000
+      ? body.catalogoOffset : undefined;
+    const resultado = await llm.responder(historico, idiomaSite, { catalogoOffset });
 
     /* Não espera o log para responder — o cliente não deve pagar a latência
        do Firestore. */
@@ -148,6 +150,7 @@ router.post('/', async (req, res) => {
       produtos: cards,
       /* Itens para o widget colocar no carrinho do site. */
       carrinho: resultado.carrinho || [],
+      catalogo: resultado.catalogo || null,
       ferramentas: resultado.ferramentas
     });
   } catch (err) {

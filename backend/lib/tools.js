@@ -14,6 +14,7 @@
 const shopify = require('./shopify');
 const site = require('./site');
 const { normalizar, reconhecerProdutos, buscarNoCatalogo } = require('./product-search');
+const { prepararProduto, fichaParaAgente } = require('./product-policy');
 
 const definitions = [
   {
@@ -36,6 +37,10 @@ const definitions = [
           limite: {
             type: 'integer',
             description: 'Quantos produtos retornar (1 a 12). Padrão 6.'
+          },
+          offset: {
+            type: 'integer', minimum: 0,
+            description: 'Posição da página; use proximo_offset para continuar a mesma busca sem repetir produtos.'
           }
         },
         required: []
@@ -150,6 +155,7 @@ const definitions = [
 /* Formato do card. Um lugar só, usado tanto por mostrar_produtos quanto pela
    rede de segurança em deepseek.js. */
 function paraCard(p) {
+  p = prepararProduto(p);
   return {
     handle: p.handle,
     nome: p.nome,
@@ -173,9 +179,7 @@ function lembrar(coletor, produtos) {
       coletor.vistos.push(paraCard(p));
     }
   });
-  if (coletor.aproximados) {
-    coletor.aproximados = coletor.aproximados.filter((h) => !produtos.some((p) => p.handle === h));
-  }
+  /* O modelo não pode confirmar a própria hipótese fazendo outra busca. */
 }
 
 function lembrarSugestoes(coletor, sugestoes) {
@@ -185,13 +189,16 @@ function lembrarSugestoes(coletor, sugestoes) {
 
 const executors = {
   async buscar_produtos(args, coletor) {
-    const resultado = await shopify.pesquisarProdutos(args.termo, args.limite);
+    const resultado = await shopify.pesquisarProdutos(args.termo, args.limite, args.offset);
     const { produtos, sugestoes, correspondencia } = resultado;
+    const bloqueados = produtos.filter((p) => (coletor?.aproximados || []).includes(p.handle));
+    if (bloqueados.length) return { produtos: [], sugestoes: bloqueados.map((p) => ({ handle: p.handle, nome: p.nome })),
+      instrucao: 'Nome ainda não confirmado pelo cliente. Pergunte e aguarde uma nova mensagem; não consulte ficha, não oriente uso nem feche compra nesta resposta.' };
     if (!produtos.length) {
       if (sugestoes.length) {
         lembrarSugestoes(coletor, sugestoes);
         return {
-          produtos: [], sugestoes, correspondencia,
+          produtos: [], sugestoes: sugestoes.map((p) => ({ handle: p.handle, nome: p.nome })), correspondencia,
           instrucao: 'Há nomes parecidos no catálogo. Pergunte qual deles o cliente quis dizer; não afirme que é o mesmo produto e não adicione ao carrinho sem confirmação.'
         };
       }
@@ -203,9 +210,10 @@ const executors = {
     }
     lembrar(coletor, produtos);
     return {
-      produtos, correspondencia, total_encontrados: resultado.total || produtos.length,
-      mais_resultados: resultado.total > produtos.length,
-      instrucao: 'Use o nome e os handles exatamente como retornados. Para o cliente VER estes produtos, chame mostrar_produtos com os handles. Se houver mais de uma opção para o nome solicitado, pergunte qual; nunca escolha uma linha ou apresentação por conta própria. Se mais_resultados for true, consulte com limite maior antes de tratar o resultado como único.'
+      produtos: produtos.map(prepararProduto), correspondencia, total_encontrados: resultado.total ?? produtos.length,
+      mais_resultados: resultado.mais_resultados ?? resultado.total > produtos.length,
+      offset: resultado.offset || 0, proximo_offset: resultado.proximo_offset ?? null,
+      instrucao: 'Use os nomes e handles oficiais. Mostre no máximo 4 cards. Total_encontrados é o total da busca, não a quantidade desta página. Para continuar, use proximo_offset com o mesmo termo. Não diga que mostrou tudo se mais_resultados for true. Ofereça compra apenas de variantes compravel=true; preço Sob consulta requer contato com a equipe, não carrinho. Não escolha entre produtos ambíguos.'
     };
   },
 
@@ -218,7 +226,7 @@ const executors = {
       ? resolucao.produto : await shopify.detalhesProduto(resolucao.produto.handle);
     if (!produto) return { erro: 'Ficha do produto indisponível agora.' };
     lembrar(coletor, [produto]);
-    return { produto };
+    return { produto: fichaParaAgente(produto) };
   },
 
   async mostrar_produtos(args, coletor) {
@@ -277,16 +285,25 @@ const executors = {
      mesmo da vitrine. Assim existe UM carrinho só, e o pagamento sai pelo
      checkout do site em vez de um link solto no meio da conversa. */
   async adicionar_ao_carrinho(args, coletor) {
+    if (!Array.isArray(args.itens) || args.itens.length > 10 ||
+        args.itens.some((i) => !i || !String(i.variantId || '').trim())) return { erro: 'Lista de itens inválida. Nenhum item adicionado.' };
     const pedidos = (Array.isArray(args.itens) ? args.itens : [])
       .map((i) => ({
         variantId: String((i && i.variantId) || '').trim(),
-        quantidade: Math.min(Math.max(Number(i && i.quantidade) || 1, 1), 99)
+        quantidade: Number(i && i.quantidade)
       }))
       .filter((i) => i.variantId)
       .slice(0, 10);
 
     if (!pedidos.length) {
       return { erro: 'Nenhuma apresentação informada. Use o variantId vindo de buscar_produtos.' };
+    }
+
+    const mensagem = normalizar(coletor?.mensagemCliente || '');
+    const quantidades = [...mensagem.matchAll(/\b(\d{1,2})\s*(?:unidades?|unids?|potes?|baldes?|caixas?|frascos?|saches?|fardos?|units?|buckets?|bottles?|unidades?|do\b|de\b)/g)].map((m) => Number(m[1]));
+    const consentimento = /^(?:(?:por favor|please|pode|poderia) )?(?:(?:quero(?: comprar)?|quiero(?: comprar)?|i want(?: to buy)?|want(?: to buy)?) \d|(?:adicion\w*|coloc\w*|comprar|compro|fech\w*|add|buy|agrega\w*)\b)/.test(mensagem) && !/\b(nao|not|dont|don t)\b|\bno quiero\b/.test(mensagem);
+    if (!consentimento || pedidos.some((p) => !Number.isInteger(p.quantidade) || p.quantidade < 1 || p.quantidade > 99 || !quantidades.includes(p.quantidade))) {
+      return { erro: 'Compra ou quantidade não confirmada explicitamente na mensagem atual.', instrucao: 'Pergunte qual apresentação e quantas unidades. Não presuma quantidade nem diga que adicionou.' };
     }
 
     /* Procura primeiro no que já foi consultado; depois no catálogo. O modelo
@@ -302,7 +319,22 @@ const executors = {
         if (!catalogo) catalogo = (await shopify.catalogo()).map(paraCard);
         achado = encontrarPorVariante(catalogo, pedido.variantId);
       }
-      if (achado) resolvidos.push({ produto: achado.produto, apr: achado.apr, qtd: pedido.quantidade });
+      if (achado) {
+        if (!reconhecerProdutos(mensagem, [achado.produto]).length) return { erro: 'Confirme o nome do produto junto da apresentação e quantidade. Nenhum item adicionado.' };
+        if ((coletor.aproximados || []).includes(achado.produto.handle)) return { erro: 'Nome ainda não confirmado pelo cliente.' };
+        /* Revalida preço e estoque na fonte, não em um card antigo do histórico. */
+        const fresco = await shopify.detalhesProduto(achado.produto.handle);
+        const atual = fresco && encontrarPorVariante([prepararProduto(fresco)], pedido.variantId);
+        if (!atual) return { erro: 'Não foi possível confirmar a apresentação atual. Nenhum item adicionado.' };
+        if (atual.produto.apresentacoes.length > 1 && !apresentacaoMencionada(atual.produto, atual.apr, mensagem)) return {
+          erro: 'Apresentação não confirmada na mensagem atual. Nenhum item adicionado.', instrucao: 'Pergunte a embalagem desejada, sem escolher pelo cliente.'
+        };
+        if (!atual.apr.compravel) return { erro: atual.apr.sobConsulta ? 'Preço sob consulta. Nenhum item adicionado.' : 'Apresentação sem estoque. Nenhum item adicionado.',
+          instrucao: 'Informe a restrição e ofereça uma opção disponível ou o WhatsApp para consulta. Não presuma outra embalagem.' };
+        if (resolvidos.some((r) => r.apr.variantId === pedido.variantId) ||
+            (coletor.carrinho || []).some((i) => i.variantId === pedido.variantId)) return { erro: 'Esta apresentação já foi solicitada nesta mensagem. Não repetir a inclusão.' };
+        resolvidos.push({ produto: atual.produto, apr: atual.apr, qtd: pedido.quantidade });
+      } else return { erro: 'Apresentação não encontrada. Nenhum item adicionado.' };
     }
 
     if (!resolvidos.length) {
@@ -322,6 +354,7 @@ const executors = {
           apresentacao: r.apr.apresentacao,
           preco: r.apr.preco,
           precoNum: r.apr.precoNum,
+          disponivel: true, compravel: true, sobConsulta: false,
           quantidade: r.qtd
         });
       });
@@ -335,7 +368,7 @@ const executors = {
         preco: r.apr.preco
       })),
       instrucao:
-        'Já entrou no carrinho do site e o cliente está vendo. Confirme em uma frase, ' +
+        'Itens enviados para o widget adicionar ao carrinho. Não afirme enxergar a tela do cliente. Confirme em uma frase, ' +
         'diga que é só tocar em "Finalizar compra" no carrinho aqui do chat, e pergunte ' +
         'se ele quer incluir mais alguma coisa. NÃO escreva link de pagamento.'
     };
@@ -347,6 +380,7 @@ const executors = {
 async function resolverProduto(handle, coletor) {
   const termo = String(handle || '').trim();
   if (!termo) return { erro: 'Nenhum handle informado.' };
+  if ((coletor?.aproximados || []).some((h) => normalizar(h).replace(/ /g, '') === normalizar(termo).replace(/ /g, ''))) return { erro: 'Nome ainda não confirmado pelo cliente.', instrucao: 'Pergunte e aguarde a confirmação antes de orientar uso ou mostrar como produto confirmado.' };
   const vistos = (coletor && coletor.vistos) || [];
   const exato = vistos.find((p) => p.handle.toLowerCase() === termo.toLowerCase());
   if (exato) return { produto: exato };
@@ -354,9 +388,10 @@ async function resolverProduto(handle, coletor) {
   const nomes = vistos.filter((p) => normalizar(p.nome).replace(/ /g, '') === compacto);
   if (nomes.length === 1) return { produto: nomes[0] };
   const produto = await shopify.detalhesProduto(termo);
-  if (produto) return { produto };
+  if (produto) return (coletor?.aproximados || []).includes(produto.handle) ? { erro: 'Nome ainda não confirmado pelo cliente.' } : { produto };
   const resultado = await shopify.pesquisarProdutos(termo, 12);
   if (resultado.produtos.length === 1 && ['nome', 'nome_parcial'].includes(resultado.correspondencia)) {
+    if ((coletor?.aproximados || []).includes(resultado.produtos[0].handle)) return { erro: 'Nome ainda não confirmado pelo cliente.' };
     return { produto: resultado.produtos[0] };
   }
   return {
@@ -400,6 +435,20 @@ function encontrarPorVariante(lista, variantId) {
     if (apr) return { produto, apr };
   }
   return null;
+}
+
+function apresentacaoMencionada(produto, apr, mensagem) {
+  const espacar = (texto) => normalizar(texto).replace(/(\d)(kg|ml|g|l)\b/g, '$1 $2');
+  /* Peso no título do produto não é uma escolha explícita de embalagem. */
+  const texto = espacar(mensagem.replace(normalizar(produto.nome), ''));
+  const rotulo = espacar(apr.apresentacao);
+  if (rotulo && (' ' + texto + ' ').includes(' ' + rotulo + ' ')) return true;
+  const medidas = rotulo.match(/\b\d+(?: \d+)? (?:kg|ml|g|l)\b/g) || [];
+  if (medidas.length && medidas.every((m) => (' ' + texto + ' ').includes(' ' + m + ' '))) return true;
+  const embalagens = ['pote', 'balde', 'caixa', 'frasco', 'fardo', 'sache'];
+  return embalagens.some((nome) => new RegExp('\\b' + nome + 's?\\b').test(texto) &&
+    new RegExp('\\b' + nome + '\\b').test(rotulo) && produto.apresentacoes.filter((a) =>
+      new RegExp('\\b' + nome + '\\b').test(espacar(a.apresentacao))).length === 1);
 }
 
 async function execute(name, args, coletor) {
@@ -446,7 +495,7 @@ function cardsPorMencao(texto, vistos) {
 async function resolverCards(texto, coletor) {
   if (coletor.cards.length) return coletor.cards;
 
-  const doTurno = cardsPorMencao(texto, coletor.vistos);
+  const doTurno = cardsPorMencao(texto, coletor.vistos.filter((p) => !(coletor.aproximados || []).includes(p.handle)));
   if (doTurno.length) return doTurno;
   if (coletor.solicitados && coletor.solicitados.length) return coletor.solicitados;
 

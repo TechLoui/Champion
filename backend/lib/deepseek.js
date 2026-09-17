@@ -11,6 +11,7 @@
 
 const tools = require('./tools');
 const { buildSystemPrompt } = require('./prompt');
+const flow = require('./chat-flow');
 
 const BASE_URL = process.env.LLM_BASE_URL || 'https://api.deepseek.com';
 const MODEL = process.env.LLM_MODEL || 'deepseek-chat';
@@ -38,7 +39,7 @@ function isConfigured() {
   return Boolean(API_KEY);
 }
 
-async function chamarModelo(messages) {
+async function chamarModelo(messages, detalhado = false) {
   const res = await fetch(`${BASE_URL}/chat/completions`, {
     method: 'POST',
     headers: {
@@ -53,7 +54,7 @@ async function chamarModelo(messages) {
       /* 0.4 dá naturalidade ao texto de atendimento sem soltar a mão do
          modelo. Os números que importam vêm de ferramenta, não da amostragem. */
       temperature: 0.4,
-      max_tokens: 1400
+      max_tokens: detalhado ? 1000 : 350
     }),
     signal: AbortSignal.timeout(45000)
   });
@@ -79,7 +80,7 @@ async function chamarModelo(messages) {
  * @param {string} [idiomaSite] Idioma da página (pt/en/es) — só palpite inicial
  * @returns {Promise<{ resposta: string, ferramentas: string[], usage: object }>}
  */
-async function responder(historico, idiomaSite) {
+async function responder(historico, idiomaSite, opcoes = {}) {
   if (!isConfigured()) {
     throw new Error('LLM_API_KEY não configurada no backend.');
   }
@@ -103,10 +104,23 @@ async function responder(historico, idiomaSite) {
   const coletor = { cards: [], vistos: [], carrinho: [] };
 
   const ultimaMensagem = messages.filter((m) => m.role === 'user').at(-1);
+  coletor.mensagemCliente = ultimaMensagem?.content || '';
+  const idioma = flow.idiomaDoCliente(coletor.mensagemCliente, idiomaSite);
+  const detalhado = /composi[cç][aã]o|modo de us|dosagem|detalhe completo|expli(?:que|car) em detalhe|composition|instructions|composici[oó]n/i.test(coletor.mensagemCliente);
   if (ultimaMensagem) {
     try {
-      const consulta = await tools.consultarMencionados(ultimaMensagem.content, coletor);
+      const catalogo = await flow.catalogoDireto(ultimaMensagem.content, historico, idioma, opcoes.catalogoOffset);
+      if (catalogo) return catalogo;
+      const recusa = flow.recusaConfirmacao(historico, idioma);
+      if (recusa) return recusa;
+      const confirmado = await flow.produtoConfirmado(historico);
+      const consulta = confirmado || await tools.consultarMencionados(ultimaMensagem.content, coletor);
       if (consulta) {
+        if (!consulta.produtos.length && consulta.sugestoes?.length) return flow.perguntaConfirmacao(consulta.sugestoes, idioma);
+        if (confirmado || flow.ehConsultaSimples(ultimaMensagem.content)) {
+          const breve = flow.consultaBreve(consulta, idioma);
+          if (breve) return breve;
+        }
         const id = 'consulta_nome_cliente';
         messages.push({
           role: 'assistant', content: null,
@@ -125,7 +139,7 @@ async function responder(historico, idiomaSite) {
   }
 
   for (let i = 0; i < MAX_ITERACOES; i += 1) {
-    const { message, usage } = await chamarModelo(messages);
+    const { message, usage } = await chamarModelo(messages, detalhado);
 
     if (usage) {
       usageTotal.prompt_tokens += usage.prompt_tokens || 0;
@@ -154,21 +168,22 @@ async function responder(historico, idiomaSite) {
       };
     }
 
-    /* Ferramentas são independentes entre si — roda todas em paralelo e
-       devolve os resultados na mesma rodada. */
-    const resultados = await Promise.all(
-      chamadas.map(async (call) => {
+    /* O coletor é compartilhado: busca, confirmação e carrinho dependem
+       dos resultados anteriores. Não permite uma ficha ultrapassar a
+       trava de aproximação por uma corrida de chamadas paralelas. */
+    const resultados = [];
+    for (const call of chamadas) {
         const nome = call.function && call.function.name;
         let args = {};
         try {
           args = JSON.parse((call.function && call.function.arguments) || '{}');
         } catch (e) {
-          return { call, saida: { erro: 'Argumentos inválidos (JSON malformado).' } };
+          resultados.push({ call, saida: { erro: 'Argumentos inválidos (JSON malformado).' } });
+          continue;
         }
         ferramentasUsadas.push(nome);
-        return { call, saida: await tools.execute(nome, args, coletor) };
-      })
-    );
+        resultados.push({ call, saida: await tools.execute(nome, args, coletor) });
+    }
 
     for (const { call, saida } of resultados) {
       messages.push({

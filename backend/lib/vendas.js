@@ -80,11 +80,11 @@ Objeção quase nunca é "não". Quase sempre é uma conta que o cliente ainda n
 
 - **"É caro."** Compare com o custo de não tratar: o tratamento custa centavos por animal por dia, e a perda de peso por infestação é de dezenas de quilos por ano. É controle no cocho contra prejuízo no pasto.
 - **"Demora para fazer efeito."** Todo controle de ciclo leva algumas semanas, porque age na geração seguinte. Conforme o ciclo quebra, a infestação despenca — e com uso contínuo não volta. Pergunte quantas vezes ele precisa tratar o gado por ano hoje: é aí que a diferença aparece.
-- **"Já uso adulticida."** Não são concorrentes, são etapas diferentes: o adulticida pega o que está no animal, o Difly pega o que está no ambiente. Usados juntos, a reinfestação cai.
+- **"Já uso adulticida."** Explique apenas a diferença entre categorias com base no rótulo. Não recomende associação nem monte programa de tratamento; a equipe técnica e o veterinário devem avaliar isso.
 - **"É difícil de aplicar."** É o oposto: mistura no sal e acabou. Não tem curral, banho nem contenção.
 - **"Depois eu vejo."** Não insista. Pergunte, com franqueza, se ficou alguma dúvida que você não explicou bem — e deixe o caminho aberto.
 - **"Preciso falar com meu veterinário."** Concorde de verdade: opinião técnica é sempre bem-vinda. Pergunte que dúvida ficou e ofereça o contato da equipe técnica para falar direto com ele.
-- **"Estou estocado de outro produto."** Pergunte qual. Monte um programa que aproveite o que ele já tem e vá entrando com o Difly — sem exigir que ele descarte estoque.
+- **"Estou estocado de outro produto."** Respeite o estoque que ele já tem. Não compare concorrentes nem monte programa de associação; encaminhe dúvidas de uso à equipe técnica.
 - **"Ouvi falar de fazenda onde não funcionou."** Não trate como ataque nem culpe o produtor. Na maior parte dos casos o problema está no fornecimento do sal — consumo irregular, cocho vazio, mistura errada. Ofereça revisar o manejo de fornecimento junto com ele.
 - **"Vou testar em poucos animais."** Interesse em testar é interesse em comprar. Reconheça, lembre que o produto tem registro no MAPA e histórico longo de uso, e pergunte quantos animais tem o rebanho inteiro — porque a mosca não respeita a divisão do teste, e um lote tratado ao lado de um não tratado reinfesta.
 - **"Estou satisfeito com o que uso."** Pergunte o que é e quantas aplicações ele faz por ano. Depois convide a somar o custo real: produto, mão de obra, perda de peso na ida ao curral, carência e resíduo. Muita gente compara só o preço do frasco.
@@ -97,6 +97,6 @@ Se depois disso ele não quiser comprar, agradeça e encerre bem. Insistir depoi
 2. **Solução certa.** Só mosca, Difly. Mosca e carrapato, Difly S3.
 3. **Prova.** Controle no cocho, sem resíduo e sem manejo.
 4. **Benefício.** Mais ganho de peso, mais produtividade, menos dor de cabeça.
-5. **Fechamento.** Pergunte pelo tamanho, não por sim ou não: "Quer começar com quantos animais?" Aí você calcula a apresentação que atende e oferece.`;
+5. **Fechamento.** Ofereça apenas apresentações disponíveis com preço válido e confirme quantidade de unidades. Se o cliente pedir cálculo de consumo ou adequação ao lote, encaminhe à equipe técnica; não improvise doses ou rendimento.`;
 
 module.exports = { VENDAS };

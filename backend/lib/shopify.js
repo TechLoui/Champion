@@ -24,6 +24,7 @@ const NS = process.env.SHOPIFY_METAFIELD_NAMESPACE || 'custom';
 /* Mesmas chaves cadastradas no Shopify (ver docs/SHOPIFY-INTEGRACAO.md). */
 const META_KEYS = ['headline', 'excerpt', 'usage', 'presentations', 'category'];
 const { buscarNoCatalogo } = require('./product-search');
+const { normalizarApresentacao, rotuloUnico, fichaParaAgente } = require('./product-policy');
 
 function isConfigured() {
   return Boolean(DOMAIN && TOKEN && DOMAIN.includes('myshopify.com'));
@@ -73,15 +74,15 @@ function brl(amount) {
 function mapProduct(node) {
   const variants = ((node.variants && node.variants.nodes) || []).map((v) => {
     const bruto = Number(v.price && v.price.amount);
-    return {
+    return normalizarApresentacao({
       variantId: v.id,
-      apresentacao: v.title === 'Default Title' ? 'Padrão' : v.title,
+      apresentacao: v.title === 'Default Title' ? rotuloUnico(node) : v.title,
       preco: brl(bruto),
       /* Numérico além do formatado: o widget precisa dele para somar no
          carrinho do site, que guarda preço como número. */
-      precoNum: Number.isFinite(bruto) ? bruto : null,
+      precoNum: v.price && v.price.amount != null && Number.isFinite(bruto) ? bruto : null,
       disponivel: Boolean(v.availableForSale)
-    };
+    });
   });
 
   return {
@@ -112,8 +113,15 @@ const PRODUCT_FIELDS = `
 /**
  * Busca produtos por termo livre. Sem termo, devolve os primeiros do catálogo.
  */
-async function pesquisarProdutos(termo, limite) {
+async function pesquisarProdutos(termo, limite, offset = 0) {
   const first = Math.min(Math.max(Math.trunc(Number(limite)) || 6, 1), 12);
+  const inicio = Math.max(0, Math.trunc(Number(offset)) || 0);
+  const paginar = (resultado) => {
+    const total = resultado.produtos.length;
+    const fim = Math.min(inicio + first, total);
+    return { ...resultado, produtos: resultado.produtos.slice(inicio, fim), total,
+      offset: inicio, proximo_offset: fim < total ? fim : null, mais_resultados: fim < total };
+  };
   const termoLimpo = String(termo || '').trim();
 
   /* O índice do Shopify não reconhece todas as grafias de uma marca.
@@ -121,26 +129,37 @@ async function pesquisarProdutos(termo, limite) {
      A busca remota continua disponível para espécie, finalidade e categoria. */
   const todos = await catalogo();
   if (!termoLimpo) {
-    return { produtos: todos.slice(0, first), correspondencia: 'catalogo', sugestoes: [] };
+    return paginar({ produtos: todos, correspondencia: 'catalogo', sugestoes: [] });
   }
-  const local = buscarNoCatalogo(termoLimpo, todos, first);
-  if (local.produtos.length || local.sugestoes.length) return local;
+  const local = buscarNoCatalogo(termoLimpo, todos, todos.length);
+  if (local.produtos.length) return paginar(local);
+  if (local.sugestoes.length) return { ...local, sugestoes: local.sugestoes.slice(0, first), total: 0 };
 
   const query = `
-    query ChampionBusca($first: Int!, $q: String) {
-      products(first: $first, query: $q, sortKey: RELEVANCE) {
+    query ChampionBusca($first: Int!, $q: String, $after: String) {
+      products(first: $first, after: $after, query: $q, sortKey: RELEVANCE) {
         nodes {
           ${PRODUCT_FIELDS}
           ${metafieldFragment()}
         }
+        pageInfo { hasNextPage endCursor }
       }
     }
   `;
 
-  const data = await gql(query, { first, q: termoLimpo });
-  const produtos = ((data.products && data.products.nodes) || []).map(mapProduct);
-  if (produtos.length) return { produtos, correspondencia: 'conteudo', sugestoes: [] };
-  return local;
+  const produtos = [];
+  let after = null;
+  do {
+    const data = await gql(query, { first: 100, q: termoLimpo, after });
+    const pagina = data.products;
+    if (!pagina || !Array.isArray(pagina.nodes)) throw new Error('Busca sem dados de produtos.');
+    produtos.push(...pagina.nodes.map(mapProduct));
+    const info = pagina.pageInfo || {};
+    if (!info.hasNextPage) break;
+    if (!info.endCursor || info.endCursor === after) throw new Error('Paginação da busca inválida.');
+    after = info.endCursor;
+  } while (after);
+  return paginar({ produtos, correspondencia: produtos.length ? 'conteudo' : 'nenhuma', sugestoes: [] });
 }
 
 async function buscarProdutos(termo, limite) {
@@ -165,13 +184,13 @@ async function detalhesProduto(handle) {
   if (!data.product) return null;
 
   const base = mapProduct(data.product);
-  return Object.assign(base, {
+  return fichaParaAgente(Object.assign(base, {
     descricao: String(data.product.description || '').trim(),
     /* Texto do rótulo. Se vier vazio, o agente é instruído a encaminhar
        para a equipe técnica em vez de preencher a lacuna sozinho. */
     modo_de_uso: metaVal(data.product, 'usage'),
     apresentacoes_rotulo: metaVal(data.product, 'presentations')
-  });
+  }));
 }
 
 

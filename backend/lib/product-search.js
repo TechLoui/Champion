@@ -113,7 +113,11 @@ function buscarNoCatalogo(texto, produtos, limite = 6) {
   const parciais = (produtos || []).filter((p) => identidades(p).some((nome) => {
     const palavras = nome.split(' ');
     const compacto = termos.join('');
-    return (compacto.length >= 4 && nome.replace(/ /g, '').startsWith(compacto)) ||
+    /* Uma parte distintiva também pode vir dividida: Suino Nobre é
+       SUINONOBRE, sem exigir que o cliente diga "Farinha" antes. Não faz
+       substring dentro de palavras nem aproxima códigos diferentes. */
+    const parteCompacta = compacto.length >= 4 && palavras.some((p) => p === compacto);
+    return parteCompacta || (compacto.length >= 4 && nome.replace(/ /g, '').startsWith(compacto)) ||
       termos.every((t) => palavras.some((p) => p === t || (t.length >= 4 && p.startsWith(t))));
   }));
   if (parciais.length) {

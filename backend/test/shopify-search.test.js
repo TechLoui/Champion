@@ -66,7 +66,7 @@ test('busca por finalidade ainda consulta o índice Shopify', async (t) => {
   assert.equal(resultado.produtos[0].handle, 'difly');
   assert.equal(calls.length, 2);
   assert.equal(calls[1].variables.q, 'parasitas');
-  assert.equal(calls[1].variables.first, 2);
+  assert.equal(calls[1].variables.first, 100, 'a busca lê todas as páginas antes de paginar a resposta');
 });
 
 test('aproximações são sugestões separadas e termos vazios listam o catálogo', async (t) => {
@@ -84,4 +84,36 @@ test('aproximações são sugestões separadas e termos vazios listam o catálog
 test('falha de catálogo propaga erro em vez de afirmar produto inexistente', async (t) => {
   t.mock.method(global, 'fetch', async () => { throw new Error('consulta indisponível'); });
   await assert.rejects(novoCliente().buscarProdutos('Vermisal'), /consulta indisponível/);
+});
+
+test('paginação local usa total real e inclui o último item sem repetir', async (t) => {
+  mockStorefront(t, () => ({ products: { nodes: Array.from({ length: 21 }, (_, i) => produto('p-' + i, 'Produto ' + i)), pageInfo: { hasNextPage: false } } }));
+  const s = novoCliente();
+  const ps = [];
+  for (let offset = 0; offset < 21; offset += 4) {
+    const r = await s.pesquisarProdutos('', 4, offset);
+    assert.equal(r.total, 21);
+    assert.equal(r.proximo_offset, offset + 4 < 21 ? offset + 4 : null);
+    ps.push(...r.produtos.map((p) => p.handle));
+  }
+  assert.equal(ps.length, 21);
+  assert.equal(new Set(ps).size, 21);
+});
+
+test('busca por finalidade percorre cursores antes de calcular total e offset', async (t) => {
+  const calls = mockStorefront(t, ({ query, variables }) => ({ products: query.includes('ChampionCatalogo') ? {
+    nodes: [produto('base', 'Produto base')], pageInfo: { hasNextPage: false }
+  } : variables.after ? {
+    nodes: [produto('p2', 'Produto dois')], pageInfo: { hasNextPage: false }
+  } : { nodes: [produto('p1', 'Produto um')], pageInfo: { hasNextPage: true, endCursor: 'seguinte' } } }));
+  const r = await novoCliente().pesquisarProdutos('parasitas', 1, 1);
+  assert.equal(r.total, 2);
+  assert.equal(r.produtos[0].handle, 'p2');
+  assert.equal(r.proximo_offset, null);
+  assert.equal(calls[2].variables.after, 'seguinte');
+});
+
+test('cursor repetido falha sem loop infinito', async (t) => {
+  mockStorefront(t, () => ({ products: { nodes: [], pageInfo: { hasNextPage: true, endCursor: 'repetido' } } }));
+  await assert.rejects(novoCliente().catalogo(), /Paginação do catálogo inválida/);
 });

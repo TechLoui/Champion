@@ -8,6 +8,32 @@ compatível com OpenAI) e busca todo dado no Shopify que o site já usa.
 
 ## Como funciona
 
+### Refinamentos de 17/09/2026
+
+Versão da API: `chat-2026-09-17-refinamentos-v2`.
+
+- Consulta geral ou foto de um nome único: resposta breve ancorada no catálogo,
+  com card, embalagens atuais e distinção entre disponível e sem estoque.
+- Grafia aproximada: pergunta de confirmação sem ficha, dosagem ou card
+  confirmado. Uma nova busca feita pelo modelo não confirma a hipótese.
+- Catálogo: total real e páginas de quatro cards. A resposta inclui
+  `catalogo: { total, de, ate, proximoOffset }`. O widget envia
+  `catalogoOffset` ao pedir os próximos; pedidos digitados usam o histórico.
+- Preço ausente, zero ou inválido: `precoNum: null`, `sobConsulta: true`,
+  `compravel: false`. Não é produto grátis. Confirmar valor com a empresa.
+- Carrinho: quantidade e compra explícitas, identificação do produto,
+  reconsulta de preço/estoque, inclusão única por variante e validação do lote
+  antes de enviar ações. Clique não inclui antecipadamente: aguarda o backend.
+- Embalagens comerciais atuais têm prioridade sobre texto livre antigo.
+  Rótulos e instruções não são reescritos por suposição. Campos técnicos
+  ausentes e divergências continuam exigindo revisão do cadastro pela empresa.
+- WhatsApp é encaminhamento para o próprio cliente; não existe ferramenta que
+  envie uma solicitação à equipe em nome dele.
+
+Executar `npm test` em `backend` e `node tools/test-mapa-empresa.cjs` na raiz.
+O frontend atualizado precisa ser enviado à Hostinger para ativar paginação
+e travas visuais; o push do backend atualiza somente a API no Railway.
+
 ```
 navegador                    Railway (backend)                serviços
 ─────────                    ─────────────────                ────────
@@ -32,12 +58,13 @@ contido em três níveis independentes — se um falhar, os outros seguram:
 | Camada | Onde | O que garante |
 |---|---|---|
 | **Ancoragem** | `lib/prompt.js` | "Afirme apenas o que veio de uma ferramenta." O modelo não preenche lacuna com o que parece provável. |
-| **Ferramentas** | `lib/tools.js` | Só existem cinco funções, todas de catálogo e conteúdo. Não há função de diagnóstico nem de cálculo de dose — então não existe caminho para fazer isso, independente do que o cliente peça. |
+| **Ferramentas** | `lib/tools.js` | Catálogo, conteúdo e carrinho; não executam diagnóstico nem cálculo de dose. Travamento determinístico de preço, estoque e confirmação para ações comerciais. |
 | **Prompt** | `lib/prompt.js` | Escopo, tom e o encaminhamento para a equipe técnica. |
 
-A camada mais forte é a segunda: o prompt é instrução (probabilística), a
-ferramenta é arquitetura (determinística). O agente não pode fazer o que não
-tem função para fazer.
+As ações comerciais são controladas por código. Texto técnico ainda é gerado
+por um modelo probabilístico: ausência de uma ferramenta clínica não garante
+ausência de orientação inadequada. Por isso são necessários instruções,
+fonte aprovada, encaminhamento técnico e testes de regressão.
 
 ### O pagamento
 
