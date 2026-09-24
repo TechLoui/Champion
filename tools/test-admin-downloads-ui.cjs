@@ -36,7 +36,7 @@ assert.match(html, /id="publishedDownloadList"[^>]*aria-busy="true"/);
 assert.match(html, /id="driveStatusCard"[^>]*aria-live="polite"[^>]*aria-atomic="true"/);
 assert.match(downloadsHtml, /<span class="dl-source-label">Pasta do Google Drive<\/span>/);
 assert.doesNotMatch(downloadsHtml, /driveAccountMeta|driveStatusPill|driveConfigHelp|driveHelpEmail|Detalhes da conexão|conta de serviço/i);
-assert.match(html, /admin-downloads\.js\?v=20260904-5/);
+assert.match(html, /admin-downloads\.js\?v=20260924-1/);
 assert.doesNotMatch(downloadsHtml, /role="(?:table|rowgroup|row|cell|columnheader)"/);
 assert.match(html, /\.sr-only\s*\{/);
 assert.doesNotMatch(downloadsHtml, /id="(?:driveItemsList|publishedDownloadList|driveSelectedPreview)"[^>]*aria-live/);

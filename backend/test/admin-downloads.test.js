@@ -2,7 +2,12 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { serializeDownload, normalizeSearch, publicationSettings } = require('../routes/admin-downloads');
+const {
+  serializeDownload,
+  normalizeSearch,
+  matchesSearch,
+  publicationSettings
+} = require('../routes/admin-downloads');
 
 test('normaliza busca em portugues sem acentos', () => {
   assert.equal(normalizeSearch('  Nutri\u00e7\u00e3o Bovina / 2026  '), 'nutricao bovina 2026');
@@ -11,6 +16,13 @@ test('normaliza busca em portugues sem acentos', () => {
 test('indice de busca pode incluir campos depois dos primeiros 300 caracteres', () => {
   const content = `${'descricao '.repeat(40)} Categoria Especial`;
   assert.equal(normalizeSearch(content, 8000).includes('categoria especial'), true);
+});
+
+test('busca encontra termos sem acento e em qualquer ordem', () => {
+  const content = 'Ficha técnica para Nutrição Bovina';
+  assert.equal(matchesSearch(content, 'bovina ficha'), true);
+  assert.equal(matchesSearch(content, 'nutricao tecnica'), true);
+  assert.equal(matchesSearch(content, 'equinos ficha'), false);
 });
 
 test('serializacao administrativa nao transforma tamanho ausente em zero', () => {

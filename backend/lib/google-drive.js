@@ -277,6 +277,63 @@ function escapeDriveQuery(value) {
   return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
+function normalizeDriveSearch(value, max = 4000) {
+  return String(value || '')
+    .trim()
+    .slice(0, max)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function driveSearchScore(file, relativePath, query) {
+  const normalizedQuery = normalizeDriveSearch(query, 120);
+  if (!normalizedQuery) return 0;
+
+  const name = normalizeDriveSearch(file?.name, 500);
+  const description = normalizeDriveSearch(file?.description, 4000);
+  const path = normalizeDriveSearch(relativePath, 1200);
+  const haystack = `${name} ${description} ${path}`.trim();
+  const terms = [...new Set(normalizedQuery.split(/\s+/).filter(Boolean))];
+  if (!terms.every((term) => haystack.includes(term))) return -1;
+
+  let score = 0;
+  if (name === normalizedQuery) score += 1000;
+  else if (name.startsWith(normalizedQuery)) score += 700;
+  else if (name.includes(normalizedQuery)) score += 500;
+  if (description.includes(normalizedQuery)) score += 120;
+  if (path.includes(normalizedQuery)) score += 80;
+
+  for (const term of terms) {
+    if (name === term) score += 160;
+    else if (name.startsWith(term)) score += 100;
+    else if (name.includes(term)) score += 70;
+    if (description.includes(term)) score += 15;
+    if (path.includes(term)) score += 10;
+  }
+  if (file?.mimeType === FOLDER_MIME) score += 5;
+  return score;
+}
+
+function encodeSearchPageToken(folderId, query, offset) {
+  return Buffer.from(JSON.stringify({ v: 1, folderId, query, offset }), 'utf8').toString('base64url');
+}
+
+function searchPageOffset(pageToken, folderId, query) {
+  if (!pageToken) return 0;
+  try {
+    const parsed = JSON.parse(Buffer.from(String(pageToken), 'base64url').toString('utf8'));
+    if (parsed?.v !== 1 || parsed.folderId !== folderId || parsed.query !== query) throw new Error('contexto divergente');
+    const offset = Number(parsed.offset);
+    if (!Number.isSafeInteger(offset) || offset < 0 || offset > 20000) throw new Error('offset invalido');
+    return offset;
+  } catch (_) {
+    throw new HttpError(422, 'Token de paginacao da busca invalido.', 'INVALID_PAGE_TOKEN');
+  }
+}
+
 function mapDriveItem(file) {
   const shortcutTargetMime = file.shortcutDetails?.targetMimeType || null;
   return {
@@ -314,6 +371,123 @@ async function breadcrumbs(folder) {
   return chain.reverse();
 }
 
+async function listChildrenForParents(parentIds, maxItems) {
+  const context = getContext();
+  const clauses = parentIds.map((id) => `'${escapeDriveQuery(id)}' in parents`);
+  const files = [];
+  let pageToken;
+  let truncated = false;
+
+  do {
+    let response;
+    try {
+      response = await context.drive.files.list({
+        q: `(${clauses.join(' or ')}) and trashed = false`,
+        spaces: 'drive',
+        pageSize: Math.min(1000, Math.max(1, maxItems - files.length + 1)),
+        pageToken,
+        includeItemsFromAllDrives: true,
+        supportsAllDrives: true,
+        fields: `nextPageToken,files(${FILE_FIELDS})`
+      }, apiRequestOptions());
+    } catch (err) {
+      throw driveError(err, 'Falha ao pesquisar no Google Drive.');
+    }
+
+    const incoming = response.data.files || [];
+    const remaining = Math.max(0, maxItems - files.length);
+    files.push(...incoming.slice(0, remaining));
+    pageToken = response.data.nextPageToken || undefined;
+    if (incoming.length > remaining || (files.length >= maxItems && pageToken)) {
+      truncated = true;
+      break;
+    }
+  } while (pageToken && files.length < maxItems);
+
+  return { files, truncated };
+}
+
+async function searchFolderTree(folder, options = {}) {
+  const normalizedQuery = normalizeDriveSearch(options.q, 120);
+  const requestedPageSize = Number(options.pageSize);
+  const pageSize = Number.isFinite(requestedPageSize)
+    ? Math.min(Math.max(Math.trunc(requestedPageSize), 1), 200)
+    : 100;
+  const offset = searchPageOffset(options.pageToken, folder.id, normalizedQuery);
+  const maxItems = boundedEnvInteger('GOOGLE_DRIVE_SEARCH_MAX_ITEMS', 5000, 100, 20000);
+  const maxDepth = boundedEnvInteger('GOOGLE_DRIVE_SEARCH_MAX_DEPTH', 25, 1, 100);
+  const queue = [{ id: folder.id, parts: [], depth: 0 }];
+  const visitedFolders = new Set();
+  const matches = [];
+  let scannedCount = 0;
+  let truncated = false;
+
+  while (queue.length && scannedCount < maxItems) {
+    const batch = [];
+    while (queue.length && batch.length < 20) {
+      const candidate = queue.shift();
+      if (visitedFolders.has(candidate.id)) continue;
+      visitedFolders.add(candidate.id);
+      batch.push(candidate);
+    }
+    if (!batch.length) continue;
+
+    const parentById = new Map(batch.map((entry) => [entry.id, entry]));
+    const listed = await listChildrenForParents(
+      batch.map((entry) => entry.id),
+      maxItems - scannedCount
+    );
+    scannedCount += listed.files.length;
+    if (listed.truncated) truncated = true;
+
+    for (const file of listed.files) {
+      const parent = (file.parents || []).map((id) => parentById.get(id)).find(Boolean) || batch[0];
+      const relativePath = pathJoin(parent.parts);
+      const score = driveSearchScore(file, relativePath, normalizedQuery);
+      if (score >= 0) matches.push({ file, relativePath, score });
+
+      if (file.mimeType === FOLDER_MIME) {
+        if (parent.depth < maxDepth) {
+          queue.push({
+            id: file.id,
+            parts: [...parent.parts, file.name || 'Pasta'],
+            depth: parent.depth + 1
+          });
+        } else {
+          truncated = true;
+        }
+      }
+    }
+
+    if (listed.truncated) break;
+  }
+
+  if (queue.length) truncated = true;
+  matches.sort((a, b) => b.score - a.score
+    || String(a.file.name || '').localeCompare(String(b.file.name || ''), 'pt-BR', { numeric: true })
+    || String(a.relativePath).localeCompare(String(b.relativePath), 'pt-BR', { numeric: true }));
+
+  const total = matches.length;
+  const page = matches.slice(offset, offset + pageSize);
+  const nextOffset = offset + pageSize;
+  return {
+    items: page.map(({ file, relativePath }) => ({ ...mapDriveItem(file), relativePath })),
+    parent: mapDriveItem(folder),
+    root: { id: getContext().rootId },
+    breadcrumbs: await breadcrumbs(folder),
+    nextPageToken: nextOffset < total
+      ? encodeSearchPageToken(folder.id, normalizedQuery, nextOffset)
+      : null,
+    total,
+    search: {
+      query: normalizedQuery,
+      recursive: true,
+      scannedCount,
+      truncated
+    }
+  };
+}
+
 async function listFolder(options = {}) {
   const context = getContext();
   const folderId = extractDriveId(options.folderId) || context.rootId;
@@ -325,9 +499,10 @@ async function listFolder(options = {}) {
     throw new HttpError(422, 'O item informado nao e uma pasta.', 'DRIVE_NOT_A_FOLDER');
   }
 
-  const search = String(options.q || '').trim().slice(0, 120);
+  const search = normalizeDriveSearch(options.q, 120);
+  if (search) return searchFolderTree(folder, { ...options, q: search });
+
   const clauses = [`'${escapeDriveQuery(folderId)}' in parents`, 'trashed = false'];
-  if (search) clauses.push(`name contains '${escapeDriveQuery(search)}'`);
 
   try {
     const requestedPageSize = Number(options.pageSize);
@@ -656,5 +831,7 @@ module.exports = {
   exportOptions,
   isPreviewable,
   mapDriveItem,
+  normalizeDriveSearch,
+  driveSearchScore,
   openFileStream
 };

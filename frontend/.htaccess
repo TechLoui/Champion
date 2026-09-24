@@ -3,28 +3,10 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # Força domínio sem www (301) — precisa vir antes das demais regras
-  #
-  # EXCEÇÃO TEMPORÁRIA — rede da Champion (201.48.81.157)
-  #
-  # O domínio do Active Directory tem o mesmo nome do domínio público, e os
-  # controladores registram o próprio IP no apex da zona. Por isso, dentro do
-  # escritório, champion.ind.br (sem www) resolve para servidores internos, não
-  # para o site. Já www.champion.ind.br resolve corretamente para cá.
-  #
-  # Sem esta exceção, o redirect de www para o apex devolveria o visitante
-  # interno justamente ao nome sequestrado — ele sairia do site e cairia no
-  # painel interno.
-  #
-  # Não afeta SEO: o Googlebot nunca acessa por este IP, e todas as páginas
-  # declaram a canônica no apex independentemente do host que as serviu.
-  #
-  # REMOVER quando o DNS interno for corrigido (procedimento em
-  # docs/DEPLOY-CHECK.md). Se o IP de saída do escritório mudar, esta linha
-  # deixa de valer silenciosamente e o sintoma volta.
-  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-  RewriteCond %{REMOTE_ADDR} !^201\.48\.81\.157$
-  RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+  # Força o domínio canônico sem www para todos os acessos, inclusive os da
+  # rede interna da Champion. Precisa vir antes das demais regras.
+  RewriteCond %{HTTP_HOST} ^www\.champion\.ind\.br$ [NC]
+  RewriteRule ^ https://champion.ind.br%{REQUEST_URI} [R=301,L]
 
   # Home: /index e /index.html → /
   RewriteCond %{THE_REQUEST} \s/+index(\.html)?[\s?] [NC]

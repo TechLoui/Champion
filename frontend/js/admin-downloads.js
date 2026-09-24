@@ -210,6 +210,21 @@
       .replace(/^-+|-+$/g, '').slice(0, 70);
   }
 
+  function normalizeSearch(value, max = 8000) {
+    return String(value || '')
+      .trim().slice(0, max)
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  }
+
+  function matchesSearch(value, query) {
+    const normalizedQuery = normalizeSearch(query, 300);
+    if (!normalizedQuery) return true;
+    const haystack = normalizeSearch(value);
+    return normalizedQuery.split(/\s+/).every((term) => haystack.includes(term));
+  }
+
   function friendlyError(error) {
     const status = Number(error?.status || 0);
     if (status === 401 && /firebase/i.test(String(error?.message || ''))) {
@@ -379,6 +394,7 @@
       modifiedTime: firstDefined(item.modifiedTime, item.driveModifiedAt, item.updatedAt, item.modifiedAt, ''),
       webViewLink: firstDefined(item.webViewLink, item.viewUrl, item.url, ''),
       description: String(item.description || ''),
+      relativePath: String(firstDefined(item.relativePath, item.path, '') || ''),
       iconLink: String(item.iconLink || ''),
       canDownload: firstDefined(item.canDownload, item.capabilities?.canDownload, true) !== false
     };
@@ -563,7 +579,7 @@
       refs.driveList.removeAttribute('role');
       refs.driveList.innerHTML = emptyState(
         term ? 'Nenhum resultado' : 'Esta pasta está vazia',
-        term ? `Não encontramos arquivos ou pastas para “${term}”.` : 'Abra outra pasta ou adicione conteúdo no Google Drive.',
+        term ? `Não encontramos arquivos ou pastas para “${term}” nesta pasta ou nas subpastas.` : 'Abra outra pasta ou adicione conteúdo no Google Drive.',
         true,
         term ? '<button class="ap-btn ap-btn-ghost ap-btn-sm" type="button" data-drive-clear-search>Limpar busca</button>' : ''
       );
@@ -583,6 +599,9 @@
       const publicationBadge = publication
         ? `<span class="dl-sync-badge">${publication.status === 'published' ? 'No site' : 'Oculto'}</span>`
         : '';
+      const resultPath = term && item.relativePath
+        ? ` · em ${escapeHtml(item.relativePath)}`
+        : '';
       return `
         <div class="dl-drive-row${selected ? ' is-selected' : ''}${publication ? ' is-published' : ''}" data-drive-row="${escapeHtml(item.id)}" role="listitem">
           <label class="dl-check-cell"><input class="dl-check" type="checkbox" data-drive-select="${escapeHtml(item.id)}" ${!sourceAvailable ? 'data-drive-unavailable="true"' : ''} aria-label="${!sourceAvailable ? 'Indisponível para importar: ' : 'Selecionar '}${escapeHtml(item.name)}" ${selected ? 'checked' : ''} ${selectionDisabled ? 'disabled' : ''} /></label>
@@ -591,7 +610,7 @@
             ${item.isFolder
               ? `<button class="dl-file-name" type="button" data-drive-folder="${escapeHtml(item.id)}">${escapeHtml(item.name)}</button>`
               : `<span class="dl-file-name">${escapeHtml(item.name)}</span>`}
-            <span class="dl-file-sub">${escapeHtml(kind.label)}${item.isFolder ? ' · abrir pasta' : ''}${!sourceAvailable ? ' · <span class="dl-file-unavailable">sem permissão para importar</span>' : ''}${publicationBadge}</span>
+            <span class="dl-file-sub">${escapeHtml(kind.label)}${resultPath}${item.isFolder ? ' · abrir pasta' : ''}${!sourceAvailable ? ' · <span class="dl-file-unavailable">sem permissão para importar</span>' : ''}${publicationBadge}</span>
           </div>
           <span class="dl-file-cell dl-file-size"><span class="sr-only">Tamanho: </span>${item.isFolder ? '—' : escapeHtml(formatSize(item.size))}</span>
           <span class="dl-file-cell dl-file-date"><span class="sr-only">Modificado: </span>${escapeHtml(formatDate(item.modifiedTime))}</span>
@@ -761,13 +780,13 @@
 
   function renderPublications() {
     refs.publishedCount.textContent = String(state.publications.length);
-    const term = refs.publishedSearch.value.trim().toLocaleLowerCase('pt-BR');
+    const term = refs.publishedSearch.value.trim();
     const categoryId = refs.publishedCategory.value;
     const status = refs.publishedStatus.value;
     const accessFilter = refs.publishedAccess.value;
     const rows = state.publications.filter((item) => {
-      const haystack = `${item.name} ${item.description} ${item.categoryIds.map(categoryName).join(' ')}`.toLocaleLowerCase('pt-BR');
-      return (!term || haystack.includes(term)) &&
+      const haystack = `${item.name} ${item.description} ${item.relativePath} ${item.categoryIds.map(categoryName).join(' ')}`;
+      return matchesSearch(haystack, term) &&
         (!categoryId || item.categoryIds.includes(categoryId)) &&
         (!status || item.status === status) &&
         matchesAccessFilter(publicationAccess(item), accessFilter);
@@ -936,6 +955,10 @@
         state.driveItems = incoming;
       }
       state.nextPageToken = String(firstDefined(response.nextPageToken, response.pageToken, response.next, '') || '');
+      if (term && response.search?.truncated) {
+        const scanned = Number(response.search.scannedCount) || 0;
+        setFeedback(`A busca examinou ${scanned} itens e atingiu o limite de segurança. Refine os termos para encontrar resultados mais específicos.`, 'info');
+      }
 
       const responseBreadcrumbs = arrayFrom(response, ['breadcrumbs']).map((crumb) => ({
         id: String(firstDefined(crumb?.id, crumb?.folderId, '') || ''),

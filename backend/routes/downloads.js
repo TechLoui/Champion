@@ -5,7 +5,7 @@ const { getDb } = require('../lib/firebase');
 const googleDrive = require('../lib/google-drive');
 const { asyncRoute, HttpError } = require('../lib/http-error');
 const { rememberDownloadData } = require('../lib/download-cache');
-const { normalizeSearch } = require('./admin-downloads');
+const { normalizeSearch, matchesSearch } = require('./admin-downloads');
 
 const router = express.Router();
 
@@ -137,13 +137,13 @@ router.get('/', asyncRoute(async (req, res) => {
     .filter((item) => item.canPreview || item.canDownload);
   if (categoryQuery) items = items.filter((item) => item.categoryIds.includes(categoryId));
   if (query) {
-    items = items.filter((item) => normalizeSearch([
+    items = items.filter((item) => matchesSearch([
       item.name,
       item.description,
       item.relativePath,
       item.sourceRootName,
       ...item.categories.map((category) => category.name)
-    ].join(' '), 8000).includes(query));
+    ].join(' '), query));
   }
 
   const sort = text(req.query.sort || 'name', 30).toLowerCase();

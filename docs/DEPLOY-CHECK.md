@@ -33,7 +33,7 @@ Tamanho e hash valem para o pacote `champion-site-hostinger.zip` desta rodada.
 | `css/styles.css` | 252198 | `3a857c3d216f` | `aguardando-escolha`, `lead-box` |
 | `produto.html` | 22640 | `5ead3019fca1` | `data-lead-form` |
 | `404.html` | 3501 | `452be9b6664f` | — |
-| `.htaccess` | 3987 | `62eda9debacd` | `201.48.81.157` |
+| `.htaccess` | 3553 | `cc84bf2307d5` | `^www\.champion\.ind\.br$` |
 
 **`asset-url.js` não aparece em nenhum `<script>` do HTML — isso é esperado.**
 Ele é um módulo ES, importado por `product-data.js`, `products-cms.js`,
@@ -138,93 +138,38 @@ o seletor aparece sozinho.
 
 ---
 
-# Exceção temporária: rede da Champion no `www`
+# Redirecionamento canônico sem `www`
 
-## Por que existe
-
-O domínio do Active Directory se chama `champion.ind.br`, igual ao domínio
-público. Os controladores registram o próprio IP no apex da zona — comportamento
-normal do AD. Resultado, dentro do escritório:
-
-```
-champion.ind.br       → 192.168.1.5 / 192.168.1.2   (servidores internos)
-www.champion.ind.br   → 147.93.14.35                (o site, correto)
-```
-
-O redirect de `www` para o apex, que é correto para o público, mandaria o
-visitante interno do endereço que funciona para o que não funciona. A exceção
-isenta o IP de saída do escritório desse redirect.
+O servidor redireciona `www.champion.ind.br` para `champion.ind.br` com status
+301 para todos os visitantes, inclusive os da rede interna da Champion:
 
 ```apache
-RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
-RewriteCond %{REMOTE_ADDR} !^201\.48\.81\.157$
-RewriteRule ^ https://%1%{REQUEST_URI} [R=301,L]
+RewriteCond %{HTTP_HOST} ^www\.champion\.ind\.br$ [NC]
+RewriteRule ^ https://champion.ind.br%{REQUEST_URI} [R=301,L]
 ```
 
-Funciona porque o site **não** está atrás do proxy da Cloudflare — o servidor
-enxerga o IP real do visitante. Se o proxy for ligado um dia, `REMOTE_ADDR` passa
-a ser o IP da Cloudflare e esta regra para de funcionar.
+## Pré-requisito na rede interna
 
-## Como usar, no escritório
+O DNS interno precisa fazer `champion.ind.br` chegar ao site público. Confirme em
+uma estação da empresa:
 
-Acessar **`https://www.champion.ind.br`**. Vale distribuir como link ou favorito.
-
-Digitar `champion.ind.br` sem o `www` **continua caindo no painel interno**, e
-não há nada no site que corrija isso — a requisição nunca chega ao servidor.
-
-## Como verificar depois do deploy
-
-De dentro do escritório:
-
-```
+```powershell
+Resolve-DnsName champion.ind.br -Type A
 curl.exe -I https://www.champion.ind.br/
 ```
-Esperado: **`HTTP/1.1 200`** (fica no www, sem redirecionar).
 
-De fora (4G no celular, ou qualquer rede externa): a mesma URL tem que devolver
-**`301`** com `Location: https://champion.ind.br/`.
+O primeiro comando deve resolver para o endereço usado pelo site público, e o
+segundo deve responder `301` com `Location: https://champion.ind.br/`.
 
-Se os dois derem 301, a exceção não pegou. Se os dois derem 200, o redirect
-quebrou para o público — nesse caso reverter na hora.
+Se o apex ainda resolver para `192.168.1.5` ou `192.168.1.2`, o 301 funcionará,
+mas a navegação terminará nesses servidores internos. Nesse caso, a equipe que
+administra o Active Directory/DNS deve disponibilizar o site no apex interno
+(por proxy HTTPS ou pela arquitetura de DNS adotada) sem remover os registros
+necessários aos controladores de domínio. Uma simples troca dos registros do
+apex pode afetar o AD e não deve ser feita sem validação do administrador.
 
-## Riscos conhecidos
-
-- **IP fixo — confirmado pela Champion em 27/08/2026.** Era o principal risco:
-  com IP dinâmico a regra deixaria de valer na primeira troca, sem erro nenhum,
-  e o sintoma voltaria idêntico.
-- Se um dia entrar um **segundo link de internet** (backup, redundância), o IP de
-  saída muda no failover e a exceção para de valer justamente durante a queda.
-  Cada link precisa da sua própria linha `RewriteCond`.
-- Se o IP for trocado por qualquer motivo, atualizar a linha no `.htaccess`.
-
-## Quando remover
-
-Assim que o DNS interno for corrigido (procedimento do AD acima). Apagar a linha
-`RewriteCond %{REMOTE_ADDR} ...` e o bloco de comentário. A partir daí o `www`
-volta a redirecionar para o apex para todo mundo, inclusive o escritório — que
-não precisará mais da exceção, porque o apex passará a resolver certo lá dentro.
-
-## Se um dia existir redirect no servidor interno
-
-Cogitou-se configurar o servidor interno que responde pelo apex
-(`192.168.1.5`) para redirecionar `champion.ind.br` → `https://www.champion.ind.br/`,
-resolvendo o problema também para quem digita sem o `www`.
-
-Isso funciona, e não afeta o público: `192.168.1.5` é endereço privado, não
-roteável na internet — nenhum cliente ou robô de busca alcança aquele servidor.
-
-**As duas regras dependem uma da outra.** Sem a exceção de IP acima, o redirect
-interno cria um loop:
-
-```
-champion.ind.br → 192.168.1.5 → 301 → www.champion.ind.br
-                → nosso servidor → 301 → champion.ind.br
-                → 192.168.1.5 → 301 → www ...
-```
-
-Ou seja: **nunca remover a exceção do `.htaccess` sem remover antes o redirect
-interno.** Quando o DNS do AD for corrigido, sair na ordem: primeiro o redirect
-interno, depois a exceção daqui.
+Também não pode existir no servidor interno um redirect de `champion.ind.br`
+de volta para `www.champion.ind.br`, pois isso criaria um loop.
 
 ---
 

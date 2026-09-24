@@ -30,6 +30,22 @@ test('preview aceita formatos seguros e recusa SVG/HTML', () => {
   assert.equal(drive.isPreviewable('text/html'), false);
 });
 
+test('busca do Drive ignora acentos e a ordem dos termos', () => {
+  const file = {
+    name: 'Ficha técnica bovina.pdf',
+    description: 'Material de nutrição animal',
+    mimeType: 'application/pdf'
+  };
+  assert.ok(drive.driveSearchScore(file, 'Catálogos / Bovinos', 'bovina ficha') >= 0);
+  assert.ok(drive.driveSearchScore(file, 'Catálogos / Bovinos', 'nutricao tecnica') >= 0);
+  assert.equal(drive.driveSearchScore(file, 'Catálogos / Bovinos', 'equinos ficha'), -1);
+});
+
+test('busca do Drive encontra arquivos pelo caminho da subpasta', () => {
+  const file = { name: 'Manual.pdf', description: '', mimeType: 'application/pdf' };
+  assert.ok(drive.driveSearchScore(file, 'Produtos / Núcleo Premium', 'nucleo premium') >= 0);
+});
+
 test('status de configuracao nao expoe valores secretos', () => {
   const names = [
     'GOOGLE_DRIVE_SERVICE_ACCOUNT', 'GOOGLE_SERVICE_ACCOUNT_JSON',

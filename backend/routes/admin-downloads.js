@@ -28,6 +28,13 @@ function normalizeSearch(value, max = 300) {
     .trim();
 }
 
+function matchesSearch(value, query, max = 8000) {
+  const normalizedQuery = normalizeSearch(query);
+  if (!normalizedQuery) return true;
+  const haystack = normalizeSearch(value, max);
+  return normalizedQuery.split(/\s+/).every((term) => haystack.includes(term));
+}
+
 function slugify(value) {
   return normalizeSearch(value).replace(/\s+/g, '-').slice(0, 80);
 }
@@ -218,10 +225,10 @@ downloadsRouter.get('/', asyncRoute(async (req, res) => {
   if (['published', 'draft'].includes(status)) items = items.filter((item) => item.status === status);
   if (category) items = items.filter((item) => item.categoryIds.includes(category));
   if (query) {
-    items = items.filter((item) => normalizeSearch([
+    items = items.filter((item) => matchesSearch([
       item.name, item.description, item.relativePath, item.sourceRootName,
       ...item.categories.map((entry) => entry.name)
-    ].join(' '), 8000).includes(query));
+    ].join(' '), query));
   }
   items.sort((a, b) => String(a.name).localeCompare(String(b.name), 'pt-BR', { numeric: true }));
   res.json({ items, downloads: items, total: items.length, categories });
@@ -600,4 +607,11 @@ categoriesRouter.delete('/:id', asyncRoute(async (req, res) => {
   res.json({ ok: true, id, affectedDownloads: downloads.size, affectedSources: sources.size });
 }));
 
-module.exports = { downloadsRouter, categoriesRouter, serializeDownload, normalizeSearch, publicationSettings };
+module.exports = {
+  downloadsRouter,
+  categoriesRouter,
+  serializeDownload,
+  normalizeSearch,
+  matchesSearch,
+  publicationSettings
+};

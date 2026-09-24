@@ -54,6 +54,8 @@ Variáveis opcionais:
 GOOGLE_DRIVE_IMPORT_MAX_FILES=1000
 GOOGLE_DRIVE_IMPORT_MAX_DEPTH=25
 GOOGLE_DRIVE_IMPORT_MAX_ITEMS=5000
+GOOGLE_DRIVE_SEARCH_MAX_ITEMS=5000
+GOOGLE_DRIVE_SEARCH_MAX_DEPTH=25
 PUBLIC_DOWNLOADS_SCAN_LIMIT=5000
 ```
 
@@ -94,7 +96,7 @@ Principais endpoints:
 2. Abra **Downloads** na barra lateral.
 3. Confira se o cartão do Drive mostra **Conectado**.
 4. Crie as categorias necessárias.
-5. Navegue pelas pastas ou pesquise no Drive.
+5. Navegue pelas pastas ou pesquise no Drive. A busca percorre a pasta atual e suas subpastas, ignora acentos e aceita termos em qualquer ordem.
 6. Selecione arquivos ou pastas. Pastas são importadas recursivamente.
 7. Defina as categorias e libere **Visualização**, **Download** ou ambos.
 8. Publique a seleção.
