@@ -1,4 +1,4 @@
-import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20260902-3';
+import { getAdminStore, friendlyAdminError } from './admin-store.js?v=20261029-4-banners';
 import { DEFAULT_PRODUCTS, formatBRL, normalizeProduct, slugify } from './product-data.js?v=20260902-3';
 import { isShopifyEnabled, getShopifyProducts } from './shopify-client.js?v=20260902-3';
 import { CHAMPION_SHOPIFY_CONFIG } from './shopify-config.js';

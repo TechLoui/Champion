@@ -8,9 +8,59 @@ compatível com OpenAI) e busca todo dado no Shopify que o site já usa.
 
 ## Como funciona
 
+### Custo de referência da linha Difly — 30/10/2026
+
+Versão da API: `chat-2026-10-30-custo-v7`.
+
+O agente consulta `consultar_custo_referencia` quando o cliente pede custo por
+cabeça. A simulação de Difly usa barrica de 6 kg a R$ 2.400 e rendimento de 833
+animais em 120 dias: R$ 2,88 por cabeça no período, R$ 0,72 por mês e 2,4
+centavos por dia (valores arredondados). Para Difly S3, a referência aprovada é
+R$ 26,40 por cabeça em 120 dias, ou 22 centavos por dia. Esses valores não
+substituem o preço atual da apresentação consultado no Shopify.
+
+Os 60 g citados no exemplo da home são de sal/suplemento por animal ao dia no
+cocho, não de Difly. A proporção do produto na mistura segue o rótulo e a
+orientação técnica; o agente não converte essa referência em dose.
+
+---
+
+### Ajuste de vendas de 27/10/2026
+
+Versão da API: `chat-2026-10-27-vendas-v6`.
+
+Os aprendizados de 13 atendimentos telefônicos distintos foram filtrados para
+o escopo do chat do site. O agente responde primeiro ao produto, preço ou tamanho
+pedido, mostra as apresentações atuais, confirma o número de unidades e usa
+`adicionar_ao_carrinho` para fechar a compra no checkout do site. Para cliente
+que pede "o mesmo de antes", solicita o nome e a embalagem, sem alegar acesso ao
+histórico de vendas por telefone. Para objeção de preço, compara apenas dados
+atuais e verificáveis do catálogo, sem prometer economia ou campanha.
+
+Cobranças, boletos avulsos, propostas negociadas, lote a enviar e prazo de um
+pedido específico não são consultados por este agente; ele encaminha a dúvida
+sem pedir dados financeiros no chat. Perguntas de dose, mistura ou uso em outra
+espécie continuam sujeitas aos limites técnicos já descritos abaixo. O convite
+ao carrinho vem depois de resolver a dúvida comercial, sem insistência após
+recusa. As gravações não foram incorporadas ao prompt nem usadas como fonte de
+preço, posologia ou eficácia.
+
+Antes de publicar, conferir no chat real estes percursos:
+
+- "Quero uma unidade do Difly S3 de 6 kg": consultar preço e estoque atuais,
+  confirmar a unidade e incluí-la uma única vez no carrinho após o aceite.
+- "Já comprei com vocês; quero o mesmo de antes": pedir produto e embalagem,
+  sem fingir conhecer a compra anterior.
+- "Tinha uma embalagem maior?" e "Está caro": mostrar apenas tamanhos e preços
+  atuais e permitir a escolha, sem campanha ou rendimento inventado.
+- "Posso misturar estes dois produtos no sal?": não calcular proporção nem
+  afirmar segurança da mistura; indicar ficha e equipe técnica.
+- "Recebi um boleto que não reconheço": não consultar ou afirmar dívida nem
+  convidar para o carrinho; indicar o contato oficial.
+
 ### Refinamentos de 17/09/2026
 
-Versão da API: `chat-2026-09-17-refinamentos-v5`.
+Versão anterior da API: `chat-2026-09-17-refinamentos-v5`.
 
 - Consulta geral ou foto de um nome único: resposta breve ancorada no catálogo,
   com card, embalagens atuais e distinção entre disponível e sem estoque.

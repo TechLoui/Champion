@@ -11,9 +11,10 @@ const DEFAULT_BANNERS = [
   {
     id: 'banner-home-1', page: 'home', aspect: '21/9', transitionMs: 6000,
     slides: [
-      { image: '/assets/img/hero/hero-1.png', eyebrow: 'Linha Difly', title: 'Proteção completa para o gado', subtitle: 'Controle da mosca-dos-chifres direto na origem.', link: '/produtos', cta: 'Ver produtos' },
-      { image: '/assets/img/hero/hero-2.png', eyebrow: 'Linha Núcleo', title: 'Mais lucratividade na sua propriedade', subtitle: 'Nutrição mineral completa para bovinos.', link: '/produtos', cta: 'Ver linha' },
-      { image: '/assets/img/hero/hero-3.png', eyebrow: 'VER-MI-SAL', title: 'Concentrado de microminerais', subtitle: 'Mineralização contínua com microminerais no cocho.', link: '/produto?p=ver-mi-sal', cta: 'Conhecer' }
+      { image: '/assets/img/hero/difly-hero-20261029.png', eyebrow: 'Difly', title: 'Difly', subtitle: 'Controle a mosca antes de nascer.', link: '/produtos/difly.html', cta: 'Conhecer' },
+      { image: '/assets/img/hero/difly-s3-hero-20261029.png', eyebrow: 'Difly S3', title: 'Difly S3', subtitle: 'Para o manejo de moscas e carrapatos no rebanho.', link: '/produtos/difly-s3.html', cta: 'Conhecer' },
+      { image: '/assets/img/hero/vermisal-banner.png', eyebrow: 'VER-MI-SAL', title: 'Ver-Mi-Sal', subtitle: 'Microminerais para o manejo do rebanho.', link: '/produtos/ver-mi-sal.html', cta: 'Conhecer' },
+      { image: '/assets/img/hero/protex-banner.png', eyebrow: 'Protex', title: 'Protex', subtitle: 'Suplemento vitamínico injetável para bovinos.', link: '/produtos/protex-champion.html', cta: 'Conhecer' }
     ],
     status: 'published', order: 1
   }

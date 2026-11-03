@@ -7,7 +7,7 @@
  * Para cada página que tiver um <div data-banner-page="<key>"> a gente
  * popula com o banner publicado correspondente.
  */
-import { getAdminStore } from './admin-store.js?v=20260902-3';
+import { getAdminStore } from './admin-store.js?v=20261029-4-banners';
 import { assetUrl } from './asset-url.js?v=20260902-3';
 
 (async function () {
@@ -96,40 +96,40 @@ import { assetUrl } from './asset-url.js?v=20260902-3';
     const dotsEl = document.getElementById('heroDots');
     if (!track || !dotsEl) return;
 
-    const slides = (banner.slides && banner.slides.length)
-      ? banner.slides
-      : [{ image: banner.image, imageMobile: banner.imageMobile, eyebrow: banner.label, link: banner.link, title: '', subtitle: '', cta: '' }];
+    /* A abertura da home mantém apenas os dois produtos da linha Difly. */
+    const diflyImage = '/assets/img/hero/difly-fullscreen-20261030.png';
+    /* Cena S3 adaptada de foto de Johan Backman no Pexels: https://www.pexels.com/photo/cows-in-a-field-17276424/ */
+    const s3Image = '/assets/img/hero/difly-s3-cow-trough-20261103.jpg';
 
-    track.innerHTML = slides.map((s, i) => {
-      const overlay = (s.eyebrow || s.title || s.subtitle || s.cta) ? `
-        <div class="hero-slide-overlay">
-          ${s.eyebrow ? `<span class="hero-slide-eyebrow">${esc(s.eyebrow)}</span>` : ''}
-          ${s.title ? `<h2 class="hero-slide-title">${esc(s.title)}</h2>` : ''}
-          ${s.subtitle ? `<p class="hero-slide-subtitle">${esc(s.subtitle)}</p>` : ''}
-          ${s.cta && s.link ? `<a class="hero-slide-cta" href="${esc(s.link)}">${esc(s.cta)}</a>` : ''}
-        </div>` : '';
-      /* Sem esc() aqui: montarArte escapa por dentro. */
-      const altText = s.title || s.eyebrow || '';
-      const img = montarArte(s.image, s.imageMobile, altText, i === 0);
-      const inner = s.link
-        ? `<a href="${esc(s.link)}" aria-label="${esc(s.title || s.eyebrow || 'Banner')}">${img}${overlay}</a>`
-        : `<div class="hero-slide-static">${img}${overlay}</div>`;
-      return `<article class="hero-slide${i === 0 ? ' is-active' : ''}" data-slide="${i}">${inner}</article>`;
-    }).join('');
+    track.innerHTML = `
+        <article class="hero-slide df-campaign-slide df-campaign-slide--difly is-active" data-slide="0" data-product="difly">
+          <a href="/produtos/difly.html" aria-label="Conhecer Difly">
+            <span class="df-campaign-scene"><picture class="df-campaign-bg-wrap"><source media="(max-width: 720px)" srcset="/assets/img/hero/mobile/difly-mobile-20261030.jpg"><img class="df-campaign-bg" src="${diflyImage}" alt="" fetchpriority="high" decoding="async" /></picture><span class="df-hero-packs df-hero-packs--difly" aria-hidden="true"><img class="df-hero-pack df-hero-pack--difly-pot" src="/assets/img/home/variants/difly-pot-300g.png" alt="" decoding="async" /><img class="df-hero-pack df-hero-pack--difly-box" src="/assets/img/home/variants/difly-box-10x20.png" alt="" decoding="async" /><img class="df-hero-pack df-hero-pack--difly-main" src="/assets/img/home/difly-6kg-floating.png" alt="" decoding="async" /></span></span>
+            <span class="df-campaign-copy"><small>DIFLY · CONTROLE DA MOSCA</small><strong>DIFLY É BÁSICO</strong><span>Indispensável pra controle de mosca!</span><span class="df-campaign-benefits"><span><img src="/assets/img/home/icons/difly-sem-mosca-ai.png" alt="" />Sem mosca</span><span><img src="/assets/img/home/icons/difly-sem-manejo-ai.png" alt="" />Sem manejo</span><span><img src="/assets/img/home/icons/difly-sem-residuos-ai.png" alt="" />Sem resíduos</span></span><b class="df-campaign-price">R$ 2,88 <em>por cabeça/120 dias*</em></b><span class="df-campaign-formats">6 kg · 300 g · caixa 10×20 g</span><i class="df-campaign-link">Conhecer Difly <span aria-hidden="true">↗</span></i><small class="df-campaign-note">*Simulação: barrica de 6 kg a R$ 2.400 para 833 animais.</small></span>
+          </a>
+        </article>
+        <article class="hero-slide df-campaign-slide df-campaign-slide--s3" data-slide="1" data-product="difly-s3">
+          <a href="/produtos/difly-s3.html" aria-label="Conhecer Difly S3">
+            <span class="df-campaign-scene"><picture class="df-campaign-bg-wrap"><source media="(max-width: 720px)" srcset="/assets/img/hero/mobile/difly-s3-cow-trough-mobile-20261103.jpg"><img class="df-campaign-bg" src="${s3Image}" alt="" loading="lazy" decoding="async" /></picture><span class="df-hero-packs df-hero-packs--s3" aria-hidden="true"><img class="df-hero-pack df-hero-pack--s3-1kg" src="/assets/img/home/variants/difly-s3-1kg.png" alt="" loading="lazy" decoding="async" /><img class="df-hero-pack df-hero-pack--s3-300g" src="/assets/img/home/variants/difly-s3-300g.png" alt="" loading="lazy" decoding="async" /><img class="df-hero-pack df-hero-pack--s3-main" src="/assets/img/home/difly-s3-6kg-floating.png" alt="" loading="lazy" decoding="async" /></span></span>
+            <span class="df-campaign-copy"><small>LINHA DIFLY · S3</small><strong>Difly S3.<em>Mosca e carrapato.</em></strong><span class="df-campaign-benefits df-campaign-benefits--s3"><span><img src="/assets/img/home/icons/s3-sem-mosca-ai.png" alt="" />Sem mosca</span><span><img src="/assets/img/home/icons/s3-sem-carrapato-ai.png" alt="" />Sem carrapato</span><span><img src="/assets/img/home/icons/s3-sem-manejo-ai.png" alt="" />Sem manejo</span></span><span class="df-campaign-formats">6 kg · 1 kg · 300 g (cx. 24)</span><i class="df-campaign-link">Conhecer Difly S3 <span aria-hidden="true">↗</span></i></span>
+          </a>
+        </article>
+        `;
 
-    dotsEl.innerHTML = slides.map((_, i) => `
-      <button class="hero-dot${i === 0 ? ' is-active' : ''}" data-go="${i}" aria-label="Slide ${i + 1}"></button>
+    dotsEl.innerHTML = ['Difly', 'Difly S3'].map((name, i) => `
+      <button class="hero-dot${i === 0 ? ' is-active' : ''}" data-go="${i}" aria-label="Banner ${name}"></button>
     `).join('');
 
-    /* Configura intervalo do carrossel se o helper expor essa API */
+    /* A hero da home alterna Difly e S3 a cada 4 segundos. */
     if (window.ChampionCarousel) {
-      if (banner.transitionMs && typeof window.ChampionCarousel.setInterval === 'function') {
-        window.ChampionCarousel.setInterval(banner.transitionMs);
+      if (typeof window.ChampionCarousel.setInterval === 'function') {
+        window.ChampionCarousel.setInterval(4000);
       }
       if (typeof window.ChampionCarousel.reinit === 'function') {
         window.ChampionCarousel.reinit();
       }
     }
+    window.ChampionI18n?.apply(document.documentElement.dataset.lang || 'pt');
   }
 
   function renderGenericBanner(banner, target) {

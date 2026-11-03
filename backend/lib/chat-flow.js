@@ -29,7 +29,7 @@ function perguntaConfirmacao(sugestoes, idioma) {
 
 function ehConsultaSimples(texto) {
   const t = normalizar(texto);
-  if (/\b(dose|dosagem|aplicar|aplicacao|composicao|concentracao|modo|mistur|tratamento|doente|sintoma|prenhe|gestante|gestacao|gravid|pregnan|seguran|safe|contraindic|bezerro|comparar|compare|difference|composition|dosage|dosis|usar|uso|use|calcular|quantos|quantas|preco|price|precio|custa|adicion|coloc|comprar|buy|add|cart|carrinho)\w*/.test(t)) return false;
+  if (/\b(dose|dosagem|aplicar|aplicacao|composicao|concentracao|modo|mistur|tratamento|doente|sintoma|prenhe|gestante|gestacao|gravid|pregnan|seguran|safe|contraindic|bezerro|comparar|compare|difference|composition|dosage|dosis|usar|uso|use|calcular|quantos|quantas|custo|cost|preco|price|precio|custa|adicion|coloc|comprar|buy|add|cart|carrinho)\w*/.test(t)) return false;
   if (/\b(nao|not|dont|don t)\b|\bno quiero\b/.test(t)) return false;
   return /\b(foto|photo|picture|image|imagem)\b/.test(t) ||
     /^(?:quero|gostaria de|queria|i want to|quiero) (?:saber mais|conhecer|know more|saber mas)/.test(t);

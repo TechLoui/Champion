@@ -15,6 +15,7 @@ const shopify = require('./shopify');
 const site = require('./site');
 const { normalizar, reconhecerProdutos, buscarNoCatalogo } = require('./product-search');
 const { prepararProduto, fichaParaAgente } = require('./product-policy');
+const { consultarCustoReferencia } = require('./cost-reference');
 
 const definitions = [
   {
@@ -106,6 +107,23 @@ const definitions = [
           }
         },
         required: ['termo']
+      }
+    }
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'consultar_custo_referencia',
+      description:
+        'Consulta a simulação comercial aprovada de custo por cabeça para 120 dias de Difly ou Difly S3. ' +
+        'Use quando o cliente perguntar custo do tratamento por animal. Não é preço de venda nem cálculo de dose. ' +
+        'Para preço atual e disponibilidade, consulte buscar_produtos.',
+      parameters: {
+        type: 'object',
+        properties: {
+          handle: { type: 'string', enum: ['difly', 'difly-s3'], description: 'Produto exato para a simulação.' }
+        },
+        required: ['handle']
       }
     }
   },
@@ -280,6 +298,10 @@ const executors = {
     return { artigos };
   },
 
+  async consultar_custo_referencia(args) {
+    return consultarCustoReferencia(args.handle);
+  },
+
   /* Não cria carrinho no Shopify. Devolve os itens resolvidos pelo canal
      lateral, e o widget os coloca no carrinho do site (champion-cart) — o
      mesmo da vitrine. Assim existe UM carrinho só, e o pagamento sai pelo
@@ -415,6 +437,11 @@ async function consultarMencionados(texto, coletor) {
     };
   }
   lembrar(coletor, produtos);
+  const pergunta = normalizar(texto);
+  const pedeCustoPorCabeca = /(?:custo|custa|preco|valor).*(?:por cabeca|por animal|120 dias)|(?:por cabeca|por animal).*(?:custo|custa|preco|valor)/.test(pergunta);
+  const custosReferencia = pedeCustoPorCabeca
+    ? produtos.map((p) => consultarCustoReferencia(p.handle).referencia).filter(Boolean)
+    : [];
   /* Pedido positivo por um nome confirmado: o card não pode desaparecer só
      porque o modelo respondeu "segue abaixo" sem repetir o nome. Não aplica
      essa rede de segurança a menções negativas nem a grafias aproximadas. */
@@ -424,6 +451,7 @@ async function consultarMencionados(texto, coletor) {
   }
   return {
     ...resultado,
+    ...(custosReferencia.length ? { custos_referencia: custosReferencia } : {}),
     instrucao: 'Estes produtos foram identificados pelo nome na mensagem atual do cliente. Use os dados retornados, não diga que o nome está ausente do catálogo. Chame mostrar_produtos com os handles antes de responder e detalhes_produto se precisar da ficha técnica. Linhas, embalagens e quantidades não devem ser presumidas.'
   };
 }

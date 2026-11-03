@@ -110,7 +110,10 @@
   // ------------------------------------------------------------
   const header = document.getElementById('siteHeader');
   if (header) {
-    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 12);
+    const homeHero = document.querySelector('.home-page .difly-home > .hero');
+    const onScroll = () => header.classList.toggle('scrolled', homeHero
+      ? homeHero.getBoundingClientRect().bottom <= header.offsetHeight + 20
+      : window.scrollY > 12);
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
   }
@@ -171,7 +174,7 @@
       if (t.includes('inicial') || t.includes('home') || t.includes('início')) {
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-5a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
       }
-      if (t.includes('produto')) {
+      if (t.includes('produto') || t.includes('difly')) {
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="M3.3 7 12 12l8.7-5"/><path d="M12 22V12"/></svg>';
       }
       if (t.includes('sobre')) {
@@ -220,7 +223,7 @@
     panel.setAttribute('aria-modal', 'true');
     panel.setAttribute('aria-label', 'Menu de navegação');
 
-    const linksHtml = navLinks.map(l => {
+    const renderMobileLink = (l) => {
       const isExternal = l.target === '_blank';
       const externalAttrs = isExternal ? ` target="_blank" rel="${l.rel || 'noopener'}"` : '';
       return `<a href="${l.href}"${externalAttrs}${l.active ? ' class="active"' : ''}>
@@ -228,7 +231,28 @@
         <span class="label">${l.text}</span>
         <span class="arrow">${arrowSvg}</span>
       </a>`;
-    }).join('');
+    };
+    const featuredLinks = [
+      { href: '/#difly-mosca', text: 'Difly' },
+      { href: '/#difly-s3', text: 'Difly S3' }
+    ];
+    const mainLinks = [
+      ...navLinks.filter(l => l.href === '/'),
+      ...featuredLinks,
+      ...navLinks.filter(l => l.href === '/produtos')
+    ];
+    const companyLinks = navLinks.filter(l => l.href !== '/' && l.href !== '/produtos' && l.target !== '_blank');
+    const extraLinks = navLinks.filter(l => l.target === '_blank');
+    const renderMobileGroup = (title, links) => links.length
+      ? `<div class="mobile-panel-group"><span class="mobile-panel-group-title">${title}</span>${links.map(renderMobileLink).join('')}</div>`
+      : '';
+    const linksHtml = document.body.classList.contains('home-page')
+      ? [
+        renderMobileGroup('Destaques', mainLinks),
+        renderMobileGroup('Champion', companyLinks),
+        renderMobileGroup('Mais canais', extraLinks)
+      ].join('')
+      : navLinks.map(renderMobileLink).join('');
 
     panel.innerHTML = `
       <div class="mobile-panel-backdrop" aria-hidden="true"></div>
@@ -259,6 +283,7 @@
     document.body.appendChild(fab);
     document.body.appendChild(panel);
 
+    const headerMenuButton = document.getElementById('menuToggle');
     const backdrop = panel.querySelector('.mobile-panel-backdrop');
     const closeBtn = panel.querySelector('.mobile-panel-close');
     const accountBtn = panel.querySelector('#mobilePanelAccount');
@@ -269,12 +294,15 @@
       document.body.classList.toggle('mobile-panel-open', open);
       fab.setAttribute('aria-expanded', open ? 'true' : 'false');
       fab.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+      headerMenuButton?.setAttribute('aria-expanded', open ? 'true' : 'false');
+      headerMenuButton?.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
     };
 
     fab.addEventListener('click', (e) => {
       e.stopPropagation();
       setOpen(!panel.classList.contains('is-open'));
     });
+    headerMenuButton?.addEventListener('click', () => setOpen(!panel.classList.contains('is-open')));
     backdrop.addEventListener('click', () => setOpen(false));
     closeBtn.addEventListener('click', () => setOpen(false));
     panel.querySelectorAll('.mobile-panel-nav a').forEach(a => {
@@ -486,7 +514,7 @@
   // Hero carousel (auto-play)
   // ------------------------------------------------------------
   let _carouselTimer;
-  let _carouselAutoplay = 6000; // ms — sobrescrito pelo banner do admin
+  let _carouselAutoplay = 4000; // ms — intervalo padrão da hero
   function initHeroCarousel() {
     if (_carouselTimer) clearInterval(_carouselTimer);
     const track = document.getElementById('heroTrack');
