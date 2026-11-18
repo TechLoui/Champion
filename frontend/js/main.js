@@ -614,6 +614,9 @@
       // youtube.com/watch?v=ID
       const watch = value.match(/[?&]v=([\w-]{10,15})/);
       if (watch) return watch[1];
+      // youtube.com/shorts/ID
+      const shorts = value.match(/\/shorts\/([\w-]{11})(?:[/?#]|$)/);
+      if (shorts) return shorts[1];
       // youtube.com/embed/ID
       const embed = value.match(/\/embed\/([\w-]{10,15})/);
       if (embed) return embed[1];
@@ -641,19 +644,36 @@
     const panel = lightbox.querySelector('.video-lightbox-panel');
     const iframe = lightbox.querySelector('iframe');
     const closeBtn = lightbox.querySelector('.video-lightbox-close');
+    let previousFocus = null;
+    let previousOverflow = '';
+    lightbox.setAttribute('aria-hidden', 'true');
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
 
-    function open(videoId) {
+    function open(videoId, options = {}) {
       const id = extractVideoId(videoId);
       if (!id) { window.open(videoId, '_blank'); return; }
+      if (!lightbox.classList.contains('is-open')) {
+        previousFocus = options.trigger || document.activeElement;
+        previousOverflow = document.body.style.overflow;
+      }
+      iframe.title = options.title || 'Vídeo Champion';
+      lightbox.setAttribute('aria-label', iframe.title);
+      lightbox.classList.toggle('is-portrait', options.format === 'portrait' || /\/shorts\//.test(videoId));
       // YouTube embed com autoplay, sem cookies (privacy-enhanced)
       iframe.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
       lightbox.classList.add('is-open');
+      lightbox.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
+      closeBtn.focus({ preventScroll: true });
     }
     function close() {
+      if (!lightbox.classList.contains('is-open')) return;
       lightbox.classList.remove('is-open');
-      iframe.src = ''; // para o vídeo
-      document.body.style.overflow = '';
+      lightbox.setAttribute('aria-hidden', 'true');
+      iframe.removeAttribute('src'); // para o vídeo
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+      previousFocus = null;
     }
 
     closeBtn.addEventListener('click', close);
@@ -661,7 +681,22 @@
       if (!panel.contains(e.target)) close();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && lightbox.classList.contains('is-open')) close();
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+      } else if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === closeBtn) {
+          e.preventDefault();
+          iframe.focus();
+        } else if (!e.shiftKey && document.activeElement === iframe) {
+          e.preventDefault();
+          closeBtn.focus();
+        }
+      }
+    });
+    document.addEventListener('focusin', (e) => {
+      if (lightbox.classList.contains('is-open') && !lightbox.contains(e.target)) closeBtn.focus();
     });
 
     // Delegação: qualquer elemento com data-video abre o lightbox
@@ -669,13 +704,17 @@
       const trigger = e.target.closest('[data-video]');
       if (!trigger) return;
       e.preventDefault();
-      open(trigger.getAttribute('data-video'));
+      open(trigger.getAttribute('data-video'), {
+        format: trigger.dataset.videoFormat,
+        title: trigger.textContent.replace(/\s+/g, ' ').trim(),
+        trigger
+      });
     });
 
     // Compat: links antigos para youtu.be/youtube.com — interceptar
     document.addEventListener('click', (e) => {
-      const a = e.target.closest('a[href*="youtu.be/"], a[href*="youtube.com/watch"], a[href*="youtube.com/embed"]');
-      if (!a) return;
+      const a = e.target.closest('a[href*="youtu.be/"], a[href*="youtube.com/watch"], a[href*="youtube.com/embed"], a[href*="youtube.com/shorts/"]');
+      if (!a || e.defaultPrevented) return;
       // Não interceptar links para canal (sem ID de vídeo) ou se Cmd/Ctrl
       if (e.metaKey || e.ctrlKey || e.shiftKey) return;
       const href = a.getAttribute('href') || '';
@@ -683,7 +722,7 @@
       const id = extractVideoId(href);
       if (!id) return;
       e.preventDefault();
-      open(id);
+      open(href, { title: a.textContent.replace(/\s+/g, ' ').trim(), trigger: a });
     });
 
     window.ChampionVideo = { open, close, extractVideoId };

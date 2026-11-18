@@ -8,6 +8,7 @@
   /* A home tem texto próprio; estende o dicionário sem alterar outras páginas. */
   if (window.ChampionI18n) {
     window.ChampionI18n.extend('en', {
+      'Assistir ao depoimento': 'Watch the testimonial',
       'DIFLY · CONTROLE DA MOSCA': 'DIFLY · FLY CONTROL',
       'DIFLY É BÁSICO': 'DIFLY IS ESSENTIAL',
       'Indispensável pra controle de mosca!': 'Essential for fly control!',
@@ -94,6 +95,7 @@
       'Rebanho bovino no pasto ao entardecer': 'Cattle herd grazing at dusk'
     });
     window.ChampionI18n.extend('es', {
+      'Assistir ao depoimento': 'Ver el testimonio',
       'DIFLY · CONTROLE DA MOSCA': 'DIFLY · CONTROL DE MOSCAS',
       'DIFLY É BÁSICO': 'DIFLY ES ESENCIAL',
       'Indispensável pra controle de mosca!': '¡Indispensable para el control de moscas!',
