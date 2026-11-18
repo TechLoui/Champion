@@ -28,6 +28,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verificar painel editorial
+        run: |
+          node --check frontend/js/blog-panel.js
+          node --check frontend/js/blog-panel-model.js
+          node --check frontend/js/blog-login.js
+          node --check frontend/js/admin-auth.js
+          node --check frontend/js/blog.js
+          node tools/test-blog-panel.cjs
+          node tools/test-blog-auth.cjs
+          node tools/test-blog-panel-async.cjs
       - name: Validate HTML files exist
         run: |
           test -f frontend/index.html

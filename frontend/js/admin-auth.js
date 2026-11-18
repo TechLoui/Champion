@@ -42,6 +42,7 @@
   /* ────────── Backend Firebase ────────── */
   var firebase = null;          /* { auth, db, api } quando inicializado */
   var firebaseReady = null;     /* Promise<boolean> */
+  var firebaseConfigured = null;
 
   function initFirebase() {
     if (firebaseReady) return firebaseReady;
@@ -49,7 +50,8 @@
       try {
         var cfgModule = await import('./firebase-config.js?v=20260902-3');
         var cfg = cfgModule.CHAMPION_FIREBASE_CONFIG;
-        if (!isFirebaseConfigured(cfg)) return false;
+        firebaseConfigured = isFirebaseConfigured(cfg);
+        if (!firebaseConfigured) return false;
 
         var base = 'https://www.gstatic.com/firebasejs/' + SDK_VERSION + '/';
         var [appMod, authMod, dbMod] = await Promise.all([
@@ -89,7 +91,7 @@
 
   async function login(email, password) {
     var e = String(email || '').trim().toLowerCase();
-    var p = String(password || '').trim();
+    var p = String(password || '');
     if (!e || !p) throw new Error('Informe e-mail e senha.');
 
     var useFirebase = await initFirebase();
@@ -123,7 +125,11 @@
       }
     }
 
-    /* Fallback local */
+    if (firebaseConfigured !== false) {
+      throw new Error('Não foi possível conectar ao serviço de acesso. Confira sua conexão e tente novamente.');
+    }
+
+    /* Fallback local intencional: nunca substitui um serviço configurado indisponível. */
     if (e !== LOCAL_ADMIN_EMAIL || p !== LOCAL_ADMIN_PASSWORD) {
       throw new Error('E-mail ou senha incorretos.');
     }
@@ -131,6 +137,30 @@
     writeSession(ADMIN_SESSION_KEY, local);
     writeSession(BLOG_SESSION_KEY, local);
     return local;
+  }
+
+  async function requestPasswordReset(email) {
+    var address = String(email || '').trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address) || address.length > 254) {
+      throw new Error('Informe um e-mail válido.');
+    }
+    var useFirebase = await initFirebase();
+    if (!useFirebase || !firebase) {
+      throw new Error(firebaseConfigured === false
+        ? 'A recuperação por e-mail não está disponível neste ambiente. Peça ajuda ao administrador.'
+        : 'Não foi possível conectar ao serviço de recuperação. Tente novamente em instantes.');
+    }
+    try {
+      await firebase.api.sendPasswordResetEmail(firebase.auth, address);
+    } catch (error) {
+      var code = String(error && error.code || '');
+      // A resposta não revela se o endereço possui uma conta.
+      if (code.includes('user-not-found')) return;
+      if (code.includes('invalid-email')) throw new Error('Informe um e-mail válido.');
+      if (code.includes('too-many-requests')) throw new Error('Muitas tentativas. Aguarde alguns minutos e tente novamente.');
+      if (code.includes('network-request-failed')) throw new Error('Sem conexão. Confira sua internet e tente novamente.');
+      throw new Error('Não foi possível enviar as instruções agora. Tente novamente em instantes.');
+    }
   }
 
   async function logout() {
@@ -150,6 +180,31 @@
   function isLogged(sessionKey) {
     var s = currentSession(sessionKey);
     return Boolean(s && s.loggedAt);
+  }
+
+  async function hasAuthorizedSession() {
+    try {
+      var useFirebase = await initFirebase();
+      if (useFirebase && firebase) {
+        if (typeof firebase.auth.authStateReady === 'function') {
+          await firebase.auth.authStateReady();
+        }
+        var user = firebase.auth.currentUser;
+        var allowed = Boolean(user && await isBlogAdmin(user.uid));
+        if (!allowed) {
+          clearSession(ADMIN_SESSION_KEY);
+          clearSession(BLOG_SESSION_KEY);
+        }
+        return allowed;
+      }
+      // Preserve the intentional local-development mode, never an unavailable Firebase service.
+      if (firebaseConfigured === false && isLogged(BLOG_SESSION_KEY)) return true;
+    } catch (error) {
+      // A failed authorization check cannot turn a stored UI marker into a valid session.
+    }
+    clearSession(ADMIN_SESSION_KEY);
+    clearSession(BLOG_SESSION_KEY);
+    return false;
   }
 
   /* Token curto usado por rotas administrativas do backend (ex.: Drive).
@@ -176,9 +231,11 @@
 
   global.ChampionAdminAuth = {
     login: login,
+    requestPasswordReset: requestPasswordReset,
     logout: logout,
     currentSession: currentSession,
     isLogged: isLogged,
+    hasAuthorizedSession: hasAuthorizedSession,
     getIdToken: getIdToken,
     ADMIN_SESSION_KEY: ADMIN_SESSION_KEY,
     BLOG_SESSION_KEY: BLOG_SESSION_KEY,

@@ -17,7 +17,7 @@ Champion/
 │   ├── login-blog.html        # Login do painel do blog
 │   ├── admin.html             # Painel admin · visão geral / produtos / banners / contatos / configurações
 │   ├── painel-blog.html       # Painel do blog
-│   │                          # (Sem sub-páginas — tudo unificado em admin.html)
+│   │                          # Visão geral / artigos / editor / configurações
 │   ├── assets/                # Imagens e vídeos
 │   ├── css/                   # CSS do site público
 │   └── js/                    # Scripts do site (módulos ES + Firebase client)
@@ -47,6 +47,8 @@ Champion/
 ```
 
 ## Painel administrativo
+
+O espaço editorial do blog fica em `/painel-blog`, com acesso por `/login-blog`. A documentação dos fluxos, da prévia local e das verificações está em [docs/FIREBASE-BLOG.md](docs/FIREBASE-BLOG.md). Os artigos continuam compartilhados com o Controle Carrapato.
 
 ### Google Drive e Downloads
 

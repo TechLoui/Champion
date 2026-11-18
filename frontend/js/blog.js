@@ -1,7 +1,7 @@
 import { CHAMPION_BLOG_FIREBASE, CHAMPION_FIREBASE_CONFIG } from './firebase-config.js';
 import { assetUrl } from './asset-url.js?v=20260902-3';
 
-(async function () {
+export const blogReady = (async function () {
   'use strict';
 
   const POSTS_KEY = 'champion-blog-posts';
@@ -312,7 +312,7 @@ import { assetUrl } from './asset-url.js?v=20260902-3';
         title: String(config.title || defaultConfig.title).trim(),
         subtitle: String(config.subtitle || defaultConfig.subtitle).trim(),
         heroImage: String(config.heroImage || defaultConfig.heroImage).trim(),
-        featuredSlug: String(config.featuredSlug || defaultConfig.featuredSlug).trim(),
+        featuredSlug: String(config.featuredSlug ?? '').trim(),
         updatedAt: this.api.serverTimestamp()
       }, { merge: true });
     }
@@ -1182,4 +1182,5 @@ import { assetUrl } from './asset-url.js?v=20260902-3';
     saveConfig: (config) => store.saveConfig(config),
     seedDefaults: () => store.seedDefaults()
   };
+  return window.ChampionBlog;
 })();
