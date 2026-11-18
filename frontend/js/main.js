@@ -1574,6 +1574,8 @@
 
   if (shopList && shopSide && shopTotal) {
     const shopSearch = document.getElementById('shopSearch');
+    const initialSearch = new URLSearchParams(window.location.search).get('q');
+    if (shopSearch && initialSearch) shopSearch.value = initialSearch;
     const shopSearchBtn = document.getElementById('shopSearchBtn');
     const sortSelect = document.getElementById('shopSort');
     const activeFilters = document.getElementById('activeFilters');

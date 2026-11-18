@@ -14,10 +14,10 @@
       '6 kg · 300 g · caixa 10×20 g': '6 kg · 300 g · box of 10×20 g',
       '6 kg · 1 kg · 300 g (cx. 24)': '6 kg · 1 kg · 300 g (box of 24)',
       'CHAMPION EM VÍDEO': 'CHAMPION ON VIDEO',
-      'Apresentamos o Difly': 'Introducing Difly',
+      'Difly: depoimentos e como funciona': 'Introducing Difly',
       'Assistir ao vídeo': 'Watch the video',
       'Assistir no YouTube': 'Watch on YouTube',
-      'Reproduzir Apresentamos o Difly no YouTube': 'Play Introducing Difly on YouTube',
+      'Reproduzir Difly: depoimentos e como funciona no YouTube': 'Play Introducing Difly on YouTube',
       'por cabeça/120 dias*': 'per head/120 days*',
       'Conhecer Difly': 'Explore Difly',
       '*Simulação: barrica de 6 kg a R$ 2.400 para 833 animais.': '*Example based on a 6 kg drum at R$ 2,400 for 833 animals.',
@@ -31,8 +31,8 @@
       'Só R$ 2,88 por cabeça em 120 dias.*': 'Only R$ 2.88 per head over 120 days.*',
       'R$ 0,72 por mês · 2,4 centavos por dia.': 'R$ 0.72 per month · 2.4 cents per day.',
       'DIFLY · FAÇA AS CONTAS': 'DIFLY · COMPARE COSTS',
-      'Compare o custo': 'Compare the cost',
-      'por animal.': 'per animal.',
+      'Difly é resultado certo com baixo custo': 'Difly delivers reliable results at a low cost',
+      'no controle da mosca!': 'for fly control!',
       'Comparação do custo do produto Difly com brincos para cada período de tratamento': 'Difly product cost compared with ear tags for each treatment period',
       'Período': 'Period',
       'Brinco': 'Ear tag',
@@ -40,9 +40,8 @@
       '120 dias': '120 days',
       '150 dias': '150 days',
       '180 dias': '180 days',
-      'Economia de até': 'Savings of up to',
-      'no custo do produto.': 'on product cost.',
-      '*Valores de referência fornecidos para esta simulação. Difly calculado com barrica de 6 kg a R$ 2.400. A comparação considera somente o custo do produto por animal; os preços podem variar.': '*Reference figures supplied for this example. Difly uses a 6 kg drum at R$ 2,400. The comparison covers product cost per animal only; prices may vary.',
+      'DIFLY É ECONOMIA DE ATÉ': 'DIFLY SAVES YOU UP TO',
+      '*Valores de referência fornecidos para esta simulação. A comparação considera somente o custo do produto por animal; os preços podem variar.': '*Reference figures supplied for this example. The comparison covers product cost per animal only; prices may vary.',
       'Sem mosca': 'No flies',
       'Sem manejo': 'No handling',
       'Sem resíduos': 'No residues',
@@ -77,8 +76,7 @@
       '· R$ 0,22 por dia': '· R$ 0.22 per day',
       'Ver Difly S3 e comprar': 'View Difly S3 and buy',
       'LOJA OFICIAL CHAMPION': 'OFFICIAL CHAMPION STORE',
-      'Difly ou S3.': 'Difly or S3.',
-      'Compre aqui.': 'Buy here.',
+      'COMPRE DIFLY E DIFLY-S3 AQUI!!': 'BUY DIFLY AND DIFLY-S3 HERE!!',
       'Veja preço e disponibilidade atual antes de comprar.': 'Check current prices and availability before buying.',
       'ALÉM DA LINHA DIFLY': 'BEYOND THE DIFLY LINE',
       'Barrica de Difly 6 kg': '6 kg Difly drum',
@@ -102,10 +100,10 @@
       '6 kg · 300 g · caixa 10×20 g': '6 kg · 300 g · caja de 10×20 g',
       '6 kg · 1 kg · 300 g (cx. 24)': '6 kg · 1 kg · 300 g (caja de 24)',
       'CHAMPION EM VÍDEO': 'CHAMPION EN VÍDEO',
-      'Apresentamos o Difly': 'Presentamos Difly',
+      'Difly: depoimentos e como funciona': 'Presentamos Difly',
       'Assistir ao vídeo': 'Ver el vídeo',
       'Assistir no YouTube': 'Ver en YouTube',
-      'Reproduzir Apresentamos o Difly no YouTube': 'Reproducir Presentamos Difly en YouTube',
+      'Reproduzir Difly: depoimentos e como funciona no YouTube': 'Reproducir Presentamos Difly en YouTube',
       'por cabeça/120 dias*': 'por cabeza/120 días*',
       'Conhecer Difly': 'Conocer Difly',
       '*Simulação: barrica de 6 kg a R$ 2.400 para 833 animais.': '*Ejemplo basado en un barril de 6 kg a R$ 2.400 para 833 animales.',
@@ -119,8 +117,8 @@
       'Só R$ 2,88 por cabeça em 120 dias.*': 'Solo R$ 2,88 por cabeza durante 120 días.*',
       'R$ 0,72 por mês · 2,4 centavos por dia.': 'R$ 0,72 por mes · 2,4 centavos por día.',
       'DIFLY · FAÇA AS CONTAS': 'DIFLY · COMPARE COSTOS',
-      'Compare o custo': 'Compare el costo',
-      'por animal.': 'por animal.',
+      'Difly é resultado certo com baixo custo': '¡Difly ofrece resultados confiables a bajo costo',
+      'no controle da mosca!': 'en el control de moscas!',
       'Comparação do custo do produto Difly com brincos para cada período de tratamento': 'Costo del producto Difly frente a aretes para cada período de tratamiento',
       'Período': 'Período',
       'Brinco': 'Arete',
@@ -128,9 +126,8 @@
       '120 dias': '120 días',
       '150 dias': '150 días',
       '180 dias': '180 días',
-      'Economia de até': 'Ahorro de hasta',
-      'no custo do produto.': 'en el costo del producto.',
-      '*Valores de referência fornecidos para esta simulação. Difly calculado com barrica de 6 kg a R$ 2.400. A comparação considera somente o custo do produto por animal; os preços podem variar.': '*Valores de referencia proporcionados para este ejemplo. Difly se calcula con un barril de 6 kg a R$ 2.400. La comparación cubre solo el costo del producto por animal; los precios pueden variar.',
+      'DIFLY É ECONOMIA DE ATÉ': 'DIFLY ES UN AHORRO DE HASTA',
+      '*Valores de referência fornecidos para esta simulação. A comparação considera somente o custo do produto por animal; os preços podem variar.': '*Valores de referencia proporcionados para este ejemplo. La comparación cubre solo el costo del producto por animal; los precios pueden variar.',
       'Sem mosca': 'Sin moscas',
       'Sem manejo': 'Sin manejo',
       'Sem resíduos': 'Sin residuos',
@@ -165,8 +162,7 @@
       '· R$ 0,22 por dia': '· R$ 0,22 por día',
       'Ver Difly S3 e comprar': 'Ver Difly S3 y comprar',
       'LOJA OFICIAL CHAMPION': 'TIENDA OFICIAL CHAMPION',
-      'Difly ou S3.': 'Difly o S3.',
-      'Compre aqui.': 'Compra aquí.',
+      'COMPRE DIFLY E DIFLY-S3 AQUI!!': '¡¡COMPRA DIFLY Y DIFLY-S3 AQUÍ!!',
       'Veja preço e disponibilidade atual antes de comprar.': 'Consulta los precios y la disponibilidad actuales antes de comprar.',
       'ALÉM DA LINHA DIFLY': 'MÁS ALLÁ DE DIFLY',
       'Barrica de Difly 6 kg': 'Barril de Difly de 6 kg',
@@ -183,6 +179,62 @@
       'Rebanho bovino em pasto ao pôr do sol': 'Rebaño bovino en el pasto al atardecer',
       'Rebanho bovino no pasto ao entardecer': 'Rebaño bovino en el pasto al anochecer'
     });
+    window.ChampionI18n.extend('en', {
+      'Difly: depoimentos e como funciona': 'Difly: testimonials and how it works',
+      'Reproduzir Difly: depoimentos e como funciona no YouTube': 'Play Difly: testimonials and how it works on YouTube',
+      'Difly: com a mosca': 'Difly: flies are',
+      'não se brinca.': 'no joke.',
+      'Difly é resultado certo': 'Difly delivers results',
+      'com baixo custo.': 'at a low cost.',
+      'Controle da mosca.': 'Fly control.',
+      '6 kg tratam': '6 kg treat',
+      '833 animais': '833 animals',
+      'por cabeça / mês*': 'per head / month*',
+      '120 dias*': '120 days*',
+      'SÓ': 'ONLY',
+      'POR CABEÇA': 'PER HEAD',
+      'MÊS*': 'MONTH*',
+      '6 KG TRATAM': '6 KG TREAT',
+      'ANIMAIS POR': 'ANIMALS FOR',
+      '120 DIAS*': '120 DAYS*',
+      '*Valores de referência da campanha. Use conforme o rótulo e a orientação técnica.': '*Campaign reference figures. Use according to the label and technical guidance.',
+      'DIFLY · ACOMPANHE O TRATAMENTO': 'DIFLY · FOLLOW THE TREATMENT',
+      'Controle da infestação': 'Infestation control',
+      'ao longo dos dias.': 'over time.',
+      'Evolução ilustrativa do tratamento com Difly': 'Illustrative progress of treatment with Difly',
+      'Dia 1: início do tratamento, animal infestado.': 'Day 1: treatment begins, infested animal.',
+      'Dia 45: presença moderada.': 'Day 45: moderate presence.',
+      'Dia 72: infestação reduzida.': 'Day 72: reduced infestation.',
+      'Dia 120: fim do ciclo reprodutivo, infestação controlada.': 'Day 120: end of the reproductive cycle, infestation under control.'
+    });
+    window.ChampionI18n.extend('es', {
+      'Difly: depoimentos e como funciona': 'Difly: testimonios y cómo funciona',
+      'Reproduzir Difly: depoimentos e como funciona no YouTube': 'Reproducir Difly: testimonios y cómo funciona en YouTube',
+      'Difly: com a mosca': 'Difly: con la mosca',
+      'não se brinca.': 'no se juega.',
+      'Difly é resultado certo': 'Difly ofrece resultados',
+      'com baixo custo.': 'a bajo costo.',
+      'Controle da mosca.': 'Control de moscas.',
+      '6 kg tratam': '6 kg tratan',
+      '833 animais': '833 animales',
+      'por cabeça / mês*': 'por cabeza / mes*',
+      '120 dias*': '120 días*',
+      'SÓ': 'SOLO',
+      'POR CABEÇA': 'POR CABEZA',
+      'MÊS*': 'MES*',
+      '6 KG TRATAM': '6 KG TRATAN',
+      'ANIMAIS POR': 'ANIMALES POR',
+      '120 DIAS*': '120 DÍAS*',
+      '*Valores de referência da campanha. Use conforme o rótulo e a orientação técnica.': '*Valores de referencia de la campaña. Usa según la etiqueta y la orientación técnica.',
+      'DIFLY · ACOMPANHE O TRATAMENTO': 'DIFLY · SIGUE EL TRATAMIENTO',
+      'Controle da infestação': 'Control de la infestación',
+      'ao longo dos dias.': 'con el paso de los días.',
+      'Evolução ilustrativa do tratamento com Difly': 'Evolución ilustrativa del tratamiento con Difly',
+      'Dia 1: início do tratamento, animal infestado.': 'Día 1: inicio del tratamiento, animal infestado.',
+      'Dia 45: presença moderada.': 'Día 45: presencia moderada.',
+      'Dia 72: infestação reduzida.': 'Día 72: infestación reducida.',
+      'Dia 120: fim do ciclo reprodutivo, infestação controlada.': 'Día 120: fin del ciclo reproductivo, infestación controlada.'
+    });
     window.ChampionI18n.apply(document.documentElement.dataset.lang || 'pt');
   }
 
@@ -190,8 +242,8 @@
   const videoButton = videoSlot?.querySelector('[data-video-play]');
   videoButton?.addEventListener('click', () => {
     const iframe = document.createElement('iframe');
-    iframe.src = 'https://www.youtube-nocookie.com/embed/QjwhCcvCuho?autoplay=1&rel=0';
-    iframe.title = 'Apresentamos o Difly | Champion Saúde Animal';
+    iframe.src = 'https://www.youtube.com/embed/uC0z4gUkCfQ?autoplay=1&rel=0';
+    iframe.title = 'Difly: depoimentos e como funciona | Champion Saúde Animal';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
     iframe.referrerPolicy = 'strict-origin-when-cross-origin';
     iframe.allowFullscreen = true;
@@ -264,7 +316,7 @@
       schedule();
     }
   });
-  const focusSections = Array.from(home.querySelectorAll('.df-story, .df-basic, .df-cycle'));
+  const focusSections = Array.from(home.querySelectorAll('.df-story, .df-treatment'));
   if (focusSections.length && 'IntersectionObserver' in window) {
     const visibleSections = new Set();
     const focusObserver = new IntersectionObserver((entries) => {

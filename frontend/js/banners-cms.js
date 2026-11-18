@@ -104,10 +104,19 @@ import { assetUrl } from './asset-url.js?v=20260902-3';
     track.innerHTML = `
         <article class="hero-slide df-campaign-slide df-campaign-slide--difly is-active" data-slide="0" data-product="difly">
           <a href="/produtos/difly.html" aria-label="Conhecer Difly">
-            <span class="df-campaign-scene"><picture class="df-campaign-bg-wrap"><source media="(max-width: 720px)" srcset="/assets/img/hero/mobile/difly-mobile-20261030.jpg"><img class="df-campaign-bg" src="${diflyImage}" alt="" fetchpriority="high" decoding="async" /></picture><span class="df-hero-packs df-hero-packs--difly" aria-hidden="true"><img class="df-hero-pack df-hero-pack--difly-pot" src="/assets/img/home/variants/difly-pot-300g.png" alt="" decoding="async" /><img class="df-hero-pack df-hero-pack--difly-box" src="/assets/img/home/variants/difly-box-10x20.png" alt="" decoding="async" /><img class="df-hero-pack df-hero-pack--difly-main" src="/assets/img/home/difly-6kg-floating.png" alt="" decoding="async" /></span></span>
-            <span class="df-campaign-copy"><small>DIFLY · CONTROLE DA MOSCA</small><strong>DIFLY É BÁSICO</strong><span>Indispensável pra controle de mosca!</span><span class="df-campaign-benefits"><span><img src="/assets/img/home/icons/difly-sem-mosca-ai.png" alt="" />Sem mosca</span><span><img src="/assets/img/home/icons/difly-sem-manejo-ai.png" alt="" />Sem manejo</span><span><img src="/assets/img/home/icons/difly-sem-residuos-ai.png" alt="" />Sem resíduos</span></span><b class="df-campaign-price">R$ 2,88 <em>por cabeça/120 dias*</em></b><span class="df-campaign-formats">6 kg · 300 g · caixa 10×20 g</span><i class="df-campaign-link">Conhecer Difly <span aria-hidden="true">↗</span></i><small class="df-campaign-note">*Simulação: barrica de 6 kg a R$ 2.400 para 833 animais.</small></span>
-          </a>
-        </article>
+            <span class="df-campaign-scene"><picture class="df-campaign-bg-wrap"><img class="df-campaign-bg" src="${diflyImage}" alt="" fetchpriority="high" decoding="async" /></picture><span class="df-hero-packs df-hero-packs--difly" aria-hidden="true"><img class="df-hero-pack df-hero-pack--difly-pot" src="/assets/img/home/variants/difly-pot-300g.png" alt="" decoding="async" /><img class="df-hero-pack df-hero-pack--difly-box" src="/assets/img/home/variants/difly-box-10x20.png" alt="" decoding="async" /><img class="df-hero-pack df-hero-pack--difly-main" src="/assets/img/home/difly-6kg-floating.png" alt="" decoding="async" /></span></span>
+            <span class="df-campaign-copy">
+            <small>DIFLY · CONTROLE DA MOSCA</small>
+            <strong>Difly.<em>Controle da mosca.</em></strong>
+            <span class="df-campaign-benefits"><span><img src="/assets/img/home/icons/difly-sem-mosca-ai.png" alt="" />Sem mosca</span><span><img src="/assets/img/home/icons/difly-sem-manejo-ai.png" alt="" />Sem manejo</span><span><img src="/assets/img/home/icons/difly-sem-residuos-ai.png" alt="" />Sem resíduos</span></span>
+            <b class="df-campaign-price">R$ 0,72 <em>por cabeça / mês*</em></b>
+            <span class="df-campaign-offer-yield">6 kg tratam <b>833 animais</b> por <b>120 dias*</b></span>
+            <span class="df-campaign-formats">6 kg · 300 g · caixa 10×20 g</span>
+            <i class="df-campaign-link">Conhecer Difly <span aria-hidden="true">↗</span></i>
+            <small class="df-campaign-note">*Valores de referência da campanha. Use conforme o rótulo e a orientação técnica.</small>
+          </span>
+        </a>
+      </article>
         <article class="hero-slide df-campaign-slide df-campaign-slide--s3" data-slide="1" data-product="difly-s3">
           <a href="/produtos/difly-s3.html" aria-label="Conhecer Difly S3">
             <span class="df-campaign-scene"><picture class="df-campaign-bg-wrap"><source media="(max-width: 720px)" srcset="/assets/img/hero/mobile/difly-s3-cow-trough-mobile-20261103.jpg"><img class="df-campaign-bg" src="${s3Image}" alt="" loading="lazy" decoding="async" /></picture><span class="df-hero-packs df-hero-packs--s3" aria-hidden="true"><img class="df-hero-pack df-hero-pack--s3-1kg" src="/assets/img/home/variants/difly-s3-1kg.png" alt="" loading="lazy" decoding="async" /><img class="df-hero-pack df-hero-pack--s3-300g" src="/assets/img/home/variants/difly-s3-300g.png" alt="" loading="lazy" decoding="async" /><img class="df-hero-pack df-hero-pack--s3-main" src="/assets/img/home/difly-s3-6kg-floating.png" alt="" loading="lazy" decoding="async" /></span></span>
